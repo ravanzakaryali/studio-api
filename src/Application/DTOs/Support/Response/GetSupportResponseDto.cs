@@ -1,0 +1,14 @@
+﻿namespace Space.Application.DTOs;
+
+public class GetSupportResponseDto
+{
+    public GetSupportResponseDto()
+    {
+        Images = new HashSet<GetFileResponse>();
+    }
+    public Guid Id { get; set; }
+    public string Title { get; set; } = null!;
+    public string? Description { get; set; }
+    public string? UserEmail { get; set; }
+    public ICollection<GetFileResponse> Images { get; set; } 
+}

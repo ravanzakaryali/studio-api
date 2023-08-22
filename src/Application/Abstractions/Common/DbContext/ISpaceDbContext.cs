@@ -1,0 +1,43 @@
+﻿namespace Space.Application.Abstractions;
+
+public interface ISpaceDbContext
+{
+
+    #region Class
+    DbSet<Class> Classes { get; }
+    DbSet<ClassSession> ClassSessions { get; }
+    DbSet<Attendance> Attendances { get; }
+    DbSet<Room> Rooms { get; }
+    DbSet<Session> Sessions { get; }
+    DbSet<SessionDetail> SessionDetails { get; }
+    DbSet<ClassModulesWorker> ClassModulesWorkers { get; }
+
+    #endregion
+    #region Common
+    DbSet<University> Universities { get; }
+
+    #endregion
+    #region Identity
+
+    #endregion
+    #region Program
+    DbSet<Module> Modules { get; }
+    DbSet<Program> Programs { get; }
+    #endregion
+    #region User
+    DbSet<Worker> Instrcutors { get; }
+    #endregion
+    #region Student
+    DbSet<Contact> Contacts { get; }
+    DbSet<Student> Students { get; }
+    DbSet<Study> Studies { get; }
+    #endregion
+
+
+    DbSet<Reservation> Reservations { get; }
+    DbSet<RoomSchedule> RoomSchedules { get; }
+
+
+
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+}

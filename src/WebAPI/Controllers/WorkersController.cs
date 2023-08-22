@@ -1,0 +1,71 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Space.Application.DTOs.Worker;
+
+namespace Space.WebAPI.Controllers;
+
+
+
+public class WorkersController : BaseApiController
+{
+    [Authorize(Roles = "admin,mentor,ta,muellim")]
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> Create([FromBody] CreateRequestWorkerDto request)
+           => StatusCode(201, await Mediator.Send(new CreateWorkerCommand(request.Name, request.Surname, request.Email)));
+
+    [Authorize]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get([FromRoute] Guid id)
+            => StatusCode(200, await Mediator.Send(new GetWorkerQuery(id)));
+
+    [Authorize(Roles = "admin")]
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+           => StatusCode(200, await Mediator.Send(new GetAllWorkerQuery()));
+
+    [Authorize(Roles = "admin")]
+    [HttpGet("with-details")]
+    public async Task<IActionResult> GetAllWithDetaiks()
+        => StatusCode(200, await Mediator.Send(new GetAllWorkersWithDetailsQuery()));
+
+
+    [Authorize(Roles = "mentor,ta,muellim,admin")]
+    [HttpGet("{id}/worker-class-sessions-by-class")]
+    public async Task<IActionResult> GetWorkerClassSessionsByClass([FromRoute] Guid id)
+            => StatusCode(200, await Mediator.Send(new GetWorkerClassSessionsByClassQuery(id)));
+
+
+    [Authorize(Roles = "mentor,ta,muellim,admin")]
+    [HttpGet("{id}/get-worker-general-report")]
+    public async Task<IActionResult> GetWorkerGeneralReport([FromRoute] Guid id)
+            => StatusCode(200, await Mediator.Send(new GetWorkerGeneralReportQuery(id)));
+
+    [Authorize(Roles = "admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
+        => StatusCode(200, await Mediator.Send(new DeleteWorkerCommand(id)));
+
+    [Authorize(Roles = "admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWorkerReuqest request)
+          => StatusCode(200, await Mediator.Send(new UpdateWorkerCommand()
+          {
+              Id = id,
+              Worker = new WorkerDto()
+              {
+                  Email = request.Email,
+                  Name = request.Name,
+                  Surname = request.Surname
+              }
+          }));
+
+    [Authorize(Roles = "admin,muellim,mentor,ta")]
+    [HttpGet("{id}/classes")]
+    public async Task<IActionResult> GetClassByWorker([FromRoute] Guid id)
+        => Ok(await Mediator.Send(new GetClassesByWorkerQuery(id)));
+
+    [Authorize(Roles = "admin")]
+    [HttpGet("{id}/attendance-by-class")]
+    public async Task<IActionResult> GetWorkerAttendanceByClassId([FromRoute] Guid id) => StatusCode(200, await Mediator.Send(new GetWorkerAttendanceByClassQuery(id)));
+}

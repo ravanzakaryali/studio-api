@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<AssemblyName>Space.Domain</AssemblyName>
+		<RootNamespace>Space.Domain</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.14" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Entities\Schedules\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Entities\Schedules\" />
+	</ItemGroup>
+</Project>

@@ -1,0 +1,91 @@
+﻿using Space.Application.DTOs.Auth.Request;
+using Space.Application.Handlers;
+using Microsoft.AspNetCore.Http;
+using Space.Application.Handlers.Auth;
+using Microsoft.AspNetCore.Authorization;
+
+namespace Space.WebAPI.Controllers;
+
+
+public class AuthController : BaseApiController
+{
+
+    [Authorize]
+    [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> Logout()
+    {
+        await Mediator.Send(new LogoutCommand());
+        return NoContent();
+    }
+
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+    {
+        return Ok(await Mediator.Send(new LoginCommand()
+        {
+            Email = request.Email,
+            Password = request.Password,
+            //ReCaptchaToken = request.Token,
+        }));
+    }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(RegisterRequestDto request)
+    {
+        return Ok(await Mediator.Send(new RegisterCommand()
+        {
+            Email = request.Email,
+            Password = request.Password,
+            Name = request.Name,
+            Surname = request.Surname
+        }));
+    }
+
+    [HttpPost("confirm")]
+    public async Task<IActionResult> Confirm(ConfimCodeRequest request)
+       => Ok(await Mediator.Send(new ConfirmCodeCommand()
+       {
+           Code = request.Code,
+           Email = request.Email,
+       }));
+
+    [HttpPost("refresh-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> RefreshPassword([FromBody] RefreshPasswordRequestDto request)
+    {
+        await Mediator.Send(new RefreshPasswordCommand()
+        {
+            Email = request.Email,
+        });
+        return NoContent();
+    }
+
+
+
+    [HttpPost("update-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequestDto request)
+    {
+        await Mediator.Send(new UpdatePasswordCommand()
+        {
+            Key = request.Key,
+            Password = request.Password
+        });
+        return NoContent();
+    }
+
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
+        => Ok(await Mediator.Send(new RefreshTokenCommand()
+        {
+            AccessToken = request.AccessToken,
+            RefreshToken = request.RefreshToken
+        }));
+
+
+}

@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<AssemblyName>Space.WebAPI</AssemblyName>
+		<RootNamespace>Space.WebAPI</RootNamespace>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+		<UserSecretsId>16abf8bc-449f-46d1-8d44-0289bd621720</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..</DockerfileContext>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(RunConfiguration)' == 'WebAPI' " />
+
+	<ItemGroup>
+	  <Compile Remove="AppData\**" />
+	  <Content Remove="AppData\**" />
+	  <EmbeddedResource Remove="AppData\**" />
+	  <None Remove="AppData\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Remove="Properties\launchSettings.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Properties\launchSettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
+		<PackageReference Include="ExcelMapper" Version="5.2.483" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.15" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.14">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.2" />
+		<PackageReference Include="RecaptchaNet" Version="3.1.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.6" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.5.0" />
+		<PackageReference Include="System.Data.OleDb" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Attributes\" />
+	</ItemGroup>
+
+</Project>
