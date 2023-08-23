@@ -17,7 +17,7 @@ internal class GetSchedulesWorkersQueryHandler : IRequestHandler<GetSchedulesWor
 
     public async Task<IEnumerable<GetSchedulesWorkersResponseDto>> Handle(GetSchedulesWorkersQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Worker> workers = await _unitOfWork.WorkerRepository.GetAllAsync(predicate: null, tracking: false, "ClassModulesWorkers.Class.ClassSessions");
+        IEnumerable<Worker> workers = await _unitOfWork.WorkerRepository.GetAllAsync(predicate: null, tracking: false, "ClassModulesWorkers.Class");
 
         List<GetSchedulesWorkersResponseDto> response = new();
         foreach (Worker worker in workers)
@@ -30,9 +30,8 @@ internal class GetSchedulesWorkersQueryHandler : IRequestHandler<GetSchedulesWor
             List<Class> workerClass = worker.ClassModulesWorkers.DistinctBy(c => c.ClassId).Select(c => c.Class).ToList();
             foreach (Class @class in workerClass)
             {
-                if (@class.ClassSessions.Count == 0) continue;
-                DateTime startDate = @class.ClassSessions.Min(c => c.Date);
-                DateTime endDate = @class.ClassSessions.Max(c => c.Date);
+                DateTime startDate = @class.StartDate ?? DateTime.Now;
+                DateTime endDate = @class.EndDate ?? DateTime.Now;
                 scheduleWorker.Schedules.Add(new GetSchedulesClassDto()
                 {
                     Class = _mapper.Map<GetAllClassDto>(@class),

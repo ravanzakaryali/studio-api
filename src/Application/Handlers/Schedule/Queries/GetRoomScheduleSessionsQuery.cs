@@ -17,59 +17,47 @@ internal class GetRoomScheduleSessionsQueryHandler : IRequestHandler<GetRoomSche
     public async Task<IEnumerable<GetRoomScheduleSessionsResponseDto>> Handle(GetRoomScheduleSessionsQuery request, CancellationToken cancellationToken)
     {
 
-        var roomScheduleQuery = await _unitOfWork.RoomScheduleRepository
+        IEnumerable<RoomSchedule> roomScheduleQuery = await _unitOfWork.RoomScheduleRepository
                   .GetAllAsync(q => q.Year == 2023, tracking: false, "Class.Session");
 
-        var rooms = await _unitOfWork.RoomRepository.GetAllAsync();
-        var classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync();
+        IEnumerable<Room> rooms = await _unitOfWork.RoomRepository.GetAllAsync(tracking: false);
 
 
-        var response = new List<GetRoomScheduleSessionsResponseDto>();
+        List<GetRoomScheduleSessionsResponseDto> response = new();
 
-        foreach (var item in rooms)
+        foreach (Room room in rooms)
         {
-
-            var model = new GetRoomScheduleSessionsResponseDto();
-            model.RoomName = item.Name;
-
-
-            var weekScheduleSessions = new List<WeekScheduleSessions>();
+            GetRoomScheduleSessionsResponseDto model = new()
+            {
+                RoomName = room.Name
+            };
+            List<WeekScheduleSessions> weekScheduleSessions = new();
 
             for (int i = 0; i <= 52; i++)
             {
-                WeekScheduleSessions weekScheduleModel = new WeekScheduleSessions();
-                weekScheduleModel.WeekOfYear = i + 1;
+                WeekScheduleSessions weekScheduleModel = new()
+                {
+                    WeekOfYear = i + 1
+                };
 
                 var getRoomScheduleSessionsByWeekDtos = new List<GetRoomScheduleSessionsByWeekDto>();
-
-
-                var roomSchedules = roomScheduleQuery.Where(q => (q.GeneralDate.DayOfYear / 7) == i && q.RoomId == item.Id);
-
-
-
+                var roomSchedules = roomScheduleQuery.Where(q => (q.GeneralDate.DayOfYear / 7) == i && q.RoomId == room.Id);
                 foreach (var roomSchedule in roomSchedules)
                 {
+                    GetRoomScheduleSessionsByWeekDto roomScheduleSessionsByWeekDto = new()
+                    {
+                        ClassName = roomSchedule.Class?.Name,
+                        SessionName = roomSchedule.Class?.Session?.Name
+                    };
 
-                    var roomScheduleSessionsByWeekDto = new GetRoomScheduleSessionsByWeekDto();
-                    roomScheduleSessionsByWeekDto.ClassName = roomSchedule.Class?.Name;
-                    roomScheduleSessionsByWeekDto.SessionName = roomSchedule.Class?.Session?.Name;
-
-                    if(!getRoomScheduleSessionsByWeekDtos.Any(q => q.ClassName == roomSchedule.Class?.Name && q.SessionName == roomSchedule.Class?.Session?.Name))
-                    getRoomScheduleSessionsByWeekDtos.Add(roomScheduleSessionsByWeekDto);
-
-
+                    if (!getRoomScheduleSessionsByWeekDtos.Any(q => q.ClassName == roomSchedule.Class?.Name && q.SessionName == roomSchedule.Class?.Session?.Name))
+                        getRoomScheduleSessionsByWeekDtos.Add(roomScheduleSessionsByWeekDto);
                 }
-
                 weekScheduleModel.GetRoomScheduleSessionsByWeeks = getRoomScheduleSessionsByWeekDtos;
-
                 weekScheduleSessions.Add(weekScheduleModel);
-
-
             }
-
             model.WeekScheduleSessions = weekScheduleSessions;
             response.Add(model);
-
         }
 
         return response;
