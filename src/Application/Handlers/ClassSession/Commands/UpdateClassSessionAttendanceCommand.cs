@@ -45,12 +45,13 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Upda
             for (int i = 0; i < modules.Count; i++)
             {
                 totalHourModule += modules[i].Hours;
-                if (totalHourModule > totalHour)
+                if (totalHourModule >= totalHour)
                 {
                     currentModule = modules[i];
                     break;
                 }
             }
+            currentModule ??= modules.LastOrDefault();
         }
         else
         {
@@ -62,9 +63,6 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Upda
             Id = c.WorkerId,
             RoleName = c.Role.Name
         });
-
-        //Worker worker = await _unitOfWork.WorkerRepository.GetAsync(request.WorkerId, tracking: false) ??
-        //    throw new NotFoundException(nameof(Worker), request.WorkerId);
 
         List<Guid> studentIds = request.Sessions
                 .SelectMany(s => s.Attendances)
