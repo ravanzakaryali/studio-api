@@ -28,6 +28,7 @@ jobs:
       run: dotnet test --no-build --verbosity normal
   docker-build:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       -
         name: Checkout
@@ -62,4 +63,4 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-                    touch "$(date)"
+                    /bin/bash /home/studio/studio/api-main.sh
