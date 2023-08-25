@@ -62,4 +62,4 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-                    touc $(date)
+                    /bin/bash /home/studio/studio/api-dev.sh
