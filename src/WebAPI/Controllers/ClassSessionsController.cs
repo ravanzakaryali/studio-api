@@ -41,7 +41,7 @@ public class ClassSessionsController : BaseApiController
     [ProducesDefaultResponseType]
     public async Task<IActionResult> SessionExtension([FromBody] SessionExtensionsRequestDto request)
     {
-        await Mediator.Send(new CreateClassSessionExtensionCommand(request.Hours, request.ClassId, request.RoomId, request.Sessions));
+        await Mediator.Send(new CreateClassSessionExtensionCommand(request.Hours, request.ClassId, request.RoomId, request.Sessions, request.StartDate));
         return NoContent();
     }
 }
