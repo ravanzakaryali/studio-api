@@ -28,7 +28,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
                       builder =>
                       {
-                          builder.WithOrigins("https://heroic-semifreddo-70a6b6.netlify.app", "https://ui-space.netlify.app", "http://localhost:3000", "https://hammerhead-app-ka4wt.ondigitalocean.app", "https://studio.code.az")
+                          builder.WithOrigins("http://localhost:3000", "https://studio.code.az","https://dev-studio.code.az")
                                                 .AllowAnyHeader()
                                                 .AllowAnyMethod()
                                                 .AllowCredentials();

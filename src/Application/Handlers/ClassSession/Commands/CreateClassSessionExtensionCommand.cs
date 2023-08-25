@@ -5,14 +5,16 @@ namespace Space.Application.Handlers;
 
 public class CreateClassSessionExtensionCommand : IRequest
 {
-    public CreateClassSessionExtensionCommand(double hours, Guid classId, Guid roomId, IEnumerable<CreateClassSessionDto> sessions)
+    public CreateClassSessionExtensionCommand(double hours, Guid classId, Guid roomId, IEnumerable<CreateClassSessionDto> sessions, DateTime? startDate)
     {
         Hours = hours;
         ClassId = classId;
         RoomId = roomId;
         Sessions = sessions;
+        StartDate = startDate;
     }
 
+    public DateTime? StartDate { get; set; }
     public double Hours { get; set; }
     public Guid ClassId { get; set; }
     public Guid RoomId { get; set; }
@@ -45,7 +47,7 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
         }
         List<ClassSession> classSessions = new();
 
-        DateTime startDate = @class.ClassSessions.MaxBy(c => c.Date)!.Date;
+        DateTime startDate = request.StartDate ?? @class.ClassSessions.MaxBy(c => c.Date)!.Date;
         int startDayOfWeek = (int)startDate.DayOfWeek;
         int count = 0;
         double totalHour = request.Hours;

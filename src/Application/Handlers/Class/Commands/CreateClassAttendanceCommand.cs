@@ -24,6 +24,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
 
         Class @class = await _unitOfWork.ClassRepository.GetAsync(request.ClassId, tracking: false, "Studies", "Program.Modules.SubModules", "ClassModulesWorkers.Worker", "ClassModulesWorkers.Role") ??
             throw new NotFoundException(nameof(Class), request.ClassId);
+
         Module module = await _unitOfWork.ModuleRepository.GetAsync(request.ModuleId, tracking: false) ??
             throw new NotFoundException(nameof(Module), request.ModuleId);
 
@@ -40,12 +41,13 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
             for (int i = 0; i < modules.Count; i++)
             {
                 totalHourModule += modules[i].Hours;
-                if (totalHourModule > totalHour)
+                if (totalHourModule >= totalHour)
                 {
                     currentModule = modules[i];
                     break;
                 }
             }
+            currentModule ??= modules.LastOrDefault();
         }
         else
         {
