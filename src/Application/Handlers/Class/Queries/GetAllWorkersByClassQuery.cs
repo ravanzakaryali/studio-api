@@ -44,6 +44,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                     break;
                 }
             }
+            currentModule ??= modules.LastOrDefault(); ;
         }
         else
         {
