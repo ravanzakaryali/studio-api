@@ -23,7 +23,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
             cs.Category != ClassSessionCategory.Lab &&
             request.Date >= cs.Date) ??
             throw new NotFoundException(nameof(ClassSession), request.Id);
-
+            
         List<Module> modules = @class.Program.Modules
             .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null)
             .Where(m => m.TopModuleId != null || !m.SubModules.Any())
