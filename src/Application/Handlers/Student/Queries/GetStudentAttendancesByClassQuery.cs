@@ -18,13 +18,14 @@ internal class GetStudentAttendancesByClassQueryHandler : IRequestHandler<GetStu
 
     public async Task<GetStudentAttendancesByClassResponseDto> Handle(GetStudentAttendancesByClassQuery request, CancellationToken cancellationToken)
     {
-        var response = new GetStudentAttendancesByClassResponseDto();
+        GetStudentAttendancesByClassResponseDto response = new();
 
         Study study = await _unitOfWork.StudyRepository.GetAsync(q => q.StudentId == request.Id && q.ClassId == request.classId, false, "Class.ClassSessions", "Student.Contact", "Attendances.ClassSession") ?? throw new NotFoundException();
 
         response.EMail = study.Student?.Email;
         response.Phone = study.Student.Contact?.Phone;
         response.Name = study.Student.Contact?.Name;
+        response.FatherName = study.Student.Contact?.FatherName;
         response.Surname = study.Student.Contact?.Surname;
         response.Id = study.Student.Id;
 

@@ -28,7 +28,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
                       builder =>
                       {
-                          builder.WithOrigins("http://localhost:3000", "https://studio.code.az","https://dev-studio.code.az")
+                          builder.WithOrigins("http://localhost:3000", "https://studio.code.az", "https://dev-studio.code.az")
                                                 .AllowAnyHeader()
                                                 .AllowAnyMethod()
                                                 .AllowCredentials();
