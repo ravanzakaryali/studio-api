@@ -6,6 +6,7 @@ public class GetStudentAttendancesByClassResponseDto
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public string Surname { get; set; } = null!;
+    public string? FatherName { get; set; }
     public string Phone { get; set; } = null!;
     public string EMail { get; set; } = null!;
     public double AttendancePercent { get; set; }
