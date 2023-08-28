@@ -13,7 +13,7 @@ public class ReservationController : BaseApiController
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
     public async Task<IActionResult> Create([FromBody] CreateReservationRequestDto request)
-   => StatusCode(201, await Mediator.Send(new CreateReservationCommand(request)));
+   => StatusCode(201, await Mediator.Send(new CreateReservationCommand(request.Title, request.Description, request.StartDate, request.EndDate, request.RoomId, request.WorkersId)));
 
 }
 
