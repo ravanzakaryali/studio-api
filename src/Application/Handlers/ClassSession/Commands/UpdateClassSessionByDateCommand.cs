@@ -123,6 +123,12 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
 
             }
         }
+
+        Class @class = await _unitOfWork.ClassRepository.GetAsync(r => r.Id == request.ClassId && r.ClassSessions.Count != 0, true, "ClassSessions")
+            ?? throw new NotFoundException(nameof(Class), request.ClassId);
+
+        @class.EndDate = @class.ClassSessions.Max(c => c.Date).Date;
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
