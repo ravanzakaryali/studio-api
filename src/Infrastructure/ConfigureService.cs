@@ -20,7 +20,7 @@ public static class ConfigureService
             opt.SignIn.RequireConfirmedPhoneNumber = false;
             opt.SignIn.RequireConfirmedEmail = true;
             opt.Password.RequiredUniqueChars = 0;
-            opt.Password.RequiredLength = 6;
+            opt.Password.RequiredLength = 8;
             opt.Password.RequireDigit = false;
             opt.Password.RequireLowercase = false;
             opt.Password.RequireUppercase = false;
