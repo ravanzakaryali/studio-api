@@ -39,7 +39,7 @@ internal class CreateReservationCommandHandler : IRequestHandler<CreateReservati
         RoomSchedule roomSchedule = new RoomSchedule();
         roomSchedule.Category = EnumScheduleCategory.Reservation;
         roomSchedule.RoomId = request.request.RoomId;
-        
+
 
 
         throw new NotImplementedException();

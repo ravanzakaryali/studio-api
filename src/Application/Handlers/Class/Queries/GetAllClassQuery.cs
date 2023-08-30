@@ -1,6 +1,7 @@
 ﻿using Space.Application.DTOs;
 using Space.Domain.Entities;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Space.Application.Handlers.Queries;
 
@@ -39,7 +40,21 @@ internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnum
                 Surname = cmw.Worker.Surname,
                 Role = cmw.Worker.UserRoles.FirstOrDefault(u => u.RoleId == cmw.RoleId).Role.Name,
                 RoleId = cmw.Worker.UserRoles.FirstOrDefault(u => u.RoleId == cmw.RoleId).Role.Id
-            }).DistinctBy(c => c.Id)
+            }).Distinct(new GetModulesWorkerComparer())
         });
     }
+    class GetModulesWorkerComparer : IEqualityComparer<GetWorkerForClassDto>
+    {
+        public bool Equals(GetWorkerForClassDto x, GetWorkerForClassDto y)
+        {
+            return x.Id == y.Id || x.RoleId == y.RoleId;
+        }
+
+        public int GetHashCode(GetWorkerForClassDto obj)
+        {
+            return obj.Id.GetHashCode() ^ obj.RoleId.GetHashCode();
+        }
+
+    }
 }
+
