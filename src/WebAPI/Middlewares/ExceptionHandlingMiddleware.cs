@@ -55,6 +55,10 @@ public class ExceptionHandlingMiddleware
         {
             ErrorResponse error = await HandleExceptionAsync(httpContext, ex, HttpStatusCode.Unauthorized);
         }
+        catch (InvalidCredentialsException ex)
+        {
+            ErrorResponse error = await HandleExceptionAsync(httpContext, ex, HttpStatusCode.Unauthorized);
+        }
         catch (ValidationException ex)
         {
             httpContext.Response.ContentType = "application/json";
