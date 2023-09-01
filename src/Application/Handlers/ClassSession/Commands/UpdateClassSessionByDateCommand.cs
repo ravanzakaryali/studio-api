@@ -20,7 +20,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
 
         if (request.Sessions.Count() > 2) throw new Exception("There cannot be more than two sessions in one day");
 
-        IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(c => c.ClassId == request.ClassId && c.Date == oldDateTime && c.Status == null);
+        IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(c => c.ClassId == request.ClassId && c.Date == oldDateTime && (c.Status == null || c.Status == ClassSessionStatus.Cancelled));
 
         if (!classSessions.Any()) throw new Exception("Either a session with the old date is entered or there is no such session");
 
