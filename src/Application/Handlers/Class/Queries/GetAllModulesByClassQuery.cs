@@ -70,10 +70,10 @@ internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesB
                     }
                     break;
                 }
-                if (modulesResponse.Count == 0)
-                {
-                    modulesResponse = modules.TakeLast(2).ToList();
-                }
+            }
+            if (modulesResponse.Count == 0)
+            {
+                modulesResponse = modules.TakeLast(2).ToList();
             }
         }
         else
