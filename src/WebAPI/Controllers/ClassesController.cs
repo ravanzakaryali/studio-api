@@ -83,7 +83,7 @@ public class ClassesController : BaseApiController
     public async Task<IActionResult> Delete([FromRoute] Guid id)
         => StatusCode(StatusCodes.Status200OK, await Mediator.Send(new DeleteClassCommand(id)));
 
-    [Authorize(Roles = "admin,mentor,ta,muellim")]
+    //[Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/modules")]
     public async Task<IActionResult> GetModulesByClass([FromRoute] Guid id, [FromQuery] DateTime date)
       => Ok(await Mediator.Send(new GetAllModulesByClassQuery(id, date)));
