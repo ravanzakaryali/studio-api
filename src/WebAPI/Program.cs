@@ -99,11 +99,11 @@ builder.Services.AddSwaggerGen(config =>
 
 var app = builder.Build();
 
-app.UseTokenAuthetication();
 app.UseRateLimit();
+app.UseTokenAuthetication();
 app.UseStaticFiles();
-app.UseSwagger();
-app.UseSwaggerUI();
+//app.UseSwagger();
+//app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

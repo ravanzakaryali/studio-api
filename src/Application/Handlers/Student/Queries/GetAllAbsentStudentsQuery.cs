@@ -17,33 +17,58 @@ public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStud
     public async Task<IEnumerable<GetAllAbsentStudentResponseDto>> Handle(GetAllAbsentStudentsQuery request, CancellationToken cancellationToken)
     {
         Class @class = await _unitOfWork.ClassRepository.GetAsync(request.Id, tracking: false, "Studies.Attendances.ClassSession", "Studies.Student.Contact")
-            ?? throw new NotFoundException(nameof(Class), request.Id);
-        var response = new List<GetAllAbsentStudentResponseDto>();
-        int absentCount = 0;
+    ?? throw new NotFoundException(nameof(Class), request.Id);
 
-        foreach (Study study in @class.Studies.Where(c=>c.StudyType != StudyType.Completion))
+        var response = new List<GetAllAbsentStudentResponseDto>();
+
+        foreach (Study study in @class.Studies.Where(c => c.StudyType != StudyType.Completion))
         {
-            IGrouping<int, Attendance>? groupBy = study.Attendances
-                .Where(c => c.TotalAttendanceHours == 0 && c.ClassSession.Category != ClassSessionCategory.Lab )
-                .GroupBy(c => c.TotalAttendanceHours).FirstOrDefault();
-            if( groupBy != null && groupBy.Count() >= 3)
+            var orderedAttendances = study.Attendances
+                .Where(c => c.TotalAttendanceHours == 0 && c.ClassSession.Category != ClassSessionCategory.Lab)
+                .OrderBy(c => c.ClassSession.Date)
+                .ToList();
+
+            int consecutiveAbsentDays = 0;
+            DateTime previousAttendanceDate = DateTime.MinValue;
+
+            foreach (var attendance in orderedAttendances)
             {
-                response.Add(new GetAllAbsentStudentResponseDto()
+                if ((attendance.ClassSession.Date - previousAttendanceDate).TotalDays > 1)
                 {
-                    Id = study.Id,
-                    StudentId = study.StudentId,
-                    Name = study.Student.Contact.Name,
-                    Surname = study.Student.Contact.Surname,
-                    AbsentCount = groupBy.Count(),
-                    Class = new GetAllClassDto()
+                    int daysBetween = (int)(attendance.ClassSession.Date - previousAttendanceDate).TotalDays - 1;
+
+                    consecutiveAbsentDays += daysBetween;
+                }
+
+                consecutiveAbsentDays++;
+
+                if (consecutiveAbsentDays >= 3)
+                {
+                    response.Add(new GetAllAbsentStudentResponseDto()
                     {
-                        Name = @class.Name,
-                        Id = @class.Id
-                    }
-                });
+                        Id = study.Id,
+                        StudentId = study.StudentId,
+                        Name = study.Student.Contact.Name,
+                        Surname = study.Student.Contact.Surname,
+                        Father = study.Student.Contact.FatherName,
+                        AbsentCount = 3,
+                        Class = new GetAllClassDto()
+                        {
+                            Name = @class.Name,
+                            Id = @class.Id
+                        }
+                    });
+
+                    consecutiveAbsentDays = 0;
+                }
+
+                previousAttendanceDate = attendance.ClassSession.Date;
             }
         }
 
         return response;
+
+
+
     }
 }
