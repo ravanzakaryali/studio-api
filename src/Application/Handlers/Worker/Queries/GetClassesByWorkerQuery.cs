@@ -17,7 +17,9 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
     {
         Worker? worker = await _unitOfWork.WorkerRepository.GetAsync(request.Id, tracking: false, "ClassModulesWorkers.Class") ??
             throw new NotFoundException(nameof(Worker), request.Id);
-        return worker.ClassModulesWorkers.Where(q => q.Class.EndDate >= DateTime.Now).DistinctBy(cmw => cmw.ClassId).Select(cmw => new GetAllClassDto()
+
+
+        return worker.ClassModulesWorkers.Where(q => q.Class.EndDate.Value.Date >= DateTime.Now.Date).DistinctBy(cmw => cmw.ClassId).Select(cmw => new GetAllClassDto()
         {
             Id = cmw.ClassId,
             Name = cmw.Class.Name
