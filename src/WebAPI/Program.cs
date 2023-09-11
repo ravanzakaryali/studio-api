@@ -59,6 +59,12 @@ builder.Services.Configure<ClientRateLimitOptions>(options =>
                 Period = "1m",
                 Limit = 80
             },
+             new RateLimitRule
+            {
+                Endpoint = "*",
+                Period = "1h",
+                Limit = 120
+            },
             new RateLimitRule
             {
                 Endpoint = "POST:/api/supports",
