@@ -39,6 +39,16 @@ public class ExceptionHandlingMiddleware
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
+
+            string? email = _currentUserService.Email;
+            string sendMessage =
+                $"StatusCode: {httpContext.Response.StatusCode},\n\n " +
+                $"Message: '{timeError.Message}',\n\n " +
+                $"Login User: {email}, \n\n" +
+                $"Endpoint {httpContext.Request.Method}: {httpContext.Request.Path} \n\n";
+            _unitOfWork!.TelegramService.SendMessage(sendMessage);
+
+
             await httpContext.Response.WriteAsync(json);
             unitOfWork.TelegramService.SendMessage(json);
 
@@ -64,6 +74,7 @@ public class ExceptionHandlingMiddleware
             httpContext.Response.ContentType = "application/json";
             httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
+
             ValidationErrorResponse response = new()
             {
                 Title = "Validation error",
@@ -71,6 +82,16 @@ public class ExceptionHandlingMiddleware
                 .GroupBy(e => e.PropertyName, e => e.ErrorMessage)
                 .ToDictionary(group => group.Key, group => group.ToArray())
             };
+
+            string? email = _currentUserService.Email;
+            string sendMessage =
+                $"StatusCode: {httpContext.Response.StatusCode},\n\n " +
+                $"Message: '{response.Title}',\n\n " +
+                $"Login User: {email}, \n\n" +
+                $"Endpoint {httpContext.Request.Method}: {httpContext.Request.Path} \n\n";
+
+            _unitOfWork!.TelegramService.SendMessage(sendMessage);
+
             string json = JsonConvert.SerializeObject(response, new JsonSerializerSettings()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
