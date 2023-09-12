@@ -86,30 +86,30 @@ builder.Services.Configure<ClientRateLimitOptions>(options =>
         };
 });
 
-builder.Services.AddSwaggerGen(config =>
-{
-    config.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT"
-    });
-    //Todo: Enum swager drop down menu
-    config.OperationFilter<AuthenticationRequirementOperationFilter>();
-    //config.IncludeXmlComments(Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".xml"));
-    config.UseInlineDefinitionsForEnums();
-});
+//builder.Services.AddSwaggerGen(config =>
+//{
+//    config.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+//    {
+//        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+//        Name = "Authorization",
+//        In = ParameterLocation.Header,
+//        Type = SecuritySchemeType.Http,
+//        Scheme = "bearer",
+//        BearerFormat = "JWT"
+//    });
+//    //Todo: Enum swager drop down menu
+//    config.OperationFilter<AuthenticationRequirementOperationFilter>();
+//    //config.IncludeXmlComments(Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".xml"));
+//    config.UseInlineDefinitionsForEnums();
+//});
 
 var app = builder.Build();
 
 app.UseRateLimit();
 app.UseTokenAuthetication();
 app.UseStaticFiles();
-app.UseSwagger();
-app.UseSwaggerUI();
+//app.UseSwagger();
+//app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
