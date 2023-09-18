@@ -73,7 +73,7 @@ internal class CreateClassSessionCommandHandler : IRequestHandler<CreateClassSes
                         StartTime = session.Start,
                         EndTime = session.End,
                         RoomId = @class.RoomId,
-                        TotalHour = hour > total2 ? total2 : hour,
+                        TotalHour = hour,
                         Date = dateTime
                     });
                     if (session.Category != ClassSessionCategory.Lab)

@@ -22,13 +22,13 @@ namespace Space.Application.Handlers
 
             var roomSchedule = new List<RoomSchedule>();
 
-       
+
             var roomScheduleQuery = await _unitOfWork.RoomScheduleRepository
                               .GetAllAsync(q => q.DayOfMonth == DateTime.Now.Month && q.Year == DateTime.Now.Year, tracking: false, "Class.Program");
 
             roomSchedule = roomScheduleQuery.ToList();
             roomSchedule = roomScheduleQuery.ToList();
-            
+
 
             var response = new List<GetScheduleByDayResponseDto>();
 
@@ -62,8 +62,8 @@ namespace Space.Application.Handlers
                     foreach (var session in sessionsByRoom)
                     {
                         var sessionDtoForSchedule = new SessionDtoForSchedule();
-                        sessionDtoForSchedule.StartTime = session.StartDate;
-                        sessionDtoForSchedule.Endtime = session.EndDate;
+                        sessionDtoForSchedule.StartTime = session.StartTime;
+                        sessionDtoForSchedule.Endtime = session.EndTime;
                         sessionDtoForSchedule.ClassName = session.Class?.Name;
                         sessionDtoForSchedule.ClassColor = session.Class?.Program?.Color;
                         sessionDtoForScheduleList.Add(sessionDtoForSchedule);

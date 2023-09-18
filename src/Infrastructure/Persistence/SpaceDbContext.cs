@@ -23,6 +23,7 @@ public class SpaceDbContext : IdentityDbContext<User, Role, Guid, IdentityUserCl
     public DbSet<ClassModulesWorker> ClassModulesWorkers => Set<ClassModulesWorker>();
     public DbSet<ClassSession> ClassSessions => Set<ClassSession>();
     public DbSet<Attendance> Attendances => Set<Attendance>();
+    public DbSet<AttendanceWorker> AttendancesWorkers => Set<AttendanceWorker>();
     #endregion
     #region Common
     public DbSet<University> Universities => Set<University>();

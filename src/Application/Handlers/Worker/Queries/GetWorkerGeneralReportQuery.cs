@@ -24,7 +24,7 @@ internal class GetWorkerGeneralReportQueryHandler : IRequestHandler<GetWorkerGen
         if (worker == null)
             throw new NotFoundException(nameof(Worker), request.Id);
 
-        var classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(q => q.WorkerId == request.Id, tracking: false, "Class");
+        //var classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(q => q.WorkerId == request.Id, tracking: false, "Class");
 
 
         var response = new GetWorkerGeneralReportResponseDto();
@@ -36,47 +36,47 @@ internal class GetWorkerGeneralReportQueryHandler : IRequestHandler<GetWorkerGen
 
 
 
-        foreach (var item in classSessions)
-        {
-            if (item.Status == ClassSessionStatus.Cancelled)
-                response.CanceledHours += item.TotalHour;
-            if (item.Status == ClassSessionStatus.Offline)
-                response.CompletedHours += item.TotalHour;
-            if (item.Status == ClassSessionStatus.Online)
-                response.CompletedHours += item.TotalHour;
+        //foreach (var item in classSessions)
+        //{
+        //    if (item.Status == ClassSessionStatus.Cancelled)
+        //        response.CanceledHours += item.TotalHour;
+        //    if (item.Status == ClassSessionStatus.Offline)
+        //        response.CompletedHours += item.TotalHour;
+        //    if (item.Status == ClassSessionStatus.Online)
+        //        response.CompletedHours += item.TotalHour;
 
 
-            response.TotalHours += item.TotalHour;
+        //    response.TotalHours += item.TotalHour;
 
-            bool hasClassInData = false;
+        //    bool hasClassInData = false;
 
-            if (response.CompletedClasses.Count > 0)
-                hasClassInData = response.CompletedClasses.Any(q => q.ClassId == item.ClassId);
+        //    if (response.CompletedClasses.Count > 0)
+        //        hasClassInData = response.CompletedClasses.Any(q => q.ClassId == item.ClassId);
 
-            if (response.UnCompletedClasses.Count > 0)
-                hasClassInData = response.UnCompletedClasses.Any(q => q.ClassId == item.ClassId);
+        //    if (response.UnCompletedClasses.Count > 0)
+        //        hasClassInData = response.UnCompletedClasses.Any(q => q.ClassId == item.ClassId);
 
-            if (!hasClassInData)
-            {
+        //    if (!hasClassInData)
+        //    {
 
-                var workerClass = new GetWorkerClassesForGeneralReportDto();
-                workerClass.ClassId = item.ClassId;
-                workerClass.ClassName = item.Class?.Name;
-                workerClass.EndDate = item.Class?.EndDate;
-                workerClass.StartDate = item.Class?.StartDate;
+        //        var workerClass = new GetWorkerClassesForGeneralReportDto();
+        //        workerClass.ClassId = item.ClassId;
+        //        workerClass.ClassName = item.Class?.Name;
+        //        workerClass.EndDate = item.Class?.EndDate;
+        //        workerClass.StartDate = item.Class?.StartDate;
 
-                if (item.Class?.EndDate > DateTime.Now && item.Class.EndDate != null)
-                {
-                    response.UnCompletedClasses.Add(workerClass);
-                    response.TotalClasses++;
-                }
-                else
-                {
-                    response.CompletedClasses.Add(workerClass);
-                    response.TotalClasses++;
-                }
-            }
-        }
+        //        if (item.Class?.EndDate > DateTime.Now && item.Class.EndDate != null)
+        //        {
+        //            response.UnCompletedClasses.Add(workerClass);
+        //            response.TotalClasses++;
+        //        }
+        //        else
+        //        {
+        //            response.CompletedClasses.Add(workerClass);
+        //            response.TotalClasses++;
+        //        }
+        //    }
+        //}
 
         response.AttendancePercent = (100 * response.CompletedHours) / response.TotalHours;
 

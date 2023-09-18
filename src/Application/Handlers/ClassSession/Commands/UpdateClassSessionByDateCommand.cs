@@ -65,7 +65,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
                         EndTime = requestSession.EndTime,
                         StartTime = requestSession.StartTime,
                         TotalHour = (requestSession.EndTime - requestSession.StartTime).Hours,
-                        WorkerId = firstClassSession.WorkerId,
+                        //WorkerId = firstClassSession.WorkerId,
                     });
                 }
             }
@@ -119,7 +119,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
                         EndTime = requestSession.EndTime,
                         StartTime = requestSession.StartTime,
                         TotalHour = (requestSession.EndTime - requestSession.StartTime).Hours,
-                        WorkerId = firstClassSession.WorkerId,
+                        //WorkerId = firstClassSession.WorkerId,
                     });
                 }
 

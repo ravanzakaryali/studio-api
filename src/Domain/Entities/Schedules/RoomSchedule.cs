@@ -9,8 +9,8 @@ namespace Space.Domain.Entities
         public int DayOfWeek { get; set; }
         public int DayOfMonth { get; set; }
         public int Year { get; set; }
-        public string StartDate { get; set; } = null!;
-        public string EndDate { get; set; } = null!;
+        public string StartTime { get; set; } = null!;
+        public string EndTime { get; set; } = null!;
         public Guid? RoomId { get; set; }
         public Room? Room { get; set; }
         public Guid? ReservationId { get; set; }

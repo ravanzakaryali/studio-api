@@ -37,7 +37,7 @@ internal class GetSchedulesRoomQueryHandler : IRequestHandler<GetSchedulesRoomsQ
             };
             for (int i = 1; i <= 12; i++)
             {
-                int roomSchedulesHours = room.RoomSchedules.Where(c => c.DayOfMonth == i && c.Year == request.Year).ToList().Sum(c => DateTime.Parse(c.EndDate).Hour - DateTime.Parse(c.StartDate).Hour);
+                int roomSchedulesHours = room.RoomSchedules.Where(c => c.DayOfMonth == i && c.Year == request.Year).ToList().Sum(c => DateTime.Parse(c.EndTime).Hour - DateTime.Parse(c.StartTime).Hour);
                 int daysInApril = DateTime.DaysInMonth(request.Year ?? new DateTime().Year, i) * 13;
                 int value = roomSchedulesHours * 100 / daysInApril;
                 responseRoom.OccupancyRates.Add(new OccupancyRate()

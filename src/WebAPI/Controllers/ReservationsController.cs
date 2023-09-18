@@ -6,14 +6,22 @@ namespace Space.WebAPI.Controllers;
 
 
 [Authorize(Roles = "admin")]
-public class ReservationController : BaseApiController
+public class ReservationsController : BaseApiController
 {
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
     public async Task<IActionResult> Create([FromBody] CreateReservationRequestDto request)
-   => StatusCode(201, await Mediator.Send(new CreateReservationCommand(request.Title, request.Description, request.StartDate, request.EndDate, request.RoomId, request.WorkersId)));
+   => StatusCode(201, await Mediator.Send(new CreateReservationCommand()
+   {
+       Title = request.Title,
+       WorkersId = request.WorkersId,
+       Description = request.Description,
+       EndDate = request.EndDate,
+       RoomId = request.RoomId,
+       StartDate = request.StartDate,
+   }));
 
 }
 

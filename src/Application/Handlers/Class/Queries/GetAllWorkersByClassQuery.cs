@@ -1,4 +1,6 @@
-﻿namespace Space.Application.Handlers;
+﻿using Space.Domain.Entities;
+
+namespace Space.Application.Handlers;
 
 public record GetAllWorkersByClassQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetWorkersByClassResponseDto>>;
 
@@ -15,7 +17,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
 
     public async Task<IEnumerable<GetWorkersByClassResponseDto>> Handle(GetAllWorkersByClassQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _unitOfWork.ClassRepository.GetAsync(request.Id, tracking: false, "ClassModulesWorkers.Worker", "ClassModulesWorkers.Role", "ClassSessions", "Program.Modules.SubModules")
+        Class? @class = await _unitOfWork.ClassRepository.GetAsync(request.Id, tracking: false, "ClassModulesWorkers.Worker", "ClassModulesWorkers.Role", "ClassSessions.AttendancesWorkers", "Program.Modules.SubModules")
             ?? throw new NotFoundException(nameof(Class), request.Id);
 
         IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository
@@ -23,7 +25,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
             cs.Category != ClassSessionCategory.Lab &&
             request.Date >= cs.Date) ??
             throw new NotFoundException(nameof(ClassSession), request.Id);
-            
+
         List<Module> modules = @class.Program.Modules
             .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null)
             .Where(m => m.TopModuleId != null || !m.SubModules.Any())
@@ -50,15 +52,28 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
         {
             currentModule = modules.FirstOrDefault();
         }
-        Console.WriteLine(currentModule.Version);
-        return @class.ClassModulesWorkers.Where(c => c.ModuleId == currentModule.Id).Distinct(new GetModulesWorkerComparer()).Select(c => new GetWorkersByClassResponseDto()
+        return @class.ClassModulesWorkers.Where(c => c.ModuleId == currentModule.Id).Distinct(new GetModulesWorkerComparer()).Select(c =>
         {
-            Name = c.Worker.Name!,
-            Surname = c.Worker.Surname!,
-            RoleId = c.RoleId,
-            RoleName = c.Role!.Name,
-            WorkerId = c.WorkerId,
-            TotalLessonHours = c.Class.ClassSessions.Where(session => session.WorkerId == c.WorkerId && (session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)).Sum(session => session.TotalHour)
+            ClassSession? classSession = @class.ClassSessions.FirstOrDefault(c => c.Date == request.Date);
+            bool isAttendance = false;
+            if (classSession != null)
+            {
+                var attendance = classSession.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
+                if (attendance != null)
+                {
+                    isAttendance = attendance.TotalAttendanceHours == classSession.TotalHour;
+                }
+            }
+            return new GetWorkersByClassResponseDto()
+            {
+                Name = c.Worker.Name!,
+                Surname = c.Worker.Surname!,
+                RoleId = c.RoleId,
+                RoleName = c.Role!.Name,
+                WorkerId = c.WorkerId,
+                IsAttendance = isAttendance,
+                TotalLessonHours = @class.ClassSessions.Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online).SelectMany(c => c.AttendancesWorkers).Where(attendance => attendance.WorkerId == c.WorkerId).Sum(c => c.TotalAttendanceHours)
+            };
         });
     }
 }
