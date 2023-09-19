@@ -4,7 +4,7 @@ public class GetWorkerByClassQuery : IRequest<GetWorkersByClassResponseDto>
 {
     public Guid ClassId { get; set; }
     public Guid WorkerId { get; set; }
-    public DateOnly Date { get; set; }
+    public DateTime Date { get; set; }
     public Guid RoleId { get; set; }
 }
 
@@ -29,7 +29,7 @@ internal class GetWorkerByClassQueryHandler : IRequestHandler<GetWorkerByClassQu
             .FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken)
                     ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
-        Role role = await _spaceDbContext.Roles.FirstOrDefaultAsync(r => r.Id == request.RoleId)
+        Role role = await _spaceDbContext.Roles.FirstOrDefaultAsync(r => r.Id == request.RoleId, cancellationToken: cancellationToken)
             ?? throw new NotFoundException(nameof(Role), request.RoleId);
 
         int totalHour = 0;
@@ -41,7 +41,7 @@ internal class GetWorkerByClassQueryHandler : IRequestHandler<GetWorkerByClassQu
             {
                 totalHour += aw.TotalAttendanceHours;
             });
-            if (cs.Date == new DateTime(request.Date.Year, request.Date.Month, request.Date.Day))
+            if (cs.Date == request.Date)
             {
                 isAttendance = cs.AttendancesWorkers.Any(c => c.WorkerId == request.WorkerId && c.TotalAttendanceHours != 0);
             }
@@ -53,6 +53,8 @@ internal class GetWorkerByClassQueryHandler : IRequestHandler<GetWorkerByClassQu
             Name = worker.Name!,
             Surname = worker.Surname!,
             TotalLessonHours = totalHour,
+            RoleId = role.Id,
+            RoleName = role.Name,
             WorkerId = request.WorkerId,
         };
     }

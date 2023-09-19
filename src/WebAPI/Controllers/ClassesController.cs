@@ -114,7 +114,7 @@ public class ClassesController : BaseApiController
     public async Task<IActionResult> GetWorkerByClass(
         [FromRoute] Guid id,
         [FromRoute] Guid workerId,
-        [FromQuery] DateOnly date,
+        [FromQuery] DateTime date,
         [FromQuery] Guid roleId)
     {
         return Ok(await Mediator.Send(new GetWorkerByClassQuery()
