@@ -16,7 +16,7 @@ public class ClassSession : BaseAuditableEntity
     public ClassSessionCategory? Category { get; set; }
     public List<AttendanceWorker> AttendancesWorkers { get; set; }
     public Guid? RoomId { get; set; }
-    public Room? Room { get; set; } 
+    public Room? Room { get; set; }
     public Guid? ModuleId { get; set; }
     public Module? Module { get; set; }
     public Guid ClassId { get; set; }

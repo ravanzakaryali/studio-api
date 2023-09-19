@@ -44,7 +44,7 @@ public class SpaceDbContext : IdentityDbContext<User, Role, Guid, IdentityUserCl
     public DbSet<Study> Studies => Set<Study>();
     #endregion
     #region User
-    public DbSet<Worker> Instrcutors => Set<Worker>();
+    public DbSet<Worker> Workers => Set<Worker>();
 
     #endregion
     #region Schedule

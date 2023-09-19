@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Space.Domain.Enums;
 
 namespace Space.WebAPI.Controllers;
 
@@ -107,6 +108,23 @@ public class ClassesController : BaseApiController
     [HttpGet("{id}/workers")]
     public async Task<IActionResult> GetWorkersByClass([FromRoute] Guid id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetAllWorkersByClassQuery(id, date)));
+
+    [Authorize(Roles = "admin")]
+    [HttpGet("{id}/workers/{workerId}")]
+    public async Task<IActionResult> GetWorkerByClass(
+        [FromRoute] Guid id,
+        [FromRoute] Guid workerId,
+        [FromQuery] DateOnly date,
+        [FromQuery] Guid roleId)
+    {
+        return Ok(await Mediator.Send(new GetWorkerByClassQuery()
+        {
+            ClassId = id,
+            WorkerId = workerId,
+            Date = date,
+            RoleId = roleId,
+        }));
+    }
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/counter")]

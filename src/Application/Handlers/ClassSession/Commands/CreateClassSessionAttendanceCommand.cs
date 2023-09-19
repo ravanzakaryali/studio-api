@@ -32,6 +32,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
         Class @class = await _unitOfWork.ClassRepository.GetAsync(request.ClassId, tracking: false, "Studies", "Program.Modules.SubModules", "ClassModulesWorkers.Worker", "ClassModulesWorkers.Role") ??
             throw new NotFoundException(nameof(Class), request.ClassId);
 
+
         Module module = await _unitOfWork.ModuleRepository.GetAsync(request.ModuleId, tracking: false) ??
             throw new NotFoundException(nameof(Module), request.ModuleId);
 
@@ -77,6 +78,9 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
         IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository
                     .GetAllAsync(c => c.Date == request.Date && c.ClassId == request.ClassId, tracking: true, "Attendances", "AttendancesWorkers");
 
+
+
+
         //foreach (ClassSession classSession in classSessions.Where(c => c.WorkerId == worker.Id))
         //{
         //    classSession.Status = null;
@@ -102,7 +106,8 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
             matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
             {
                 WorkerId = wa.WorkerId,
-                TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0
+                TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0,
+                RoleId = wa.RoleId
             }));
 
             //}

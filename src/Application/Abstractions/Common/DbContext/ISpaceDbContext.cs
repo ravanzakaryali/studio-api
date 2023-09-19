@@ -11,6 +11,7 @@ public interface ISpaceDbContext
     DbSet<Session> Sessions { get; }
     DbSet<SessionDetail> SessionDetails { get; }
     DbSet<ClassModulesWorker> ClassModulesWorkers { get; }
+    DbSet<AttendanceWorker> AttendancesWorkers { get; }
 
     #endregion
     #region Common
@@ -25,15 +26,14 @@ public interface ISpaceDbContext
     DbSet<Program> Programs { get; }
     #endregion
     #region User
-    DbSet<Worker> Instrcutors { get; }
+    DbSet<Worker> Workers { get; }
+    DbSet<Role> Roles { get; }
     #endregion
     #region Student
     DbSet<Contact> Contacts { get; }
     DbSet<Student> Students { get; }
     DbSet<Study> Studies { get; }
     #endregion
-
-
     DbSet<Reservation> Reservations { get; }
     DbSet<RoomSchedule> RoomSchedules { get; }
 

@@ -17,14 +17,8 @@ public class UpdateAttendanceCategorySessionDto
 public class CreateAttendanceWorker
 {
     public Guid WorkerId { get; set; }
-    public RoleEnum Role { get; set; }
+    public Guid RoleId { get; set; }
     public bool IsAttendance { get; set; }
-}
-public enum RoleEnum
-{
-    Mentor = 0,
-    Muellim = 1,
-    Admin = 2,
 }
 public class UpdateAttendanceDto
 {
