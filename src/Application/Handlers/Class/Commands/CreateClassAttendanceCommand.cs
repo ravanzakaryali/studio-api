@@ -73,7 +73,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
 
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
-         
+
             foreach (ClassSession classSession in classSessions)
             {
                 classSession.Status = null;
@@ -85,10 +85,11 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
             ClassSession? matchingSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (matchingSession == null) break;
 
-            matchingSession.AttendancesWorkers.ToList().AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
+            matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
             {
                 WorkerId = wa.WorkerId,
-                TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0
+                RoleId = wa.RoleId,
+                TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0,
             }));
 
             matchingSession.ModuleId = request.ModuleId;

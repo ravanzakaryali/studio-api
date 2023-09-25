@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace Space.WebAPI.Controllers;
 
-[Authorize(Roles = "admin")]
+//[Authorize(Roles = "admin")]
 public class ClassSessionsController : BaseApiController
 {
     [HttpPost]
@@ -44,4 +45,30 @@ public class ClassSessionsController : BaseApiController
         await Mediator.Send(new CreateClassSessionExtensionCommand(request.Hours, request.ClassId, request.RoomId, request.Sessions, request.StartDate));
         return NoContent();
     }
+
+    [HttpPost("bulk-import")]
+    public async Task<IActionResult> Create(IEnumerable<ClassSessionImport> import)
+    {
+        var classSessions = await SpaceDbContext.ClassSessions.Include(c => c.AttendancesWorkers).Where(c=>c.Category == Domain.Enums.ClassSessionCategory.Theoric).ToListAsync();
+        foreach (ClassSessionImport item in import)
+        {
+            var session = classSessions.FirstOrDefault(c => c.Date == item.Date && c.ClassId == item.ClassId);
+            session?.AttendancesWorkers.Add(new Domain.Entities.AttendanceWorker()
+                {
+                    ClassSessionId = session.Id,
+                    TotalAttendanceHours = session.TotalHour,
+                    RoleId = new Guid("39489493-d615-49e2-a0ce-507eaf38f234"),
+                    WorkerId = item.WorkerId
+                });
+        }
+        await SpaceDbContext.SaveChangesAsync();
+        return Ok();
+    }
+}
+public class ClassSessionImport
+{
+    public DateTime Date { get; set; }
+    public Guid ClassId { get; set; }
+    public Guid WorkerId { get; set; }
+    public int TotalHour { get; set; }
 }
