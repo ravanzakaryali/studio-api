@@ -9,16 +9,17 @@ internal class GetClassQueryHandler : IRequestHandler<GetClassQuery, IEnumerable
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly ICurrentUserService _currentUserService;
 
-    public GetClassQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetClassQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _currentUserService = currentUserService;
     }
 
     public async Task<IEnumerable<GetClassModuleResponseDto>> Handle(GetClassQuery request, CancellationToken cancellationToken)
     {
-
         Class? @class = await _unitOfWork.ClassRepository.GetAsync(request.Id) ??
             throw new NotFoundException(nameof(Class), request.Id);
 
@@ -26,7 +27,6 @@ internal class GetClassQueryHandler : IRequestHandler<GetClassQuery, IEnumerable
 
         IEnumerable<ClassModulesWorker> classModulesWorkers = await _unitOfWork.ClassModulesWorkerRepository.GetAllAsync(
             cmw => cmw.ClassId == @class.Id, tracking: false, "Role", "Worker");
-
 
         IEnumerable<GetClassModuleResponseDto> response = modules.Select(m => new GetClassModuleResponseDto()
         {

@@ -141,6 +141,7 @@ public class ClassesController : BaseApiController
     public async Task<IActionResult> GetAllClassSessions([FromRoute] Guid id)
         => Ok(await Mediator.Send(new GetAllClassSessionsByClassQuery(id)));
 
+    [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/class-session")]
     public async Task<IActionResult> GetClassSession([FromRoute] Guid id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetClassSessionByClassQuery(id, date)));
@@ -174,6 +175,7 @@ public class ClassesController : BaseApiController
         return StatusCode(StatusCodes.Status201Created);
     }
 
+    [Authorize(Roles = "admin")]
     [HttpPost("{id}/attendances")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]

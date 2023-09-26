@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Space.WebAPI.Controllers;
 
-//[Authorize(Roles = "admin")]
+[Authorize(Roles = "admin")]
 public class ClassSessionsController : BaseApiController
 {
     [HttpPost]
