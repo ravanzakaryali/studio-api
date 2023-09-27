@@ -8,6 +8,8 @@ public static class ConfigureService
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
+
+
         services.AddScoped<AuditableEntitySaveChangesInterceptor>();
         services.AddScoped<ISpaceDbContext>(provider => provider.GetRequiredService<SpaceDbContext>());
 

@@ -1,5 +1,10 @@
 using AspNetCoreRateLimit;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Context;
+using Serilog.Events;
+using Serilog.Sinks.MSSqlServer;
 using Space.Application.Helper;
 using Space.WebAPI.Filters;
 using Space.WebAPI.Middlewares;
@@ -9,9 +14,42 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var columnOpts = new ColumnOptions();
+columnOpts.Store.Remove(StandardColumn.Properties);
+columnOpts.Store.Add(StandardColumn.LogEvent);
+columnOpts.PrimaryKey = columnOpts.TimeStamp;
+columnOpts.TimeStamp.NonClusteredIndex = true;
+
+Serilog.Core.Logger log = new LoggerConfiguration()
+    .WriteTo.Console()
+    .AuditTo.MSSqlServer(builder.Configuration.GetConnectionString("SqlServer"), new MSSqlServerSinkOptions()
+    {
+        TableName = "Logs",
+        AutoCreateSqlTable = true,
+    }, columnOptions: columnOpts,restrictedToMinimumLevel: LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+Log.Logger = log;
+
+builder.Host.UseSerilog(log);
+builder.Logging.AddSerilog(log);
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+
+
+
+
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.All;
+    logging.RequestHeaders.Add("sec-ch-ua");
+    logging.MediaTypeOptions.AddText("application/javascript");
+    logging.RequestBodyLogLimit = 4096;
+    logging.ResponseBodyLogLimit = 4096;
+});
 
 
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -97,9 +135,7 @@ builder.Services.AddSwaggerGen(config =>
         Scheme = "bearer",
         BearerFormat = "JWT"
     });
-    //Todo: Enum swager drop down menu
     config.OperationFilter<AuthenticationRequirementOperationFilter>();
-    //config.IncludeXmlComments(Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".xml"));
     config.UseInlineDefinitionsForEnums();
 });
 
@@ -107,6 +143,11 @@ var app = builder.Build();
 
 app.UseRateLimit();
 app.UseTokenAuthetication();
+
+app.UseSerilogRequestLogging();
+
+app.UseHttpLogging();
+
 app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -115,6 +156,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.UseExceptionMiddelware();
+
+
 app.UseCors();
 
 app.Run();

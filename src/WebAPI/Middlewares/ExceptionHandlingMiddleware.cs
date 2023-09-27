@@ -1,15 +1,17 @@
-﻿using Newtonsoft.Json;
+﻿using Azure;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System;
 
 namespace Space.WebAPI.Api.Middlewares;
 
 public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger _logger;
     private IUnitOfWork? _unitOfWork;
     private ICurrentUserService? _currentUserService;
-
+    private readonly ILogger _logger;
     public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
     {
         _next = next;
@@ -30,23 +32,26 @@ public class ExceptionHandlingMiddleware
             httpContext.Response.ContentType = "application/json";
             httpContext.Response.StatusCode = (int)ex.HttpStatusCode;
 
-            TimeErrorResponse timeError = new TimeErrorResponse()
+            TimeErrorResponse response = new TimeErrorResponse()
             {
                 Message = ex.Message,
                 Time = ex.Time,
             };
-            string json = JsonConvert.SerializeObject(timeError, new JsonSerializerSettings()
+            string json = JsonConvert.SerializeObject(response, new JsonSerializerSettings()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
 
+            Serilog.Log.Error(ex, "Request {RequestMethod}: {RequestPath} failed Error: {ResponseTitle}, Ip Address: {IpAdress}, Login user {UserName}", httpContext.Request?.Method, httpContext.Request?.Path.Value, response.Message, httpContext.Connection.RemoteIpAddress, httpContext.User?.Identity?.IsAuthenticated != null || true ? httpContext.User?.Identity?.Name : null);
+
             string? email = _currentUserService.Email;
             string sendMessage =
                 $"StatusCode: {httpContext.Response.StatusCode},\n\n " +
-                $"Message: '{timeError.Message}',\n\n " +
+                $"Message: '{response.Message}',\n\n " +
                 $"Login User: {email}, \n\n" +
                 $"Endpoint {httpContext.Request.Method}: {httpContext.Request.Path} \n\n";
             _unitOfWork!.TelegramService.SendMessage(sendMessage);
+
 
 
             await httpContext.Response.WriteAsync(json);
@@ -84,6 +89,9 @@ public class ExceptionHandlingMiddleware
             };
 
             string? email = _currentUserService.Email;
+
+            Serilog.Log.Error(ex, "Request {RequestMethod}: {RequestPath} failed Error: {ResponseTitle}, Ip Address: {IpAdress}, Login user {UserName}", httpContext.Request?.Method, httpContext.Request?.Path.Value, response.Title, httpContext.Connection.RemoteIpAddress, httpContext.User?.Identity?.IsAuthenticated != null || true ? httpContext.User?.Identity?.Name : null);
+
             string sendMessage =
                 $"StatusCode: {httpContext.Response.StatusCode},\n\n " +
                 $"Message: '{response.Title}',\n\n " +
@@ -108,10 +116,10 @@ public class ExceptionHandlingMiddleware
             _logger.LogError(ex, $"Request {httpContext.Request?.Method}: {httpContext.Request?.Path.Value} failed Error: {@error}", error);
         }
     }
-    private async Task<ErrorResponse> HandleExceptionAsync(HttpContext context, Exception exception, HttpStatusCode statusCode = HttpStatusCode.InternalServerError, string? message = null)
+    private async Task<ErrorResponse> HandleExceptionAsync(HttpContext httpContext, Exception exception, HttpStatusCode statusCode = HttpStatusCode.InternalServerError, string? message = null)
     {
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)statusCode;
+        httpContext.Response.ContentType = "application/json";
+        httpContext.Response.StatusCode = (int)statusCode;
         ErrorResponse response = new()
         {
             Title = message ?? exception.Message,
@@ -120,14 +128,15 @@ public class ExceptionHandlingMiddleware
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         });
-        await context.Response.WriteAsync(json);
+        await httpContext.Response.WriteAsync(json);
         string? email = _currentUserService.Email;
 
+        Serilog.Log.Error(exception, "Request {RequestMethod}: {RequestPath} failed Error: {ResponseTitle}, Ip Address: {IpAdress}, Login user {UserName}", httpContext.Request?.Method, httpContext.Request?.Path.Value, response.Title, httpContext.Connection.RemoteIpAddress, httpContext.User?.Identity?.IsAuthenticated != null || true ? httpContext.User?.Identity?.Name : null);
         string sendMessage =
-            $"StatusCode: {context.Response.StatusCode},\n\n " +
-            $"Message: '{response.Title}',\n\n " +
-            $"Login User: {email}, \n\n" +
-            $"Endpoint {context.Request.Method}: {context.Request.Path} \n\n";
+        $"StatusCode: {httpContext.Response.StatusCode},\n\n " +
+        $"Message: '{response.Title}',\n\n " +
+        $"Login User: {email}, \n\n" +
+        $"Endpoint {httpContext.Request.Method}: {httpContext.Request.Path} \n\n";
         _unitOfWork!.TelegramService.SendMessage(sendMessage);
         return response;
     }
