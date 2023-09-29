@@ -55,7 +55,7 @@ internal class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand,
 
         _contextAccessor.HttpContext?.Response.Cookies.Append("token", token.AccessToken, new CookieOptions
         {
-            Expires = token.Expires,
+            Expires = token.Expires.AddDays(7),
             HttpOnly = true,
             SameSite = SameSiteMode.None,
             Secure = true

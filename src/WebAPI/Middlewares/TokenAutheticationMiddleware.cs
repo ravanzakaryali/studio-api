@@ -46,24 +46,24 @@ public class TokenAutheticationMiddlewares
                         IList<string> roles = await unitOfWork.RoleService.GetRolesByUser(user);
 
 
-                        Token newAccessToken = tokenService.GenerateToken(user, TimeSpan.FromMinutes(45), roles);
-                        httpContext.Request.Headers.Add("Authorization", "Bearer " + newAccessToken);
-                        httpContext?.Response.Cookies.Append("token", newAccessToken.AccessToken, new CookieOptions
+                        Token newAccessToken = tokenService.GenerateToken(user, TimeSpan.FromHours(1), roles);
+                        httpContext.Response.Cookies.Append("token", newAccessToken.AccessToken, new CookieOptions
                         {
-                            Expires = newAccessToken.Expires,
+                            Expires = newAccessToken.Expires.AddDays(7),
                             HttpOnly = true,
                             SameSite = SameSiteMode.None,
                             Secure = true,
                         });
+
+                        httpContext.Request.Headers.Add("Authorization", "Bearer " + newAccessToken);
+                        await _next(httpContext);
+                        return;
                     }
                 }
             }
-            if (!httpContext!.Request.Headers.TryGetValue("Authorization", out StringValues value))
-            {
-                httpContext.Request.Headers.Add("Authorization", "Bearer " + token);
-            }
+            httpContext.Request.Headers.Add("Authorization", "Bearer " + token);
         }
-        await _next(httpContext!);
+        await _next(httpContext);
     }
 }
 public static class TokenAutheticationMiddelwareExtensions
