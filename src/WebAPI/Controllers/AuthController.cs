@@ -30,7 +30,7 @@ public class AuthController : BaseApiController
             Password = request.Password,
             //ReCaptchaToken = request.Token,
         });
-        return NoContent();
+        return Ok();
     }
 
     [HttpPost("register")]
