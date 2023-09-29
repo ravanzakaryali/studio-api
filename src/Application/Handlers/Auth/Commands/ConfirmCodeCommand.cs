@@ -23,7 +23,7 @@ internal class UserConfirmCodeCommandHandler : IRequestHandler<ConfirmCodeComman
             user.ConfirmCodeExpires < DateTime.UtcNow)
             throw new TokenExpiredException();
         user.ConfirmCode = null;
-        Token token = _unitOfWork.TokenService.GenerateToken(user);
+        Token token = _unitOfWork.TokenService.GenerateToken(user, TimeSpan.FromSeconds(15));
         string refreshToken = _unitOfWork.TokenService.GenerateRefreshToken();
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpires = token.Expires.AddMinutes(15);

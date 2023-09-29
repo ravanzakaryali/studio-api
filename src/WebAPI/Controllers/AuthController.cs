@@ -24,12 +24,13 @@ public class AuthController : BaseApiController
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
-        return Ok(await Mediator.Send(new LoginCommand()
+        await Mediator.Send(new LoginCommand()
         {
             Email = request.Email,
             Password = request.Password,
             //ReCaptchaToken = request.Token,
-        }));
+        });
+        return NoContent();
     }
 
     [HttpPost("register")]
@@ -79,13 +80,13 @@ public class AuthController : BaseApiController
         return NoContent();
     }
 
-    [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
-        => Ok(await Mediator.Send(new RefreshTokenCommand()
-        {
-            AccessToken = request.AccessToken,
-            RefreshToken = request.RefreshToken
-        }));
+    //[Authorize]
+    //[HttpPost("refresh-token")]
+    //public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
+    //    => Ok(await Mediator.Send(new RefreshTokenCommand()
+    //    {
+    //        RefreshToken = request.RefreshToken,
+    //    }));
 
 
 }

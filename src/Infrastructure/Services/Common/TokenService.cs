@@ -19,19 +19,20 @@ public class TokenService : ITokenService
         random.GetBytes(number);
         return Convert.ToBase64String(number);
     }
-    public Token GenerateToken(User user, IList<string>? roles = null)
+    public Token GenerateToken(User user, TimeSpan time, IList<string>? roles = null)
     {
+        DateTime expires = DateTime.UtcNow.Add(time);
         List<Claim> claims = new()
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.UserName!),
             new Claim(ClaimTypes.Email, user.Email!),
+            new Claim(JwtRegisteredClaimNames.Exp, expires.ToString())
         };
         if (roles != null)
         {
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
         }
-        DateTime expires = DateTime.UtcNow.AddDays(1);
 
         SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:SecurityKey").Value!));
 

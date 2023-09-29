@@ -26,7 +26,7 @@ Serilog.Core.Logger log = new LoggerConfiguration()
     {
         TableName = "Logs",
         AutoCreateSqlTable = true,
-    }, columnOptions: columnOpts,restrictedToMinimumLevel: LogEventLevel.Warning)
+    }, columnOptions: columnOpts, restrictedToMinimumLevel: LogEventLevel.Warning)
     .Enrich.FromLogContext()
     .CreateLogger();
 
@@ -66,13 +66,12 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
                       builder =>
                       {
-                          builder.WithOrigins("http://localhost:3000", "https://studio.code.az", "https://dev-studio.code.az")
+                          builder.WithOrigins("http://localhost:3000", "https://localhost:5002", "https://studio.code.az", "https://dev-studio.code.az")
                                                 .AllowAnyHeader()
                                                 .AllowAnyMethod()
                                                 .AllowCredentials();
                       });
 });
-
 
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();

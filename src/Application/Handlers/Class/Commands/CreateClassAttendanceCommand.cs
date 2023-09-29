@@ -69,7 +69,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         List<Study> ClassStudiesExsist = @class.Studies.Where(c => !studentIds.Contains(c.Id)).ToList();
 
         IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository
-                    .GetAllAsync(c => c.Date == request.Date && c.ClassId == request.ClassId, tracking: true, "Attendances");
+                    .GetAllAsync(c => c.Date == request.Date && c.ClassId == request.ClassId, tracking: true, "Attendances", "AttendancesWorkers");
 
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
