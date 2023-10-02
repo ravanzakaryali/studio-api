@@ -27,7 +27,7 @@ internal class RefreshPasswordCommandHandler : IRequestHandler<RefreshPasswordCo
         worker.KeyExpirerDate = DateTime.UtcNow.AddMinutes(15);
         worker.LastPasswordUpdateDate = DateTime.UtcNow;
         string messaje = $"https://dev-studio.code.az/admin/auth/confirmpassword/{worker.Key}";
-        await _unitOfWork.EmailService.SendMessageAsync(messaje, worker.Email, "Şifrənizi dəyiştirin");
+        await _unitOfWork.EmailService.SendMessageAsync(messaje, worker.Email, "Şifrənizi dəyiştirin (no-reply)");
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
