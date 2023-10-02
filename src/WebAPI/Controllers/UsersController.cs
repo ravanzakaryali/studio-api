@@ -4,7 +4,6 @@ namespace Space.WebAPI.Controllers;
 
 public class UsersController : BaseApiController
 {
-    [Authorize]
     [HttpGet("login")]
     public async Task<IActionResult> GetUserLogin()
         => Ok(await Mediator.Send(new UserLoginQuery()));
