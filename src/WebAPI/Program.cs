@@ -8,6 +8,7 @@ using Serilog.Sinks.MSSqlServer;
 using Space.Application.Helper;
 using Space.WebAPI.Filters;
 using Space.WebAPI.Middlewares;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -21,12 +22,11 @@ columnOpts.PrimaryKey = columnOpts.TimeStamp;
 columnOpts.TimeStamp.NonClusteredIndex = true;
 
 Serilog.Core.Logger log = new LoggerConfiguration()
-    .WriteTo.Console()
     .AuditTo.MSSqlServer(builder.Configuration.GetConnectionString("SqlServer"), new MSSqlServerSinkOptions()
     {
         TableName = "Logs",
         AutoCreateSqlTable = true,
-    }, columnOptions: columnOpts, restrictedToMinimumLevel: LogEventLevel.Warning)
+    }, columnOptions: columnOpts, restrictedToMinimumLevel: LogEventLevel.Error)
     .Enrich.FromLogContext()
     .CreateLogger();
 
@@ -135,6 +135,7 @@ builder.Services.AddSwaggerGen(config =>
         BearerFormat = "JWT"
     });
     config.OperationFilter<AuthenticationRequirementOperationFilter>();
+    config.IncludeXmlComments(Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".xml"));
     config.UseInlineDefinitionsForEnums();
 });
 
@@ -154,7 +155,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.UseExceptionMiddelware();
+app.UseExceptionMiddleware();
 
 
 app.UseCors();

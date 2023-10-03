@@ -10,6 +10,7 @@
 		<UserSecretsId>16abf8bc-449f-46d1-8d44-0289bd621720</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileContext>..\..</DockerfileContext>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(RunConfiguration)' == 'WebAPI' " />
@@ -46,6 +47,7 @@
 		<PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.6" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.5.0" />
 		<PackageReference Include="System.Data.OleDb" Version="7.0.0" />
+		<PackageReference Include="System.Xml.XPath" Version="4.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -54,6 +56,7 @@
 
 	<ItemGroup>
 		<Folder Include="Attributes\" />
+		<Folder Include="Images\" />
 	</ItemGroup>
 
 </Project>

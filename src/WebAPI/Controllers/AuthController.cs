@@ -6,10 +6,18 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Space.WebAPI.Controllers;
 
-
+/// <summary>
+/// Authentication controller
+/// </summary>
 public class AuthController : BaseApiController
 {
-
+    /// <summary>
+    /// Logs the user out of the system.
+    /// </summary>
+    /// <remarks>
+    /// This endpoint logs the authenticated user out of the system by sending a logout command.
+    /// </remarks>
+    /// <returns>No content on successful logout.</returns>
     [Authorize]
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -21,6 +29,11 @@ public class AuthController : BaseApiController
     }
 
 
+    /// <summary>
+    /// Handles user login requests.
+    /// </summary>
+    /// <param name="request">A JSON object containing email and password.</param>
+    /// <returns>An HTTP 200 (OK) response upon successful login.</returns>
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
@@ -33,6 +46,11 @@ public class AuthController : BaseApiController
         return Ok();
     }
 
+    /// <summary>
+    /// Registers a new user.
+    /// </summary>
+    /// <param name="request">A JSON object containing user registration details.</param>
+    /// <returns>An HTTP response indicating the success of the registration.</returns>
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequestDto request)
     {
@@ -45,6 +63,11 @@ public class AuthController : BaseApiController
         }));
     }
 
+    /// <summary>
+    /// Confirms a user's registration by verifying a confirmation code.
+    /// </summary>
+    /// <param name="request">A JSON object containing confirmation code and email.</param>
+    /// <returns>An HTTP response indicating the success of the confirmation process.</returns>
     [HttpPost("confirm")]
     public async Task<IActionResult> Confirm(ConfimCodeRequest request)
        => Ok(await Mediator.Send(new ConfirmCodeCommand()
@@ -53,6 +76,13 @@ public class AuthController : BaseApiController
            Email = request.Email,
        }));
 
+    /// <summary>
+    /// Initiates a password refresh process for a user.
+    /// </summary>
+    /// <param name="request">A JSON object containing the user's email.</param>
+    /// <returns>
+    /// An HTTP 204 (No Content) response indicating the initiation of the password refresh process.
+    /// </returns>
     [HttpPost("refresh-password")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -65,8 +95,13 @@ public class AuthController : BaseApiController
         return NoContent();
     }
 
-
-
+    /// <summary>
+    /// Updates a user's password using a provided key.
+    /// </summary>
+    /// <param name="request">A JSON object containing the key and new password.</param>
+    /// <returns>
+    /// An HTTP 204 (No Content) response indicating the successful password update.
+    /// </returns>
     [HttpPost("update-password")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]

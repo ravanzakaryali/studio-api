@@ -16,37 +16,58 @@ using System.Text;
 
 namespace Space.WebAPI.Middlewares;
 
+/// <summary>
+/// JWT token authetication middlewares
+/// </summary>
 public class TokenAutheticationMiddlewares
 {
     private readonly RequestDelegate _next;
 
+    /// <summary>
+    /// Initializes a new instance of the TokenAuthenticationMiddleware class.
+    /// </summary>
+    /// <param name="next">The delegate representing the next middleware in the pipeline.</param>
     public TokenAutheticationMiddlewares(RequestDelegate next)
     {
         _next = next;
     }
+
+    /// <summary>
+    /// Handles the authentication token in the request by checking for a token cookie, validating and refreshing the token if necessary, and adding it to the request headers.
+    /// </summary>
+    /// <param name="httpContext">The HTTP context for the current request.</param>
+    /// <param name="tokenService">The service responsible for token operations.</param>
+    /// <param name="unitOfWork">The unit of work for database access.</param>
     public async Task InvokeAsync(HttpContext httpContext, ITokenService tokenService, IUnitOfWork unitOfWork)
     {
+        // Check for the presence of a token cookie in the request
         if (httpContext.Request.Cookies.TryGetValue("token", out string? token))
         {
             if (token != null)
             {
+                // Get the claims principal from the expired token
                 ClaimsPrincipal claimsPrincipal = tokenService.GetPrincipalFromExpiredToken(token);
 
+                // Extract token expiration time
                 string? tokenExpiration = claimsPrincipal.Claims
-                .FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp)?.Value;
+                    .FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp)?.Value;
 
                 if (!string.IsNullOrEmpty(tokenExpiration))
                 {
+                    // Convert token expiration time to DateTime
                     DateTime expiration = DateTimeOffset.FromUnixTimeSeconds(long.Parse(tokenExpiration)).UtcDateTime;
 
+                    // Get the login user ID from claims
                     string? loginUserId = claimsPrincipal.GetLoginUserId();
                     if (expiration <= DateTime.UtcNow && loginUserId != null)
                     {
+                        // Find user roles and generate a new access token
                         User? user = await unitOfWork.UserService.FindById(new Guid(loginUserId));
                         IList<string> roles = await unitOfWork.RoleService.GetRolesByUser(user);
 
+                        Token newAccessToken = tokenService.GenerateToken(user, TimeSpan.FromSeconds(30), roles);
 
-                        Token newAccessToken = tokenService.GenerateToken(user, TimeSpan.FromHours(1), roles);
+                        // Set the new access token in a new cookie with extended expiration
                         httpContext.Response.Cookies.Append("token", newAccessToken.AccessToken, new CookieOptions
                         {
                             Expires = newAccessToken.Expires.AddDays(7),
@@ -55,16 +76,24 @@ public class TokenAutheticationMiddlewares
                             Secure = true,
                         });
 
+                        // Add the new token to the request headers
                         httpContext.Request.Headers.Add("Authorization", "Bearer " + newAccessToken);
+
+                        // Continue processing the request with the updated token
                         await _next(httpContext);
                         return;
                     }
                 }
             }
+
+            // Add the original token to the request headers
             httpContext.Request.Headers.Add("Authorization", "Bearer " + token);
         }
+
+        // Continue processing the request
         await _next(httpContext);
     }
+
 }
 public static class TokenAutheticationMiddelwareExtensions
 {

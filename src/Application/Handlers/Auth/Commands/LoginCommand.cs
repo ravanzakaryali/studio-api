@@ -35,7 +35,7 @@ internal class LoginCommandHandler : IRequestHandler<LoginCommand>
         User user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken: cancellationToken) ??
              throw new NotFoundException(nameof(User), request.Email);
         LoginResponseDto response = await _unitOfWork.IdentityService.LoginAsync(user, request.Password);
-        Token token = _unitOfWork.TokenService.GenerateToken(response.User, TimeSpan.FromHours(1), response.Roles);
+        Token token = _unitOfWork.TokenService.GenerateToken(response.User, TimeSpan.FromSeconds(30), response.Roles);
         string refreshToken = _unitOfWork.TokenService.GenerateRefreshToken();
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpires = token.Expires.AddMinutes(15);
