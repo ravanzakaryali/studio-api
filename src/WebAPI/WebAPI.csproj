@@ -17,9 +17,13 @@
 
 	<ItemGroup>
 		<Compile Remove="AppData\**" />
+		<Compile Remove="Attributes\**" />
 		<Content Remove="AppData\**" />
+		<Content Remove="Attributes\**" />
 		<EmbeddedResource Remove="AppData\**" />
+		<EmbeddedResource Remove="Attributes\**" />
 		<None Remove="AppData\**" />
+		<None Remove="Attributes\**" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove="Properties\launchSettings.json" />
@@ -55,7 +59,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Attributes\" />
 		<Folder Include="Images\" />
 	</ItemGroup>
 

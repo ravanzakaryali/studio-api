@@ -19,8 +19,6 @@ internal class UserLoginQueryHandler : IRequestHandler<UserLoginQuery, GetUserRe
 
     public async Task<GetUserResponseDto> Handle(UserLoginQuery request, CancellationToken cancellationToken)
     {
-       
-
         string userId = _contextAccessor.HttpContext?.User?.GetLoginUserId()
            ?? throw new UnauthorizedAccessException();
 

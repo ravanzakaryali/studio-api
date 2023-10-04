@@ -65,7 +65,7 @@ public class TokenAutheticationMiddlewares
                         User? user = await unitOfWork.UserService.FindById(new Guid(loginUserId));
                         IList<string> roles = await unitOfWork.RoleService.GetRolesByUser(user);
 
-                        Token newAccessToken = tokenService.GenerateToken(user, TimeSpan.FromSeconds(30), roles);
+                        Token newAccessToken = tokenService.GenerateToken(user, TimeSpan.FromSeconds(10), roles);
 
                         // Set the new access token in a new cookie with extended expiration
                         httpContext.Response.Cookies.Append("token", newAccessToken.AccessToken, new CookieOptions
@@ -78,10 +78,15 @@ public class TokenAutheticationMiddlewares
 
                         // Add the new token to the request headers
                         httpContext.Request.Headers.Add("Authorization", "Bearer " + newAccessToken);
-
+                        List<Claim> claims = new()
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                            new Claim(ClaimTypes.Name, user.UserName!),
+                            new Claim(ClaimTypes.Email, user.Email!),
+                        };
+                        httpContext.User.AddIdentity(new ClaimsIdentity(claims));
                         // Continue processing the request with the updated token
                         await _next(httpContext);
-                        return;
                     }
                 }
             }
@@ -95,8 +100,16 @@ public class TokenAutheticationMiddlewares
     }
 
 }
+/// <summary>
+/// Token Authetication Middleware
+/// </summary>
 public static class TokenAutheticationMiddelwareExtensions
 {
+    /// <summary>
+    /// Token Authetication Builder
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
     public static IApplicationBuilder UseTokenAuthetication(this IApplicationBuilder builder)
     {
         return builder.UseMiddleware<TokenAutheticationMiddlewares>();

@@ -64,6 +64,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
+
                       builder =>
                       {
                           builder.WithOrigins("http://localhost:3000", "https://localhost:5002", "https://studio.code.az", "https://dev-studio.code.az")
@@ -125,15 +126,6 @@ builder.Services.Configure<ClientRateLimitOptions>(options =>
 
 builder.Services.AddSwaggerGen(config =>
 {
-    config.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT"
-    });
     config.OperationFilter<AuthenticationRequirementOperationFilter>();
     config.IncludeXmlComments(Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".xml"));
     config.UseInlineDefinitionsForEnums();
