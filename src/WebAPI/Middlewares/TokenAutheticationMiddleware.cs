@@ -65,7 +65,7 @@ public class TokenAutheticationMiddlewares
                         User? user = await unitOfWork.UserService.FindById(new Guid(loginUserId));
                         IList<string> roles = await unitOfWork.RoleService.GetRolesByUser(user);
 
-                        Token newAccessToken = tokenService.GenerateToken(user, TimeSpan.FromHours(10), roles);
+                        Token newAccessToken = tokenService.GenerateToken(user, TimeSpan.FromSeconds(10), roles);
 
                         // Set the new access token in a new cookie with extended expiration
                         httpContext.Response.Cookies.Append("token", newAccessToken.AccessToken, new CookieOptions
@@ -84,7 +84,7 @@ public class TokenAutheticationMiddlewares
                             new Claim(ClaimTypes.Name, user.UserName!),
                             new Claim(ClaimTypes.Email, user.Email!),
                         };
-
+                        httpContext.User.AddIdentity(new ClaimsIdentity(claims));
                         //await _next(httpContext);
                     }
                 }
