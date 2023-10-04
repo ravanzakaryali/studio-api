@@ -133,7 +133,9 @@ builder.Services.AddSwaggerGen(config =>
 });
 
 var app = builder.Build();
+
 app.UseTokenAuthetication();
+app.UseChangeTokenAuthetication();
 
 app.UseRateLimit();
 

@@ -40,34 +40,49 @@ public class TokenAutheticationMiddlewares
     /// <param name="unitOfWork">The unit of work for database access.</param>
     public async Task InvokeAsync(HttpContext httpContext, ITokenService tokenService, IUnitOfWork unitOfWork)
     {
-        // Check for the presence of a token cookie in the request
+        if (httpContext.Request.Cookies.TryGetValue("token", out string? token))
+        {
+            httpContext.Request.Headers.Add("Authorization", "Bearer " + token);
+            httpContext.Response.Headers.Add("Authorization", "Bearer " + token);
+        }
+
+        await _next(httpContext);
+    }
+
+}
+
+public class ChangeTokenAutheticationMiddlewares
+{
+    private readonly RequestDelegate _next;
+
+    public ChangeTokenAutheticationMiddlewares(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task InvokeAsync(HttpContext httpContext, ITokenService tokenService, IUnitOfWork unitOfWork)
+    {
         if (httpContext.Request.Cookies.TryGetValue("token", out string? token))
         {
             if (token != null)
             {
-                // Get the claims principal from the expired token
                 ClaimsPrincipal claimsPrincipal = tokenService.GetPrincipalFromExpiredToken(token);
 
-                // Extract token expiration time
                 string? tokenExpiration = claimsPrincipal.Claims
                     .FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp)?.Value;
 
                 if (!string.IsNullOrEmpty(tokenExpiration))
                 {
-                    // Convert token expiration time to DateTime
                     DateTime expiration = DateTimeOffset.FromUnixTimeSeconds(long.Parse(tokenExpiration)).UtcDateTime;
 
-                    // Get the login user ID from claims
                     string? loginUserId = claimsPrincipal.GetLoginUserId();
                     if (expiration <= DateTime.UtcNow && loginUserId != null)
                     {
-                        // Find user roles and generate a new access token
                         User? user = await unitOfWork.UserService.FindById(new Guid(loginUserId));
                         IList<string> roles = await unitOfWork.RoleService.GetRolesByUser(user);
 
                         Token newAccessToken = tokenService.GenerateToken(user, TimeSpan.FromSeconds(10), roles);
 
-                        // Set the new access token in a new cookie with extended expiration
                         httpContext.Response.Cookies.Append("token", newAccessToken.AccessToken, new CookieOptions
                         {
                             Expires = newAccessToken.Expires.AddDays(7),
@@ -75,29 +90,26 @@ public class TokenAutheticationMiddlewares
                             SameSite = SameSiteMode.None,
                             Secure = true,
                         });
+                        //httpContext.Request.Cookies = new KeyValuePair<string,string>("token", newAccessToken.AccessToken);
 
-                        // Add the new token to the request headers
-                        httpContext.Request.Headers.Add("Authorization", "Bearer " + newAccessToken);
                         List<Claim> claims = new()
                         {
                             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                             new Claim(ClaimTypes.Name, user.UserName!),
                             new Claim(ClaimTypes.Email, user.Email!),
                         };
+
+                        httpContext.Request.Headers.Remove("Authorization");
+                        httpContext.Response.Headers.Remove("Authorization");
+                        httpContext.Response.Headers.Add("Authorization", "Bearer " + newAccessToken.AccessToken);
+                        httpContext.Request.Headers.Add("Authorization", "Bearer " + newAccessToken.AccessToken);
+
                         httpContext.User.AddIdentity(new ClaimsIdentity(claims));
-                        //await _next(httpContext);
                     }
                 }
             }
-
-            // Add the original token to the request headers
-            if (!httpContext.Request.Headers.TryGetValue("Authorization", out StringValues tokenValue))
-            {
-                httpContext.Request.Headers.Add("Authorization", "Bearer " + token);
-            }
         }
 
-        // Continue processing the request
         await _next(httpContext);
     }
 
@@ -115,5 +127,9 @@ public static class TokenAutheticationMiddelwareExtensions
     public static IApplicationBuilder UseTokenAuthetication(this IApplicationBuilder builder)
     {
         return builder.UseMiddleware<TokenAutheticationMiddlewares>();
+    }
+    public static IApplicationBuilder UseChangeTokenAuthetication(this IApplicationBuilder builder)
+    {
+        return builder.UseMiddleware<ChangeTokenAutheticationMiddlewares>();
     }
 }
