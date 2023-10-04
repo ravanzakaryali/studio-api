@@ -6,7 +6,6 @@ https://code-academy-test.azurewebsites.net/swagger/index.html
 
 https://docs.google.com/spreadsheets/d/1FMcIGSBAeBU3xL3-OICJAn8dQeA9U-XpOXrr69m5O2o/edit?usp=sharing
 ## DB Test Connection String
-MSSQL 2019 - 50 MB
 
 Server: tcp:azure-database-sql.database.windows.net,1433
 
