@@ -74,16 +74,13 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
 
-            foreach (ClassSession classSession in classSessions)
-            {
-                classSession.Status = null;
-                classSession.ModuleId = null;
-                classSession.Attendances = new List<Attendance>();
-                classSession.AttendancesWorkers = new List<AttendanceWorker>();
-            }
 
             ClassSession? matchingSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (matchingSession == null) break;
+            matchingSession.Status = null;
+            matchingSession.ModuleId = null;
+            matchingSession.Attendances = new List<Attendance>();
+            matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
 
             matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
             {

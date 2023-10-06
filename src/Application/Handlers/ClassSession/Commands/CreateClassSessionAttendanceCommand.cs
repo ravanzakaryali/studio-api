@@ -88,13 +88,6 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
         //    classSession.Attendances = new List<Attendance>();
         //    classSession.WorkerAttendances = new List<WorkerAttendance>();
         //}
-        foreach (ClassSession classSession in classSessions)
-        {
-            classSession.Status = null;
-            classSession.ModuleId = null;
-            classSession.Attendances = new List<Attendance>();
-            classSession.AttendancesWorkers = new List<AttendanceWorker>();
-        }
 
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
@@ -103,11 +96,16 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
             //if (matchingSession.Category == ClassSessionCategory.Theoric)
             //{
 
+            matchingSession.Status = null;
+            matchingSession.ModuleId = null;
+            matchingSession.Attendances = new List<Attendance>();
+            matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
+
             matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
             {
                 WorkerId = wa.WorkerId,
                 TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0,
-                RoleId = wa.RoleId
+                RoleId = wa.RoleId,
             }));
 
             //}
