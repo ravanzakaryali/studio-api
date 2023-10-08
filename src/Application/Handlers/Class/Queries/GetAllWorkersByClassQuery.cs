@@ -54,9 +54,9 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
         }
         return @class.ClassModulesWorkers.Where(c => c.ModuleId == currentModule.Id).Distinct(new GetModulesWorkerComparer()).Select(c =>
         {
-            ClassSession? classSession = @class.ClassSessions.FirstOrDefault(c => c.Date == request.Date);
+            var classSessions = @class.ClassSessions.Where(c => c.Date == request.Date).ToList();
             bool isAttendance = false;
-            if (classSession != null)
+            foreach (var classSession in classSessions)
             {
                 var attendance = classSession.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
                 if (attendance != null)

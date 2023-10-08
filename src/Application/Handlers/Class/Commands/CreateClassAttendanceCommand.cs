@@ -73,8 +73,6 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
 
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
-
-
             ClassSession? matchingSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (matchingSession == null) break;
             matchingSession.Status = null;
