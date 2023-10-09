@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography.Xml;
+﻿using System.Linq;
+using System.Security.Cryptography.Xml;
 
 namespace Space.Application.Handlers;
 
@@ -81,25 +82,25 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
 
 
 
-        //foreach (ClassSession classSession in classSessions.Where(c => c.WorkerId == worker.Id))
-        //{
-        //    classSession.Status = null;
-        //    classSession.ModuleId = null;
-        //    classSession.Attendances = new List<Attendance>();
-        //    classSession.WorkerAttendances = new List<WorkerAttendance>();
-        //}
-
+        foreach (ClassSession classSession in classSessions)
+        {
+            classSession.Status = null;
+            classSession.ModuleId = null;
+            classSession.Attendances = new List<Attendance>();
+            classSession.AttendancesWorkers = new List<AttendanceWorker>();
+        }
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
+
             ClassSession? matchingSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (matchingSession == null) break;
             //if (matchingSession.Category == ClassSessionCategory.Theoric)
             //{
 
-            matchingSession.Status = null;
-            matchingSession.ModuleId = null;
-            matchingSession.Attendances = new List<Attendance>();
-            matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
+            //matchingSession.Status = null;
+            //matchingSession.ModuleId = null;
+            //matchingSession.Attendances = new List<Attendance>();
+            //matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
 
             matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
             {
