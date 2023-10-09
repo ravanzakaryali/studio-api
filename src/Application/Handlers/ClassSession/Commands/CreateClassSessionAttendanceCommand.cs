@@ -82,34 +82,34 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
 
 
 
-        //foreach (ClassSession classSession in classSessions)
-        //{
-        //    classSession.Status = null;
-        //    classSession.ModuleId = null;
-        //    classSession.Attendances = new List<Attendance>();
-        //    classSession.AttendancesWorkers = new List<AttendanceWorker>();
-        //}
+        foreach (ClassSession classSession in classSessions)
+        {
+            classSession.Status = null;
+            classSession.ModuleId = null;
+            classSession.Attendances = new List<Attendance>();
+            classSession.AttendancesWorkers = new List<AttendanceWorker>();
+        }
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
 
             ClassSession? matchingSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (matchingSession == null) break;
-            if (matchingSession.Category == ClassSessionCategory.Theoric)
+            //if (matchingSession.Category == ClassSessionCategory.Theoric)
+            //{
+
+            //matchingSession.Status = null;
+            //matchingSession.ModuleId = null;
+            //matchingSession.Attendances = new List<Attendance>();
+            //matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
+
+            matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
             {
+                WorkerId = wa.WorkerId,
+                TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0,
+                RoleId = wa.RoleId,
+            }));
 
-                matchingSession.Status = null;
-                matchingSession.ModuleId = null;
-                matchingSession.Attendances = new List<Attendance>();
-                matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
-
-                matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
-                {
-                    WorkerId = wa.WorkerId,
-                    TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0,
-                    RoleId = wa.RoleId,
-                }));
-
-            }
+            //}
             //else
             //{
             //    //matchingSession.WorkerId = session.WorkerId;

@@ -71,22 +71,22 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository
                     .GetAllAsync(c => c.Date == request.Date && c.ClassId == request.ClassId, tracking: true, "Attendances", "AttendancesWorkers");
 
-        //foreach (ClassSession classSession in classSessions)
-        //{
-        //    classSession.Status = null;
-        //    classSession.ModuleId = null;
-        //    classSession.Attendances = new List<Attendance>();
-        //    classSession.AttendancesWorkers = new List<AttendanceWorker>();
-        //}
+        foreach (ClassSession classSession in classSessions)
+        {
+            classSession.Status = null;
+            classSession.ModuleId = null;
+            classSession.Attendances = new List<Attendance>();
+            classSession.AttendancesWorkers = new List<AttendanceWorker>();
+        }
 
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
             ClassSession? matchingSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (matchingSession == null) break;
-            matchingSession.Status = null;
-            matchingSession.ModuleId = null;
-            matchingSession.Attendances = new List<Attendance>();
-            matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
+            //matchingSession.Status = null;
+            //matchingSession.ModuleId = null;
+            //matchingSession.Attendances = new List<Attendance>();
+            //matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
 
             matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
             {
