@@ -35,7 +35,7 @@ internal class GetWorkerByClassQueryHandler : IRequestHandler<GetWorkerByClassQu
         int totalHour = 0;
         bool isAttendance = false;
 
-        @class.ClassSessions.ForEach(cs =>
+        @class.ClassSessions.ToList().ForEach(cs =>
         {
             cs.AttendancesWorkers.Where(c => c.WorkerId == request.WorkerId).ToList().ForEach(aw =>
             {
