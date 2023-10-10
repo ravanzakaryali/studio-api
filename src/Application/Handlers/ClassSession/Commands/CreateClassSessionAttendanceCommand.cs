@@ -102,12 +102,15 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
             //matchingSession.Attendances = new List<Attendance>();
             //matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
 
-            matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
+            if (matchingSession.Category != ClassSessionCategory.Lab)
             {
-                WorkerId = wa.WorkerId,
-                TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0,
-                RoleId = wa.RoleId,
-            }));
+                matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
+                {
+                    WorkerId = wa.WorkerId,
+                    TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0,
+                    RoleId = wa.RoleId,
+                }));
+            }
 
             //}
             //else

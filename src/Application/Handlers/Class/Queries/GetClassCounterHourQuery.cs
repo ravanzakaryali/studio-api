@@ -19,6 +19,7 @@ internal class GetClassCounterHourQueryHandler : IRequestHandler<GetClassCounter
         {
             TotalHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Sum(c => c.TotalHour),
             Hour = @class.ClassSessions.Where(c =>
+            c.Status != null &&
             c.Status != ClassSessionStatus.Cancelled &&
             c.Category != ClassSessionCategory.Lab &&
             c.Date <= DateTime.UtcNow).Sum(c => c.TotalHour)
