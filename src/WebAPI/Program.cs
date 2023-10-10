@@ -42,7 +42,6 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 
 
-
 builder.Services.AddHttpLogging(logging =>
 {
     logging.LoggingFields = HttpLoggingFields.All;

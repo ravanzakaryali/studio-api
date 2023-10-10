@@ -299,7 +299,7 @@ public class ClassesController : BaseApiController
     /// hours by date.
     /// </remarks>
     [Authorize(Roles = "admin,mentor,ta,muellim")]
-    [HttpGet("{id}/sessions-category-hours")]
+    [HttpGet("{id}/sessions-category")]
     public async Task<IActionResult> GetSessionCategoryHours([FromRoute] Guid id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetClassCategoryHoursQuery(id, date)));
 
