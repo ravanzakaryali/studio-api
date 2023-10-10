@@ -20,10 +20,8 @@ public class IdentityService : IIdentityService
         _mapper = mapper;
         _configuration = configuration;
     }
-    public async Task<LoginResponseDto> LoginAsync(string email, string password)
+    public async Task<LoginResponseDto> LoginAsync(User user, string password)
     {
-        User user = await _userManager.FindByEmailAsync(email) ??
-            throw new NotFoundException(nameof(User), email);
         bool passwordCheck = await _userManager.CheckPasswordAsync(user, password);
         if (!passwordCheck) throw new InvalidCredentialsException();
         IList<string> roles = await _userManager.GetRolesAsync(user);

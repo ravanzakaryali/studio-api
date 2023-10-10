@@ -23,6 +23,7 @@ public class SpaceDbContext : IdentityDbContext<User, Role, Guid, IdentityUserCl
     public DbSet<ClassModulesWorker> ClassModulesWorkers => Set<ClassModulesWorker>();
     public DbSet<ClassSession> ClassSessions => Set<ClassSession>();
     public DbSet<Attendance> Attendances => Set<Attendance>();
+    public DbSet<AttendanceWorker> AttendancesWorkers => Set<AttendanceWorker>();
     #endregion
     #region Common
     public DbSet<University> Universities => Set<University>();
@@ -43,7 +44,7 @@ public class SpaceDbContext : IdentityDbContext<User, Role, Guid, IdentityUserCl
     public DbSet<Study> Studies => Set<Study>();
     #endregion
     #region User
-    public DbSet<Worker> Instrcutors => Set<Worker>();
+    public DbSet<Worker> Workers => Set<Worker>();
 
     #endregion
     #region Schedule

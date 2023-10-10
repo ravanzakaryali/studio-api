@@ -11,6 +11,7 @@ public class EmailService : IEmailService
     readonly SmtpClient _smtpClient;
     readonly IWebHostEnvironment _webHostEnvironment;
 
+
     public EmailService(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
     {
         _configuration = configuration;

@@ -37,13 +37,13 @@ internal class CreateRoomScheduleByClassCommandHandler : IRequestHandler<CreateR
                         DayOfWeek = Convert.ToInt16(classSession.Date.DayOfWeek),
                         DayOfMonth = classSession.Date.Month,
                         Year = classSession.Date.Year,
-                        StartDate = classSession.StartTime.ToString(),
-                        EndDate = classSession.EndTime.ToString()
+                        StartTime = classSession.StartTime.ToString(),
+                        EndTime = classSession.EndTime.ToString()
                     };
                     await _unitOfWork.RoomScheduleRepository.AddAsync(roomSchedule);
                 }
             }
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

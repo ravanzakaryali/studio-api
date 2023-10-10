@@ -14,18 +14,16 @@ internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCateg
 
     public async Task<IEnumerable<GetClassSessionCategoryHoursResponseDto>> Handle(GetClassCategoryHoursQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _unitOfWork.ClassRepository.GetAsync(request.Id) 
-            ?? throw new NotFoundException(nameof(Class),request.Id);
+        Class? @class = await _unitOfWork.ClassRepository.GetAsync(request.Id)
+            ?? throw new NotFoundException(nameof(Class), request.Id);
         IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(c => c.Date == request.Date && c.ClassId == @class.Id);
 
         IEnumerable<GetClassSessionCategoryHoursResponseDto> response = classSessions.Select(c => new GetClassSessionCategoryHoursResponseDto()
         {
             CategoryName = c.Category?.ToString()!,
+            Status = c.Status,
             Hour = c.TotalHour
         });
-
-
-
 
         return response;
     }

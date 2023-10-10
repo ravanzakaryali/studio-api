@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Space.Infrastructure.Persistence;
 
@@ -11,9 +12,10 @@ using Space.Infrastructure.Persistence;
 namespace Space.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SpaceDbContext))]
-    partial class SpaceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230918121505_AddAttendance")]
+    partial class AddAttendance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -218,9 +220,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("TotalAttendanceHours")
                         .HasColumnType("int");
 
@@ -230,8 +229,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClassSessionId");
-
-                    b.HasIndex("RoleId");
 
                     b.HasIndex("WorkerId");
 
@@ -751,7 +748,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("AspNetRoles", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Room", b =>
@@ -1246,7 +1243,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.UserRole", b =>
@@ -1373,10 +1370,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Space.Domain.Entities.Role", "Role")
-                        .WithMany("AttendanceWorkers")
-                        .HasForeignKey("RoleId");
-
                     b.HasOne("Space.Domain.Entities.Worker", "Worker")
                         .WithMany("AttendancesWorkers")
                         .HasForeignKey("WorkerId")
@@ -1384,8 +1377,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("ClassSession");
-
-                    b.Navigation("Role");
 
                     b.Navigation("Worker");
                 });
@@ -1640,8 +1631,6 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Role", b =>
                 {
-                    b.Navigation("AttendanceWorkers");
-
                     b.Navigation("ClassModulesWorkers");
 
                     b.Navigation("UserRoles");

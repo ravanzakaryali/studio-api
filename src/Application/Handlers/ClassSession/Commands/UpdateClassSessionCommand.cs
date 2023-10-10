@@ -25,7 +25,7 @@ internal class UpdateClassSessionCommandHandler : IRequestHandler<UpdateClassSes
 
         if (await _unitOfWork.ClassSessionRepository.GetAsync(c => c.Date == date) != null) throw new Exception("Class Session already date");
 
-        @class.ClassSessions = _mapper.Map<ICollection<ClassSession>>(request.UpdateClassSessions);
+        @class.ClassSessions = _mapper.Map<List<ClassSession>>(request.UpdateClassSessions);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

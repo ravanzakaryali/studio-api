@@ -1,5 +1,6 @@
 ﻿namespace Space.Application.DTOs;
 
+
 public class ConfimCodeRequest
 {
     public string Code { get; set; } = null!;

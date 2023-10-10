@@ -1,6 +1,9 @@
-﻿namespace Space.Application.Handlers;
+﻿using System.Linq;
+using System.Security.Cryptography.Xml;
 
-public class UpdateClassSessionAttendanceCommand : IRequest
+namespace Space.Application.Handlers;
+
+public class CreateClassSessionAttendanceCommand : IRequest
 {
     public Guid ClassId { get; set; }
 
@@ -9,7 +12,7 @@ public class UpdateClassSessionAttendanceCommand : IRequest
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; }
 }
 
-internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<UpdateClassSessionAttendanceCommand>
+internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<CreateClassSessionAttendanceCommand>
 {
     readonly IUnitOfWork _unitOfWork;
     readonly ICurrentUserService _currentUserService;
@@ -20,7 +23,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Upda
         _currentUserService = currentUserService;
     }
 
-    public async Task Handle(UpdateClassSessionAttendanceCommand request, CancellationToken cancellationToken)
+    public async Task Handle(CreateClassSessionAttendanceCommand request, CancellationToken cancellationToken)
     {
         if (_currentUserService.UserId == null) throw new AutheticationException();
 
@@ -29,10 +32,12 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Upda
 
         Class @class = await _unitOfWork.ClassRepository.GetAsync(request.ClassId, tracking: false, "Studies", "Program.Modules.SubModules", "ClassModulesWorkers.Worker", "ClassModulesWorkers.Role") ??
             throw new NotFoundException(nameof(Class), request.ClassId);
+
+
         Module module = await _unitOfWork.ModuleRepository.GetAsync(request.ModuleId, tracking: false) ??
             throw new NotFoundException(nameof(Module), request.ModuleId);
 
-        IEnumerable<ClassSession> classSessionsHour = await _unitOfWork.ClassSessionRepository.GetAllAsync(cs => cs.ClassId == @class.Id && request.Date >= cs.Date && cs.ModuleId != null && cs.WorkerId != null) ?? throw new NotFoundException(nameof(ClassSession), @class.Id);
+        IEnumerable<ClassSession> classSessionsHour = await _unitOfWork.ClassSessionRepository.GetAllAsync(cs => cs.ClassId == @class.Id && request.Date >= cs.Date && cs.ModuleId != null && (cs.AttendancesWorkers != null && cs.AttendancesWorkers.Count != 0), true, "AttendancesWorkers") ?? throw new NotFoundException(nameof(ClassSession), @class.Id);
 
         List<Module> modules = @class.Program.Modules.OrderBy(m => m.Version).Where(m => m.TopModuleId != null || !m.SubModules.Any()).ToList();
 
@@ -70,35 +75,51 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Upda
                 .ToList();
 
         List<Study> ClassStudiesExsist = @class.Studies.Where(c => !studentIds.Contains(c.Id)).ToList();
-        //Todo: study exsist 
 
         IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository
-                    .GetAllAsync(c => c.Date == request.Date && c.ClassId == request.ClassId, tracking: true, "Attendances");
+                    .GetAllAsync(c => c.Date == request.Date && c.ClassId == request.ClassId, tracking: true, "Attendances", "AttendancesWorkers");
 
-        foreach (ClassSession classSession in classSessions.Where(c => c.WorkerId == worker.Id))
+
+
+
+        foreach (ClassSession classSession in classSessions)
         {
             classSession.Status = null;
-            classSession.WorkerId = null;
             classSession.ModuleId = null;
             classSession.Attendances = new List<Attendance>();
+            classSession.AttendancesWorkers = new List<AttendanceWorker>();
         }
-
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
+
             ClassSession? matchingSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (matchingSession == null) break;
-            if (matchingSession.Category == ClassSessionCategory.Theoric)
+            //if (matchingSession.Category == ClassSessionCategory.Theoric)
+            //{
+
+            //matchingSession.Status = null;
+            //matchingSession.ModuleId = null;
+            //matchingSession.Attendances = new List<Attendance>();
+            //matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
+
+            if (matchingSession.Category != ClassSessionCategory.Lab)
             {
-                matchingSession.WorkerId = currentModuleWorkers.FirstOrDefault(c => c.RoleName == "muellim").Id;
+                matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
+                {
+                    WorkerId = wa.WorkerId,
+                    TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0,
+                    RoleId = wa.RoleId,
+                }));
             }
-            else
-            {
-                matchingSession.WorkerId = session.WorkerId;
-            }
+
+            //}
+            //else
+            //{
+            //    //matchingSession.WorkerId = session.WorkerId;
+            //}
 
             matchingSession.ModuleId = request.ModuleId;
             matchingSession.Status = session.Status;
-
 
             if (session.Status != ClassSessionStatus.Cancelled)
             {
@@ -117,6 +138,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Upda
             else
             {
                 matchingSession.Attendances = new List<Attendance>();
+                matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
             }
         }
 

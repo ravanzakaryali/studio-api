@@ -28,7 +28,8 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         Module module = await _unitOfWork.ModuleRepository.GetAsync(request.ModuleId, tracking: false) ??
             throw new NotFoundException(nameof(Module), request.ModuleId);
 
-        IEnumerable<ClassSession> classSessionsHour = await _unitOfWork.ClassSessionRepository.GetAllAsync(cs => cs.ClassId == @class.Id && request.Date >= cs.Date && cs.ModuleId != null && cs.WorkerId != null) ?? throw new NotFoundException(nameof(ClassSession), @class.Id);
+        IEnumerable<ClassSession> classSessionsHour = await _unitOfWork.ClassSessionRepository.GetAllAsync(cs => cs.ClassId == @class.Id && request.Date >= cs.Date && cs.ModuleId != null &&
+        (cs.AttendancesWorkers != null && cs.AttendancesWorkers.Count != 0)) ?? throw new NotFoundException(nameof(ClassSession), @class.Id);
 
         List<Module> modules = @class.Program.Modules.OrderBy(m => m.Version).Where(m => m.TopModuleId != null || !m.SubModules.Any()).ToList();
 
@@ -68,21 +69,32 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         List<Study> ClassStudiesExsist = @class.Studies.Where(c => !studentIds.Contains(c.Id)).ToList();
 
         IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository
-                    .GetAllAsync(c => c.Date == request.Date && c.ClassId == request.ClassId, tracking: true, "Attendances");
+                    .GetAllAsync(c => c.Date == request.Date && c.ClassId == request.ClassId, tracking: true, "Attendances", "AttendancesWorkers");
+
+        foreach (ClassSession classSession in classSessions)
+        {
+            classSession.Status = null;
+            classSession.ModuleId = null;
+            classSession.Attendances = new List<Attendance>();
+            classSession.AttendancesWorkers = new List<AttendanceWorker>();
+        }
 
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
-            foreach (ClassSession classSession in classSessions.Where(c => c.WorkerId == session.WorkerId))
-            {
-                classSession.Status = null;
-                classSession.WorkerId = null;
-                classSession.ModuleId = null;
-                classSession.Attendances = new List<Attendance>();
-            }
-
             ClassSession? matchingSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (matchingSession == null) break;
-            matchingSession.WorkerId = session.WorkerId;
+            //matchingSession.Status = null;
+            //matchingSession.ModuleId = null;
+            //matchingSession.Attendances = new List<Attendance>();
+            //matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
+
+            matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
+            {
+                WorkerId = wa.WorkerId,
+                RoleId = wa.RoleId,
+                TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0,
+            }));
+
             matchingSession.ModuleId = request.ModuleId;
             matchingSession.Status = session.Status;
 
@@ -103,6 +115,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
             else
             {
                 matchingSession.Attendances = new List<Attendance>();
+                matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
             }
         }
 
