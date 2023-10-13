@@ -1,4 +1,5 @@
 ﻿using Serilog;
+using System.Linq;
 
 namespace Space.Application.Handlers;
 
@@ -31,8 +32,16 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
         return classModuleWorker.Select(cmw => new GetAllClassDto()
         {
             Id = cmw.ClassId,
-            Start = classSession.Where(c => c.ClassId == cmw.ClassId)?.Min(c=>c.StartTime),
-            End = classSession.Where(c => c.ClassId == cmw.ClassId)?.Max(c => c.EndTime),
+            Start = classSession
+                    .Where(c => c.ClassId == cmw.ClassId)
+                    .Select(c => (TimeOnly?)c.StartTime)
+                    .DefaultIfEmpty(null)
+                    .Min(),
+            End = classSession
+                    .Where(c => c.ClassId == cmw.ClassId)
+                    .Select(c => (TimeOnly?)c.EndTime)
+                    .DefaultIfEmpty(null)
+                    .Max(),
             Name = cmw.Class.Name
         });
     }
