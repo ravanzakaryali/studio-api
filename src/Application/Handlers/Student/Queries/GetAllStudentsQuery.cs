@@ -9,16 +9,20 @@ public record GetAllStudentsQuery : IRequest<IEnumerable<GetAllStudentsResponseD
 internal class GetAllStudentsQueryHandler : IRequestHandler<GetAllStudentsQuery, IEnumerable<GetAllStudentsResponseDto>>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly IStudyRepository _studyRepository;
 
-    public GetAllStudentsQueryHandler(IUnitOfWork unitOfWork)
+    public GetAllStudentsQueryHandler(
+        IUnitOfWork unitOfWork,
+        IStudyRepository studyRepository)
     {
         _unitOfWork = unitOfWork;
+        _studyRepository = studyRepository;
     }
 
     public async Task<IEnumerable<GetAllStudentsResponseDto>> Handle(GetAllStudentsQuery request, CancellationToken cancellationToken)
     {
 
-        var studies = await _unitOfWork.StudyRepository.GetAllAsync(q => q.Class.EndDate > DateTime.Now, tracking: false, "Student.Contact", "Class");
+        var studies = await _studyRepository.GetAllAsync(q => q.Class.EndDate > DateTime.Now, tracking: false, "Student.Contact", "Class");
 
         var response = new List<GetAllStudentsResponseDto>();
 
@@ -58,13 +62,8 @@ internal class GetAllStudentsQueryHandler : IRequestHandler<GetAllStudentsQuery,
 
                     response.Add(model);
                 }
-
-
             }
-
         }
-
-
         return response;
     }
 }

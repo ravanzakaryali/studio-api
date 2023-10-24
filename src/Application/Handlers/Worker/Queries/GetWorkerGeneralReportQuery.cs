@@ -10,16 +10,19 @@ internal class GetWorkerGeneralReportQueryHandler : IRequestHandler<GetWorkerGen
 {
 
     readonly IUnitOfWork _unitOfWork;
+    readonly IWorkerRepository _workerRepository;
 
-    public GetWorkerGeneralReportQueryHandler(IUnitOfWork unitOfWork)
+    public GetWorkerGeneralReportQueryHandler(
+        IUnitOfWork unitOfWork,
+        IWorkerRepository workerRepository)
     {
         _unitOfWork = unitOfWork;
-
+        _workerRepository = workerRepository;
     }
 
     public async Task<GetWorkerGeneralReportResponseDto> Handle(GetWorkerGeneralReportQuery request, CancellationToken cancellationToken)
     {
-        var worker = await _unitOfWork.WorkerRepository.GetAsync(q => q.Id == request.Id);
+        var worker = await _workerRepository.GetAsync(q => q.Id == request.Id);
 
         if (worker == null)
             throw new NotFoundException(nameof(Worker), request.Id);

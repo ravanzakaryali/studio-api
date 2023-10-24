@@ -6,17 +6,22 @@ internal class GetHolidayQueryHandler : IRequestHandler<GetHolidayQuery, Holiday
 {
     readonly IMapper _mapper;
     readonly IUnitOfWork _unitOfWork;
+    readonly IHolidayRepository _holidayRepository;
 
-    public GetHolidayQueryHandler(IMapper mapper, IUnitOfWork unitOfWork)
+    public GetHolidayQueryHandler(
+        IMapper mapper, 
+        IUnitOfWork unitOfWork, 
+        IHolidayRepository holidayRepository)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+        _holidayRepository = holidayRepository;
     }
 
     public async Task<HolidayResponseDto> Handle(GetHolidayQuery request, CancellationToken cancellationToken)
     {
-        Holiday holiday = await _unitOfWork.HolidayRepository.GetAsync(request.Id)
-            ?? throw new NotFoundException(nameof(Holiday),request.Id);
+        Holiday holiday = await _holidayRepository.GetAsync(request.Id)
+            ?? throw new NotFoundException(nameof(Holiday), request.Id);
         return _mapper.Map<HolidayResponseDto>(holiday);
     }
 }

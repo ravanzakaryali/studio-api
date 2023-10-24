@@ -6,6 +6,7 @@ internal class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayComman
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IHolidayRepository _holidayRepository;
 
     public DeleteHolidayCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
     {
@@ -15,7 +16,7 @@ internal class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayComman
 
     public async Task<HolidayResponseDto> Handle(DeleteHolidayCommand request, CancellationToken cancellationToken)
     {
-        Holiday holiday = await _unitOfWork.HolidayRepository.GetAsync(request.Id)
+        Holiday holiday = await _holidayRepository.GetAsync(request.Id)
             ?? throw new NotFoundException(nameof(Holiday), request.Id);
         //#region Delete Holiday Date
         //List<DateTime> deleteHolidayDates = new();
@@ -27,7 +28,7 @@ internal class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayComman
 
 
 
-        _unitOfWork.HolidayRepository.Remove(holiday);
+        _holidayRepository.Remove(holiday);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return _mapper.Map<HolidayResponseDto>(holiday);
     }

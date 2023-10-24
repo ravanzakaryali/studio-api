@@ -22,21 +22,34 @@ public class CreateClassSessionExtensionCommand : IRequest
 }
 public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateClassSessionExtensionCommand>
 {
-    private readonly IUnitOfWork _unitOfWork;
+    readonly IUnitOfWork _unitOfWork;
+    readonly IClassRepository _classRepository;
+    readonly IRoomRepository _roomRepository;
+    readonly IHolidayRepository _holidayRepository;
+    readonly IClassSessionRepository _classSessionRepository;
 
-    public CreateClassSessionExtensionCommandHandler(IUnitOfWork unitOfWork)
+    public CreateClassSessionExtensionCommandHandler(
+        IUnitOfWork unitOfWork,
+        IClassRepository classRepository,
+        IRoomRepository roomRepository,
+        IHolidayRepository holidayRepository,
+        IClassSessionRepository classSessionRepository)
     {
         _unitOfWork = unitOfWork;
+        _classRepository = classRepository;
+        _roomRepository = roomRepository;
+        _holidayRepository = holidayRepository;
+        _classSessionRepository = classSessionRepository;
     }
 
     public async Task Handle(CreateClassSessionExtensionCommand request, CancellationToken cancellationToken)
     {
-        Class? @class = await _unitOfWork.ClassRepository.GetAsync(c => c.Id == request.ClassId, true, "ClassSessions") ??
+        Class? @class = await _classRepository.GetAsync(c => c.Id == request.ClassId, true, "ClassSessions") ??
             throw new NotFoundException(nameof(Class), request.ClassId);
-        Room room = await _unitOfWork.RoomRepository.GetAsync(r => r.Id == request.RoomId) ??
+        Room room = await _roomRepository.GetAsync(r => r.Id == request.RoomId) ??
             throw new NotFoundException(nameof(Room), request.RoomId);
 
-        IEnumerable<Holiday> holidays = await _unitOfWork.HolidayRepository.GetAllAsync();
+        IEnumerable<Holiday> holidays = await _holidayRepository.GetAllAsync();
         List<DateTime> holidayDates = new();
         foreach (Holiday holiday in holidays)
         {
@@ -88,7 +101,7 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
             count++;
         }
 
-        await _unitOfWork.ClassSessionRepository.AddRangeAsync(classSessions);
+        await _classSessionRepository.AddRangeAsync(classSessions);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

@@ -9,16 +9,23 @@ public record CreateRoomScheduleByClassCommand : IRequest;
 internal class CreateRoomScheduleByClassCommandHandler : IRequestHandler<CreateRoomScheduleByClassCommand>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly IClassRepository _classRepository;
+    readonly IRoomScheduleRepository _roomScheduleRepository;
 
-    public CreateRoomScheduleByClassCommandHandler(IUnitOfWork unitOfWork)
+    public CreateRoomScheduleByClassCommandHandler(
+                                IUnitOfWork unitOfWork,
+                                IClassRepository classRepository,
+                                IRoomScheduleRepository roomScheduleRepository)
     {
         _unitOfWork = unitOfWork;
+        _classRepository = classRepository;
+        _roomScheduleRepository = roomScheduleRepository;
     }
 
     public async Task Handle(CreateRoomScheduleByClassCommand request, CancellationToken cancellationToken)
     {
 
-        IEnumerable<Class> allClasses = await _unitOfWork.ClassRepository.GetAllAsync(predicate: null, tracking: false, "ClassSessions", "RoomSchedules");
+        IEnumerable<Class> allClasses = await _classRepository.GetAllAsync(predicate: null, tracking: false, "ClassSessions", "RoomSchedules");
 
         foreach (Class @class in allClasses)
         {
@@ -40,7 +47,7 @@ internal class CreateRoomScheduleByClassCommandHandler : IRequestHandler<CreateR
                         StartTime = classSession.StartTime.ToString(),
                         EndTime = classSession.EndTime.ToString()
                     };
-                    await _unitOfWork.RoomScheduleRepository.AddAsync(roomSchedule);
+                    await _roomScheduleRepository.AddAsync(roomSchedule);
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using System.Runtime.ExceptionServices;
+﻿using Space.Application.Abstractions;
+using System.Runtime.ExceptionServices;
 
 namespace Space.Application.Handlers;
 
@@ -7,10 +8,20 @@ public record UpdateClassSessionByDateCommand(Guid ClassId, DateOnly OldDate, Da
 internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateClassSessionByDateCommand>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly IClassSessionRepository _classSessionRepository;
+    readonly IHolidayRepository _holidayRepository;
+    readonly IClassRepository _classRepository;
 
-    public UpdateClassSessionByDateCommandHandler(IUnitOfWork unitOfWork)
+    public UpdateClassSessionByDateCommandHandler(
+        IUnitOfWork unitOfWork,
+        IClassSessionRepository sessionRepository,
+        IHolidayRepository holidayRepository,
+        IClassRepository classRepository)
     {
         _unitOfWork = unitOfWork;
+        _classSessionRepository = sessionRepository;
+        _holidayRepository = holidayRepository;
+        _classRepository = classRepository;
     }
 
     public async Task Handle(UpdateClassSessionByDateCommand request, CancellationToken cancellationToken)
@@ -20,7 +31,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
 
         if (request.Sessions.Count() > 2) throw new Exception("There cannot be more than two sessions in one day");
 
-        IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(c => c.ClassId == request.ClassId && c.Date == oldDateTime && (c.Status == null || c.Status == ClassSessionStatus.Cancelled));
+        IEnumerable<ClassSession> classSessions = await _classSessionRepository.GetAllAsync(c => c.ClassId == request.ClassId && c.Date == oldDateTime && (c.Status == null || c.Status == ClassSessionStatus.Cancelled));
 
         classSessions.ToList().ForEach(c => c.Status = null);
 
@@ -44,7 +55,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
                     ClassSession? difCalsssSession = classSessions.FirstOrDefault(c => c.Category != requestSession.Category);
                     if ((requestSession.EndTime - requestSession.StartTime).Hours == totalHour && difCalsssSession != null)
                     {
-                        _unitOfWork.ClassSessionRepository.Remove(difCalsssSession, true);
+                        _classSessionRepository.Remove(difCalsssSession, true);
                     }
                 }
                 else
@@ -52,9 +63,9 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
                     ClassSession? difCalsssSession = classSessions.FirstOrDefault(c => c.Category != requestSession.Category);
                     if ((requestSession.EndTime - requestSession.StartTime).Hours == totalHour && difCalsssSession != null)
                     {
-                        _unitOfWork.ClassSessionRepository.Remove(difCalsssSession, true);
+                        _classSessionRepository.Remove(difCalsssSession, true);
                     }
-                    await _unitOfWork.ClassSessionRepository.AddAsync(new ClassSession()
+                    await _classSessionRepository.AddAsync(new ClassSession()
                     {
                         ClassId = firstClassSession.ClassId,
                         Category = requestSession.Category,
@@ -72,10 +83,10 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
         }
         else
         {
-            IEnumerable<ClassSession> alreadyClassSession = await _unitOfWork.ClassSessionRepository.GetAllAsync(c => c.ClassId == request.ClassId && c.Date == newDateTime);
+            IEnumerable<ClassSession> alreadyClassSession = await _classSessionRepository.GetAllAsync(c => c.ClassId == request.ClassId && c.Date == newDateTime);
             if (alreadyClassSession.Any()) throw new Exception("There is already a session on the specified day");
 
-            IEnumerable<Holiday> alreadyHoliday = await _unitOfWork.HolidayRepository.GetAllAsync(h => h.StartDate >= request.NewDate && h.EndDate <= request.NewDate);
+            IEnumerable<Holiday> alreadyHoliday = await _holidayRepository.GetAllAsync(h => h.StartDate >= request.NewDate && h.EndDate <= request.NewDate);
             if (alreadyHoliday.Any()) throw new Exception("There is already a session on the holiday");
 
             foreach (UpdateClassSessionDto requestSession in request.Sessions)
@@ -94,7 +105,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
                     ClassSession? difCalsssSession = classSessions.FirstOrDefault(c => c.Category != requestSession.Category);
                     if ((requestSession.EndTime - requestSession.StartTime).Hours == totalHour && difCalsssSession != null)
                     {
-                        _unitOfWork.ClassSessionRepository.Remove(difCalsssSession, true);
+                        _classSessionRepository.Remove(difCalsssSession, true);
                     }
                 }
                 else
@@ -102,9 +113,9 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
                     ClassSession? difCalsssSession = classSessions.FirstOrDefault(c => c.Category != requestSession.Category);
                     if ((requestSession.EndTime - requestSession.StartTime).Hours == totalHour && difCalsssSession != null)
                     {
-                        _unitOfWork.ClassSessionRepository.Remove(difCalsssSession, true);
+                        _classSessionRepository.Remove(difCalsssSession, true);
                     }
-                    await _unitOfWork.ClassSessionRepository.AddAsync(new ClassSession()
+                    await _classSessionRepository.AddAsync(new ClassSession()
                     {
                         ClassId = firstClassSession.ClassId,
                         Category = requestSession.Category,
@@ -126,7 +137,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
             }
         }
 
-        Class @class = await _unitOfWork.ClassRepository.GetAsync(r => r.Id == request.ClassId && r.ClassSessions.Count != 0, true, "ClassSessions")
+        Class @class = await _classRepository.GetAsync(r => r.Id == request.ClassId && r.ClassSessions.Count != 0, true, "ClassSessions")
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
         @class.EndDate = @class.ClassSessions.Max(c => c.Date).Date;

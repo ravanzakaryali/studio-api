@@ -8,19 +8,27 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IClassRepository _classRepository;
+    readonly IClassSessionRepository _classSessionRepository;
 
-    public GetAllWorkersByClassQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetAllWorkersByClassQueryHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        IClassRepository classRepository,
+        IClassSessionRepository classSessionRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _classRepository = classRepository;
+        _classSessionRepository = classSessionRepository;
     }
 
     public async Task<IEnumerable<GetWorkersByClassResponseDto>> Handle(GetAllWorkersByClassQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _unitOfWork.ClassRepository.GetAsync(request.Id, tracking: false, "ClassModulesWorkers.Worker", "ClassModulesWorkers.Role", "ClassSessions.AttendancesWorkers", "Program.Modules.SubModules")
+        Class? @class = await _classRepository.GetAsync(request.Id, tracking: false, "ClassModulesWorkers.Worker", "ClassModulesWorkers.Role", "ClassSessions.AttendancesWorkers", "Program.Modules.SubModules")
             ?? throw new NotFoundException(nameof(Class), request.Id);
 
-        IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository
+        IEnumerable<ClassSession> classSessions = await _classSessionRepository
             .GetAllAsync(cs => cs.ClassId == @class.Id &&
             cs.Category != ClassSessionCategory.Lab &&
             request.Date >= cs.Date) ??

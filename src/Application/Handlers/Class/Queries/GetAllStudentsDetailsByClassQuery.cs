@@ -5,17 +5,18 @@ public record GetAllStudentsDetailsByClassQuery(Guid Id) : IRequest<IEnumerable<
 internal class GetAllStudentsDetailsByClassQueryHandler : IRequestHandler<GetAllStudentsDetailsByClassQuery, IEnumerable<GetStudentsDetailsByClassResponseDto>>
 {
     readonly IUnitOfWork _unitOfWork;
-
-    public GetAllStudentsDetailsByClassQueryHandler(IUnitOfWork unitOfWork)
+    readonly IClassRepository _classRepository;
+    public GetAllStudentsDetailsByClassQueryHandler(IUnitOfWork unitOfWork, IClassRepository classRepository)
     {
         _unitOfWork = unitOfWork;
+        _classRepository = classRepository;
     }
 
     public async Task<IEnumerable<GetStudentsDetailsByClassResponseDto>> Handle(GetAllStudentsDetailsByClassQuery request, CancellationToken cancellationToken)
     {
-        Class @class = await _unitOfWork.ClassRepository.GetAsync(request.Id, tracking: false, "ClassSessions.Attendances", "Studies.Student.Contact")
+        Class @class = await _classRepository.GetAsync(request.Id, tracking: false, "ClassSessions.Attendances", "Studies.Student.Contact")
             ?? throw new NotFoundException(nameof(Class), request.Id);
-        return @class.Studies.Where(c=>c.StudyType != StudyType.Completion).Select(study =>
+        return @class.Studies.Where(c => c.StudyType != StudyType.Completion).Select(study =>
         {
             double attendancesHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Select(c => c.Attendances.Where(a => a.StudyId == study.Id).Sum(c => c.TotalAttendanceHours)).Sum();
             double? totalHour = @class.ClassSessions.Where(c => c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online).Sum(s => s.TotalHour);

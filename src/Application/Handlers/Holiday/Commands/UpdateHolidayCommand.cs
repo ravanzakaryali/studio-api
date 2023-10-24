@@ -6,16 +6,19 @@ internal class UpdateHolidayCommandHandler : IRequestHandler<UpdateHolidayComman
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IHolidayRepository _holidayRepository;
 
-    public UpdateHolidayCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public UpdateHolidayCommandHandler(
+        IUnitOfWork unitOfWork, IMapper mapper, IHolidayRepository holidayRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _holidayRepository = holidayRepository;
     }
 
     public async Task<HolidayResponseDto> Handle(UpdateHolidayCommand request, CancellationToken cancellationToken)
     {
-        Holiday holiday = await _unitOfWork.HolidayRepository.GetAsync(request.Id, tracking: false)
+        Holiday holiday = await _holidayRepository.GetAsync(request.Id, tracking: false)
             ?? throw new NotFoundException(nameof(Holiday), request.Id);
         Holiday updateHoliday = _mapper.Map<Holiday>(request.UpdateHoliday);
 
@@ -29,7 +32,7 @@ internal class UpdateHolidayCommandHandler : IRequestHandler<UpdateHolidayComman
         //#endregion
 
         updateHoliday.Id = holiday.Id;
-        _unitOfWork.HolidayRepository.Update(updateHoliday);
+        _holidayRepository.Update(updateHoliday);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return _mapper.Map<HolidayResponseDto>(updateHoliday);
     }

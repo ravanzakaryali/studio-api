@@ -22,10 +22,14 @@ public class CreateReservationCommand : IRequest<CreateReservationResponseDto>
 internal class CreateReservationCommandHandler : IRequestHandler<CreateReservationCommand, CreateReservationResponseDto>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly IReservationRepository _reservationRepository;
 
-    public CreateReservationCommandHandler(IUnitOfWork unitOfWork)
+    public CreateReservationCommandHandler(
+        IUnitOfWork unitOfWork,
+        IReservationRepository reservationRepository)
     {
         _unitOfWork = unitOfWork;
+        _reservationRepository = reservationRepository;
     }
 
     public async Task<CreateReservationResponseDto> Handle(CreateReservationCommand request, CancellationToken cancellationToken)
@@ -36,7 +40,7 @@ internal class CreateReservationCommandHandler : IRequestHandler<CreateReservati
             Description = request.Description,
         };
 
-        await _unitOfWork.ReservationRepository.AddAsync(reservation);
+        await _reservationRepository.AddAsync(reservation);
 
         if (request.StartDate.DayOfYear != request.EndDate.DayOfYear)
         {

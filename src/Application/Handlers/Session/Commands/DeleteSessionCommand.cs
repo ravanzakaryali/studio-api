@@ -5,18 +5,23 @@ internal class DeleteSessionCommandHandler : IRequestHandler<DeleteSessionComman
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly ISessionRepository _sessionRepository;
 
-    public DeleteSessionCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public DeleteSessionCommandHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        ISessionRepository sessionRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _sessionRepository = sessionRepository;
     }
 
     public async Task<GetSessionResponseDto> Handle(DeleteSessionCommand request, CancellationToken cancellationToken)
     {
-        Session? session = await _unitOfWork.SessionRepository.GetAsync(request.Id)
+        Session? session = await _sessionRepository.GetAsync(request.Id)
             ?? throw new NotFoundException(nameof(Session), request.Id);
-        _unitOfWork.SessionRepository.Remove(session);
+        _sessionRepository.Remove(session);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return _mapper.Map<GetSessionResponseDto>(session);
     }

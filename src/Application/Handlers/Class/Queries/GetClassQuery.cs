@@ -10,22 +10,35 @@ internal class GetClassQueryHandler : IRequestHandler<GetClassQuery, IEnumerable
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
     readonly ICurrentUserService _currentUserService;
+    readonly IClassRepository _classRepository;
+    readonly IModuleRepository _moduleRepository;
+    readonly IClassModulesWorkerRepository _classModulesWorkerRepository;
 
-    public GetClassQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
+    public GetClassQueryHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        ICurrentUserService
+        currentUserService,
+        IClassRepository classRepository,
+        IModuleRepository moduleRepository,
+        IClassModulesWorkerRepository classModulesWorkerRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _currentUserService = currentUserService;
+        _classRepository = classRepository;
+        _moduleRepository = moduleRepository;
+        _classModulesWorkerRepository = classModulesWorkerRepository;
     }
 
     public async Task<IEnumerable<GetClassModuleResponseDto>> Handle(GetClassQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _unitOfWork.ClassRepository.GetAsync(request.Id) ??
+        Class? @class = await _classRepository.GetAsync(request.Id) ??
             throw new NotFoundException(nameof(Class), request.Id);
 
-        IEnumerable<Module> modules = await _unitOfWork.ModuleRepository.GetAllAsync(m => m.ProgramId == @class.ProgramId && m.TopModuleId == null, tracking: false, "SubModules");
+        IEnumerable<Module> modules = await _moduleRepository.GetAllAsync(m => m.ProgramId == @class.ProgramId && m.TopModuleId == null, tracking: false, "SubModules");
 
-        IEnumerable<ClassModulesWorker> classModulesWorkers = await _unitOfWork.ClassModulesWorkerRepository.GetAllAsync(
+        IEnumerable<ClassModulesWorker> classModulesWorkers = await _classModulesWorkerRepository.GetAllAsync(
             cmw => cmw.ClassId == @class.Id, tracking: false, "Role", "Worker");
 
         IEnumerable<GetClassModuleResponseDto> response = modules.Select(m => new GetClassModuleResponseDto()

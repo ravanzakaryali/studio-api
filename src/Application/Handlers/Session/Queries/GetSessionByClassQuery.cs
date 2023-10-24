@@ -7,15 +7,17 @@ internal class GetSessionByClassQueryCommand : IRequestHandler<GetSessionByClass
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-    public GetSessionByClassQueryCommand(IUnitOfWork unitOfWork, IMapper mapper)
+    readonly IClassRepository _classRepository;
+    public GetSessionByClassQueryCommand(IUnitOfWork unitOfWork, IMapper mapper, IClassRepository classRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _classRepository = classRepository;
     }
 
     public async Task<IEnumerable<GetSessionDetailDto>> Handle(GetSessionByClassQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _unitOfWork.ClassRepository.GetAsync(r => r.Id == request.Id, tracking: false, "Session.Details")
+        Class? @class = await _classRepository.GetAsync(r => r.Id == request.Id, tracking: false, "Session.Details")
             ?? throw new NotFoundException(nameof(Class), request.Id);
         return @class.Session.Details.Select(c => new GetSessionDetailDto()
         {

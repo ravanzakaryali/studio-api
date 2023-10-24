@@ -14,7 +14,7 @@ public static class ConfigureService
         services.AddScoped<ISpaceDbContext>(provider => provider.GetRequiredService<SpaceDbContext>());
 
         services.AddDbContext<SpaceDbContext>(options =>
-               options.UseSqlServer(configuration.GetConnectionString("SqlServer"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)), ServiceLifetime.Transient);
+               options.UseSqlServer(configuration.GetConnectionString("SqlServer"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
         services.AddIdentity<User, Role>(opt =>
         {
@@ -50,10 +50,12 @@ public static class ConfigureService
             };
         });
 
+        services.AddRepositories();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IStorageService, StorageService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+
         services.AddStorage<LocalStorage>();
 
         return services;

@@ -5,13 +5,15 @@ internal class GetAllHolidayQueryHandler : IRequestHandler<GetAllHolidayQuery, I
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IHolidayRepository _holidayRepository;
 
-    public GetAllHolidayQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetAllHolidayQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IHolidayRepository holidayRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _holidayRepository = holidayRepository;
     }
 
     public async Task<IEnumerable<HolidayResponseDto>> Handle(GetAllHolidayQuery request, CancellationToken cancellationToken)
-        => _mapper.Map<IEnumerable<HolidayResponseDto>>(await _unitOfWork.HolidayRepository.GetAllAsync());
+        => _mapper.Map<IEnumerable<HolidayResponseDto>>(await _holidayRepository.GetAllAsync());
 }

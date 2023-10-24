@@ -10,17 +10,19 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
     readonly ISpaceDbContext _spaceDbContext;
+    readonly IWorkerRepository _workerRepository;
 
-    public GetClassesByWorkerQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ISpaceDbContext spaceDbContext)
+    public GetClassesByWorkerQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ISpaceDbContext spaceDbContext, IWorkerRepository workerRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _spaceDbContext = spaceDbContext;
+        _workerRepository = workerRepository;
     }
 
     public async Task<IEnumerable<GetAllClassDto>> Handle(GetClassesByWorkerQuery request, CancellationToken cancellationToken)
     {
-        Worker? worker = await _unitOfWork.WorkerRepository.GetAsync(request.Id, tracking: false, "ClassModulesWorkers.Class") ??
+        Worker? worker = await _workerRepository.GetAsync(request.Id, tracking: false, "ClassModulesWorkers.Class") ??
             throw new NotFoundException(nameof(Worker), request.Id);
 
 

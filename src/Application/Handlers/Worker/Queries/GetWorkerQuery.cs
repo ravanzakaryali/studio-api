@@ -5,16 +5,18 @@ public class GetWorkerQueryCommand : IRequestHandler<GetWorkerQuery, GetWorkerBy
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IWorkerRepository _workerRepository;
 
-    public GetWorkerQueryCommand(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetWorkerQueryCommand(IUnitOfWork unitOfWork, IMapper mapper, IWorkerRepository workerRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _workerRepository = workerRepository;
     }
 
     public async Task<GetWorkerByIdDto> Handle(GetWorkerQuery request, CancellationToken cancellationToken)
     {
-        Worker? worker = await _unitOfWork.WorkerRepository.GetAsync(request.Id)
+        Worker? worker = await _workerRepository.GetAsync(request.Id)
             ?? throw new NotFoundException(nameof(Worker), request.Id);
         return _mapper.Map<GetWorkerByIdDto>(worker);
     }

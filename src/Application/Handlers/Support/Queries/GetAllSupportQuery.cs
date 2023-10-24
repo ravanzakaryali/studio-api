@@ -7,14 +7,16 @@ internal class GetAllSupportQueryHandler : IRequestHandler<GetAllSupportQuery, I
     readonly IUnitOfWork _unitOfWork;
     readonly IStorageService _storage;
     readonly IMapper _mapper;
+    readonly ISupportRepository _supportRepository;
 
-    public GetAllSupportQueryHandler(IUnitOfWork unitOfWork, IStorageService storage, IMapper mapper)
+    public GetAllSupportQueryHandler(IUnitOfWork unitOfWork, IStorageService storage, IMapper mapper, ISupportRepository supportRepository)
     {
         _unitOfWork = unitOfWork;
         _storage = storage;
         _mapper = mapper;
+        _supportRepository = supportRepository;
     }
 
     public async Task<IEnumerable<GetSupportResponseDto>> Handle(GetAllSupportQuery request, CancellationToken cancellationToken)
-        => _mapper.Map<IEnumerable<GetSupportResponseDto>>(await _unitOfWork.SupportRepository.GetAllAsync(predicate: null, tracking: false, "SupportImages", "User"));
+        => _mapper.Map<IEnumerable<GetSupportResponseDto>>(await _supportRepository.GetAllAsync(predicate: null, tracking: false, "SupportImages", "User"));
 }

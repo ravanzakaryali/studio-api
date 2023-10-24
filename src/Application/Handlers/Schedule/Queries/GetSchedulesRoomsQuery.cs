@@ -11,16 +11,21 @@ internal class GetSchedulesRoomQueryHandler : IRequestHandler<GetSchedulesRoomsQ
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IRoomRepository _roomRepository;
 
-    public GetSchedulesRoomQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetSchedulesRoomQueryHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        IRoomRepository roomRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _roomRepository = roomRepository;
     }
 
     public async Task<IEnumerable<GetSchedulesRoomsResponseDto>> Handle(GetSchedulesRoomsQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Room> rooms = await _unitOfWork.RoomRepository.GetAllAsync(includes: "RoomSchedules");
+        IEnumerable<Room> rooms = await _roomRepository.GetAllAsync(includes: "RoomSchedules");
         List<GetSchedulesRoomsResponseDto> response = new();
 
         foreach (Room room in rooms)

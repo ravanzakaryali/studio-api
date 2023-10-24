@@ -11,26 +11,33 @@ internal class GetWorkerClassSessionsByClassQueryHandler : IRequestHandler<GetWo
 {
 
     readonly IUnitOfWork _unitOfWork;
+    readonly IClassSessionRepository _classSessionRepository;
+    readonly IClassRepository _classRepository;
 
-    public GetWorkerClassSessionsByClassQueryHandler(IUnitOfWork unitOfWork)
+    public GetWorkerClassSessionsByClassQueryHandler(
+        IUnitOfWork unitOfWork,
+        IClassSessionRepository classSessionRepository,
+        IClassRepository classRepository)
     {
         _unitOfWork = unitOfWork;
-
+        _classSessionRepository = classSessionRepository;
+        _classRepository = classRepository;
     }
 
     public async Task<GetWorkerClassSessionsByClassResponseDto> Handle(GetWorkerClassSessionsByClassQuery request, CancellationToken cancellationToken)
     {
 
-        var classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(q => q.ClassId
+        var classSessions = await _classSessionRepository.GetAllAsync(q => q.ClassId
          == request.Id && q.Status != null, tracking: false, "Class");
 
 
-        var @class = await _unitOfWork.ClassRepository.GetAsync(q => q.Id == request.Id);
+        var @class = await _classRepository.GetAsync(q => q.Id == request.Id);
 
-        var response = new GetWorkerClassSessionsByClassResponseDto();
-
-        response.ClassId = @class.Id;
-        response.ClassName = @class.Name;
+        var response = new GetWorkerClassSessionsByClassResponseDto
+        {
+            ClassId = @class.Id,
+            ClassName = @class.Name
+        };
 
 
         var workerSessions = new List<GetWorkerClassSessionsDto>();

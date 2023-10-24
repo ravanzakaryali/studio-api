@@ -8,12 +8,19 @@ namespace Space.Application.Handlers
     {
 
         readonly IUnitOfWork _unitOfWork;
+        readonly IRoomScheduleRepository _roomScheduleRepository;
+        readonly IRoomRepository _roomRepository;
 
 
-        public GetScheduleByDayQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public GetScheduleByDayQueryHandler(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IRoomScheduleRepository roomScheduleRepository,
+            IRoomRepository roomRepository)
         {
             _unitOfWork = unitOfWork;
-
+            _roomScheduleRepository = roomScheduleRepository;
+            _roomRepository = roomRepository;
         }
 
 
@@ -23,7 +30,7 @@ namespace Space.Application.Handlers
             var roomSchedule = new List<RoomSchedule>();
 
 
-            var roomScheduleQuery = await _unitOfWork.RoomScheduleRepository
+            var roomScheduleQuery = await _roomScheduleRepository
                               .GetAllAsync(q => q.DayOfMonth == DateTime.Now.Month && q.Year == DateTime.Now.Year, tracking: false, "Class.Program");
 
             roomSchedule = roomScheduleQuery.ToList();
@@ -33,7 +40,7 @@ namespace Space.Application.Handlers
             var response = new List<GetScheduleByDayResponseDto>();
 
 
-            var rooms = await _unitOfWork.RoomRepository.GetAllAsync();
+            var rooms = await _roomRepository.GetAllAsync();
 
 
 
@@ -86,7 +93,7 @@ namespace Space.Application.Handlers
         public static DateTime GetFirstMondayOfWeek(int weekNumber, int year)
         {
             // Calculate the date of the first day of the given year
-            DateTime startDate = new DateTime(year, 1, 1);
+            DateTime startDate = new(year, 1, 1);
 
             // Calculate the date of the first Monday of the first week of the year
             int daysUntilFirstMonday = ((int)startDate.DayOfWeek - 1 + 7) % 7;

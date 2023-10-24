@@ -8,15 +8,17 @@ public class RefreshPasswordCommand : IRequest
 internal class RefreshPasswordCommandHandler : IRequestHandler<RefreshPasswordCommand>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly IWorkerRepository _workerRepository;
 
-    public RefreshPasswordCommandHandler(IUnitOfWork unitOfWork)
+    public RefreshPasswordCommandHandler(IUnitOfWork unitOfWork, IWorkerRepository workerRepository)
     {
         _unitOfWork = unitOfWork;
+        _workerRepository = workerRepository;
     }
 
     public async Task Handle(RefreshPasswordCommand request, CancellationToken cancellationToken)
     {
-        Worker? worker = await _unitOfWork.WorkerRepository.GetAsync(w => w.Email == request.Email) ??
+        Worker? worker = await _workerRepository.GetAsync(w => w.Email == request.Email) ??
             throw new NotFoundException(nameof(Worker), request.Email);
 
         if (worker.LastPasswordUpdateDate != null

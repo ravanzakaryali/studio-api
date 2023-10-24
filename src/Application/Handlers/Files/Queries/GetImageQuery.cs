@@ -9,16 +9,18 @@ internal class GetImageQueryHandler : IRequestHandler<GetImageQuery, FileContent
 {
     readonly IWebHostEnvironment _webHostEnvironment;
     readonly IUnitOfWork _unitOfWork;
+    readonly IFileRepository _fileRepository;
 
-    public GetImageQueryHandler(IWebHostEnvironment webHostEnvironment, IUnitOfWork unitOfWork)
+    public GetImageQueryHandler(IWebHostEnvironment webHostEnvironment, IUnitOfWork unitOfWork, IFileRepository fileRepository)
     {
         _webHostEnvironment = webHostEnvironment;
         _unitOfWork = unitOfWork;
+        _fileRepository = fileRepository;
     }
 
     public async Task<FileContentResponseDto> Handle(GetImageQuery request, CancellationToken cancellationToken)
     {
-        E.File file = await _unitOfWork.FileRepository.GetAsync(f => f.FileName == request.ImageName)
+        E.File file = await _fileRepository.GetAsync(f => f.FileName == request.ImageName)
             ?? throw new NotFoundException("Image not found");
         if (!IO.File.Exists(file.Path)) throw new NotFoundException("File not found");
         FileExtensionContentTypeProvider provider = new();

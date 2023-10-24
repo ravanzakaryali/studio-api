@@ -37,6 +37,7 @@ public interface ISpaceDbContext
     DbSet<Reservation> Reservations { get; }
     DbSet<RoomSchedule> RoomSchedules { get; }
 
+    DbSet<Holiday> Holidays { get; }
 
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

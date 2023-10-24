@@ -22,7 +22,7 @@ columnOpts.PrimaryKey = columnOpts.TimeStamp;
 columnOpts.TimeStamp.NonClusteredIndex = true;
 
 Serilog.Core.Logger log = new LoggerConfiguration()
-    //.WriteTo.Console()
+    .WriteTo.Console()
     .AuditTo.MSSqlServer(builder.Configuration.GetConnectionString("SqlServer"), new MSSqlServerSinkOptions()
     {
         TableName = "Logs",

@@ -5,20 +5,24 @@ internal class CreateSessionDetailCommandHandler : IRequestHandler<CreateSession
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly ISessionRepository _sessionRepository;
+    readonly ISessionDetailRepository _sessionDetailRepository;
 
-    public CreateSessionDetailCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateSessionDetailCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ISessionRepository sessionRepository, ISessionDetailRepository sessionDetailRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _sessionRepository = sessionRepository;
+        _sessionDetailRepository = sessionDetailRepository;
     }
 
     public async Task<GetSessionWithDetailsResponseDto> Handle(CreateSessionDetailCommand request, CancellationToken cancellationToken)
     {
-        Session? session = await _unitOfWork.SessionRepository.GetAsync(a=>a.Id == request.Id,includeProperties: "Details") ?? 
-                throw new NotFoundException(nameof(Session),request.Id);
+        Session? session = await _sessionRepository.GetAsync(a => a.Id == request.Id, includeProperties: "Details") ??
+                throw new NotFoundException(nameof(Session), request.Id);
         SessionDetail newSessionDetail = _mapper.Map<SessionDetail>(request.Details);
         newSessionDetail.SessionId = session.Id;
-        await _unitOfWork.SessionDetailRepository.AddAsync(newSessionDetail);
+        await _sessionDetailRepository.AddAsync(newSessionDetail);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return _mapper.Map<GetSessionWithDetailsResponseDto>(session);
     }

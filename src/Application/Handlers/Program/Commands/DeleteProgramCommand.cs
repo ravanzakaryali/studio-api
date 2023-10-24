@@ -5,6 +5,7 @@ public record DeleteProgramCommand(Guid Id) : IRequest;
 internal class DeleteProgramCommandHandler : IRequestHandler<DeleteProgramCommand>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly IProgramRepository _programRepository;
 
     public DeleteProgramCommandHandler(IUnitOfWork unitOfWork)
     {
@@ -13,9 +14,9 @@ internal class DeleteProgramCommandHandler : IRequestHandler<DeleteProgramComman
 
     public async Task Handle(DeleteProgramCommand request, CancellationToken cancellationToken)
     {
-        Program? program = await  _unitOfWork.ProgramRepository.GetAsync(request.Id)
-                ?? throw new NotFoundException(nameof(Program),request.Id);
-        _unitOfWork.ProgramRepository.Remove(program);
+        Program? program = await _programRepository.GetAsync(request.Id)
+                ?? throw new NotFoundException(nameof(Program), request.Id);
+        _programRepository.Remove(program);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

@@ -9,15 +9,19 @@ namespace Space.Application.Handlers
     {
 
         readonly IUnitOfWork _unitOfWork;
+        readonly IClassSessionRepository _classSessionRepository;
 
-        public GetWorkerAttendanceByClassQueryHandler(IUnitOfWork unitOfWork)
+        public GetWorkerAttendanceByClassQueryHandler(
+            IUnitOfWork unitOfWork,
+            IClassSessionRepository classSessionRepository)
         {
             _unitOfWork = unitOfWork;
+            _classSessionRepository = classSessionRepository;
         }
 
         public async Task<IEnumerable<GetWorkerAttendanceByClassDto>> Handle(GetWorkerAttendanceByClassQuery request, CancellationToken cancellationToken)
         {
-            var data = await _unitOfWork.ClassSessionRepository.GetAllAsync(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline));
+            var data = await _classSessionRepository.GetAllAsync(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline));
 
             var response = new List<GetWorkerAttendanceByClassDto>();
 
@@ -28,7 +32,7 @@ namespace Space.Application.Handlers
             //});
 
 
-           
+
             //foreach (var item in data2)
             //{
             //    GetWorkerAttendanceByClassDto model = new GetWorkerAttendanceByClassDto();
@@ -50,7 +54,7 @@ namespace Space.Application.Handlers
             //            }
             //        }
             //    }
-                
+
 
             //    model.Role = roles;
 
