@@ -6,13 +6,11 @@ public record GetSchedulesWorkersQuery : IRequest<IEnumerable<GetSchedulesWorker
 
 internal class GetSchedulesWorkersQueryHandler : IRequestHandler<GetSchedulesWorkersQuery, IEnumerable<GetSchedulesWorkersResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
     readonly IWorkerRepository _workerRepository;
 
-    public GetSchedulesWorkersQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IWorkerRepository workerRepository)
+    public GetSchedulesWorkersQueryHandler(IMapper mapper, IWorkerRepository workerRepository)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
         _workerRepository = workerRepository;
     }

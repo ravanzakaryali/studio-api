@@ -41,6 +41,7 @@ public class ClassesController : BaseApiController
     /// <param name="id">The unique identifier of the class module for which to retrieve sessions.</param>
     /// <returns>
     /// An HTTP response containing sessions related to the specified class module upon successful retrieval.
+    /// </returns>
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/sessions")]
     public async Task<IActionResult> GetSessionByClass([FromRoute] Guid id)

@@ -12,5 +12,5 @@ public class GetClassModuleWorkers
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public DateTime? VitrinDate { get; set; }
-    public IEnumerable<GetWorkerForClassDto> Workers { get; set; }
+    public IEnumerable<GetWorkerForClassDto> Workers { get; set; } = null!;
 }

@@ -64,7 +64,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
         List<Module> modules = @class.Program.Modules
                                                     .OrderBy(m => m.Version)
                                                     .Where(m => m.TopModuleId != null ||
-                                                    !m.SubModules.Any())
+                                                    m.SubModules!.Any())
                                                     .ToList();
 
         Module? currentModule = await _moduleRepository.GetCurrentModuleAsync(@class, request.Date);

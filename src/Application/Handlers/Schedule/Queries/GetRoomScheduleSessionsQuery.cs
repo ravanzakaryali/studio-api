@@ -7,16 +7,13 @@ public record GetRoomScheduleSessionsQuery() : IRequest<IEnumerable<GetRoomSched
 
 internal class GetRoomScheduleSessionsQueryHandler : IRequestHandler<GetRoomScheduleSessionsQuery, IEnumerable<GetRoomScheduleSessionsResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IRoomScheduleRepository _roomScheduleRepository;
     readonly IRoomRepository _roomRepository;
 
     public GetRoomScheduleSessionsQueryHandler(
-        IUnitOfWork unitOfWork,
         IRoomScheduleRepository roomScheduleRepository,
         IRoomRepository roomRepository)
     {
-        _unitOfWork = unitOfWork;
         _roomScheduleRepository = roomScheduleRepository;
         _roomRepository = roomRepository;
     }

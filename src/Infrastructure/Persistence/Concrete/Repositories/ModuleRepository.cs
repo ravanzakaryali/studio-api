@@ -25,7 +25,7 @@ internal class ModuleRepository : Repository<Module>, IModuleRepository
         List<Module> modules = @class.Program.Modules
                                                     .OrderBy(m => m.Version)
                                                     .Where(m => m.TopModuleId != null ||
-                                                    !m.SubModules.Any())
+                                                    m.SubModules!.Any())
                                                     .ToList();
 
         Module? currentModule = null;
@@ -55,7 +55,7 @@ internal class ModuleRepository : Repository<Module>, IModuleRepository
     public async Task<bool> IsUnique(List<Module> modules)
     {
         List<string> moduleNames = modules.Select(a => a.Name).ToList();
-        moduleNames.AddRange(modules.SelectMany(a => a.SubModules.Select(a => a.Name)).ToList());
+        moduleNames.AddRange(modules.SelectMany(a => a.SubModules?.Select(a => a.Name)!).ToList());
         var a = await _context.Modules.Where(a => moduleNames.Contains(a.Name)).FirstOrDefaultAsync();
         return a != null;
     }

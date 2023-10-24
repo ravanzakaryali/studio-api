@@ -39,7 +39,7 @@ internal class UnitOfWork : IUnitOfWork
     private IRoleService? _roleService;
     private ITokenService? _tokenService;
     private IUserService? _userService;
-    private IStorageService? _storageService;
+    //private IStorageService? _storageService;
     private ITelegramService? _telegramService;
     public IEmailService EmailService => _emailService ??= new EmailService(_configuration, _webHostEnvironment);
     public IIdentityService IdentityService => _identityService ??= new IdentityService(_userManager, _mapper, _configuration);

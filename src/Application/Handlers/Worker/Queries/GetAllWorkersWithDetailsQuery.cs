@@ -7,14 +7,12 @@ namespace Space.Application.Handlers
 
     internal class GetAllWorkersWithDetailsQueryHandler : IRequestHandler<GetAllWorkersWithDetailsQuery, IEnumerable<GetAllWorkersWithDetailsResponseDto>>
     {
-        readonly IUnitOfWork _unitOfWork;
         readonly IWorkerRepository _workerRepository;
         readonly IClassModulesWorkerRepository _classModulesWorkerRepository;
 
 
-        public GetAllWorkersWithDetailsQueryHandler(IUnitOfWork unitOfWork, IClassModulesWorkerRepository classModulesWorkerRepository, IWorkerRepository workerRepository)
+        public GetAllWorkersWithDetailsQueryHandler(IClassModulesWorkerRepository classModulesWorkerRepository, IWorkerRepository workerRepository)
         {
-            _unitOfWork = unitOfWork;
             _classModulesWorkerRepository = classModulesWorkerRepository;
             _workerRepository = workerRepository;
         }
@@ -29,32 +27,33 @@ namespace Space.Application.Handlers
 
             foreach (var item in workers)
             {
-                var model = new GetAllWorkersWithDetailsResponseDto();
-
-                model.EMail = item.Email;
-                model.Name = item.Name;
-                model.Surname = item.Surname;
-                model.Id = item.Id;
+                if (item == null) break;
+                var model = new GetAllWorkersWithDetailsResponseDto
+                {
+                    EMail = item.Email,
+                    Name = item.Name,
+                    Surname = item.Surname,
+                    Id = item.Id
+                };
                 //model.Roles = item.UserRoles;
 
-                var data = workersClasses.Where(q => q.WorkerId == item.Id);
+                IEnumerable<ClassModulesWorker> data = workersClasses.Where(q => q.WorkerId == item.Id);
+                List<WorkersClassesDto> workersClassesDtos = new();
 
-                var workersClassesDtos = new List<WorkersClassesDto>();
-
-                foreach (var workerClass in data)
+                foreach (ClassModulesWorker workerClass in data)
                 {
                     //aynı class var mı kontrol? code review yapılmalı
 
                     if (!workersClassesDtos.Any(q => q.ClassId == workerClass.Class.Id))
                     {
-                        var workersClassesDto = new WorkersClassesDto();
-                        workersClassesDto.ClassId = workerClass.Class.Id;
-                        workersClassesDto.ClassName = workerClass.Class.Name;
-                        workersClassesDto.IsOpen = workerClass.Class.EndDate > DateTime.Now ? true : false;
-                        workersClassesDto.StartDate = workerClass.Class.StartDate;
-                        workersClassesDto.EndDate = workerClass.Class.EndDate;
-
-
+                        WorkersClassesDto workersClassesDto = new()
+                        {
+                            ClassId = workerClass.Class.Id,
+                            ClassName = workerClass.Class.Name,
+                            IsOpen = workerClass.Class.EndDate > DateTime.Now,
+                            StartDate = workerClass.Class.StartDate,
+                            EndDate = workerClass.Class.EndDate
+                        };
 
                         workersClassesDtos.Add(workersClassesDto);
                     }

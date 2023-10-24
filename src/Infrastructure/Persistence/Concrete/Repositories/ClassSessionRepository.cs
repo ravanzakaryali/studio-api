@@ -25,7 +25,6 @@ internal class ClassSessionRepository : Repository<ClassSession>, IClassSessionR
 
         List<ClassSession> oldSessions = classSessions.Select(c => (ClassSession)c.Clone()).ToList();
 
-
         foreach (ClassSession classSession in classSessions)
         {
 
@@ -115,7 +114,7 @@ internal class ClassSessionRepository : Repository<ClassSession>, IClassSessionR
                         date2,
                         holidayDates,
                         matchingSession.ClassId,
-                        matchingSession.RoomId.Value);
+                        matchingSession.RoomId!.Value);
 
                     await _context.ClassSessions.AddRangeAsync(generateClassSessions);
                 }

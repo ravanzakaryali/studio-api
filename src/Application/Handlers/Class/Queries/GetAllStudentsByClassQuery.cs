@@ -30,26 +30,25 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
 
         var studentResponses = @class.Studies.Where(c => c.StudyType != StudyType.Completion).Select(study =>
         {
-            double attendancesHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Select(c => c.Attendances.Where(a => a.StudyId == study.Id).Sum(c => c.TotalAttendanceHours)).Sum();
+            double? attendancesHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Select(c => c.Attendances.Where(a => a.StudyId == study.Id).Sum(c => c.TotalAttendanceHours)).Sum();
             double? totalHour = @class.ClassSessions.Where(c => (c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online) && c.Category != ClassSessionCategory.Lab).Sum(s => s.TotalHour);
             var studentResponse = new GetAllStudentByClassResponseDto
             {
                 Name = study.Student?.Contact?.Name,
-                Surname = study.Student?.Contact.Surname,
+                Surname = study.Student?.Contact?.Surname,
                 EMail = study.Student?.Contact?.Email,
                 ClassName = @class.Name,
                 Phone = study.Student?.Contact?.Phone,
-                Id = study.Student.Id,
+                Id = study.Student!.Id,
                 StudentId = study.Id,
-                Attendance = (totalHour != 0 ? attendancesHour / totalHour * 100 : 0) ?? 0
+                Attendance = (totalHour != 0 ? attendancesHour / totalHour * 100 : 0) ?? 0,
+                Sessions = classSessions.Select(c => new GetAllStudentCategoryDto()
+                {
+                    ClassSessionCategory = c.Category,
+                    Hour = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours ?? 0,
+                    Note = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note ?? null
+                })
             };
-
-            studentResponse.Sessions = classSessions.Select(c => new GetAllStudentCategoryDto()
-            {
-                ClassSessionCategory = c.Category,
-                Hour = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours ?? 0,
-                Note = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note ?? null
-            });
             return studentResponse;
         }).ToList();
 

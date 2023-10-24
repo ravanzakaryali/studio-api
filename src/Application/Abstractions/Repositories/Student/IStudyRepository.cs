@@ -2,5 +2,5 @@
 
 public interface IStudyRepository : IRepository<Study>
 {
-    Task<IEnumerable<Study>> GetAllAbsentStudies();
+    IEnumerable<Study> GetAllAbsentStudies();
 }

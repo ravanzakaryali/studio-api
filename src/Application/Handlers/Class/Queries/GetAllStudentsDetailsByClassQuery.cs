@@ -18,14 +18,14 @@ internal class GetAllStudentsDetailsByClassQueryHandler : IRequestHandler<GetAll
             ?? throw new NotFoundException(nameof(Class), request.Id);
         return @class.Studies.Where(c => c.StudyType != StudyType.Completion).Select(study =>
         {
-            double attendancesHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Select(c => c.Attendances.Where(a => a.StudyId == study.Id).Sum(c => c.TotalAttendanceHours)).Sum();
+            double? attendancesHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Select(c => c.Attendances.Where(a => a.StudyId == study.Id).Sum(c => c.TotalAttendanceHours)).Sum();
             double? totalHour = @class.ClassSessions.Where(c => c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online).Sum(s => s.TotalHour);
             var studentResponse = new GetStudentsDetailsByClassResponseDto
             {
                 Id = study.Id,
                 StudentId = study.StudentId,
-                Name = study.Student.Contact.Name,
-                Surname = study.Student.Contact.Surname,
+                Name = study.Student?.Contact?.Name,
+                Surname = study.Student?.Contact?.Surname,
                 ClassName = @class.Name,
                 ArrivalHours = attendancesHour,
                 AbsentHours = totalHour - attendancesHour ?? 0,

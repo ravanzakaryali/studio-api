@@ -16,28 +16,23 @@ internal class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand,
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IHttpContextAccessor _contextAccessor;
-    readonly UserManager<User> _userManager;
     readonly ICurrentUserService _currentUserService;
 
 
-    public RefreshTokenCommandHandler(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor, UserManager<User> userManager, ICurrentUserService currentUserService)
+    public RefreshTokenCommandHandler(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _contextAccessor = contextAccessor;
-        _userManager = userManager;
         _currentUserService = currentUserService;
     }
 
     public async Task<AccessTokenResponseDto> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        if (_contextAccessor.HttpContext.Request.Cookies.TryGetValue("token", out string? token2))
+        if (_contextAccessor.HttpContext!.Request.Cookies.TryGetValue("token", out string? token2))
         {
             Console.WriteLine($"\n\n\nToken2: {token2}\n\n\n");
         }
         if (_currentUserService.UserId == null) throw new UnauthorizedAccessException();
-        //ClaimsPrincipal principal = _unitOfWork.TokenService.GetPrincipalFromExpiredToken(request.AccessToken);
-        //if (principal.Identity is null) throw new TokenExpiredException();
-        //string? username = principal.Identity.Name ?? throw new TokenExpiredException();
 
         User? user = await _unitOfWork.UserService.FindById(new Guid(_currentUserService.UserId));
 
@@ -60,13 +55,10 @@ internal class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand,
             SameSite = SameSiteMode.None,
             Secure = true
         });
-        //await _userManager.UpdateAsync(user);
         return new AccessTokenResponseDto()
         {
-            //UserId = user.Id,
             RefreshToken = refreshToken,
             Token = token.AccessToken,
-            //TokenExpires = token.Expires,
         };
     }
 }

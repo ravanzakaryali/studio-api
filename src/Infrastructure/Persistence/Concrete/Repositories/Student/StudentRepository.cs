@@ -17,8 +17,8 @@ internal class StudentRepository : Repository<Student>, IStudentRepository
 
         if (student.Contact == null) throw new NotFoundException(nameof(Contact));
         student.Contact.Email = student.Contact.Name.CharacterRegulatory() +
-                                student.Contact.FatherName.CharacterRegulatory()[0] +
-                                student.Contact.Surname.CharacterRegulatory()[0] + 
+                                student.Contact.FatherName?.CharacterRegulatory()[0] +
+                                student.Contact.Surname.CharacterRegulatory()[0] +
                                 "@code.edu.az";
         await _context.SaveChangesAsync();
     }

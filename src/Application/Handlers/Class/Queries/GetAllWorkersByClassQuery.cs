@@ -36,7 +36,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
 
         List<Module> modules = @class.Program.Modules
             .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null)
-            .Where(m => m.TopModuleId != null || !m.SubModules.Any())
+            .Where(m => m.TopModuleId != null || m.SubModules!.Any())
             .ToList();
 
         int totalHour = classSessions.Sum(c => c.TotalHour);
@@ -60,7 +60,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
         {
             currentModule = modules.FirstOrDefault();
         }
-        return @class.ClassModulesWorkers.Where(c => c.ModuleId == currentModule.Id).Distinct(new GetModulesWorkerComparer()).Select(c =>
+        return @class.ClassModulesWorkers.Where(c => c.ModuleId == currentModule?.Id).Distinct(new GetModulesWorkerComparer()).Select(c =>
         {
             var classSessions = @class.ClassSessions.Where(c => c.Date == request.Date).ToList();
             bool isAttendance = false;

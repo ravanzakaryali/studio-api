@@ -10,16 +10,13 @@ public record GetWorkerClassSessionsByClassQuery(Guid Id) : IRequest<GetWorkerCl
 internal class GetWorkerClassSessionsByClassQueryHandler : IRequestHandler<GetWorkerClassSessionsByClassQuery, GetWorkerClassSessionsByClassResponseDto>
 {
 
-    readonly IUnitOfWork _unitOfWork;
     readonly IClassSessionRepository _classSessionRepository;
     readonly IClassRepository _classRepository;
 
     public GetWorkerClassSessionsByClassQueryHandler(
-        IUnitOfWork unitOfWork,
         IClassSessionRepository classSessionRepository,
         IClassRepository classRepository)
     {
-        _unitOfWork = unitOfWork;
         _classSessionRepository = classSessionRepository;
         _classRepository = classRepository;
     }
@@ -27,13 +24,12 @@ internal class GetWorkerClassSessionsByClassQueryHandler : IRequestHandler<GetWo
     public async Task<GetWorkerClassSessionsByClassResponseDto> Handle(GetWorkerClassSessionsByClassQuery request, CancellationToken cancellationToken)
     {
 
-        var classSessions = await _classSessionRepository.GetAllAsync(q => q.ClassId
+        IEnumerable<ClassSession> classSessions = await _classSessionRepository.GetAllAsync(q => q.ClassId
          == request.Id && q.Status != null, tracking: false, "Class");
 
 
-        var @class = await _classRepository.GetAsync(q => q.Id == request.Id);
-
-        var response = new GetWorkerClassSessionsByClassResponseDto
+        Class @class = await _classRepository.GetAsync(q => q.Id == request.Id) ?? throw new NotFoundException(nameof(Class), request.Id);
+        GetWorkerClassSessionsByClassResponseDto response = new()
         {
             ClassId = @class.Id,
             ClassName = @class.Name
@@ -50,11 +46,13 @@ internal class GetWorkerClassSessionsByClassQueryHandler : IRequestHandler<GetWo
 
         foreach (var item in orderedClasssessions)
         {
-            var workerSession = new GetWorkerClassSessionsDto();
-            workerSession.Category = item.Category?.ToString();
-            workerSession.Status = item.Status?.ToString();
-            workerSession.TotalHours = item.TotalHour;
-            workerSession.Date = item.Date;
+            var workerSession = new GetWorkerClassSessionsDto
+            {
+                Category = item.Category?.ToString(),
+                Status = item.Status?.ToString(),
+                TotalHours = item.TotalHour,
+                Date = item.Date
+            };
 
             if (item.Status == ClassSessionStatus.Online)
                 onlineHours += item.TotalHour;

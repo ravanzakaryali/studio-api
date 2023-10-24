@@ -22,20 +22,19 @@ internal class GetWorkerGeneralReportQueryHandler : IRequestHandler<GetWorkerGen
 
     public async Task<GetWorkerGeneralReportResponseDto> Handle(GetWorkerGeneralReportQuery request, CancellationToken cancellationToken)
     {
-        var worker = await _workerRepository.GetAsync(q => q.Id == request.Id);
-
-        if (worker == null)
-            throw new NotFoundException(nameof(Worker), request.Id);
+        var worker = await _workerRepository.GetAsync(q => q.Id == request.Id) ?? throw new NotFoundException(nameof(Worker), request.Id);
 
         //var classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(q => q.WorkerId == request.Id, tracking: false, "Class");
 
 
-        var response = new GetWorkerGeneralReportResponseDto();
-        response.EMail = worker.Email;
-        response.Name = worker.Name;
-        response.Surname = worker.Surname;
-        response.CompletedClasses = new List<GetWorkerClassesForGeneralReportDto>();
-        response.UnCompletedClasses = new List<GetWorkerClassesForGeneralReportDto>();
+        var response = new GetWorkerGeneralReportResponseDto
+        {
+            EMail = worker.Email,
+            Name = worker.Name,
+            Surname = worker.Surname,
+            CompletedClasses = new List<GetWorkerClassesForGeneralReportDto>(),
+            UnCompletedClasses = new List<GetWorkerClassesForGeneralReportDto>()
+        };
 
 
 

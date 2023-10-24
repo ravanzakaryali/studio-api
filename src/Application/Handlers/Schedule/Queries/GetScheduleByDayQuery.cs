@@ -7,18 +7,14 @@ namespace Space.Application.Handlers
     internal class GetScheduleByDayQueryHandler : IRequestHandler<GetScheduleByDayQuery, IEnumerable<GetScheduleByDayResponseDto>>
     {
 
-        readonly IUnitOfWork _unitOfWork;
         readonly IRoomScheduleRepository _roomScheduleRepository;
         readonly IRoomRepository _roomRepository;
 
 
         public GetScheduleByDayQueryHandler(
-            IUnitOfWork unitOfWork,
-            IMapper mapper,
             IRoomScheduleRepository roomScheduleRepository,
             IRoomRepository roomRepository)
         {
-            _unitOfWork = unitOfWork;
             _roomScheduleRepository = roomScheduleRepository;
             _roomRepository = roomRepository;
         }
@@ -28,39 +24,34 @@ namespace Space.Application.Handlers
         {
 
             var roomSchedule = new List<RoomSchedule>();
-
-
             var roomScheduleQuery = await _roomScheduleRepository
                               .GetAllAsync(q => q.DayOfMonth == DateTime.Now.Month && q.Year == DateTime.Now.Year, tracking: false, "Class.Program");
 
             roomSchedule = roomScheduleQuery.ToList();
             roomSchedule = roomScheduleQuery.ToList();
 
-
             var response = new List<GetScheduleByDayResponseDto>();
-
 
             var rooms = await _roomRepository.GetAllAsync();
 
-
-
-
             //7 günlük calendar
-
             for (int i = -7; i <= 100; i++)
             {
-                var data = new GetScheduleByDayResponseDto();
-                data.Date = DateTime.Now.AddDays(i);
+                var data = new GetScheduleByDayResponseDto
+                {
+                    Date = DateTime.Now.AddDays(i)
+                };
 
                 var calendars = new List<CalendarDto>();
 
                 foreach (var item in rooms)
                 {
 
-                    var calendar = new CalendarDto();
-
-                    calendar.RoomName = item.Name;
-                    calendar.RoomCapacity = item.Capacity ?? 0;
+                    var calendar = new CalendarDto
+                    {
+                        RoomName = item.Name,
+                        RoomCapacity = item.Capacity ?? 0
+                    };
 
                     var sessionDtoForScheduleList = new List<SessionDtoForSchedule>();
 
@@ -68,11 +59,14 @@ namespace Space.Application.Handlers
 
                     foreach (var session in sessionsByRoom)
                     {
-                        var sessionDtoForSchedule = new SessionDtoForSchedule();
-                        sessionDtoForSchedule.StartTime = session.StartTime;
-                        sessionDtoForSchedule.Endtime = session.EndTime;
-                        sessionDtoForSchedule.ClassName = session.Class?.Name;
-                        sessionDtoForSchedule.ClassColor = session.Class?.Program?.Color;
+                        if (session.Class == null) break;
+                        var sessionDtoForSchedule = new SessionDtoForSchedule
+                        {
+                            StartTime = session.StartTime,
+                            Endtime = session.EndTime,
+                            ClassName = session.Class.Name,
+                            ClassColor = session.Class.Program?.Color
+                        };
                         sessionDtoForScheduleList.Add(sessionDtoForSchedule);
 
                     }

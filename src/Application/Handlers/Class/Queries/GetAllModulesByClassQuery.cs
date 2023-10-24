@@ -41,7 +41,7 @@ internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesB
 
         List<Module> modules = @class.Program.Modules
             .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null)
-            .Where(m => m.TopModuleId != null || !m.SubModules.Any())
+            .Where(m => m.TopModuleId != null || m.SubModules!.Any())
             .ToList();
 
         int totalHour = classSessions

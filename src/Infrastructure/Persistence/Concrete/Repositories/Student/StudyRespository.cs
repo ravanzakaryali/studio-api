@@ -11,7 +11,7 @@ internal class StudyRespository : Repository<Study>, IStudyRepository
         _dbContext = context;
     }
 
-    public async Task<IEnumerable<Study>> GetAllAbsentStudies()
+    public IEnumerable<Study> GetAllAbsentStudies()
     {
         IQueryable<Study> result = _dbContext.Studies.Include("Student.Contact").Include("Attendances").Include("Class").Where(study => study.Attendances.Any(a => a.Status == StudentStatus.Absent) &&
                            study.Attendances.GroupBy(a => a.ClassSession.Date)

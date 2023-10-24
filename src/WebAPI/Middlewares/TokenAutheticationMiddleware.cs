@@ -37,8 +37,7 @@ public class TokenAutheticationMiddlewares
     /// </summary>
     /// <param name="httpContext">The HTTP context for the current request.</param>
     /// <param name="tokenService">The service responsible for token operations.</param>
-    /// <param name="unitOfWork">The unit of work for database access.</param>
-    public async Task InvokeAsync(HttpContext httpContext, ITokenService tokenService, IUnitOfWork unitOfWork)
+    public async Task InvokeAsync(HttpContext httpContext)
     {
         if (httpContext.Request.Cookies.TryGetValue("token", out string? token))
         {
@@ -51,15 +50,29 @@ public class TokenAutheticationMiddlewares
 
 }
 
+/// <summary>
+/// 
+/// </summary>
 public class ChangeTokenAutheticationMiddlewares
 {
     private readonly RequestDelegate _next;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="next"></param>
     public ChangeTokenAutheticationMiddlewares(RequestDelegate next)
     {
         _next = next;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="httpContext"></param>
+    /// <param name="tokenService"></param>
+    /// <param name="unitOfWork"></param>
+    /// <returns></returns>
     public async Task InvokeAsync(HttpContext httpContext, ITokenService tokenService, IUnitOfWork unitOfWork)
     {
         if (httpContext.Request.Cookies.TryGetValue("token", out string? token))
@@ -128,6 +141,11 @@ public static class TokenAutheticationMiddelwareExtensions
     {
         return builder.UseMiddleware<TokenAutheticationMiddlewares>();
     }
+    /// <summary>
+    /// Change token Authetication
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
     public static IApplicationBuilder UseChangeTokenAuthetication(this IApplicationBuilder builder)
     {
         return builder.UseMiddleware<ChangeTokenAutheticationMiddlewares>();

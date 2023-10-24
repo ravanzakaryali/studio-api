@@ -26,7 +26,7 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             throw new NotFoundException(nameof(Worker), request.Id);
 
 
-        IEnumerable<ClassModulesWorker> classModuleWorker = worker.ClassModulesWorkers.Where(q => q.Class.EndDate.Value.Date >= DateTime.Now.Date).DistinctBy(cmw => cmw.ClassId);
+        IEnumerable<ClassModulesWorker> classModuleWorker = worker.ClassModulesWorkers.Where(q => (q.Class?.EndDate ?? DateTime.Now).Date >= DateTime.Now.Date).DistinctBy(cmw => cmw.ClassId);
 
         var classIds = classModuleWorker.Select(cm => cm.ClassId);
         var classSession = await _spaceDbContext.ClassSessions.Where(c => classIds.Contains(c.ClassId) && c.Date == DateTime.Now.Date).ToListAsync();

@@ -2,6 +2,9 @@
 
 namespace Space.WebAPI.Controllers;
 
+/// <summary>
+/// Class Module Workers
+/// </summary>
 [Authorize]
 public class ClassModulesWorkerController : BaseApiController
 {

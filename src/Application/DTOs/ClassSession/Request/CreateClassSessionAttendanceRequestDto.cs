@@ -5,14 +5,14 @@ public class CreateClassSessionAttendanceRequestDto
     public Guid ClassId { get; set; }
     public Guid ModuleId { get; set; }
     public DateTime Date { get; set; }
-    public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; }
+    public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
 }
 public class UpdateAttendanceCategorySessionDto
 {
     public ClassSessionStatus Status { get; set; }
     public ClassSessionCategory Category { get; set; }
-    public ICollection<CreateAttendanceWorker> AttendancesWorkers { get; set; }
-    public ICollection<UpdateAttendanceDto> Attendances { get; set; }
+    public ICollection<CreateAttendanceWorker> AttendancesWorkers { get; set; } = null!;
+    public ICollection<UpdateAttendanceDto> Attendances { get; set; } = null!;
 }
 public class CreateAttendanceWorker
 {

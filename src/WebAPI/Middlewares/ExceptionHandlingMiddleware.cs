@@ -64,7 +64,7 @@ public class ExceptionHandlingMiddleware
                 $"StatusCode: {httpContext.Response.StatusCode},\n\n " +
                 $"Message: '{response.Message}',\n\n " +
                 $"Login User: {email}, \n\n" +
-                $"Endpoint {httpContext.Request.Method}: {httpContext.Request.Path} \n\n";
+                $"Endpoint {httpContext.Request?.Method}: {httpContext.Request?.Path} \n\n";
             _unitOfWork!.TelegramService.SendMessage(sendMessage);
 
 
