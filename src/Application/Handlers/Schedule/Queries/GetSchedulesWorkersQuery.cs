@@ -8,16 +8,18 @@ internal class GetSchedulesWorkersQueryHandler : IRequestHandler<GetSchedulesWor
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IWorkerRepository _workerRepository;
 
-    public GetSchedulesWorkersQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetSchedulesWorkersQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IWorkerRepository workerRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _workerRepository = workerRepository;
     }
 
     public async Task<IEnumerable<GetSchedulesWorkersResponseDto>> Handle(GetSchedulesWorkersQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Worker> workers = await _unitOfWork.WorkerRepository.GetAllAsync(predicate: null, tracking: false, "ClassModulesWorkers.Class");
+        IEnumerable<Worker> workers = await _workerRepository.GetAllAsync(predicate: null, tracking: false, "ClassModulesWorkers.Class");
 
         List<GetSchedulesWorkersResponseDto> response = new();
         foreach (Worker worker in workers)

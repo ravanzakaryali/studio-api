@@ -4,7 +4,7 @@ public interface IRepository<TEntity> where TEntity : class, IBaseEntity
 {
     DbSet<TEntity> Table { get; }
 
-    Task<TEntity?> GetAsync(Guid id, 
+    Task<TEntity?> GetAsync(Guid id,
         bool tracking = true,
         params string[] include);
 
@@ -38,5 +38,5 @@ public interface IRepository<TEntity> where TEntity : class, IBaseEntity
     Task AddRangeAsync(IEnumerable<TEntity> entities);
     void RemoveRange(IEnumerable<TEntity> entities, bool isHardDelete = false);
     void Update(TEntity entity);
-    TEntity Remove(TEntity entity,bool isHardDelete = false);
+    TEntity Remove(TEntity entity, bool isHardDelete = false);
 }

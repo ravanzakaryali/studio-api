@@ -2,7 +2,7 @@
 
 
 public interface IAttendanceRepository : IRepository<Attendance>
-        {
-
-        }
+{
+    
+}
 

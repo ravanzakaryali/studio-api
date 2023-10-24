@@ -1,4 +1,5 @@
-﻿using Space.Application.DTOs;
+﻿using Serilog;
+using Space.Application.DTOs;
 using Space.Domain.Entities;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;

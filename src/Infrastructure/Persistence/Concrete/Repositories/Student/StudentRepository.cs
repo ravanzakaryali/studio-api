@@ -4,16 +4,15 @@ using Space.Application.Extensions;
 namespace Space.Infrastructure.Persistence;
 internal class StudentRepository : Repository<Student>, IStudentRepository
 {
-
-    readonly SpaceDbContext _dbContext;
+    readonly ISpaceDbContext _context;
     public StudentRepository(SpaceDbContext context) : base(context)
     {
-        _dbContext = context;
+        _context = context;
     }
 
     public async Task GenerateEmailAsync(Guid id)
     {
-        Student? student = await _dbContext.Students.Include(c => c.Contact).FirstOrDefaultAsync(s => s.Id == id) ??
+        Student? student = await _context.Students.Include(c => c.Contact).FirstOrDefaultAsync(s => s.Id == id) ??
             throw new NotFoundException(nameof(Student), id);
 
         if (student.Contact == null) throw new NotFoundException(nameof(Contact));
@@ -21,7 +20,7 @@ internal class StudentRepository : Repository<Student>, IStudentRepository
                                 student.Contact.FatherName.CharacterRegulatory()[0] +
                                 student.Contact.Surname.CharacterRegulatory()[0] + 
                                 "@code.edu.az";
-        await _dbContext.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
 }
 

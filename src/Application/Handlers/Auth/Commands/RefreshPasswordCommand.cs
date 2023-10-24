@@ -8,15 +8,17 @@ public class RefreshPasswordCommand : IRequest
 internal class RefreshPasswordCommandHandler : IRequestHandler<RefreshPasswordCommand>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly IWorkerRepository _workerRepository;
 
-    public RefreshPasswordCommandHandler(IUnitOfWork unitOfWork)
+    public RefreshPasswordCommandHandler(IUnitOfWork unitOfWork, IWorkerRepository workerRepository)
     {
         _unitOfWork = unitOfWork;
+        _workerRepository = workerRepository;
     }
 
     public async Task Handle(RefreshPasswordCommand request, CancellationToken cancellationToken)
     {
-        Worker? worker = await _unitOfWork.WorkerRepository.GetAsync(w => w.Email == request.Email) ??
+        Worker? worker = await _workerRepository.GetAsync(w => w.Email == request.Email) ??
             throw new NotFoundException(nameof(Worker), request.Email);
 
         if (worker.LastPasswordUpdateDate != null
@@ -26,8 +28,8 @@ internal class RefreshPasswordCommandHandler : IRequestHandler<RefreshPasswordCo
         worker.Key = Guid.NewGuid();
         worker.KeyExpirerDate = DateTime.UtcNow.AddMinutes(15);
         worker.LastPasswordUpdateDate = DateTime.UtcNow;
-        string messaje = $"https://studio.code.az/admin/auth/confirmpassword/{worker.Key}";
-        await _unitOfWork.EmailService.SendMessageAsync(messaje, worker.Email, "Şifrənizi dəyiştirin");
+        string messaje = $"https://dev-studio.code.az/admin/auth/confirmpassword/{worker.Key}";
+        await _unitOfWork.EmailService.SendMessageAsync(messaje, worker.Email, "Şifrənizi dəyiştirin (no-reply)");
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

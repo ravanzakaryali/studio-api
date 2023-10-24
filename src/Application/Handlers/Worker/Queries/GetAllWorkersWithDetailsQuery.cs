@@ -8,19 +8,22 @@ namespace Space.Application.Handlers
     internal class GetAllWorkersWithDetailsQueryHandler : IRequestHandler<GetAllWorkersWithDetailsQuery, IEnumerable<GetAllWorkersWithDetailsResponseDto>>
     {
         readonly IUnitOfWork _unitOfWork;
+        readonly IWorkerRepository _workerRepository;
+        readonly IClassModulesWorkerRepository _classModulesWorkerRepository;
 
 
-        public GetAllWorkersWithDetailsQueryHandler(IUnitOfWork unitOfWork)
+        public GetAllWorkersWithDetailsQueryHandler(IUnitOfWork unitOfWork, IClassModulesWorkerRepository classModulesWorkerRepository, IWorkerRepository workerRepository)
         {
             _unitOfWork = unitOfWork;
- 
+            _classModulesWorkerRepository = classModulesWorkerRepository;
+            _workerRepository = workerRepository;
         }
 
         public async Task<IEnumerable<GetAllWorkersWithDetailsResponseDto>> Handle(GetAllWorkersWithDetailsQuery request, CancellationToken cancellationToken)
         {
 
-            var workers = await _unitOfWork.WorkerRepository.GetAllAsync(predicate: null, tracking: false, "UserRoles");
-            var workersClasses = await _unitOfWork.ClassModulesWorkerRepository.GetAllAsync(predicate: null, tracking: false, "Class");
+            var workers = await _workerRepository.GetAllAsync(predicate: null, tracking: false, "UserRoles");
+            var workersClasses = await _classModulesWorkerRepository.GetAllAsync(predicate: null, tracking: false, "Class");
 
             var response = new List<GetAllWorkersWithDetailsResponseDto>();
 
@@ -42,7 +45,7 @@ namespace Space.Application.Handlers
                 {
                     //aynı class var mı kontrol? code review yapılmalı
 
-                    if(!workersClassesDtos.Any(q => q.ClassId == workerClass.Class.Id))
+                    if (!workersClassesDtos.Any(q => q.ClassId == workerClass.Class.Id))
                     {
                         var workersClassesDto = new WorkersClassesDto();
                         workersClassesDto.ClassId = workerClass.Class.Id;
@@ -55,7 +58,7 @@ namespace Space.Application.Handlers
 
                         workersClassesDtos.Add(workersClassesDto);
                     }
-                 
+
                 }
 
                 model.WorkerClasses = workersClassesDtos;

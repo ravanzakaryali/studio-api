@@ -12,17 +12,23 @@ internal class UpdateWorkerCommandHandler : IRequestHandler<UpdateWorkerCommand,
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
     readonly UserManager<User> _userManager;
+    readonly IWorkerRepository _workerRepository;
 
-    public UpdateWorkerCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, UserManager<User> userManager)
+    public UpdateWorkerCommandHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        UserManager<User> userManager,
+        IWorkerRepository workerRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _userManager = userManager;
+        _workerRepository = workerRepository;
     }
 
     public async Task<GetWorkerResponseDto> Handle(UpdateWorkerCommand request, CancellationToken cancellationToken)
     {
-        Worker? worker = await _unitOfWork.WorkerRepository.GetAsync(request.Id)
+        Worker? worker = await _workerRepository.GetAsync(request.Id)
             ?? throw new NotFoundException(nameof(Worker), request.Id);
 
         worker.Name = request.Worker.Name;

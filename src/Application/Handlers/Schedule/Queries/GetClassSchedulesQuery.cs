@@ -8,18 +8,25 @@ public record GetClassSchedulesQuery() : IRequest<IEnumerable<GetClassSchedulesR
 internal class GetClassSchedulesQueryHandler : IRequestHandler<GetClassSchedulesQuery, IEnumerable<GetClassSchedulesResponseDto>>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly IRoomScheduleRepository _roomScheduleRepository;
+    readonly IClassRepository _classRepository;
 
-    public GetClassSchedulesQueryHandler(IUnitOfWork unitOfWork)
+    public GetClassSchedulesQueryHandler(
+        IUnitOfWork unitOfWork,
+        IRoomScheduleRepository roomScheduleRepository,
+        IClassRepository classRepository)
     {
         _unitOfWork = unitOfWork;
+        _roomScheduleRepository = roomScheduleRepository;
+        _classRepository = classRepository;
     }
 
 
     public async Task<IEnumerable<GetClassSchedulesResponseDto>> Handle(GetClassSchedulesQuery request, CancellationToken cancellationToken)
     {
 
-        IEnumerable<RoomSchedule> roomSchedules = await _unitOfWork.RoomScheduleRepository.GetAllAsync(q => q.Year == 2023, tracking: false);
-        IEnumerable<Class> classes = await _unitOfWork.ClassRepository.GetAllAsync(q => q.IsActive, tracking: false, "Room", "Program");
+        IEnumerable<RoomSchedule> roomSchedules = await _roomScheduleRepository.GetAllAsync(q => q.Year == 2023, tracking: false);
+        IEnumerable<Class> classes = await _classRepository.GetAllAsync(q => q.IsActive, tracking: false, "Room", "Program");
 
         List<GetClassSchedulesResponseDto> response = new();
 

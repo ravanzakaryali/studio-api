@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.FileProviders;
+using Space.Application.Abstractions.Repositories;
 
 namespace Space.Application.Handlers;
 
@@ -11,21 +12,37 @@ public class CreateClassModuleCommand : IRequest
 internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModuleCommand>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly IClassRepository _classRepository;
+    readonly IModuleRepository _moduleRepository;
+    readonly IWorkerRepository _workerRepository;
+    readonly IRoleRepository _roleRepository;
+    readonly IClassModulesWorkerRepository _classModulesWorkerRepository;
 
-    public CreateClassModuleCommandHandler(IUnitOfWork unitOfWork)
+    public CreateClassModuleCommandHandler(
+        IUnitOfWork unitOfWork,
+        IClassRepository classRepository,
+        IModuleRepository moduleRepository,
+        IWorkerRepository workerRepository,
+        IRoleRepository roleRepository,
+        IClassModulesWorkerRepository modulesWorkerRepository)
     {
         _unitOfWork = unitOfWork;
+        _classRepository = classRepository;
+        _moduleRepository = moduleRepository;
+        _workerRepository = workerRepository;
+        _roleRepository = roleRepository;
+        _classModulesWorkerRepository = modulesWorkerRepository;
     }
 
     public async Task Handle(CreateClassModuleCommand request, CancellationToken cancellationToken)
     {
 
-        Class? @class = await _unitOfWork.ClassRepository.GetAsync(request.ClassId, tracking: false, "Program.Modules.SubModules")
+        Class? @class = await _classRepository.GetAsync(request.ClassId, tracking: false, "Program.Modules.SubModules")
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
 
         IEnumerable<Guid> moduleIds = request.CreateClassModule.Select(c => c.ModuleId);
-        IEnumerable<Module> modules = await _unitOfWork.ModuleRepository.GetAllAsync(c => moduleIds.Contains(c.Id), tracking: false);
+        IEnumerable<Module> modules = await _moduleRepository.GetAllAsync(c => moduleIds.Contains(c.Id), tracking: false);
         IEnumerable<Guid> existingModuleIds = modules.Select(m => m.Id);
         IEnumerable<Guid> nonExistingModuleIds = moduleIds.Except(existingModuleIds);
         if (nonExistingModuleIds.Any())
@@ -46,22 +63,22 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
 
         IEnumerable<Guid> workerIds = request.CreateClassModule.Select(c => c.WorkerId);
         //if (@class.Program.Modules.Any(c => moduleIds.Contains(c.Id))) throw new NotFoundException("Modules not found in modules of class program");
-        IEnumerable<Worker> workers = await _unitOfWork.WorkerRepository.GetAllAsync(c => workerIds.Contains(c.Id));
+        IEnumerable<Worker> workers = await _workerRepository.GetAllAsync(c => workerIds.Contains(c.Id));
         IEnumerable<Guid> existingWorkerIds = workers.Select(w => w.Id);
         IEnumerable<Guid> nonExistingWorkerIds = workerIds.Except(existingWorkerIds);
         if (nonExistingWorkerIds.Any())
             throw new NotFoundException(nameof(Worker), $"{string.Join(",", nonExistingWorkerIds)}");
 
         IEnumerable<Guid> roleIds = request.CreateClassModule.Select(c => c.RoleId);
-        IEnumerable<Role> roles = await _unitOfWork.RoleRepository.GetAllAsync(c => roleIds.Contains(c.Id));
+        IEnumerable<Role> roles = await _roleRepository.GetAllAsync(c => roleIds.Contains(c.Id));
         IEnumerable<Guid> nonExistingRoleIds = roles.Select(w => w.Id);
         if (nonExistingRoleIds.Count() == 0)
             throw new NotFoundException(nameof(Role), $"{string.Join(",", nonExistingRoleIds)}");
 
-        IEnumerable<ClassModulesWorker> classModulesWorker = await _unitOfWork.ClassModulesWorkerRepository.GetAllAsync(c => c.ClassId == request.ClassId);
-        _unitOfWork.ClassModulesWorkerRepository.RemoveRange(classModulesWorker);
+        IEnumerable<ClassModulesWorker> classModulesWorker = await _classModulesWorkerRepository.GetAllAsync(c => c.ClassId == request.ClassId);
+        _classModulesWorkerRepository.RemoveRange(classModulesWorker);
 
-        await _unitOfWork.ClassModulesWorkerRepository.AddRangeAsync(request.CreateClassModule.Select(c => new ClassModulesWorker()
+        await _classModulesWorkerRepository.AddRangeAsync(request.CreateClassModule.Select(c => new ClassModulesWorker()
         {
             WorkerId = c.WorkerId,
             ModuleId = c.ModuleId,

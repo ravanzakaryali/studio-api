@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public class UpdateClassSessionAtttendanceCommandValidation : AbstractValidator<UpdateClassSessionAttendanceCommand>
+public class UpdateClassSessionAtttendanceCommandValidation : AbstractValidator<CreateClassSessionAttendanceCommand>
 {
     public UpdateClassSessionAtttendanceCommandValidation()
     {
@@ -20,9 +20,9 @@ public class UpdateAttendanceCategorySessionDtoValidation : AbstractValidator<Up
 {
     public UpdateAttendanceCategorySessionDtoValidation()
     {
-        RuleFor(c => c.WorkerId)
-            .NotNull().WithMessage(Constants.ValidationRequiredMessage)
-            .NotEmpty().WithMessage(Constants.ValidationRequiredMessage);
+        //RuleFor(c => c.WorkerId)
+        //    .NotNull().WithMessage(Constants.ValidationRequiredMessage)
+        //    .NotEmpty().WithMessage(Constants.ValidationRequiredMessage);
         RuleFor(c => c.Category)
             .IsInEnum();
         RuleFor(c => c.Status)

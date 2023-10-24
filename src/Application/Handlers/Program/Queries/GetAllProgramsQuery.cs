@@ -8,15 +8,20 @@ public class GetAllProgramsQueryHandler : IRequestHandler<GetAllProgramsQuery, I
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-    public GetAllProgramsQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    readonly IProgramRepository _programRepository;
+    public GetAllProgramsQueryHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        IProgramRepository programRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _programRepository = programRepository;
     }
 
     public async Task<IEnumerable<GetAllProgramResponseDto>> Handle(GetAllProgramsQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Program> programs = await _unitOfWork.ProgramRepository.GetAllAsync(includes: "Modules");
+        IEnumerable<Program> programs = await _programRepository.GetAllAsync(includes: "Modules");
         programs.ToList().ForEach(a => a.Modules = a.Modules.Where(a => a.TopModuleId == null).ToList());
         IEnumerable<GetAllProgramResponseDto> programss = programs.Select(p => new GetAllProgramResponseDto()
         {

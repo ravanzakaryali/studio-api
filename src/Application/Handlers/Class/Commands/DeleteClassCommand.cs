@@ -6,6 +6,7 @@ internal class DeleteClassCommandHandler : IRequestHandler<DeleteClassCommand, G
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IClassRepository _classRepository;
 
     public DeleteClassCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
     {
@@ -15,9 +16,9 @@ internal class DeleteClassCommandHandler : IRequestHandler<DeleteClassCommand, G
 
     public async Task<GetClassResponseDto> Handle(DeleteClassCommand request, CancellationToken cancellationToken)
     {
-        Class? @class = await _unitOfWork.ClassRepository.GetAsync(c => c.Id == request.Id) ?? 
-            throw new NotFoundException(nameof(Class),request.Id);
-        _unitOfWork.ClassRepository.Remove(@class);
+        Class? @class = await _classRepository.GetAsync(c => c.Id == request.Id) ??
+            throw new NotFoundException(nameof(Class), request.Id);
+        _classRepository.Remove(@class);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return _mapper.Map<GetClassResponseDto>(@class);
     }

@@ -3,45 +3,62 @@
 namespace Space.Application.Handlers;
 
 
-public record CreateReservationCommand(string Title,
-                                       string Description,
-                                       DateTime StartDate,
-                                       DateTime EndDate,
-                                       Guid RoomId,
-                                       List<string> WorkersId) : IRequest<CreateReservationResponseDto>;
+public class CreateReservationCommand : IRequest<CreateReservationResponseDto>
+{
+    public CreateReservationCommand()
+    {
+        WorkersId = new HashSet<string>();
+    }
+    public string Title { get; set; } = null!;
+    public string? Description { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public Guid RoomId { get; set; }
+    public ICollection<string> WorkersId { get; set; }
+}
 
 
 
 internal class CreateReservationCommandHandler : IRequestHandler<CreateReservationCommand, CreateReservationResponseDto>
 {
-
     readonly IUnitOfWork _unitOfWork;
+    readonly IReservationRepository _reservationRepository;
 
-
-    public CreateReservationCommandHandler(IUnitOfWork unitOfWork)
+    public CreateReservationCommandHandler(
+        IUnitOfWork unitOfWork,
+        IReservationRepository reservationRepository)
     {
         _unitOfWork = unitOfWork;
-
+        _reservationRepository = reservationRepository;
     }
 
     public async Task<CreateReservationResponseDto> Handle(CreateReservationCommand request, CancellationToken cancellationToken)
     {
+        Reservation reservation = new()
+        {
+            Title = request.Title,
+            Description = request.Description,
+        };
 
-        Reservation reservation = new Reservation();
-        reservation.Title = request.Title;
-        reservation.Description = request.Description;
-
-
-        await _unitOfWork.ReservationRepository.AddAsync(reservation);
+        await _reservationRepository.AddAsync(reservation);
 
         if (request.StartDate.DayOfYear != request.EndDate.DayOfYear)
         {
 
         }
 
-        RoomSchedule roomSchedule = new();
-        roomSchedule.Category = EnumScheduleCategory.Reservation;
-        roomSchedule.RoomId = request.RoomId;
+
+        RoomSchedule roomSchedule = new()
+        {
+            Category = EnumScheduleCategory.Reservation,
+            RoomId = request.RoomId,
+            Reservation = reservation,
+            StartTime = request.StartDate.ToString("hh:mm tt"),
+            EndTime = request.EndDate.ToString("hh:mm tt"),
+            DayOfMonth = request.StartDate.Month,
+            DayOfWeek = Convert.ToInt32(request.StartDate.DayOfWeek),
+            Year = request.EndDate.Year,
+        };
 
 
 

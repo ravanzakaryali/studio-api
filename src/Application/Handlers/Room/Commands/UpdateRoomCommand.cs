@@ -6,20 +6,24 @@ internal class UpdateRoomCommandHandler : IRequestHandler<UpdateRoomCommand, Get
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-
-    public UpdateRoomCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    readonly IRoomRepository _roomRepository;
+    public UpdateRoomCommandHandler(
+        IUnitOfWork unitOfWork, 
+        IMapper mapper, 
+        IRoomRepository roomRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _roomRepository = roomRepository;
     }
 
     public async Task<GetRoomResponseDto> Handle(UpdateRoomCommand request, CancellationToken cancellationToken)
     {
-        Room? room = await _unitOfWork.RoomRepository.GetAsync(request.Id, tracking: false)
+        Room? room = await _roomRepository.GetAsync(request.Id, tracking: false)
             ?? throw new NotFoundException(nameof(Room),request.Id);
         Room newRoom = _mapper.Map<Room>(request.UpdateRoom);
         newRoom.Id = request.Id;
-        _unitOfWork.RoomRepository.Update(newRoom);
+        _roomRepository.Update(newRoom);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return _mapper.Map<GetRoomResponseDto>(newRoom);
     }

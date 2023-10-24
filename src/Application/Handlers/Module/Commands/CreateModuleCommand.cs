@@ -8,11 +8,19 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand,
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IProgramRepository _programRepository;
+    readonly IModuleRepository _moduleRepository;
 
-    public CreateModuleCommandHandler(IMapper mapper, IUnitOfWork unitOfWork)
+    public CreateModuleCommandHandler(
+        IMapper mapper,
+        IUnitOfWork unitOfWork,
+        IProgramRepository programRepository,
+        IModuleRepository moduleRepository)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+        _programRepository = programRepository;
+        _moduleRepository = moduleRepository;
     }
 
     public async Task<IEnumerable<GetModuleDto>> Handle(CreateModuleCommand request, CancellationToken cancellationToken)
@@ -37,14 +45,14 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand,
                   }
               }).ToList();
 
-        Program? program = await _unitOfWork.ProgramRepository.GetAsync(a => a.Id == request.ProgramId, includeProperties: "Modules")
-                        ?? throw new NotFoundException(nameof(Program),request.ProgramId);
+        Program? program = await _programRepository.GetAsync(a => a.Id == request.ProgramId, includeProperties: "Modules")
+                        ?? throw new NotFoundException(nameof(Program), request.ProgramId);
 
         if (program.Modules != null)
         {
             foreach (Module module in program.Modules)
             {
-                _unitOfWork.ModuleRepository.Remove(module);
+                _moduleRepository.Remove(module);
             }
         }
 
@@ -52,7 +60,7 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand,
         {
             IEnumerable<ValidationFailure> failure = new List<ValidationFailure>()
             {
-                new ValidationFailure("TotalHours",$"The total {program.TotalHours} hours of the '{nameof(Program)}' must be equal to the sum of the hours of the '{nameof(Program)}'") 
+                new ValidationFailure("TotalHours",$"The total {program.TotalHours} hours of the '{nameof(Program)}' must be equal to the sum of the hours of the '{nameof(Program)}'")
             };
             throw new ValidationException("Program hours error", failure);
         }
@@ -63,7 +71,7 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand,
         //Module? modulesDb = await _unitOfWork.ModuleRepository.GetAsync(a => moduleNames.Contains(a.Name) && a.ProgramId == request.ProgramId);
         //if (modulesDb != null) throw new Exception("Module already exsist");
 
-        await _unitOfWork.ModuleRepository.AddRangeAsync(modules);
+        await _moduleRepository.AddRangeAsync(modules);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return _mapper.Map<IEnumerable<GetModuleDto>>(modules);
     }

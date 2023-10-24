@@ -11,16 +11,21 @@ internal class GetSchedulesRoomQueryHandler : IRequestHandler<GetSchedulesRoomsQ
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IRoomRepository _roomRepository;
 
-    public GetSchedulesRoomQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetSchedulesRoomQueryHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        IRoomRepository roomRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _roomRepository = roomRepository;
     }
 
     public async Task<IEnumerable<GetSchedulesRoomsResponseDto>> Handle(GetSchedulesRoomsQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Room> rooms = await _unitOfWork.RoomRepository.GetAllAsync(includes: "RoomSchedules");
+        IEnumerable<Room> rooms = await _roomRepository.GetAllAsync(includes: "RoomSchedules");
         List<GetSchedulesRoomsResponseDto> response = new();
 
         foreach (Room room in rooms)
@@ -37,7 +42,7 @@ internal class GetSchedulesRoomQueryHandler : IRequestHandler<GetSchedulesRoomsQ
             };
             for (int i = 1; i <= 12; i++)
             {
-                int roomSchedulesHours = room.RoomSchedules.Where(c => c.DayOfMonth == i && c.Year == request.Year).ToList().Sum(c => DateTime.Parse(c.EndDate).Hour - DateTime.Parse(c.StartDate).Hour);
+                int roomSchedulesHours = room.RoomSchedules.Where(c => c.DayOfMonth == i && c.Year == request.Year).ToList().Sum(c => DateTime.Parse(c.EndTime).Hour - DateTime.Parse(c.StartTime).Hour);
                 int daysInApril = DateTime.DaysInMonth(request.Year ?? new DateTime().Year, i) * 13;
                 int value = roomSchedulesHours * 100 / daysInApril;
                 responseRoom.OccupancyRates.Add(new OccupancyRate()

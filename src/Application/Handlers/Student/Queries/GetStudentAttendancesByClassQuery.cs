@@ -9,18 +9,22 @@ public record GetStudentAttendancesByClassQuery(Guid Id, Guid classId) : IReques
 internal class GetStudentAttendancesByClassQueryHandler : IRequestHandler<GetStudentAttendancesByClassQuery, GetStudentAttendancesByClassResponseDto>
 {
 
+    readonly IStudyRepository _studyRepository;
     readonly IUnitOfWork _unitOfWork;
 
-    public GetStudentAttendancesByClassQueryHandler(IUnitOfWork unitOfWork)
+    public GetStudentAttendancesByClassQueryHandler(
+        IUnitOfWork unitOfWork,
+        IStudyRepository studyRepository)
     {
         _unitOfWork = unitOfWork;
+        _studyRepository = studyRepository;
     }
 
     public async Task<GetStudentAttendancesByClassResponseDto> Handle(GetStudentAttendancesByClassQuery request, CancellationToken cancellationToken)
     {
         GetStudentAttendancesByClassResponseDto response = new();
 
-        Study study = await _unitOfWork.StudyRepository.GetAsync(q => q.StudentId == request.Id && q.ClassId == request.classId, false, "Class.ClassSessions", "Student.Contact", "Attendances.ClassSession") ?? throw new NotFoundException();
+        Study study = await _studyRepository.GetAsync(q => q.StudentId == request.Id && q.ClassId == request.classId, false, "Class.ClassSessions", "Student.Contact", "Attendances.ClassSession") ?? throw new NotFoundException();
 
         response.EMail = study.Student?.Email;
         response.Phone = study.Student.Contact?.Phone;

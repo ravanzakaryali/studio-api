@@ -9,30 +9,44 @@ internal class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, G
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IProgramRepository _programRepository;
+    readonly ISessionRepository _sessionRepository;
+    readonly IRoomRepository _roomRepository;
+    readonly IClassRepository _classRepository;
 
-    public CreateClassCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateClassCommandHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        IProgramRepository programRepository,
+        ISessionRepository sessionRepository,
+        IRoomRepository roomRepository,
+        IClassRepository classRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _programRepository = programRepository;
+        _sessionRepository = sessionRepository;
+        _roomRepository = roomRepository;
+        _classRepository = classRepository;
     }
 
     public async Task<GetWithIncludeClassResponseDto> Handle(CreateClassCommand request, CancellationToken cancellationToken)
     {
-        Program? program = await _unitOfWork.ProgramRepository.GetAsync(request.ProgramId) ??
+        Program? program = await _programRepository.GetAsync(request.ProgramId) ??
             throw new NotFoundException(nameof(Program), request.ProgramId);
 
-        Session? session = await _unitOfWork.SessionRepository.GetAsync(request.SessionId) ??
+        Session? session = await _sessionRepository.GetAsync(request.SessionId) ??
             throw new NotFoundException(nameof(Session), request.SessionId);
 
 
         if (request.RoomId != null)
         {
-        Guid roomIdNonNullable = request.RoomId ?? Guid.Empty;
-            Room room = await _unitOfWork.RoomRepository.GetAsync(roomIdNonNullable) ??
+            Guid roomIdNonNullable = request.RoomId ?? Guid.Empty;
+            Room room = await _roomRepository.GetAsync(roomIdNonNullable) ??
                 throw new NotFoundException(nameof(Room), roomIdNonNullable);
         }
 
-        Class @class = await _unitOfWork.ClassRepository.AddAsync(_mapper.Map<Class>(request));
+        Class @class = await _classRepository.AddAsync(_mapper.Map<Class>(request));
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return _mapper.Map<GetWithIncludeClassResponseDto>(@class);
     }

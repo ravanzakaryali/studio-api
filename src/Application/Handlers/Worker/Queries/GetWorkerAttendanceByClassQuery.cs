@@ -9,54 +9,58 @@ namespace Space.Application.Handlers
     {
 
         readonly IUnitOfWork _unitOfWork;
+        readonly IClassSessionRepository _classSessionRepository;
 
-        public GetWorkerAttendanceByClassQueryHandler(IUnitOfWork unitOfWork)
+        public GetWorkerAttendanceByClassQueryHandler(
+            IUnitOfWork unitOfWork,
+            IClassSessionRepository classSessionRepository)
         {
             _unitOfWork = unitOfWork;
+            _classSessionRepository = classSessionRepository;
         }
 
         public async Task<IEnumerable<GetWorkerAttendanceByClassDto>> Handle(GetWorkerAttendanceByClassQuery request, CancellationToken cancellationToken)
         {
-            var data = await _unitOfWork.ClassSessionRepository.GetAllAsync(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline));
+            var data = await _classSessionRepository.GetAllAsync(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline));
 
             var response = new List<GetWorkerAttendanceByClassDto>();
 
-            var data2 = data.GroupBy(q => q.WorkerId).Select(q => new
-            {
-                id = q.Key,
-                total = q.Sum(item => item.TotalHour)
-            });
+            //var data2 = data.GroupBy(q => q.WorkerId).Select(q => new
+            //{
+            //    id = q.Key,
+            //    total = q.Sum(item => item.TotalHour)
+            //});
 
 
-           
-            foreach (var item in data2)
-            {
-                GetWorkerAttendanceByClassDto model = new GetWorkerAttendanceByClassDto();
 
-                model.WorkerId = item.id;
-                model.Hours = item.total;
-                //code review  yapılmalı. yukarıda join ile worker alınabilir!
-                var worker = await _unitOfWork.WorkerRepository.GetAsync(q => q.Id == item.id);
-                model.FullName = worker.Name + " " + worker.Surname;
-                string roles = "";
+            //foreach (var item in data2)
+            //{
+            //    GetWorkerAttendanceByClassDto model = new GetWorkerAttendanceByClassDto();
 
-                if(worker.UserRoles != null)
-                {
-                    if (worker.UserRoles.Count > 0)
-                    {
-                        foreach (var role in worker.UserRoles)
-                        {
-                            roles = roles + role.Role?.Name;
-                        }
-                    }
-                }
-                
+            //    model.WorkerId = item.id;
+            //    model.Hours = item.total;
+            //    //code review  yapılmalı. yukarıda join ile worker alınabilir!
+            //    var worker = await _unitOfWork.WorkerRepository.GetAsync(q => q.Id == item.id);
+            //    model.FullName = worker.Name + " " + worker.Surname;
+            //    string roles = "";
 
-                model.Role = roles;
+            //    if(worker.UserRoles != null)
+            //    {
+            //        if (worker.UserRoles.Count > 0)
+            //        {
+            //            foreach (var role in worker.UserRoles)
+            //            {
+            //                roles = roles + role.Role?.Name;
+            //            }
+            //        }
+            //    }
 
-                response.Add(model);
 
-            }
+            //    model.Role = roles;
+
+            //    response.Add(model);
+
+            //}
 
             return response;
 

@@ -14,15 +14,19 @@ namespace Space.Application.Handlers
     {
 
         readonly IUnitOfWork _unitOfWork;
+        readonly IClassSessionRepository _classSessionRepository;
 
-        public GetClassSessionsByDateQueryHandler(IUnitOfWork unitOfWork)
+        public GetClassSessionsByDateQueryHandler(
+            IUnitOfWork unitOfWork, 
+            IClassSessionRepository classSessionRepository)
         {
             _unitOfWork = unitOfWork;
+            _classSessionRepository = classSessionRepository;
         }
 
         public async Task<IEnumerable<GetClassSessionsByDateResponseDto>> Handle(GetClassSessionsByDateQuery request, CancellationToken cancellationToken)
         {
-            IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(c => c.Date.Year == request.date.Year && c.Date.Day == request.date.Day && c.Date.Month == request.date.Month && c.ClassId == request.id);
+            IEnumerable<ClassSession> classSessions = await _classSessionRepository.GetAllAsync(c => c.Date.Year == request.date.Year && c.Date.Day == request.date.Day && c.Date.Month == request.date.Month && c.ClassId == request.id);
 
             IEnumerable<GetClassSessionsByDateResponseDto> response = classSessions.Select(q => new GetClassSessionsByDateResponseDto()
             {
@@ -30,7 +34,7 @@ namespace Space.Application.Handlers
                 EndTime = q.EndTime,
                 Status = q.Status,
                 TotalHour = q.TotalHour,
-                Id= q.Id,
+                Id = q.Id,
             });
 
             return response;

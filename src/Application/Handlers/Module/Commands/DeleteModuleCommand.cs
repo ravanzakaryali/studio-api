@@ -6,6 +6,7 @@ internal class DeleteModuleCommandHandler : IRequestHandler<DeleteModuleCommand>
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IModuleRepository _moduleRepository;
 
     public DeleteModuleCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
     {
@@ -15,9 +16,9 @@ internal class DeleteModuleCommandHandler : IRequestHandler<DeleteModuleCommand>
 
     public async Task Handle(DeleteModuleCommand request, CancellationToken cancellationToken)
     {
-        Module? module = await _unitOfWork.ModuleRepository.GetAsync(request.Id)
-            ?? throw new NotFoundException(nameof(Module),request.Id);
-        _unitOfWork.ModuleRepository.Remove(module);
+        Module? module = await _moduleRepository.GetAsync(request.Id)
+            ?? throw new NotFoundException(nameof(Module), request.Id);
+        _moduleRepository.Remove(module);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

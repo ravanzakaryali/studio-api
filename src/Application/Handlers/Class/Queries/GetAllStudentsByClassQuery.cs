@@ -9,19 +9,23 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IClassRepository _classRepository;
+    readonly IClassSessionRepository _classSessionRepository;
 
-    public GetAllStudentsByClassQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetAllStudentsByClassQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IClassRepository classRepository, IClassSessionRepository classSessionRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _classRepository = classRepository;
+        _classSessionRepository = classSessionRepository;
     }
 
     public async Task<IEnumerable<GetAllStudentByClassResponseDto>> Handle(GetAllStudentsByClassQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _unitOfWork.ClassRepository.GetAsync(request.Id, tracking: false, "Studies.Student.Contact", "Studies.Attendances", "ClassSessions.Attendances")
+        Class? @class = await _classRepository.GetAsync(request.Id, tracking: false, "Studies.Student.Contact", "Studies.Attendances", "ClassSessions.Attendances")
          ?? throw new NotFoundException(nameof(Class), request.Id);
 
-        IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(s =>
+        IEnumerable<ClassSession> classSessions = await _classSessionRepository.GetAllAsync(s =>
                                                         s.ClassId == @class.Id && s.Date == request.Date, tracking: false, "Attendances");
 
         var studentResponses = @class.Studies.Where(c => c.StudyType != StudyType.Completion).Select(study =>

@@ -7,17 +7,22 @@ public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClas
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly IClassRepository _classRepository;
 
-    public GetAllClassSessionsByClassQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetAllClassSessionsByClassQueryHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        IClassRepository classRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _classRepository = classRepository;
     }
 
     public async Task<IEnumerable<GetAllClassSessionByClassResponseDto>> Handle(GetAllClassSessionsByClassQuery request, CancellationToken cancellationToken)
     {
 
-        Class @class = await _unitOfWork.ClassRepository.GetAsync(request.Id, false, "ClassSessions") ?? throw new NotFoundException();
+        Class @class = await _classRepository.GetAsync(request.Id, false, "ClassSessions") ?? throw new NotFoundException();
 
 
         var response = @class.ClassSessions.OrderByDescending(q => q.Date).DistinctBy(q => q.Date).Select(q => new GetAllClassSessionByClassResponseDto()

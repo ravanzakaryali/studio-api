@@ -9,15 +9,19 @@ public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStud
 {
 
     readonly IUnitOfWork _unitOfWork;
+    readonly IClassRepository _classRepository;
 
-    public GetAllAbsentStudentsQueryHandler(IUnitOfWork unitOfWork)
+    public GetAllAbsentStudentsQueryHandler(
+        IUnitOfWork unitOfWork, 
+        IClassRepository classRepository)
     {
         _unitOfWork = unitOfWork;
+        _classRepository = classRepository;
     }
 
     public async Task<IEnumerable<GetAllAbsentStudentResponseDto>> Handle(GetAllAbsentStudentsQuery request, CancellationToken cancellationToken)
     {
-        Class @class = await _unitOfWork.ClassRepository.GetAsync(request.Id, tracking: false, "Studies.Attendances.ClassSession", "Studies.Student.Contact")
+        Class @class = await _classRepository.GetAsync(request.Id, tracking: false, "Studies.Attendances.ClassSession", "Studies.Student.Contact")
                         ?? throw new NotFoundException(nameof(Class), request.Id);
 
         var response = new List<GetAllAbsentStudentResponseDto>();

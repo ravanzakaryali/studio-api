@@ -2,7 +2,7 @@
 global using System;
 global using System.Net;
 global using System.Text.Json;
-global using Space.WebAPI.Api.Middlewares;
+global using Space.WebAPI.Middlewares;
 
 //Package
 global using Microsoft.AspNetCore.Mvc;
