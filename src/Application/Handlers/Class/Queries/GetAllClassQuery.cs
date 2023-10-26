@@ -1,51 +1,79 @@
-﻿using Serilog;
-using Space.Application.DTOs;
+﻿using Space.Application.DTOs.Enums;
 using Space.Domain.Entities;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Space.Application.Handlers.Queries;
 
-public record GetAllClassQuery : IRequest<IEnumerable<GetClassModuleWorkers>>;
-internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnumerable<GetClassModuleWorkers>>
+public record GetAllClassQuery(ClassStatus Status) : IRequest<IEnumerable<GetClassModuleWorkersResponse>>;
+internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnumerable<GetClassModuleWorkersResponse>>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly ISpaceDbContext _spaceDbContext;
-    readonly IMapper _mapper;
 
-    public GetAllClassQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ISpaceDbContext spaceDbContext)
+    public GetAllClassQueryHandler(ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
         _spaceDbContext = spaceDbContext;
     }
 
-    public async Task<IEnumerable<GetClassModuleWorkers>> Handle(GetAllClassQuery request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<GetClassModuleWorkersResponse>> Handle(GetAllClassQuery request, CancellationToken cancellationToken)
     {
-        //IEnumerable<Class> classesDb = await _unitOfWork.ClassRepository.GetAllAsync(predicate: null, tracking: false, "Program.Modules", "ClassModulesWorkers.Worker.UserRoles.Role", "Session");
-
-        List<Class> classes = await _spaceDbContext.Classes
+        IQueryable<Class> query = _spaceDbContext.Classes
             .Include(c => c.Program)
             .ThenInclude(c => c.Modules)
+            .Include(c => c.ClassSessions)
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Worker)
             .ThenInclude(c => c.UserRoles)
             .ThenInclude(c => c.Role)
-            .Include(c => c.Session)
-            .ToListAsync(cancellationToken: cancellationToken);
+            .Include(c => c.Session).AsQueryable();
 
-        return classes.Select(cd => new GetClassModuleWorkers()
+        if (request.Status == ClassStatus.Close)
+        {
+            query = query.Where(c => DateTime.Now > c.EndDate);
+        }
+        else if (request.Status == ClassStatus.Active)
+        {
+            query = query.Where(c => DateTime.Now > c.StartDate && DateTime.Now < c.EndDate);
+        }
+        else
+        {
+            query = query.Where(c => DateTime.Now < c.StartDate);
+        }
+
+        List<GetClassModuleWorkers> classes = await query.Select(cd => new GetClassModuleWorkers()
         {
             Id = cd.Id,
+            TotalHour = cd.ClassSessions
+                            .Where(c =>
+                            c.Status != ClassSessionStatus.Cancelled &&
+                            c.Category != ClassSessionCategory.Lab)
+                        .Sum(c => c.TotalHour),
+            CurrentHour = cd.ClassSessions
+                            .Where(c => c.Status != ClassSessionStatus.Cancelled &&
+                                        c.Category != ClassSessionCategory.Lab &&
+                                        c.Date <= DateTime.UtcNow).Sum(c => c.TotalHour),
             ClassName = cd.Name,
             EndDate = cd.EndDate,
-            IsNew = cd.IsNew,
             ProgramId = cd.ProgramId,
             ProgramName = cd.Program.Name,
             SessionName = cd.Session.Name,
             StartDate = cd.StartDate,
             TotalModules = cd.Program.Modules.Count,
             VitrinDate = cd.StartDate,
+            ClassModulesWorkers = cd.ClassModulesWorkers
+        }).ToListAsync(cancellationToken: cancellationToken);
+
+        return classes.Select(cd => new GetClassModuleWorkersResponse()
+        {
+            Id = cd.Id,
+            TotalHour = cd.TotalHour,
+            ClassName = cd.ClassName,
+            CurrentHour = cd.CurrentHour,
+            EndDate = cd.EndDate,
+            ProgramId = cd.ProgramId,
+            ProgramName = cd.ProgramName,
+            SessionName = cd.SessionName,
+            StartDate = cd.StartDate,
+            TotalModules = cd.TotalModules,
+            VitrinDate = cd.VitrinDate,
             Workers = cd.ClassModulesWorkers.Select(cmw => new GetWorkerForClassDto()
             {
                 Id = cmw.Worker.Id,

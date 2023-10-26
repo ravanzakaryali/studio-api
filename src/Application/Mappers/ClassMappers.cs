@@ -28,7 +28,6 @@ public class ClassMappers : Profile
             .ForMember(c => c.ClassName, opt => opt.MapFrom(c => c.Name))
             .ForMember(c => c.ProgramName, opt => opt.MapFrom(c => c.Program.Name))
             .ForMember(c => c.TotalModules, opt => opt.MapFrom(c => c.Program.Modules.Count))
-            .ForMember(c => c.IsNew, opt => opt.MapFrom(w => w.IsNew))
             .ForMember(c => c.SessionName, opt => opt.MapFrom(w => w.Session.Name));
 
         CreateMap<Class, SubModuleDtoWithWorker>()

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Space.Application.DTOs.Enums;
 using Space.Domain.Enums;
 
 namespace Space.WebAPI.Controllers;
@@ -20,8 +21,17 @@ public class ClassesController : BaseApiController
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<GetClassModuleWorkers>))]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> GetAll()
-            => Ok(await Mediator.Send(new GetAllClassQuery()));
+    public async Task<IActionResult> GetAll([FromQuery] ClassStatus status = ClassStatus.Active)
+            => Ok(await Mediator.Send(new GetAllClassQuery(status)));
+
+
+    [Authorize(Roles = "admin")]
+    [HttpGet("{id}/details")]
+    public async Task<IActionResult> GetClassDetail([FromRoute] Guid id)
+        => Ok(await Mediator.Send(new GetClassDetailQuery()
+        {
+            Id = id
+        }));
 
     /// <summary>
     /// Retrieves information about a specific class module based on its unique identifier.

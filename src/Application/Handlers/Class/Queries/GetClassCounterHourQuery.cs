@@ -21,7 +21,7 @@ internal class GetClassCounterHourQueryHandler : IRequestHandler<GetClassCounter
             throw new NotFoundException(nameof(Class), request.Id);
         return new GetClassCounterHourResponseDto()
         {
-            TotalHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab ).Sum(c => c.TotalHour),
+            TotalHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Sum(c => c.TotalHour),
             Hour = @class.ClassSessions.Where(c =>
             c.Status != ClassSessionStatus.Cancelled &&
             c.Category != ClassSessionCategory.Lab &&

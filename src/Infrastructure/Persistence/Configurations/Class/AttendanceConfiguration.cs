@@ -8,8 +8,5 @@ public class AttendanceConfiguration : IEntityTypeConfiguration<Attendance>
         builder
         .Property(r => r.Status)
         .HasConversion(new EnumToStringConverter<StudentStatus>());
-
-        builder.Property(c => c.TotalAttendanceHours)
-            .IsRequired(false);
     }
 }

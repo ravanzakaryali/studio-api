@@ -40,7 +40,7 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
         Class? @class = await _classRepository.GetAsync(request.ClassId, tracking: false, "Program.Modules.SubModules")
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
-
+            
         IEnumerable<Guid> moduleIds = request.CreateClassModule.Select(c => c.ModuleId);
         IEnumerable<Module> modules = await _moduleRepository.GetAllAsync(c => moduleIds.Contains(c.Id), tracking: false);
         IEnumerable<Guid> existingModuleIds = modules.Select(m => m.Id);
