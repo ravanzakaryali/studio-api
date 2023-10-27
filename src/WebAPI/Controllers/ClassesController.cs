@@ -33,6 +33,11 @@ public class ClassesController : BaseApiController
             Id = id
         }));
 
+
+    [Authorize(Roles = "admin")]
+    [HttpGet("count")]
+    public async Task<IActionResult> GetClassesCount()
+        => Ok(await Mediator.Send(new GetClassesCountQuery()));
     /// <summary>
     /// Retrieves information about a specific class module based on its unique identifier.
     /// </summary>
