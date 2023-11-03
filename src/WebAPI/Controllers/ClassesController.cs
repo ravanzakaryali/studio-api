@@ -478,6 +478,7 @@ public class ClassesController : BaseApiController
         return NoContent();
     }
 
+    [Authorize(Roles = "admin")]
     [HttpPost("{id}/excel-export")]
     public async Task ClassExcelExport([FromRoute] Guid id)
     {
