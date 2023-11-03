@@ -27,6 +27,9 @@ internal class GetAllStudentsDetailsByClassQueryHandler : IRequestHandler<GetAll
                 Name = study.Student?.Contact?.Name,
                 Surname = study.Student?.Contact?.Surname,
                 ClassName = @class.Name,
+                Email = study.Student?.Contact?.Email,
+                PhoneNumber = study.Student?.Contact?.Phone,
+                FatherName = study.Student?.Contact?.FatherName,
                 ArrivalHours = attendancesHour,
                 AbsentHours = totalHour - attendancesHour ?? 0,
                 Attendance = (totalHour != 0 ? attendancesHour / totalHour * 100 : 0) ?? 0

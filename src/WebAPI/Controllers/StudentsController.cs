@@ -50,6 +50,5 @@ public class StudentsController : BaseApiController
         return StatusCode(200, await Mediator.Send(new GetAllStudentsQuery()));
     }
 
-
 }
 

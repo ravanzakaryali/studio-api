@@ -6,16 +6,13 @@ public class GetAllSessionQuery : IRequest<IEnumerable<GetSessionWithDetailsResp
 
 internal class GetAllSessionQueryHandler : IRequestHandler<GetAllSessionQuery, IEnumerable<GetSessionWithDetailsResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
     readonly ISessionRepository _sessionRepository;
 
     public GetAllSessionQueryHandler(
-        IUnitOfWork unitOfWork, 
-        IMapper mapper, 
+        IMapper mapper,
         ISessionRepository sessionRepository)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
         _sessionRepository = sessionRepository;
     }

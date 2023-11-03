@@ -40,7 +40,7 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
         Class? @class = await _classRepository.GetAsync(request.ClassId, tracking: false, "Program.Modules.SubModules")
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
-            
+
         IEnumerable<Guid> moduleIds = request.CreateClassModule.Select(c => c.ModuleId);
         IEnumerable<Module> modules = await _moduleRepository.GetAllAsync(c => moduleIds.Contains(c.Id), tracking: false);
         IEnumerable<Guid> existingModuleIds = modules.Select(m => m.Id);
@@ -61,6 +61,7 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
             }
         }
 
+
         IEnumerable<Guid> workerIds = request.CreateClassModule.Select(c => c.WorkerId);
         //if (@class.Program.Modules.Any(c => moduleIds.Contains(c.Id))) throw new NotFoundException("Modules not found in modules of class program");
         IEnumerable<Worker> workers = await _workerRepository.GetAllAsync(c => workerIds.Contains(c.Id));
@@ -73,18 +74,17 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
         IEnumerable<Role> roles = await _roleRepository.GetAllAsync(c => roleIds.Contains(c.Id));
         IEnumerable<Guid> nonExistingRoleIds = roles.Select(w => w.Id);
         if (nonExistingRoleIds.Count() == 0)
-            throw new NotFoundException(nameof(Role), $"{string.Join(",", nonExistingRoleIds)}");
-
-        IEnumerable<ClassModulesWorker> classModulesWorker = await _classModulesWorkerRepository.GetAllAsync(c => c.ClassId == request.ClassId);
+            throw new NotFoundException(nameof(Role), $"{string.Join(",", nonExistingRoleIds)}"); IEnumerable<ClassModulesWorker> classModulesWorker = await _classModulesWorkerRepository.GetAllAsync(c => c.ClassId == request.ClassId);
         _classModulesWorkerRepository.RemoveRange(classModulesWorker);
 
         await _classModulesWorkerRepository.AddRangeAsync(request.CreateClassModule.Select(c => new ClassModulesWorker()
         {
             WorkerId = c.WorkerId,
+            StartDate = c.StartDate,
+            EndDate = c.EndDate,
             ModuleId = c.ModuleId,
             RoleId = c.RoleId,
             ClassId = @class.Id
         }));
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

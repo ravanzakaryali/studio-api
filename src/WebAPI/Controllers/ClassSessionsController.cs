@@ -10,52 +10,7 @@ namespace Space.WebAPI.Controllers;
 [Authorize(Roles = "admin")]
 public class ClassSessionsController : BaseApiController
 {
-    /// <summary>
-    /// Creates a class session based on the provided details.
-    /// </summary>
-    /// <param name="request">A JSON object containing details for creating the class session.</param>
-    /// <returns>
-    /// An HTTP response with a status code 204 (No Content) upon successful creation of the class session.
-    /// </returns>
-    /// <remarks>
-    /// This endpoint allows authorized users to create a class session by providing a JSON object with details
-    /// for the class session. It is typically used to create a new session for a class, and it returns a 204
-    /// status code upon successful creation.
-    /// </remarks>
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> Create([FromBody] CreateClassSessionRequestDto request)
-    {
-        await Mediator.Send(new CreateClassSessionCommand()
-        {
-            ClassId = request.ClassId,
-            Sessions = request.Sessions,
-        });
-        return NoContent();
-    }
-
-    /// <summary>
-    /// Updates a class session's date and attendance based on the provided details.
-    /// </summary>
-    /// <param name="request">A JSON object containing details for updating the class session.</param>
-    /// <returns>
-    /// An HTTP response with a status code 204 (No Content) upon successful update of the class session.
-    /// </returns>
-    /// <remarks>
-    /// This endpoint allows authorized users to update a class session's date and attendance by providing a JSON object
-    /// with the necessary details. It is typically used to update the date and attendance of an existing class session,
-    /// and it returns a 204 status code upon successful update.
-    /// </remarks>
-    [HttpPut("/api/class-sessions")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateClassSessionAttendance([FromBody] UpdateClassSessionByDateRequestDto request)
-    {
-        await Mediator.Send(new UpdateClassSessionByDateCommand(request.ClassId, request.OldDate, request.NewDate, request.Sessions));
-        return NoContent();
-    }
-
+    
     /// <summary>
     /// Retrieves details of a specific class session based on its unique identifier and date.
     /// </summary>

@@ -53,6 +53,5 @@ internal class CreateClassSessionCommandHandler : IRequestHandler<CreateClassSes
 
         @class.EndDate = classSessions.Max(c => c.Date).Date;
         await _classSessionRepository.AddRangeAsync(classSessions);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using SixLabors.ImageSharp;
 using Space.Application.DTOs.Enums;
 using Space.Domain.Enums;
 
@@ -86,13 +87,9 @@ public class ClassesController : BaseApiController
     [HttpPost("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateClassDetail([FromRoute] Guid id, [FromBody] IEnumerable<CreateClassModuleRequestDto> request)
+    public async Task<IActionResult> CreateClassDetail([FromRoute] Guid id, [FromBody] CreateClassModuleSessionRequestDto request)
     {
-        await Mediator.Send(new CreateClassModuleCommand()
-        {
-            ClassId = id,
-            CreateClassModule = request
-        });
+
         return NoContent();
     }
 
@@ -446,5 +443,48 @@ public class ClassesController : BaseApiController
             ModuleId = request.ModuleId,
         });
         return StatusCode(StatusCodes.Status204NoContent);
+    }
+
+    //class-sessions-create (genrate)
+
+    [Authorize(Roles = "admin")]
+    [HttpPost("{id}/sessions")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> Create([FromRoute] Guid id, [FromBody] CreateClassModuleSessionRequestDto request)
+    {
+        await Mediator.Send(new CreateClassModuleSessionCommand()
+        {
+            ClassId = id,
+            CreateClassModuleSessionDto = request
+        });
+        return NoContent();
+    }
+    //class-sessions-update (müəyyən tarix aralığında update etmək)
+
+    [Authorize(Roles = "admin")]
+    [HttpPut("{id}/sessions")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> CreateClassSessionAttendance([FromRoute] Guid id, [FromBody] UpdateClassSessionByDateRequestDto request)
+    {
+        await Mediator.Send(new UpdateClassSessionByDateCommand()
+        {
+            ClassId = id,
+            EndDate = request.EndDate,
+            Sessions = request.Sessions,
+            StartDate = request.StartDate
+        });
+        return NoContent();
+    }
+
+    [HttpPost("{id}/excel-export")]
+    public async Task ClassExcelExport([FromRoute] Guid id)
+    {
+        FileContentResponseDto fileResponse = await Mediator.Send(new StudentsofClassExcelExportCommand()
+        {
+            ClassId = id
+        });
+        //return File(fileResponse.FileBytes, fileResponse.ContentType, fileResponse.Name);
     }
 }

@@ -3,145 +3,52 @@ using System.Runtime.ExceptionServices;
 
 namespace Space.Application.Handlers;
 
-public record UpdateClassSessionByDateCommand(Guid ClassId, DateOnly OldDate, DateOnly NewDate, IEnumerable<UpdateClassSessionDto> Sessions) : IRequest;
+public class UpdateClassSessionByDateCommand : IRequest
+{
+    public Guid ClassId { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public IEnumerable<CreateClassSessionDto> Sessions { get; set; } = null!;
+}
 
 internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateClassSessionByDateCommand>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IClassSessionRepository _classSessionRepository;
     readonly IHolidayRepository _holidayRepository;
-    readonly IClassRepository _classRepository;
 
     public UpdateClassSessionByDateCommandHandler(
-        IUnitOfWork unitOfWork,
-        IClassSessionRepository sessionRepository,
-        IHolidayRepository holidayRepository,
-        IClassRepository classRepository)
+        ISpaceDbContext spaceDbContext,
+        IClassSessionRepository classSessionRepository,
+        IHolidayRepository holidayRepository)
     {
-        _unitOfWork = unitOfWork;
-        _classSessionRepository = sessionRepository;
+        _spaceDbContext = spaceDbContext;
+        _classSessionRepository = classSessionRepository;
         _holidayRepository = holidayRepository;
-        _classRepository = classRepository;
     }
 
     public async Task Handle(UpdateClassSessionByDateCommand request, CancellationToken cancellationToken)
     {
-        DateTime newDateTime = request.NewDate.ToDateTime(new TimeOnly(0, 0));
-        DateTime oldDateTime = request.OldDate.ToDateTime(new TimeOnly(0, 0));
-
-        if (request.Sessions.Count() > 2) throw new Exception("There cannot be more than two sessions in one day");
-
-        IEnumerable<ClassSession> classSessions = await _classSessionRepository.GetAllAsync(c => c.ClassId == request.ClassId && c.Date == oldDateTime && (c.Status == null || c.Status == ClassSessionStatus.Cancelled));
-
-        classSessions.ToList().ForEach(c => c.Status = null);
-
-        if (!classSessions.Any()) throw new Exception("Either a session with the old date is entered or there is no such session");
-
-        int totalHour = classSessions.Sum(c => c.TotalHour);
-        if (totalHour != request.Sessions.Sum(c => (c.EndTime - c.StartTime).Hours)) throw new Exception("The total hours must be equal to the total hours of the sessions");
-
-        if (request.OldDate == request.NewDate)
-        {
-            foreach (UpdateClassSessionDto requestSession in request.Sessions)
-            {
-                ClassSession firstClassSession = classSessions.First();
-                ClassSession? classSession = classSessions.FirstOrDefault(c => c.Category == requestSession.Category);
-
-                if (classSession != null)
-                {
-                    classSession.StartTime = requestSession.StartTime;
-                    classSession.EndTime = requestSession.EndTime;
-                    classSession.TotalHour = (requestSession.EndTime - requestSession.StartTime).Hours;
-                    ClassSession? difCalsssSession = classSessions.FirstOrDefault(c => c.Category != requestSession.Category);
-                    if ((requestSession.EndTime - requestSession.StartTime).Hours == totalHour && difCalsssSession != null)
-                    {
-                        _classSessionRepository.Remove(difCalsssSession, true);
-                    }
-                }
-                else
-                {
-                    ClassSession? difCalsssSession = classSessions.FirstOrDefault(c => c.Category != requestSession.Category);
-                    if ((requestSession.EndTime - requestSession.StartTime).Hours == totalHour && difCalsssSession != null)
-                    {
-                        _classSessionRepository.Remove(difCalsssSession, true);
-                    }
-                    await _classSessionRepository.AddAsync(new ClassSession()
-                    {
-                        ClassId = firstClassSession.ClassId,
-                        Category = requestSession.Category,
-                        RoomId = firstClassSession.RoomId,
-                        ModuleId = firstClassSession.ModuleId,
-                        Date = firstClassSession.Date,
-                        Note = firstClassSession.Note,
-                        EndTime = requestSession.EndTime,
-                        StartTime = requestSession.StartTime,
-                        TotalHour = (requestSession.EndTime - requestSession.StartTime).Hours,
-                        //WorkerId = firstClassSession.WorkerId,
-                    });
-                }
-            }
-        }
-        else
-        {
-            IEnumerable<ClassSession> alreadyClassSession = await _classSessionRepository.GetAllAsync(c => c.ClassId == request.ClassId && c.Date == newDateTime);
-            if (alreadyClassSession.Any()) throw new Exception("There is already a session on the specified day");
-
-            IEnumerable<Holiday> alreadyHoliday = await _holidayRepository.GetAllAsync(h => h.StartDate >= request.NewDate && h.EndDate <= request.NewDate);
-            if (alreadyHoliday.Any()) throw new Exception("There is already a session on the holiday");
-
-            foreach (UpdateClassSessionDto requestSession in request.Sessions)
-            {
-                ClassSession firstClassSession = classSessions.First();
-                ClassSession? classSession = classSessions.FirstOrDefault(c => c.Category == requestSession.Category);
-                ClassSession? lastClassSession = classSessions.OrderByDescending(c => c.Date).FirstOrDefault();
-
-                if (classSession != null)
-                {
-                    classSession.Date = newDateTime;
-
-                    classSession.StartTime = requestSession.StartTime;
-                    classSession.EndTime = requestSession.EndTime;
-                    classSession.TotalHour = (requestSession.EndTime - requestSession.StartTime).Hours;
-                    ClassSession? difCalsssSession = classSessions.FirstOrDefault(c => c.Category != requestSession.Category);
-                    if ((requestSession.EndTime - requestSession.StartTime).Hours == totalHour && difCalsssSession != null)
-                    {
-                        _classSessionRepository.Remove(difCalsssSession, true);
-                    }
-                }
-                else
-                {
-                    ClassSession? difCalsssSession = classSessions.FirstOrDefault(c => c.Category != requestSession.Category);
-                    if ((requestSession.EndTime - requestSession.StartTime).Hours == totalHour && difCalsssSession != null)
-                    {
-                        _classSessionRepository.Remove(difCalsssSession, true);
-                    }
-                    await _classSessionRepository.AddAsync(new ClassSession()
-                    {
-                        ClassId = firstClassSession.ClassId,
-                        Category = requestSession.Category,
-                        RoomId = firstClassSession.RoomId,
-                        ModuleId = firstClassSession.ModuleId,
-                        LastModifiedBy = firstClassSession.LastModifiedBy,
-                        LastModifiedDate = firstClassSession.LastModifiedDate,
-                        CreatedDate = firstClassSession.CreatedDate,
-                        CreatedBy = firstClassSession.CreatedBy,
-                        Date = newDateTime,
-                        Note = firstClassSession.Note,
-                        EndTime = requestSession.EndTime,
-                        StartTime = requestSession.StartTime,
-                        TotalHour = (requestSession.EndTime - requestSession.StartTime).Hours,
-                        //WorkerId = firstClassSession.WorkerId,
-                    });
-                }
-
-            }
-        }
-
-        Class @class = await _classRepository.GetAsync(r => r.Id == request.ClassId && r.ClassSessions.Count != 0, true, "ClassSessions")
+        Class @class = await _spaceDbContext.Classes.FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken: cancellationToken)
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
-        @class.EndDate = @class.ClassSessions.Max(c => c.Date).Date;
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+                                                                .Where(c => c.ClassId == request.ClassId &&
+                                                                            c.Date >= request.StartDate &&
+                                                                            c.Date <= request.EndDate)
+                                                                .ToListAsync(cancellationToken: cancellationToken);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        if (classSessions.Any(c => c.Status != null)) throw new Exception("Seçilən tarix daxilində qeyd olunmuş sessiya var!");
+
+        if (@class.RoomId is null) throw new NotFoundException("Bu qrup hər hansı bir dərs otağına əlavə olunmayıb");
+
+        List<DateTime> holidayDates = await _holidayRepository.GetDatesAsync();
+
+        var responseClassSessions = _classSessionRepository.GenerateSessions(
+            startDate: request.StartDate, request.Sessions.ToList(), request.EndDate, holidayDates, @class.Id, @class.RoomId.Value);
+
+        await _spaceDbContext.ClassSessions.AddRangeAsync(responseClassSessions);
+        _spaceDbContext.ClassSessions.RemoveRange(classSessions);
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

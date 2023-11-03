@@ -173,6 +173,56 @@ internal class ClassSessionRepository : Repository<ClassSession>, IClassSessionR
         }
         return returnClassSessions;
     }
+    public List<ClassSession> GenerateSessions(
+                                DateTime startDate,
+                                List<CreateClassSessionDto> sessions,
+                                DateTime endDate,
+                                List<DateTime> holidayDates,
+                                Guid classId,
+                                Guid roomId)
+    {
+
+        List<ClassSession> returnClassSessions = new();
+        DayOfWeek startDayOfWeek = startDate.DayOfWeek;
+        int count = 0;
+        while (returnClassSessions.Any(c => c.Date == endDate))
+        {
+            foreach (var session in sessions.OrderBy(c => c.DayOfWeek))
+            {
+                var daysToAdd = ((int)session.DayOfWeek - (int)startDayOfWeek + 7) % 7;
+                int numSelectedDays = sessions.Count;
+
+                int hour = (session.End - session.Start).Hours;
+
+                DateTime dateTime = startDate.AddDays(count * 7 + daysToAdd);
+
+                if (holidayDates.Contains(dateTime))
+                {
+                    continue;
+                }
+
+                if (hour != 0)
+                {
+                    returnClassSessions.Add(new ClassSession()
+                    {
+                        Category = session.Category,
+                        ClassId = classId,
+                        StartTime = session.Start,
+                        EndTime = session.End,
+                        RoomId = roomId,
+                        TotalHour = hour,
+                        Date = dateTime
+                    });
+                    if (dateTime == endDate)
+                        break;
+
+                }
+            }
+            count++;
+
+        }
+        return returnClassSessions;
+    }
 
     public async Task<DateTime> GetLastDateAsync(Guid classId)
     {
