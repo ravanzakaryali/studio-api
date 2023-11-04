@@ -52,8 +52,7 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
         }
         #endregion
 
-        IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(c => holidayDates.Contains(c.Date) &&
-        c.Date >= DateTime.UtcNow);
+        IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(c => holidayDates.Contains(c.Date));
 
         var classIds = classSessions
                         .GroupBy(c => c.ClassId)
