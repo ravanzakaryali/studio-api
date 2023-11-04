@@ -15,7 +15,7 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
 
     public async Task<HolidayResponseDto> Handle(CreateHolidayCommand request, CancellationToken cancellationToken)
     {
-        if (request.EndDate <= request.StartDate)
+        if (request.EndDate < request.StartDate)
         {
             throw new DateTimeException("Başlağıc tarix son tarixdən böyük ola bilməz");
         }
