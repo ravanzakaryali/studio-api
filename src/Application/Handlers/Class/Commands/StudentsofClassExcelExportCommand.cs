@@ -38,6 +38,7 @@ internal class StudentsofClassExcelExport : IRequestHandler<StudentsofClassExcel
             List<StudentExcelExportDto> studentResponse = new();
             studentResponse.AddRange(c.Attendances.Select(at => new StudentExcelExportDto()
             {
+                ClassName = @class.Name,
                 Date = c.Date,
                 Email = at.Student.Student!.Contact?.Email,
                 Name = at.Student.Student.Contact!.Name,
