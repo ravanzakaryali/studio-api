@@ -3,7 +3,7 @@
 public class CreateClassSessionByClassCommand : IRequest
 {
     public Guid Id { get; set; }
-    public CreateClassSessionByClassRequestDto Session { get; set; }
+    public CreateClassSessionByClassRequestDto Session { get; set; } = null!;
 }
 internal class CreateClassSessionByClassCommandHandler : IRequestHandler<CreateClassSessionByClassCommand>
 {

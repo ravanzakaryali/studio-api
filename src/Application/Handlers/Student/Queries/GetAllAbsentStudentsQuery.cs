@@ -12,7 +12,7 @@ public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStud
     readonly IClassRepository _classRepository;
 
     public GetAllAbsentStudentsQueryHandler(
-        IUnitOfWork unitOfWork, 
+        IUnitOfWork unitOfWork,
         IClassRepository classRepository)
     {
         _unitOfWork = unitOfWork;
@@ -46,11 +46,11 @@ public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStud
                     {
                         response.Add(new GetAllAbsentStudentResponseDto()
                         {
-                            Id = study.Id,
+                            Id = study!.Id,
                             StudentId = study.StudentId,
-                            Name = study.Student.Contact.Name,
-                            Surname = study.Student.Contact.Surname,
-                            Father = study.Student.Contact.FatherName,
+                            Name = study!.Student!.Contact!.Name,
+                            Surname = study!.Student!.Contact!.Surname,
+                            Father = study?.Student?.Contact?.FatherName,
                             Class = new GetAllClassDto()
                             {
                                 Name = @class.Name,

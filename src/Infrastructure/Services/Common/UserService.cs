@@ -27,7 +27,8 @@ public class UserService : IUserService
     public async Task PasswordAssignAsync(Guid id, string password)
     {
         User user = await _userManager.FindByIdAsync(id.ToString());
-        IdentityResult results = new();
+        _ = new IdentityResult();
+        IdentityResult results;
         if (!await _userManager.HasPasswordAsync(user))
         {
             results = await _userManager.AddPasswordAsync(user, password);
@@ -46,7 +47,8 @@ public class UserService : IUserService
     }
     public async Task UpdateRefreshToken(string refreshToken, Token token, int addMinute = 15)
     {
-        User? user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+        User? user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken)
+            ?? throw new NotFoundException(nameof(User));
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpires = token.Expires.AddMinutes(addMinute);
     }

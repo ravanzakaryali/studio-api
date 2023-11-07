@@ -89,7 +89,7 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
                         ClassId = @class.Id,
                         StartTime = session.Start,
                         EndTime = session.End,
-                        RoomId = @class.Room.Id,
+                        RoomId = @class.RoomId,
                         TotalHour = hour,
                         Date = dateTime
                     });

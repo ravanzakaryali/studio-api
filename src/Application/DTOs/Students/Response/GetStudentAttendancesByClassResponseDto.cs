@@ -10,7 +10,7 @@ public class GetStudentAttendancesByClassResponseDto
     public string? Phone { get; set; } = null!;
     public string? EMail { get; set; } = null!;
     public double AttendancePercent { get; set; }
-    public List<AttendancesDto> Attendances { get; set; }
+    public List<AttendancesDto> Attendances { get; set; } = null!;
 }
 
 public class AttendancesDto

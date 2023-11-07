@@ -66,13 +66,13 @@ internal class StudentsofClassExcelExport : IRequestHandler<StudentsofClassExcel
 
 
         if (_httpContextAccessor.HttpContext is null) throw new Exception("Http context is null");
-        _httpContextAccessor.HttpContext.Response.Headers.Add("Content-Disposition", $"attachment; filename={@class.Name}_{DateTime.Now:dd.mm.yyyy}.xlsx");
+        _httpContextAccessor.HttpContext.Response.Headers.Add("Content-Disposition", $"attachment; filename={@class.Name}_{DateTime.Now:yyyy-mm-dd}.xlsx");
         _httpContextAccessor.HttpContext.Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         await _httpContextAccessor.HttpContext.Response.Body.WriteAsync(excelData);
 
         return new FileContentResponseDto()
         {
-            Name = $"{@class.Name}.xlsx",
+            Name = $"{@class.Name}_{DateTime.Now:yyyy-mm-dd}.xlsx",
             ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             FileBytes = excelData
         };

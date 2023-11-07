@@ -8,10 +8,11 @@ internal class DeleteModuleCommandHandler : IRequestHandler<DeleteModuleCommand>
     readonly IMapper _mapper;
     readonly IModuleRepository _moduleRepository;
 
-    public DeleteModuleCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public DeleteModuleCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IModuleRepository moduleRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _moduleRepository = moduleRepository;
     }
 
     public async Task Handle(DeleteModuleCommand request, CancellationToken cancellationToken)

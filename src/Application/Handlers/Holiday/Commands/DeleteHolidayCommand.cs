@@ -8,10 +8,13 @@ internal class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayComman
     readonly IMapper _mapper;
     readonly IHolidayRepository _holidayRepository;
 
-    public DeleteHolidayCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public DeleteHolidayCommandHandler(IUnitOfWork unitOfWork,
+                                       IMapper mapper,
+                                       IHolidayRepository holidayRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _holidayRepository = holidayRepository;
     }
 
     public async Task<HolidayResponseDto> Handle(DeleteHolidayCommand request, CancellationToken cancellationToken)

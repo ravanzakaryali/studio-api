@@ -8,10 +8,11 @@ internal class DeleteClassCommandHandler : IRequestHandler<DeleteClassCommand, G
     readonly IMapper _mapper;
     readonly IClassRepository _classRepository;
 
-    public DeleteClassCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public DeleteClassCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IClassRepository classRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _classRepository = classRepository;
     }
 
     public async Task<GetClassResponseDto> Handle(DeleteClassCommand request, CancellationToken cancellationToken)

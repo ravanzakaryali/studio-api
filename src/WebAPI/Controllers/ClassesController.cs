@@ -26,6 +26,11 @@ public class ClassesController : BaseApiController
             => Ok(await Mediator.Send(new GetAllClassQuery(status)));
 
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/details")]
     public async Task<IActionResult> GetClassDetail([FromRoute] Guid id)
@@ -35,6 +40,10 @@ public class ClassesController : BaseApiController
         }));
 
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     [Authorize(Roles = "admin")]
     [HttpGet("count")]
     public async Task<IActionResult> GetClassesCount()
@@ -75,23 +84,23 @@ public class ClassesController : BaseApiController
     public async Task<IActionResult> ClassIsNew([FromBody] UpdateIsNewInClassRequestDto request)
         => Ok(await Mediator.Send(new UpdateIsNewInClassCommand(request.Id)));
 
-    /// <summary>
-    /// Creates new class modules for a specific class, accessible only to users with the "admin" role.
-    /// </summary>
-    /// <param name="id">The unique identifier of the class for which to create modules.</param>
-    /// <param name="request">A collection of JSON objects containing details for creating class modules.</param>
-    /// <returns>
-    /// An HTTP response with a status code 204 (No Content) upon successful creation of class modules.
-    /// </returns>
-    [Authorize(Roles = "admin")]
-    [HttpPost("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateClassDetail([FromRoute] Guid id, [FromBody] CreateClassModuleSessionRequestDto request)
-    {
+    ///// <summary>
+    ///// Creates new class modules for a specific class, accessible only to users with the "admin" role.
+    ///// </summary>
+    ///// <param name="id">The unique identifier of the class for which to create modules.</param>
+    ///// <param name="request">A collection of JSON objects containing details for creating class modules.</param>
+    ///// <returns>
+    ///// An HTTP response with a status code 204 (No Content) upon successful creation of class modules.
+    ///// </returns>
+    //[Authorize(Roles = "admin")]
+    //[HttpPost("{id}")]
+    //[ProducesResponseType(StatusCodes.Status204NoContent)]
+    //[ProducesDefaultResponseType]
+    //public async Task<IActionResult> CreateClassDetail([FromRoute] Guid id, [FromBody] CreateClassModuleSessionRequestDto request)
+    //{
 
-        return NoContent();
-    }
+    //    return NoContent();
+    //}
 
     /// <summary>
     /// Creates a new class, accessible only to users with the "admin" role.
@@ -445,8 +454,12 @@ public class ClassesController : BaseApiController
         return StatusCode(StatusCodes.Status204NoContent);
     }
 
-    //class-sessions-create (genrate)
-
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [Authorize(Roles = "admin")]
     [HttpPost("{id}/sessions")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -460,8 +473,12 @@ public class ClassesController : BaseApiController
         });
         return NoContent();
     }
-    //class-sessions-update (müəyyən tarix aralığında update etmək)
-
+    /// <summary>
+    /// Müəyyən tarix aralığında update etmək
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [Authorize(Roles = "admin")]
     [HttpPut("{id}/sessions")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -478,14 +495,19 @@ public class ClassesController : BaseApiController
         return NoContent();
     }
 
+    /// <summary>
+    /// Class students export
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [Authorize(Roles = "admin")]
-    [HttpPost("{id}/excel-export")]
+    [HttpGet("{id}/export/excel")]
     public async Task ClassExcelExport([FromRoute] Guid id)
     {
-        FileContentResponseDto fileResponse = await Mediator.Send(new StudentsofClassExcelExportCommand()
+        _ = await Mediator.Send(new StudentsofClassExcelExportCommand()
         {
             ClassId = id
         });
-        //return File(fileResponse.FileBytes, fileResponse.ContentType, fileResponse.Name);
+
     }
 }

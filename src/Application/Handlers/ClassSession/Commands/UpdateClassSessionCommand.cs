@@ -29,7 +29,7 @@ internal class UpdateClassSessionCommandHandler : IRequestHandler<UpdateClassSes
 
         if (@class.ClassSessions.Any(cs => cs.Status != null)) throw new Exception("Offline, Online and Cancelled not change");
 
-        DateTime date = request.UpdateClassSessions.DistinctBy(c => c.ClassSessionDate).FirstOrDefault().ClassSessionDate;
+        DateTime date = request.UpdateClassSessions.DistinctBy(c => c.ClassSessionDate).First().ClassSessionDate;
 
         if (await _classSessionRepository.GetAsync(c => c.Date == date) != null) throw new Exception("Class Session already date");
 

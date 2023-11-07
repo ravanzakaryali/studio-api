@@ -8,7 +8,7 @@ public class CreateClassAttendanceCommand : IRequest
     public Guid ClassId { get; set; }
     public Guid ModuleId { get; set; }
     public DateTime Date { get; set; }
-    public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; }
+    public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
 }
 internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClassAttendanceCommand>
 {

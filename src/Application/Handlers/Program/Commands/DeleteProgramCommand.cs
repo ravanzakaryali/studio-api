@@ -7,9 +7,10 @@ internal class DeleteProgramCommandHandler : IRequestHandler<DeleteProgramComman
     readonly IUnitOfWork _unitOfWork;
     readonly IProgramRepository _programRepository;
 
-    public DeleteProgramCommandHandler(IUnitOfWork unitOfWork)
+    public DeleteProgramCommandHandler(IUnitOfWork unitOfWork, IProgramRepository programRepository)
     {
         _unitOfWork = unitOfWork;
+        _programRepository = programRepository;
     }
 
     public async Task Handle(DeleteProgramCommand request, CancellationToken cancellationToken)

@@ -87,9 +87,9 @@ internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnum
     }
     class GetModulesWorkerComparer : IEqualityComparer<GetWorkerForClassDto>
     {
-        public bool Equals(GetWorkerForClassDto x, GetWorkerForClassDto y)
+        public bool Equals(GetWorkerForClassDto? x, GetWorkerForClassDto? y)
         {
-            return x.Id == y.Id || x.RoleId == y.RoleId;
+            return x?.Id == y?.Id || x?.RoleId == y?.RoleId;
         }
 
         public int GetHashCode(GetWorkerForClassDto obj)

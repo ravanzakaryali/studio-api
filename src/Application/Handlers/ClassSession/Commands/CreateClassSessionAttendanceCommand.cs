@@ -9,7 +9,7 @@ public class CreateClassSessionAttendanceCommand : IRequest
 
     public Guid ModuleId { get; set; }
     public DateTime Date { get; set; }
-    public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; }
+    public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
 }
 
 internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<CreateClassSessionAttendanceCommand>

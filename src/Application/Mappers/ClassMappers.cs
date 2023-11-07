@@ -21,8 +21,8 @@ public class ClassMappers : Profile
            .ForMember(c => c.Name, opt => opt.MapFrom(cw => cw.Worker.Name))
            .ForMember(c => c.Surname, opt => opt.MapFrom(cw => cw.Worker.Surname))
            .ForMember(c => c.Email, opt => opt.MapFrom(cw => cw.Worker.Email))
-           .ForMember(c => c.Role, opt => opt.MapFrom(cw => cw.Role.Name))
-           .ForMember(c => c.RoleId, opt => opt.MapFrom(cw => cw.Role.Id));
+           .ForMember(c => c.Role, opt => opt.MapFrom(cw => cw.Role!.Name))
+           .ForMember(c => c.RoleId, opt => opt.MapFrom(cw => cw.Role!.Id));
         CreateMap<Class, GetClassModuleWorkers>()
             .ForMember(c => c.Id, opt => opt.MapFrom(c => c.Id))
             .ForMember(c => c.ClassName, opt => opt.MapFrom(c => c.Name))

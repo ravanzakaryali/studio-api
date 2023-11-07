@@ -19,7 +19,7 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
 
     public async Task<HolidayResponseDto> Handle(CreateHolidayCommand request, CancellationToken cancellationToken)
     {
-        if (request.EndDate <= request.StartDate)
+        if (request.EndDate < request.StartDate)
         {
             throw new DateTimeException("Başlağıc tarix son tarixdən böyük ola bilməz");
         }
@@ -37,15 +37,7 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
         });
 
         #region All Holiday Date
-        IEnumerable<Holiday> allHolday = await _holidayRepository.GetAllAsync();
-        List<DateTime> allHolidayDates = new();
-        foreach (Holiday holidayItem in allHolday)
-        {
-            for (DateOnly date = holiday.StartDate; date <= holiday.EndDate; date = date.AddDays(1))
-            {
-                allHolidayDates.Add(date.ToDateTime(new TimeOnly(0, 0)));
-            }
-        }
+        List<DateTime> allHolidayDates = await _holidayRepository.GetDatesAsync();
         #endregion
 
         #region Create Holiday Date
@@ -56,8 +48,7 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
         }
         #endregion
 
-        IEnumerable<ClassSession> classSessions = await _classSessionRepository.GetAllAsync(c => holidayDates.Contains(c.Date) &&
-        c.Date >= DateTime.UtcNow);
+        IEnumerable<ClassSession> classSessions = await _classSessionRepository.GetAllAsync(c => holidayDates.Contains(c.Date));
 
         var classIds = classSessions
                         .GroupBy(c => c.ClassId)

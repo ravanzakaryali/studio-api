@@ -8,5 +8,5 @@ public class GetAllAbsentStudentResponseDto
     public string Surname { get; set; } = null!;
     public string? Father { get; set; }
     public int AbsentCount { get; set; }
-    public GetAllClassDto Class { get; set; }
+    public GetAllClassDto Class { get; set; } = null!;
 }

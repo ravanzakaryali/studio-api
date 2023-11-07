@@ -6,7 +6,7 @@ public class ModuleImportDto
     public double Version { get; set; }
     public string Name { get; set; } = null!;
     public double Hour { get; set; }
-    public List<ModuleImportSubDto> Programs { get; set; }
+    public List<ModuleImportSubDto> Programs { get; set; } = null!;
 }
 
 public class ModuleImportSubDto

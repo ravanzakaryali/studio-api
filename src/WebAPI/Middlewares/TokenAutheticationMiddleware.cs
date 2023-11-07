@@ -36,7 +36,6 @@ public class TokenAutheticationMiddlewares
     /// Handles the authentication token in the request by checking for a token cookie, validating and refreshing the token if necessary, and adding it to the request headers.
     /// </summary>
     /// <param name="httpContext">The HTTP context for the current request.</param>
-    /// <param name="tokenService">The service responsible for token operations.</param>
     public async Task InvokeAsync(HttpContext httpContext)
     {
         if (httpContext.Request.Cookies.TryGetValue("token", out string? token))
