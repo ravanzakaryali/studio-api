@@ -89,4 +89,8 @@ public class HolidaysController : BaseApiController
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         => Ok(await Mediator.Send(new DeleteHolidayCommand(id)));
+
+    [HttpGet("dates")]
+    public async Task<IActionResult> GetHolidaysDates()
+        => Ok(await Mediator.Send(new GetHolidayDatesQuery()));
 }
