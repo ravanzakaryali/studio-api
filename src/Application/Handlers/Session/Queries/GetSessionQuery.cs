@@ -9,8 +9,8 @@ internal class GetSessionQueryHandler : IRequestHandler<GetSessionQuery, GetSess
     readonly ISessionRepository _sessionRepository;
 
     public GetSessionQueryHandler(
-        IUnitOfWork unitOfWork, 
-        IMapper mapper, 
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
         ISessionRepository sessionRepository)
     {
         _unitOfWork = unitOfWork;
@@ -20,8 +20,8 @@ internal class GetSessionQueryHandler : IRequestHandler<GetSessionQuery, GetSess
 
     public async Task<GetSessionWithDetailsResponseDto> Handle(GetSessionQuery request, CancellationToken cancellationToken)
     {
-        Session? session = await _sessionRepository.GetAsync(s=>s.Id == request.Id,includeProperties: "Details") ?? 
-            throw new NotFoundException(nameof(Session),request.Id);
+        Session? session = await _sessionRepository.GetAsync(s => s.Id == request.Id, includeProperties: "Details") ??
+            throw new NotFoundException(nameof(Session), request.Id);
         return _mapper.Map<GetSessionWithDetailsResponseDto>(session);
     }
 }
