@@ -12,6 +12,8 @@ public class SubModuleDto
 }
 public class SubModuleDtoWithWorker : SubModuleDto
 {
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
     [JsonPropertyOrder(6)]
     public ICollection<GetWorkerForClassDto>? Workers { get; set; }
 }

@@ -32,7 +32,7 @@ public class ClassesController : BaseApiController
     /// <param name="id"></param>
     /// <returns></returns>
     [Authorize(Roles = "admin")]
-    [HttpGet("{id}/details")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetClassDetail([FromRoute] Guid id)
         => Ok(await Mediator.Send(new GetClassDetailQuery()
         {
@@ -55,10 +55,7 @@ public class ClassesController : BaseApiController
     /// <returns>
     /// An HTTP response containing information about the requested class module upon successful retrieval.
     /// </returns>
-    [Authorize(Roles = "admin,mentor,ta,muellim")]
-    [HttpGet("{id}")]
-    public async Task<IActionResult> Get([FromRoute] Guid id)
-         => Ok(await Mediator.Send(new GetClassQuery(id)));
+
 
     /// <summary>
     /// Retrieves sessions related to a specific class module based on its unique identifier.
@@ -83,24 +80,6 @@ public class ClassesController : BaseApiController
     [HttpPost("updateIsNew")]
     public async Task<IActionResult> ClassIsNew([FromBody] UpdateIsNewInClassRequestDto request)
         => Ok(await Mediator.Send(new UpdateIsNewInClassCommand(request.Id)));
-
-    ///// <summary>
-    ///// Creates new class modules for a specific class, accessible only to users with the "admin" role.
-    ///// </summary>
-    ///// <param name="id">The unique identifier of the class for which to create modules.</param>
-    ///// <param name="request">A collection of JSON objects containing details for creating class modules.</param>
-    ///// <returns>
-    ///// An HTTP response with a status code 204 (No Content) upon successful creation of class modules.
-    ///// </returns>
-    //[Authorize(Roles = "admin")]
-    //[HttpPost("{id}")]
-    //[ProducesResponseType(StatusCodes.Status204NoContent)]
-    //[ProducesDefaultResponseType]
-    //public async Task<IActionResult> CreateClassDetail([FromRoute] Guid id, [FromBody] CreateClassModuleSessionRequestDto request)
-    //{
-
-    //    return NoContent();
-    //}
 
     /// <summary>
     /// Creates a new class, accessible only to users with the "admin" role.
@@ -194,6 +173,14 @@ public class ClassesController : BaseApiController
     [HttpGet("{id}/modules")]
     public async Task<IActionResult> GetModulesByClass([FromRoute] Guid id, [FromQuery] DateTime date)
       => Ok(await Mediator.Send(new GetAllModulesByClassQuery(id, date)));
+
+
+    [Authorize(Roles = "admin")]
+    [HttpGet("{id}/modules-workers")]
+    public async Task<IActionResult> GetClassModulesWorkers([FromRoute] Guid id, [FromQuery] Guid sessionId)
+    {
+        return Ok(await Mediator.Send(new GetClassWorkersModulesQuery(id, sessionId)));
+    }
 
     /// <summary>
     /// Retrieves students related to a specific class based on its unique identifier and date.
