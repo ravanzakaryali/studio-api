@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace Space.WebAPI.Controllers;
 
-
 /// <summary>
 /// Room controller
 /// </summary>

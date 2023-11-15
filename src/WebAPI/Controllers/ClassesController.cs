@@ -25,18 +25,19 @@ public class ClassesController : BaseApiController
     public async Task<IActionResult> GetAll([FromQuery] ClassStatus status = ClassStatus.Active)
             => Ok(await Mediator.Send(new GetAllClassQuery(status)));
 
-
     /// <summary>
     /// 
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="sessionId"></param>
     /// <returns></returns>
     [Authorize(Roles = "admin")]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetClassDetail([FromRoute] Guid id)
+    public async Task<IActionResult> GetClassDetail([FromRoute] Guid id, [FromQuery] Guid? sessionId)
         => Ok(await Mediator.Send(new GetClassDetailQuery()
         {
-            Id = id
+            Id = id,
+            SessionId = sessionId
         }));
 
 

@@ -8,7 +8,6 @@ public record GetClassWorkersModulesQuery(Guid Id, Guid SessionId) : IRequest<IE
 
 internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWorkersModulesQuery, IEnumerable<GetClassModuleResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
     readonly ICurrentUserService _currentUserService;
     readonly IClassRepository _classRepository;
@@ -18,7 +17,6 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
     readonly IClassModulesWorkerRepository _classModulesWorkerRepository;
 
     public GetClassWorkersModulesQueryHandler(
-        IUnitOfWork unitOfWork,
         IMapper mapper,
         ICurrentUserService
         currentUserService,
@@ -28,7 +26,6 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         ISessionRepository sessionRepository,
         IHolidayRepository holidayRepository)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
         _currentUserService = currentUserService;
         _classRepository = classRepository;
@@ -74,7 +71,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         DateTime startDateTime = @class.StartDate ?? DateTime.Now;
 
         int count = 0;
-        var holidayDates = await _holidayRepository.GetDatesAsync();
+        List<DateTime> holidayDates = await _holidayRepository.GetDatesAsync();
         int totalHour = @class.Program.TotalHours;
 
         while (totalHour > 0)
