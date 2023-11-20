@@ -10,5 +10,5 @@ public class Support : BaseAuditableEntity
     public string? Description { get; set; }
     public Guid? UserId { get; set; }
     public User? User { get; set; }
-    public ICollection<SupportImage>? SupportImages { get; set; }
+    public ICollection<SupportImage> SupportImages { get; set; }
 }

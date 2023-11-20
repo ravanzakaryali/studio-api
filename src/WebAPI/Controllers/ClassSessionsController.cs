@@ -10,51 +10,6 @@ namespace Space.WebAPI.Controllers;
 [Authorize(Roles = "admin")]
 public class ClassSessionsController : BaseApiController
 {
-    /// <summary>
-    /// Creates a class session based on the provided details.
-    /// </summary>
-    /// <param name="request">A JSON object containing details for creating the class session.</param>
-    /// <returns>
-    /// An HTTP response with a status code 204 (No Content) upon successful creation of the class session.
-    /// </returns>
-    /// <remarks>
-    /// This endpoint allows authorized users to create a class session by providing a JSON object with details
-    /// for the class session. It is typically used to create a new session for a class, and it returns a 204
-    /// status code upon successful creation.
-    /// </remarks>
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> Create([FromBody] CreateClassSessionRequestDto request)
-    {
-        await Mediator.Send(new CreateClassSessionCommand()
-        {
-            ClassId = request.ClassId,
-            Sessions = request.Sessions,
-        });
-        return NoContent();
-    }
-
-    /// <summary>
-    /// Updates a class session's date and attendance based on the provided details.
-    /// </summary>
-    /// <param name="request">A JSON object containing details for updating the class session.</param>
-    /// <returns>
-    /// An HTTP response with a status code 204 (No Content) upon successful update of the class session.
-    /// </returns>
-    /// <remarks>
-    /// This endpoint allows authorized users to update a class session's date and attendance by providing a JSON object
-    /// with the necessary details. It is typically used to update the date and attendance of an existing class session,
-    /// and it returns a 204 status code upon successful update.
-    /// </remarks>
-    [HttpPut("/api/class-sessions")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateClassSessionAttendance([FromBody] UpdateClassSessionByDateRequestDto request)
-    {
-        await Mediator.Send(new UpdateClassSessionByDateCommand(request.ClassId, request.OldDate, request.NewDate, request.Sessions));
-        return NoContent();
-    }
 
     /// <summary>
     /// Retrieves details of a specific class session based on its unique identifier and date.
@@ -97,4 +52,32 @@ public class ClassSessionsController : BaseApiController
         return NoContent();
     }
 
+<<<<<<< HEAD
+=======
+    //[HttpPost("bulk-import")]
+    //public async Task<IActionResult> Create(IEnumerable<ClassSessionImport> import)
+    //{
+    //    var classSessions = await SpaceDbContext.ClassSessions.Include(c => c.AttendancesWorkers).Where(c => c.Category == Domain.Enums.ClassSessionCategory.Theoric).ToListAsync();
+    //    foreach (ClassSessionImport item in import)
+    //    {
+    //        var session = classSessions.FirstOrDefault(c => c.Date == item.Date && c.ClassId == item.ClassId);
+    //        session?.AttendancesWorkers.Add(new Domain.Entities.AttendanceWorker()
+    //        {
+    //            ClassSessionId = session.Id,
+    //            TotalAttendanceHours = session.TotalHour,
+    //            RoleId = new Guid("39489493-d615-49e2-a0ce-507eaf38f234"),
+    //            WorkerId = item.WorkerId
+    //        });
+    //    }
+    //    await SpaceDbContext.SaveChangesAsync();
+    //    return Ok();
+    //}
+    //public class ClassSessionImport
+    //{
+    //    public DateTime Date { get; set; }
+    //    public Guid ClassId { get; set; }
+    //    public Guid WorkerId { get; set; }
+    //    public int TotalHour { get; set; }
+    //}
+>>>>>>> 347b230a34d05d5ec4367901a704c1db3f19a102
 }

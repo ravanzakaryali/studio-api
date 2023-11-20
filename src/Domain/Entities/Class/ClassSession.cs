@@ -1,6 +1,6 @@
 ﻿namespace Space.Domain.Entities;
 
-public class ClassSession : BaseAuditableEntity
+public class ClassSession : BaseAuditableEntity, ICloneable
 {
     public ClassSession()
     {
@@ -22,4 +22,9 @@ public class ClassSession : BaseAuditableEntity
     public Guid ClassId { get; set; }
     public Class Class { get; set; } = null!;
     public ICollection<Attendance> Attendances { get; set; }
+
+    public object Clone()
+    {
+        return this.MemberwiseClone();
+    }
 }

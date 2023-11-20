@@ -9,11 +9,16 @@ internal class UserConfirmCodeCommandHandler : IRequestHandler<ConfirmCodeComman
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IHttpContextAccessor _contextAccessor;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public UserConfirmCodeCommandHandler(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor)
+    public UserConfirmCodeCommandHandler(
+        IUnitOfWork unitOfWork,
+        IHttpContextAccessor contextAccessor,
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
         _contextAccessor = contextAccessor;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<AccessTokenResponseDto> Handle(ConfirmCodeCommand request, CancellationToken cancellationToken)
@@ -27,7 +32,7 @@ internal class UserConfirmCodeCommandHandler : IRequestHandler<ConfirmCodeComman
         string refreshToken = _unitOfWork.TokenService.GenerateRefreshToken();
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpires = token.Expires.AddMinutes(15);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SaveChangesAsync();
         _contextAccessor.HttpContext?.Response.Cookies.Append("token", token.AccessToken, new CookieOptions
         {
             Expires = token.Expires,

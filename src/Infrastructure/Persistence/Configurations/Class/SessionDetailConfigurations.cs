@@ -10,6 +10,11 @@ public class SessionDetailConfigurations : IEntityTypeConfiguration<SessionDetai
 
         builder.Property(e => e.EndTime)
                .HasConversion(new TimeOnlyNullableDbConverter());
+        builder
+           .Property(e => e.Category)
+           .HasConversion(new EnumToStringConverter<ClassSessionCategory>());
 
+        builder.Property(e => e.Category)
+            .HasDefaultValue(ClassSessionCategory.Theoric);
     }
 }

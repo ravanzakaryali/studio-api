@@ -3,21 +3,22 @@
 public record DeleteSessionCommand(Guid Id) : IRequest<GetSessionResponseDto>;
 internal class DeleteSessionCommandHandler : IRequestHandler<DeleteSessionCommand, GetSessionResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
 
-    public DeleteSessionCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public DeleteSessionCommandHandler(
+        IMapper mapper, ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetSessionResponseDto> Handle(DeleteSessionCommand request, CancellationToken cancellationToken)
     {
-        Session? session = await _unitOfWork.SessionRepository.GetAsync(request.Id)
-            ?? throw new NotFoundException(nameof(Session), request.Id);
-        _unitOfWork.SessionRepository.Remove(session);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        Session? session = await _spaceDbContext.Sessions.FindAsync(request.Id) ??
+            throw new NotFoundException(nameof(Session), request.Id);
+        _spaceDbContext.Sessions.Remove(session);
+        await _spaceDbContext.SaveChangesAsync();
         return _mapper.Map<GetSessionResponseDto>(session);
     }
 }

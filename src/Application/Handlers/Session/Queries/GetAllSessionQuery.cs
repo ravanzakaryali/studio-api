@@ -1,23 +1,26 @@
 ﻿namespace Space.Application.Handlers;
 
-public class GetAllSessionQuery : IRequest<IEnumerable<GetSessionWithDetailsResponseDto>>
+public class GetAllSessionQuery : IRequest<IEnumerable<GetSessionResponseDto>>
 {
 }
 
-internal class GetAllSessionQueryHandler : IRequestHandler<GetAllSessionQuery, IEnumerable<GetSessionWithDetailsResponseDto>>
+internal class GetAllSessionQueryHandler : IRequestHandler<GetAllSessionQuery, IEnumerable<GetSessionResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
 
-    public GetAllSessionQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetAllSessionQueryHandler(
+        IMapper mapper, ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
-    public async Task<IEnumerable<GetSessionWithDetailsResponseDto>> Handle(GetAllSessionQuery request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<GetSessionResponseDto>> Handle(GetAllSessionQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Session> sessions = await _unitOfWork.SessionRepository.GetAllAsync(includes: "Details");
-        return _mapper.Map<IEnumerable<GetSessionWithDetailsResponseDto>>(sessions);
+        IEnumerable<Session> sessions = await _spaceDbContext.Sessions
+            .Include(c => c.Details)
+            .ToListAsync();
+        return _mapper.Map<IEnumerable<GetSessionResponseDto>>(sessions);
     }
 }

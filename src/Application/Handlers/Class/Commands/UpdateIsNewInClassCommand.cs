@@ -3,22 +3,23 @@
 public record UpdateIsNewInClassCommand(Guid Id) : IRequest<GetUpdateIsNewInClassResponseDto>;
 internal class UpdateIsNewInClassCommandHander : IRequestHandler<UpdateIsNewInClassCommand, GetUpdateIsNewInClassResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly ISpaceDbContext _dbContext;
 
-    public UpdateIsNewInClassCommandHander(IUnitOfWork unitOfWork, IMapper mapper)
+    public UpdateIsNewInClassCommandHander(
+        IMapper mapper,
+        ISpaceDbContext dbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _dbContext = dbContext;
     }
 
     public async Task<GetUpdateIsNewInClassResponseDto> Handle(UpdateIsNewInClassCommand request, CancellationToken cancellationToken)
     {
-        Class @class = await _unitOfWork.ClassRepository.GetAsync(request.Id)
-            ?? throw new NotFoundException(nameof(Class), request.Id);
+        Class @class = await _dbContext.Classes.FindAsync(request.Id) ??
+            throw new NotFoundException(nameof(Class), request.Id);
 
         @class.IsNew = !@class.IsNew;
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
         return _mapper.Map<GetUpdateIsNewInClassResponseDto>(@class);
     }
 }

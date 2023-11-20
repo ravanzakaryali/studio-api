@@ -4,18 +4,19 @@ public record DeleteProgramCommand(Guid Id) : IRequest;
 
 internal class DeleteProgramCommandHandler : IRequestHandler<DeleteProgramCommand>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public DeleteProgramCommandHandler(IUnitOfWork unitOfWork)
+    public DeleteProgramCommandHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(DeleteProgramCommand request, CancellationToken cancellationToken)
     {
-        Program? program = await  _unitOfWork.ProgramRepository.GetAsync(request.Id)
-                ?? throw new NotFoundException(nameof(Program),request.Id);
-        _unitOfWork.ProgramRepository.Remove(program);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        Program? program = await _spaceDbContext.Programs.FindAsync(request.Id)
+                ?? throw new NotFoundException(nameof(Program), request.Id);
+        program.IsDeleted = true;
+        await _spaceDbContext.SaveChangesAsync();
     }
 }

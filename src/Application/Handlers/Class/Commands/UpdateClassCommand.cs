@@ -10,29 +10,33 @@ public record UpdateClassCommand(
 internal class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, GetClassResponseDto>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
 
-    public UpdateClassCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+
+    public UpdateClassCommandHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetClassResponseDto> Handle(UpdateClassCommand request, CancellationToken cancellationToken)
     {
-        Class? @class = await _unitOfWork.ClassRepository.GetAsync(c => c.Id == request.Id, tracking: false)
-            ?? throw new NotFoundException(nameof(Class), request.Id);
-
-        Program? program = await _unitOfWork.ProgramRepository.GetAsync(request.ProgramId) ??
+        Class @class = await _spaceDbContext.Classes.FindAsync(request.Id) ??
+            throw new NotFoundException(nameof(Class), request.Id);
+        Program program = await _spaceDbContext.Programs.FindAsync(request.ProgramId) ??
             throw new NotFoundException(nameof(Program), request.ProgramId);
 
-        Session session = await _unitOfWork.SessionRepository.GetAsync(request.SessionId) ??
+        Session session = await _spaceDbContext.Sessions.FindAsync(request.SessionId) ??
             throw new NotFoundException(nameof(Session), request.SessionId);
-
         if (request.RoomId == null)
         {
             Guid roomIdNonNullable = request.RoomId ?? Guid.Empty;
-            Room room = await _unitOfWork.RoomRepository.GetAsync(roomIdNonNullable) ??
+            Room rooo = await _spaceDbContext.Rooms.FindAsync(roomIdNonNullable) ??
                 throw new NotFoundException(nameof(Room), roomIdNonNullable);
         }
 
@@ -40,8 +44,8 @@ internal class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, G
 
         newClass.Id = @class.Id;
 
-        _unitOfWork.ClassRepository.Update(newClass);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _spaceDbContext.Classes.Update(newClass);
+        await _spaceDbContext.SaveChangesAsync();
         return _mapper.Map<GetClassResponseDto>(newClass);
     }
 }

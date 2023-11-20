@@ -8,29 +8,32 @@ public record GetWorkerClassSchedulesQuery() : IRequest<IEnumerable<GetWorkersSc
 
 internal class GetWorkerClassSchedulesQueryHandler : IRequestHandler<GetWorkerClassSchedulesQuery, IEnumerable<GetWorkersSchedulesResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetWorkerClassSchedulesQueryHandler(IUnitOfWork unitOfWork)
+    public GetWorkerClassSchedulesQueryHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetWorkersSchedulesResponseDto>> Handle(GetWorkerClassSchedulesQuery request, CancellationToken cancellationToken)
     {
 
-        var workers = await _unitOfWork.WorkerRepository.GetAllAsync();
+        List<Worker> workers = await _spaceDbContext.Workers.ToListAsync();
 
-        var classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(q => q.IsActive, tracking: false, "Worker");
-        var classes = await _unitOfWork.ClassRepository.GetAllAsync();
+        //var classSessions = await _spaceDbContext.ClassSessions
+        //    .Include(c => c.AttendancesWorkers)
+        //    .ToListAsync();
+        List<Class> classes = await _spaceDbContext.Classes.ToListAsync();
 
 
         var response = new List<GetWorkersSchedulesResponseDto>();
         foreach (var item in workers)
         {
-            var model = new GetWorkersSchedulesResponseDto();
-            model.WorkerName = item.Name + " " + item.Surname;
-
-
+            GetWorkersSchedulesResponseDto model = new()
+            {
+                WorkerName = item.Name + " " + item.Surname
+            };
 
             var workerClassSchedules = new List<GetWorkerClassSchedulesResponseDto>();
             foreach (var @class in classes)
@@ -39,7 +42,7 @@ internal class GetWorkerClassSchedulesQueryHandler : IRequestHandler<GetWorkerCl
                 //var classSessionEnd = classSessions.Where(q => q.ClassId == @class.Id && q.WorkerId == item.Id).OrderByDescending(q => q.Date)?.Take(1).FirstOrDefault();
 
 
-               
+
                 //if (classSessionStart != null && classSessionEnd != null)
                 //{
                 //    var workerClassSchedule = new GetWorkerClassSchedulesResponseDto();
@@ -51,8 +54,8 @@ internal class GetWorkerClassSchedulesQueryHandler : IRequestHandler<GetWorkerCl
                 //    workerClassSchedules.Add(workerClassSchedule);
                 //}
 
-           
-               
+
+
             }
 
 

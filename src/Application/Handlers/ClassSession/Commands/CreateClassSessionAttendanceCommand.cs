@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Security.Cryptography.Xml;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public class CreateClassSessionAttendanceCommand : IRequest
 {
@@ -9,16 +6,21 @@ public class CreateClassSessionAttendanceCommand : IRequest
 
     public Guid ModuleId { get; set; }
     public DateTime Date { get; set; }
-    public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; }
+    public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
 }
 
 internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<CreateClassSessionAttendanceCommand>
 {
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IUnitOfWork _unitOfWork;
     readonly ICurrentUserService _currentUserService;
 
-    public UpdateClassSessionAttendanceCommandHandler(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
+    public UpdateClassSessionAttendanceCommandHandler(
+        ISpaceDbContext spaceDbContext,
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
+        _spaceDbContext = spaceDbContext;
         _unitOfWork = unitOfWork;
         _currentUserService = currentUserService;
     }
@@ -27,121 +29,61 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
     {
         if (_currentUserService.UserId == null) throw new AutheticationException();
 
-        Worker? worker = await _unitOfWork.WorkerRepository.GetAsync(new Guid(_currentUserService.UserId))
-            ?? throw new AutheticationException();
+        Worker? worker = await _spaceDbContext.Workers.FindAsync(_currentUserService.UserId) ??
+                throw new AutheticationException();
 
-        Class @class = await _unitOfWork.ClassRepository.GetAsync(request.ClassId, tracking: false, "Studies", "Program.Modules.SubModules", "ClassModulesWorkers.Worker", "ClassModulesWorkers.Role") ??
-            throw new NotFoundException(nameof(Class), request.ClassId);
+        Class? @class = await _spaceDbContext.Classes
+            .Include(c => c.Studies)
+            .Include(c => c.Program)
+            .ThenInclude(c => c.Modules)
+            .ThenInclude(c => c.SubModules)
+            .Include(c => c.ClassModulesWorkers)
+            .ThenInclude(c => c.Worker)
+            .Include(c => c.ClassModulesWorkers)
+            .ThenInclude(c => c.Role)
+            .Where(c => c.Id == request.ClassId)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.ClassId);
 
 
-        Module module = await _unitOfWork.ModuleRepository.GetAsync(request.ModuleId, tracking: false) ??
-            throw new NotFoundException(nameof(Module), request.ModuleId);
+        Module module = await _spaceDbContext.Modules.FindAsync(request.ModuleId) ??
+                throw new NotFoundException(nameof(Module), request.ModuleId);
 
-        IEnumerable<ClassSession> classSessionsHour = await _unitOfWork.ClassSessionRepository.GetAllAsync(cs => cs.ClassId == @class.Id && request.Date >= cs.Date && cs.ModuleId != null && (cs.AttendancesWorkers != null && cs.AttendancesWorkers.Count != 0), true, "AttendancesWorkers") ?? throw new NotFoundException(nameof(ClassSession), @class.Id);
+        DateTime lastDate = await _unitOfWork.ClassSessionService
+            .GetLastDateAsync(@class.Id);
 
-        List<Module> modules = @class.Program.Modules.OrderBy(m => m.Version).Where(m => m.TopModuleId != null || !m.SubModules.Any()).ToList();
+        List<Module> modules = @class.Program.Modules
+            .OrderBy(m => m.Version)
+            .Where(m => m.TopModuleId != null || m.SubModules!.Any())
+            .ToList();
 
-        int totalHour = classSessionsHour.Sum(c => c.TotalHour);
-        Module? currentModule = null;
-        if (totalHour > 0)
-        {
-            double totalHourModule = 0;
+        Module? currentModule = await _unitOfWork.ModuleService
+            .GetCurrentModuleAsync(@class, request.Date);
 
-            for (int i = 0; i < modules.Count; i++)
+        IEnumerable<WokerDto> currentModuleWorkers = @class.ClassModulesWorkers
+            .Where(c => c.ModuleId == currentModule?.Id)
+            .Distinct(new GetModulesWorkerComparer())
+            .Select(c => new WokerDto()
             {
-                totalHourModule += modules[i].Hours;
-                if (totalHourModule >= totalHour)
-                {
-                    currentModule = modules[i];
-                    break;
-                }
-            }
-            currentModule ??= modules.LastOrDefault();
-        }
-        else
-        {
-            currentModule = modules.FirstOrDefault();
-        }
-
-        IEnumerable<WokerDto> currentModuleWorkers = @class.ClassModulesWorkers.Where(c => c.ModuleId == currentModule.Id).Distinct(new GetModulesWorkerComparer()).Select(c => new WokerDto()
-        {
-            Id = c.WorkerId,
-            RoleName = c.Role.Name
-        });
+                Id = c.WorkerId,
+                RoleName = c.Role?.Name
+            });
 
         List<Guid> studentIds = request.Sessions
                 .SelectMany(s => s.Attendances)
                 .Select(a => a.StudentId)
                 .ToList();
 
-        List<Study> ClassStudiesExsist = @class.Studies.Where(c => !studentIds.Contains(c.Id)).ToList();
+        List<Study> ClassStudiesExsist = @class.Studies
+            .Where(c => !studentIds.Contains(c.Id)).ToList();
 
-        IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository
-                    .GetAllAsync(c => c.Date == request.Date && c.ClassId == request.ClassId, tracking: true, "Attendances", "AttendancesWorkers");
+        IEnumerable<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+            .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
+            .Include(c => c.Attendances)
+            .Include(c => c.AttendancesWorkers)
+            .ToListAsync();
 
-
-
-
-        foreach (ClassSession classSession in classSessions)
-        {
-            classSession.Status = null;
-            classSession.ModuleId = null;
-            classSession.Attendances = new List<Attendance>();
-            classSession.AttendancesWorkers = new List<AttendanceWorker>();
-        }
-        foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
-        {
-
-            ClassSession? matchingSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
-            if (matchingSession == null) break;
-            //if (matchingSession.Category == ClassSessionCategory.Theoric)
-            //{
-
-            //matchingSession.Status = null;
-            //matchingSession.ModuleId = null;
-            //matchingSession.Attendances = new List<Attendance>();
-            //matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
-
-            if (matchingSession.Category != ClassSessionCategory.Lab)
-            {
-                matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
-                {
-                    WorkerId = wa.WorkerId,
-                    TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0,
-                    RoleId = wa.RoleId,
-                }));
-            }
-
-            //}
-            //else
-            //{
-            //    //matchingSession.WorkerId = session.WorkerId;
-            //}
-
-            matchingSession.ModuleId = request.ModuleId;
-            matchingSession.Status = session.Status;
-
-            if (session.Status != ClassSessionStatus.Cancelled)
-            {
-                matchingSession.Attendances = session.Attendances.Select(c => new Attendance()
-                {
-                    StudyId = c.StudentId,
-                    Note = c.Note,
-                    Status = matchingSession.TotalHour == c.TotalAttendanceHours
-                                        ? StudentStatus.Attended
-                                        : c.TotalAttendanceHours == 0
-                                        ? StudentStatus.Absent
-                                        : StudentStatus.Partial,
-                    TotalAttendanceHours = c.TotalAttendanceHours
-                }).ToList();
-            }
-            else
-            {
-                matchingSession.Attendances = new List<Attendance>();
-                matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
-            }
-        }
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.ClassSessionService.GenerateAttendanceAsync(request.Sessions, classSessions, request.ModuleId);
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

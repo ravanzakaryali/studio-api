@@ -256,6 +256,9 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("Getutcdate()");
 
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -277,6 +280,9 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid?>("RoleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("WorkerId")
                         .HasColumnType("uniqueidentifier");
@@ -859,6 +865,12 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Theoric");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -870,7 +882,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("int");
 
-                    b.Property<TimeSpan?>("EndTime")
+                    b.Property<TimeSpan>("EndTime")
                         .HasColumnType("time");
 
                     b.Property<bool>("IsActive")
@@ -895,7 +907,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("SessionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<TimeSpan?>("StartTime")
+                    b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
 
                     b.Property<int>("TotalHours")

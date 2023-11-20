@@ -197,5 +197,6 @@ public class WorkersController : BaseApiController
     /// </remarks>
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/attendance-by-class")]
-    public async Task<IActionResult> GetWorkerAttendanceByClassId([FromRoute] Guid id) => StatusCode(200, await Mediator.Send(new GetWorkerAttendanceByClassQuery(id)));
+    public async Task<IActionResult> GetWorkerAttendanceByClassId([FromRoute] Guid id) =>
+        StatusCode(200, await Mediator.Send(new GetWorkerAttendanceByClassQuery(id)));
 }

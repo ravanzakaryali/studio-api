@@ -8,17 +8,26 @@ public record GetAllAbsentStudentsQuery(Guid Id) : IRequest<IEnumerable<GetAllAb
 public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStudentsQuery, IEnumerable<GetAllAbsentStudentResponseDto>>
 {
 
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetAllAbsentStudentsQueryHandler(IUnitOfWork unitOfWork)
+    public GetAllAbsentStudentsQueryHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetAllAbsentStudentResponseDto>> Handle(GetAllAbsentStudentsQuery request, CancellationToken cancellationToken)
     {
-        Class @class = await _unitOfWork.ClassRepository.GetAsync(request.Id, tracking: false, "Studies.Attendances.ClassSession", "Studies.Student.Contact")
-                        ?? throw new NotFoundException(nameof(Class), request.Id);
+        Class @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id)
+            .Include(c => c.Studies)
+            .ThenInclude(c => c.Attendances)
+            .ThenInclude(c => c.ClassSession)
+            .Include(c => c.Studies)
+            .ThenInclude(c => c.Student)
+            .ThenInclude(c => c.Contact)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.Id);
 
         var response = new List<GetAllAbsentStudentResponseDto>();
 
@@ -42,11 +51,11 @@ public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStud
                     {
                         response.Add(new GetAllAbsentStudentResponseDto()
                         {
-                            Id = study.Id,
+                            Id = study!.Id,
                             StudentId = study.StudentId,
-                            Name = study.Student.Contact.Name,
-                            Surname = study.Student.Contact.Surname,
-                            Father = study.Student.Contact.FatherName,
+                            Name = study!.Student!.Contact!.Name,
+                            Surname = study!.Student!.Contact!.Surname,
+                            Father = study?.Student?.Contact?.FatherName,
                             Class = new GetAllClassDto()
                             {
                                 Name = @class.Name,

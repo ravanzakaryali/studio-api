@@ -3,19 +3,21 @@
 public record GetWorkerQuery(Guid Id) : IRequest<GetWorkerByIdDto>;
 public class GetWorkerQueryCommand : IRequestHandler<GetWorkerQuery, GetWorkerByIdDto>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
 
-    public GetWorkerQueryCommand(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetWorkerQueryCommand(
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetWorkerByIdDto> Handle(GetWorkerQuery request, CancellationToken cancellationToken)
     {
-        Worker? worker = await _unitOfWork.WorkerRepository.GetAsync(request.Id)
-            ?? throw new NotFoundException(nameof(Worker), request.Id);
+        Worker? worker = await _spaceDbContext.Workers.FindAsync(request.Id) ??
+            throw new NotFoundException(nameof(Worker), request.Id);
         return _mapper.Map<GetWorkerByIdDto>(worker);
     }
 }

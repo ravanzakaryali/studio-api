@@ -5,18 +5,25 @@ public record GetSessionByClassQuery(Guid Id) : IRequest<IEnumerable<GetSessionD
 
 internal class GetSessionByClassQueryCommand : IRequestHandler<GetSessionByClassQuery, IEnumerable<GetSessionDetailDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-    public GetSessionByClassQueryCommand(IUnitOfWork unitOfWork, IMapper mapper)
+    readonly ISpaceDbContext _spaceDbContext;
+    public GetSessionByClassQueryCommand(
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetSessionDetailDto>> Handle(GetSessionByClassQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _unitOfWork.ClassRepository.GetAsync(r => r.Id == request.Id, tracking: false, "Session.Details")
-            ?? throw new NotFoundException(nameof(Class), request.Id);
+        Class? @class = await _spaceDbContext.Classes
+            .Include(c => c.Session)
+            .ThenInclude(c => c.Details)
+            .Where(c => c.Id == request.Id)
+            .FirstOrDefaultAsync()
+                ?? throw new NotFoundException(nameof(Class), request.Id);
+
         return @class.Session.Details.Select(c => new GetSessionDetailDto()
         {
             ClassName = @class.Name,

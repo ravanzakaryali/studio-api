@@ -1,10 +1,4 @@
-﻿using Space.Application.DTOs.Auth.Request;
-using Space.Application.Handlers;
-using Microsoft.AspNetCore.Http;
-using Space.Application.Handlers.Auth;
-using Microsoft.AspNetCore.Authorization;
-
-namespace Space.WebAPI.Controllers;
+﻿namespace Space.WebAPI.Controllers;
 
 /// <summary>
 /// Authentication controller

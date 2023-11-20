@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-
-namespace Space.WebAPI.Controllers;
+﻿namespace Space.WebAPI.Controllers;
 
 /// <summary>
 /// Attendances controller
@@ -28,4 +25,5 @@ public class AttendancesController : BaseApiController
         });
         return NoContent();
     }
+
 }

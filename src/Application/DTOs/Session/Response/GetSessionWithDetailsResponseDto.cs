@@ -13,5 +13,6 @@ public class GetDetailsResponseDto
     public TimeOnly StartTime { get; set; }
     public TimeOnly EndTime { get; set; }
     public DayOfWeek DayOfWeek { get; set; }
+    public ClassSessionCategory Category { get; set; }
     public int TotalHours { get; set; }
 }

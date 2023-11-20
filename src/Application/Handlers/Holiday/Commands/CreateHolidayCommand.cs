@@ -1,4 +1,5 @@
-﻿using Space.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Space.Domain.Entities;
 
 namespace Space.Application.Handlers;
 
@@ -7,10 +8,14 @@ public record CreateHolidayCommand(string Description, DateOnly StartDate, DateO
 internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayCommand, HolidayResponseDto>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public CreateHolidayCommandHandler(IUnitOfWork unitOfWork)
+    public CreateHolidayCommandHandler(
+        IUnitOfWork unitOfWork,
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<HolidayResponseDto> Handle(CreateHolidayCommand request, CancellationToken cancellationToken)
@@ -19,12 +24,14 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
         {
             throw new DateTimeException("Başlağıc tarix son tarixdən böyük ola bilməz");
         }
-        if (await _unitOfWork.HolidayRepository.GetAsync(h => h.StartDate == request.StartDate && h.EndDate == request.EndDate) != null)
+        if (await _spaceDbContext.Holidays
+            .Where(h => h.StartDate == request.StartDate && h.EndDate == request.EndDate)
+            .FirstOrDefaultAsync() != null)
         {
             throw new AlreadyExistsException("Bu bayram artıq əlavə olunub");
         }
 
-        Holiday holiday = await _unitOfWork.HolidayRepository.AddAsync(new Holiday()
+        EntityEntry<Holiday> holidayEntry = await _spaceDbContext.Holidays.AddAsync(new Holiday()
         {
             StartDate = request.StartDate,
             EndDate = request.EndDate,
@@ -33,34 +40,32 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
         });
 
         #region All Holiday Date
-        IEnumerable<Holiday> allHolday = await _unitOfWork.HolidayRepository.GetAllAsync();
-        List<DateTime> allHolidayDates = new();
-        foreach (Holiday holidayItem in allHolday)
-        {
-            for (DateOnly date = holiday.StartDate; date <= holiday.EndDate; date = date.AddDays(1))
-            {
-                allHolidayDates.Add(date.ToDateTime(new TimeOnly(0, 0)));
-            }
-        }
+        List<DateTime> allHolidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         #endregion
 
         #region Create Holiday Date
         List<DateTime> holidayDates = new();
-        for (DateOnly date = holiday.StartDate; date <= holiday.EndDate; date = date.AddDays(1))
+        for (DateOnly date = holidayEntry.Entity.StartDate; date <= holidayEntry.Entity.EndDate; date = date.AddDays(1))
         {
             holidayDates.Add(date.ToDateTime(new TimeOnly(0, 0)));
         }
         #endregion
 
+<<<<<<< HEAD
         IEnumerable<ClassSession> classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(c => holidayDates.Contains(c.Date));
+=======
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+            .Where(c => holidayDates.Contains(c.Date))
+            .ToListAsync();
+>>>>>>> 347b230a34d05d5ec4367901a704c1db3f19a102
 
         var classIds = classSessions
                         .GroupBy(c => c.ClassId)
                         .Select(group => new { ClassId = group.Key, Sessions = group })
                         .ToList();
 
-        IEnumerable<ClassSession> allClassSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(c =>
-                    classIds.Select(cl => cl.ClassId).Contains(c.ClassId));
+        List<ClassSession> allClassSessions = await _spaceDbContext.ClassSessions.Where(c =>
+                    classIds.Select(cl => cl.ClassId).Contains(c.ClassId)).ToListAsync();
 
         foreach (var @class in classIds)
         {
@@ -72,14 +77,14 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
             }
         }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SaveChangesAsync();
         return new HolidayResponseDto()
         {
-            Description = holiday.Description,
-            ClassId = holiday.ClassId,
-            EndDate = holiday.EndDate,
+            Description = holidayEntry.Entity.Description,
+            ClassId = holidayEntry.Entity.ClassId,
+            EndDate = holidayEntry.Entity.EndDate,
             StartDate = request.StartDate,
-            Id = holiday.Id
+            Id = holidayEntry.Entity.Id
         };
     }
     private DateTime GetAddDate(

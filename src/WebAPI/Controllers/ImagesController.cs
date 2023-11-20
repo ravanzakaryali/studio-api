@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-
-namespace Space.WebAPI.Controllers;
+﻿namespace Space.WebAPI.Controllers;
 
 /// <summary>
 /// Image controller

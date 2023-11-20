@@ -4,24 +4,49 @@ public record GetClassesByWorkerQuery(Guid Id) : IRequest<IEnumerable<GetAllClas
 
 internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWorkerQuery, IEnumerable<GetAllClassDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetClassesByWorkerQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetClassesByWorkerQueryHandler(
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetAllClassDto>> Handle(GetClassesByWorkerQuery request, CancellationToken cancellationToken)
     {
-        Worker? worker = await _unitOfWork.WorkerRepository.GetAsync(request.Id, tracking: false, "ClassModulesWorkers.Class") ??
-            throw new NotFoundException(nameof(Worker), request.Id);
+        Worker? worker = await _spaceDbContext.Workers
+            .Include(c => c.ClassModulesWorkers)
+            .ThenInclude(c => c.Class)
+            .Where(c => c.Id == request.Id)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Worker), request.Id);
 
 
-        return worker.ClassModulesWorkers.Where(q => q.Class.EndDate.Value.Date >= DateTime.Now.Date).DistinctBy(cmw => cmw.ClassId).Select(cmw => new GetAllClassDto()
+        IEnumerable<ClassModulesWorker> classModuleWorker = worker.ClassModulesWorkers
+            .Where(q => q.StartDate >= DateTime.Now && q.EndDate <= DateTime.Now)
+            .DistinctBy(cmw => cmw.ClassId);
+
+        IEnumerable<Guid> classIds = classModuleWorker.Select(cm => cm.ClassId);
+        List<ClassSession> classSession = await _spaceDbContext.ClassSessions
+            .Where(c => classIds.Contains(c.ClassId) && c.Date == DateTime.Now.Date)
+            .ToListAsync();
+
+        return classModuleWorker.Select(cmw => new GetAllClassDto()
         {
             Id = cmw.ClassId,
+            Start = classSession
+                    .Where(c => c.ClassId == cmw.ClassId)
+                    .Select(c => (TimeOnly?)c.StartTime)
+                    .DefaultIfEmpty(null)
+                    .Min(),
+            End = classSession
+                    .Where(c => c.ClassId == cmw.ClassId)
+                    .Select(c => (TimeOnly?)c.EndTime)
+                    .DefaultIfEmpty(null)
+                    .Max(),
             Name = cmw.Class.Name
         });
     }

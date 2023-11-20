@@ -12,5 +12,5 @@ public class Study : BaseAuditableEntity, IKometa
     //Hack: Student id nullable
     public Guid? StudentId { get; set; }
     public Student? Student { get; set; }
-    public ICollection<Attendance>? Attendances { get; set; }
+    public ICollection<Attendance> Attendances { get; set; } = null!;
 }

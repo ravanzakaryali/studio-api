@@ -22,7 +22,7 @@ columnOpts.PrimaryKey = columnOpts.TimeStamp;
 columnOpts.TimeStamp.NonClusteredIndex = true;
 
 Serilog.Core.Logger log = new LoggerConfiguration()
-    //.WriteTo.Console()
+    .WriteTo.Console()
     .AuditTo.MSSqlServer(builder.Configuration.GetConnectionString("SqlServer"), new MSSqlServerSinkOptions()
     {
         TableName = "Logs",
@@ -101,7 +101,7 @@ builder.Services.Configure<ClientRateLimitOptions>(options =>
             {
                 Endpoint = "*",
                 Period = "1h",
-                Limit = 300
+                Limit = 600
             },
             new RateLimitRule
             {

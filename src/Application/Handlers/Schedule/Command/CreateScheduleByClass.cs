@@ -1,24 +1,24 @@
-﻿using System;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public record CreateRoomScheduleByClassCommand : IRequest;
 
-
-
 internal class CreateRoomScheduleByClassCommandHandler : IRequestHandler<CreateRoomScheduleByClassCommand>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public CreateRoomScheduleByClassCommandHandler(IUnitOfWork unitOfWork)
+    public CreateRoomScheduleByClassCommandHandler(
+                                ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(CreateRoomScheduleByClassCommand request, CancellationToken cancellationToken)
     {
 
-        IEnumerable<Class> allClasses = await _unitOfWork.ClassRepository.GetAllAsync(predicate: null, tracking: false, "ClassSessions", "RoomSchedules");
+        IEnumerable<Class> allClasses = await _spaceDbContext.Classes
+            .Include(c => c.ClassSessions)
+            .Include(c => c.RoomSchedules)
+            .ToListAsync();
 
         foreach (Class @class in allClasses)
         {
@@ -40,10 +40,10 @@ internal class CreateRoomScheduleByClassCommandHandler : IRequestHandler<CreateR
                         StartTime = classSession.StartTime.ToString(),
                         EndTime = classSession.EndTime.ToString()
                     };
-                    await _unitOfWork.RoomScheduleRepository.AddAsync(roomSchedule);
+                    await _spaceDbContext.RoomSchedules.AddAsync(roomSchedule);
                 }
             }
         }
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SaveChangesAsync();
     }
 }

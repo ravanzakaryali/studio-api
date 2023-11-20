@@ -1,8 +1,5 @@
-﻿using Space.Application.DTOs.Worker;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
+﻿namespace Space.WebAPI.Controllers;
 
-namespace Space.WebAPI.Controllers;
 
 /// <summary>
 /// Student controller
@@ -49,7 +46,6 @@ public class StudentsController : BaseApiController
     {
         return StatusCode(200, await Mediator.Send(new GetAllStudentsQuery()));
     }
-
 
 }
 

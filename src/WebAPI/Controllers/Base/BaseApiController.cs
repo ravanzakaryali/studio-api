@@ -7,12 +7,9 @@
 public class BaseApiController : Controller
 {
 
-    private ISpaceDbContext? _context;
-
     private IMediator? _mediator;
     /// <summary>
     /// Mediator get service
     /// </summary>
     protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetService<IMediator>()!;
-    protected ISpaceDbContext SpaceDbContext => _context ??= HttpContext.RequestServices.GetService<ISpaceDbContext>()!;
 }

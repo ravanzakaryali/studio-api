@@ -8,13 +8,13 @@ internal class CreateRoleByUserCommandHandler : IRequestHandler<CreateRoleByUser
 {
     readonly UserManager<User> _userManager;
     readonly RoleManager<Role> _roleManager;
-    readonly IUnitOfWork _unitOfWork;
 
-    public CreateRoleByUserCommandHandler(UserManager<User> userManager, RoleManager<Role> roleManager, IUnitOfWork unitOfWork)
+    public CreateRoleByUserCommandHandler(
+        UserManager<User> userManager,
+        RoleManager<Role> roleManager)
     {
         _userManager = userManager;
         _roleManager = roleManager;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task Handle(CreateRoleByUserCommand request, CancellationToken cancellationToken)
@@ -23,7 +23,7 @@ internal class CreateRoleByUserCommandHandler : IRequestHandler<CreateRoleByUser
             ?? throw new NotFoundException(nameof(User), request.Id);
         List<Guid> roles = request.Roles.Select(r => r.Id).ToList();
         IList<string> userRoles = await _userManager.GetRolesAsync(user);
-        if (userRoles.Count != 0) await _userManager.RemoveFromRolesAsync(user,userRoles);
+        if (userRoles.Count != 0) await _userManager.RemoveFromRolesAsync(user, userRoles);
         List<string> rolesDb = await _roleManager.Roles.Where(r => roles.ToList().Contains(r.Id)).Select(c => c.Name).ToListAsync();
         user.SecurityStamp ??= Guid.NewGuid().ToString();
         await _userManager.AddToRolesAsync(user, rolesDb);

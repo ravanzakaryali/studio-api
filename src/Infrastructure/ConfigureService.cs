@@ -16,7 +16,7 @@ public static class ConfigureService
         services.AddScoped<ISpaceDbContext>(provider => provider.GetRequiredService<SpaceDbContext>());
 
         services.AddDbContext<SpaceDbContext>(options =>
-               options.UseSqlServer(configuration.GetConnectionString("SqlServer"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)), ServiceLifetime.Transient);
+               options.UseSqlServer(configuration.GetConnectionString("SqlServer"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
         services.AddIdentity<User, Role>(opt =>
         {
@@ -57,10 +57,14 @@ public static class ConfigureService
         services.AddScoped<IStorageService, StorageService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+<<<<<<< HEAD
 		services.AddScoped<SendEmailService>();
 		services.AddSingleton<IHostedService, EmailServiceLauncher>();
 
 		services.AddStorage<LocalStorage>();
+=======
+        services.AddStorage<LocalStorage>();
+>>>>>>> 347b230a34d05d5ec4367901a704c1db3f19a102
 
         return services;
     }

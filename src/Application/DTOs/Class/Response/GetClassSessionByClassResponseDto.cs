@@ -8,7 +8,7 @@ namespace Space.Application.DTOs
 {
     public class GetAllClassSessionByClassResponseDto
     {
-        public string ClassName { get; set; }
+        public string ClassName { get; set; } = null!;
         public DateTime ClassSessionDate { get; set; }
         public ClassSessionStatus? ClassSessionStatus { get; set; }
         public Guid ClassId { get; set; }

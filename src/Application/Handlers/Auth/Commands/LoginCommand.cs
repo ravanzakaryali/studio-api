@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Serilog;
-using Space.Domain.Entities;
-using System.Security.Claims;
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public record LoginCommand : IRequest
 {
@@ -16,8 +11,6 @@ internal class LoginCommandHandler : IRequestHandler<LoginCommand>
     readonly IUnitOfWork _unitOfWork;
     readonly IHttpContextAccessor _contextAccessor;
     readonly UserManager<User> _userManager;
-
-
 
     public LoginCommandHandler(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor, UserManager<User> userManager)
     {

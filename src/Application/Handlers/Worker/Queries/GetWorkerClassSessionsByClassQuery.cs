@@ -1,41 +1,40 @@
-﻿using System;
-
-namespace Space.Application.Handlers;
-
+﻿namespace Space.Application.Handlers;
 
 public record GetWorkerClassSessionsByClassQuery(Guid Id) : IRequest<GetWorkerClassSessionsByClassResponseDto>;
-
 
 
 internal class GetWorkerClassSessionsByClassQueryHandler : IRequestHandler<GetWorkerClassSessionsByClassQuery, GetWorkerClassSessionsByClassResponseDto>
 {
 
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetWorkerClassSessionsByClassQueryHandler(IUnitOfWork unitOfWork)
+    public GetWorkerClassSessionsByClassQueryHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetWorkerClassSessionsByClassResponseDto> Handle(GetWorkerClassSessionsByClassQuery request, CancellationToken cancellationToken)
     {
 
-        var classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(q => q.ClassId
-         == request.Id && q.Status != null, tracking: false, "Class");
+        IEnumerable<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+            .Include(c => c.Class)
+            .Where(q => q.ClassId == request.Id && q.Status != null)
+            .ToListAsync();
 
 
-        var @class = await _unitOfWork.ClassRepository.GetAsync(q => q.Id == request.Id);
+        Class @class = await _spaceDbContext.Classes.Where(q => q.Id == request.Id).FirstOrDefaultAsync() ??
+            throw new NotFoundException(nameof(Class), request.Id);
 
-        var response = new GetWorkerClassSessionsByClassResponseDto();
+        GetWorkerClassSessionsByClassResponseDto response = new()
+        {
+            ClassId = @class.Id,
+            ClassName = @class.Name
+        };
 
-        response.ClassId = @class.Id;
-        response.ClassName = @class.Name;
+        List<GetWorkerClassSessionsDto> workerSessions = new List<GetWorkerClassSessionsDto>();
 
-
-        var workerSessions = new List<GetWorkerClassSessionsDto>();
-
-        var orderedClasssessions = classSessions.OrderByDescending(q => q.Date);
+        IOrderedEnumerable<ClassSession> orderedClasssessions = classSessions.OrderByDescending(q => q.Date);
 
         int offlineHours = 0;
         int onlineHours = 0;
@@ -43,11 +42,13 @@ internal class GetWorkerClassSessionsByClassQueryHandler : IRequestHandler<GetWo
 
         foreach (var item in orderedClasssessions)
         {
-            var workerSession = new GetWorkerClassSessionsDto();
-            workerSession.Category = item.Category?.ToString();
-            workerSession.Status = item.Status?.ToString();
-            workerSession.TotalHours = item.TotalHour;
-            workerSession.Date = item.Date;
+            var workerSession = new GetWorkerClassSessionsDto
+            {
+                Category = item.Category?.ToString(),
+                Status = item.Status?.ToString(),
+                TotalHours = item.TotalHour,
+                Date = item.Date
+            };
 
             if (item.Status == ClassSessionStatus.Online)
                 onlineHours += item.TotalHour;

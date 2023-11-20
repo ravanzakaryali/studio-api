@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Space.Application.DTOs.Program.Request;
+﻿using Space.Application.DTOs.Program.Request;
 
 namespace Space.WebAPI.Controllers;
 

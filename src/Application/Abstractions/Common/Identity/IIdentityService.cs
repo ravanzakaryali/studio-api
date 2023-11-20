@@ -1,6 +1,4 @@
-﻿using Space.Application.DTOs.Auth.Request;
-
-namespace Space.Application.Abstractions;
+﻿namespace Space.Application.Abstractions;
 
 public interface IIdentityService
 {

@@ -6,17 +6,18 @@ public class GetAllProgramsQuery : IRequest<IEnumerable<GetAllProgramResponseDto
 }
 public class GetAllProgramsQueryHandler : IRequestHandler<GetAllProgramsQuery, IEnumerable<GetAllProgramResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IMapper _mapper;
-    public GetAllProgramsQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    readonly ISpaceDbContext _spaceDbContext;
+    public GetAllProgramsQueryHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetAllProgramResponseDto>> Handle(GetAllProgramsQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Program> programs = await _unitOfWork.ProgramRepository.GetAllAsync(includes: "Modules");
+        List<Program> programs = await _spaceDbContext.Programs
+            .Include(c => c.Modules)
+            .ToListAsync();
         programs.ToList().ForEach(a => a.Modules = a.Modules.Where(a => a.TopModuleId == null).ToList());
         IEnumerable<GetAllProgramResponseDto> programss = programs.Select(p => new GetAllProgramResponseDto()
         {
