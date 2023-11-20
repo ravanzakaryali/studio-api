@@ -72,8 +72,8 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
             TotalHours = @class.Program.TotalHours,
             Name = @class.Name,
             AttendanceRate = Math.Round(list.Count > 0 ? list.Average() : 0, 2),
-            EndDate = startDate,
-            StartDate = endDate
+            EndDate = endDate,
+            StartDate = startDate
         };
     }
 }
