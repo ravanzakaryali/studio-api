@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Space.Application.DTOs.Auth.Request;
 using Space.Application.Exceptions;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Space.Infrastructure.Services;
 

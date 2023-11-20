@@ -8,23 +8,23 @@ public class UpdatePasswordCommand : IRequest
 internal class UpdatePasswordCommandHandler : IRequestHandler<UpdatePasswordCommand>
 {
     readonly IUnitOfWork _unitOfWork;
-    readonly IWorkerRepository _workerRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public UpdatePasswordCommandHandler(
         IUnitOfWork unitOfWork,
-        IWorkerRepository workerRepository)
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
-        _workerRepository = workerRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(UpdatePasswordCommand request, CancellationToken cancellationToken)
     {
-        Worker? worker = await _workerRepository.GetAsync(w => w.Key == request.Key) ??
+        Worker? worker = await _spaceDbContext.Workers.Where(c => c.Key == request.Key).FirstOrDefaultAsync() ??
             throw new NotFoundException(nameof(Worker), request.Key);
         if (worker.KeyExpirerDate < DateTime.UtcNow) throw new Exception();
         worker.Key = null;
         await _unitOfWork.UserService.PasswordAssignAsync(worker.Id, request.Password);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SaveChangesAsync();
     }
 }

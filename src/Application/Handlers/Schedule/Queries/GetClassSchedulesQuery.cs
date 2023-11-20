@@ -1,32 +1,27 @@
-﻿using System;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public record GetClassSchedulesQuery() : IRequest<IEnumerable<GetClassSchedulesResponseDto>>;
 
 
 internal class GetClassSchedulesQueryHandler : IRequestHandler<GetClassSchedulesQuery, IEnumerable<GetClassSchedulesResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IRoomScheduleRepository _roomScheduleRepository;
-    readonly IClassRepository _classRepository;
-
-    public GetClassSchedulesQueryHandler(
-        IUnitOfWork unitOfWork,
-        IRoomScheduleRepository roomScheduleRepository,
-        IClassRepository classRepository)
+    readonly ISpaceDbContext _spaceDbContext;
+    public GetClassSchedulesQueryHandler(ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _roomScheduleRepository = roomScheduleRepository;
-        _classRepository = classRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
 
     public async Task<IEnumerable<GetClassSchedulesResponseDto>> Handle(GetClassSchedulesQuery request, CancellationToken cancellationToken)
     {
 
-        IEnumerable<RoomSchedule> roomSchedules = await _roomScheduleRepository.GetAllAsync(q => q.Year == 2023, tracking: false);
-        IEnumerable<Class> classes = await _classRepository.GetAllAsync(q => q.IsActive, tracking: false, "Room", "Program");
+        IEnumerable<RoomSchedule> roomSchedules = await _spaceDbContext.RoomSchedules
+            .Where(q => q.Year == 2023)
+            .ToListAsync();
+        IEnumerable<Class> classes = await _spaceDbContext.Classes
+            .Include(c => c.Room)
+            .Include(c => c.Program)
+            .ToListAsync();
 
         List<GetClassSchedulesResponseDto> response = new();
 

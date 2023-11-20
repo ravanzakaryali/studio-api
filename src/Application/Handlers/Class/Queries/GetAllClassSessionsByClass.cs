@@ -5,27 +5,23 @@ public record GetAllClassSessionsByClassQuery(Guid Id) : IRequest<IEnumerable<Ge
 
 public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClassSessionsByClassQuery, IEnumerable<GetAllClassSessionByClassResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IMapper _mapper;
-    readonly IClassRepository _classRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public GetAllClassSessionsByClassQueryHandler(
-        IUnitOfWork unitOfWork,
-        IMapper mapper,
-        IClassRepository classRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-        _classRepository = classRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetAllClassSessionByClassResponseDto>> Handle(GetAllClassSessionsByClassQuery request, CancellationToken cancellationToken)
     {
+        Class @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id)
+            .Include(c => c.ClassSessions)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException();
 
-        Class @class = await _classRepository.GetAsync(request.Id, false, "ClassSessions") ?? throw new NotFoundException();
-
-
-        var response = @class.ClassSessions.OrderByDescending(q => q.Date).DistinctBy(q => q.Date).Select(q => new GetAllClassSessionByClassResponseDto()
+        IEnumerable<GetAllClassSessionByClassResponseDto> response = @class.ClassSessions.OrderByDescending(q => q.Date).DistinctBy(q => q.Date).Select(q => new GetAllClassSessionByClassResponseDto()
         {
             ClassName = q.Class.Name,
             ClassSessionDate = q.Date,

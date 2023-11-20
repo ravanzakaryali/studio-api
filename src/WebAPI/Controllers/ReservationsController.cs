@@ -1,8 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Authorization;
-using Space.Application.DTOs.Worker;
-
-namespace Space.WebAPI.Controllers;
+﻿namespace Space.WebAPI.Controllers;
 
 /// <summary>
 /// Reservation controller

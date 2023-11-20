@@ -8,21 +8,26 @@ public record GetAllAbsentStudentsQuery(Guid Id) : IRequest<IEnumerable<GetAllAb
 public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStudentsQuery, IEnumerable<GetAllAbsentStudentResponseDto>>
 {
 
-    readonly IUnitOfWork _unitOfWork;
-    readonly IClassRepository _classRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public GetAllAbsentStudentsQueryHandler(
-        IUnitOfWork unitOfWork,
-        IClassRepository classRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _classRepository = classRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetAllAbsentStudentResponseDto>> Handle(GetAllAbsentStudentsQuery request, CancellationToken cancellationToken)
     {
-        Class @class = await _classRepository.GetAsync(request.Id, tracking: false, "Studies.Attendances.ClassSession", "Studies.Student.Contact")
-                        ?? throw new NotFoundException(nameof(Class), request.Id);
+        Class @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id)
+            .Include(c => c.Studies)
+            .ThenInclude(c => c.Attendances)
+            .ThenInclude(c => c.ClassSession)
+            .Include(c => c.Studies)
+            .ThenInclude(c => c.Student)
+            .ThenInclude(c => c.Contact)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.Id);
 
         var response = new List<GetAllAbsentStudentResponseDto>();
 

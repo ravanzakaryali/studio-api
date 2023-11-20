@@ -3,26 +3,22 @@
 public record DeleteWorkerCommand(Guid Id) : IRequest<GetWorkerResponseDto>;
 internal class DeleteWorkerCommandHandler : IRequestHandler<DeleteWorkerCommand, GetWorkerResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
-    readonly IWorkerRepository _workerRepository;
 
     public DeleteWorkerCommandHandler(
-        IUnitOfWork unitOfWork,
-        IMapper mapper,
-        IWorkerRepository workerRepository)
+        IMapper mapper, ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _workerRepository = workerRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetWorkerResponseDto> Handle(DeleteWorkerCommand request, CancellationToken cancellationToken)
     {
-        Worker? Worker = await _workerRepository.GetAsync(request.Id)
-            ?? throw new NotFoundException(nameof(Worker), request.Id);
-        _workerRepository.Remove(Worker);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        Worker? Worker = await _spaceDbContext.Workers.FindAsync(request.Id) ??
+            throw new NotFoundException(nameof(Worker), request.Id);
+        _spaceDbContext.Workers.Remove(Worker);
+        await _spaceDbContext.SaveChangesAsync();
         return _mapper.Map<GetWorkerResponseDto>(Worker);
     }
 }

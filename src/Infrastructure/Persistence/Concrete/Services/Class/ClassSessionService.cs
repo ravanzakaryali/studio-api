@@ -1,25 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
-using Space.Application.Abstractions;
-using Space.Application.Helper;
-using Space.Domain.Entities;
-using System.Security.Claims;
-using System.Threading;
+﻿namespace Space.Infrastructure.Persistence.Services;
 
-namespace Space.Infrastructure.Persistence;
-
-internal class ClassSessionRepository : Repository<ClassSession>, IClassSessionRepository
+public class ClassSessionService : IClassSessionService
 {
-    private readonly IHolidayRepository _holidayRepository;
+    private readonly IHolidayService _holidayService;
     private readonly ISpaceDbContext _context;
 
-    public ClassSessionRepository(
-        SpaceDbContext context,
-        IHolidayRepository holidayRepository) : base(context)
+    public ClassSessionService(
+        ISpaceDbContext context,
+        IHolidayService holidayService)
     {
-        _holidayRepository = holidayRepository;
         _context = context;
+        _holidayService = holidayService;
     }
-
     public async Task GenerateAttendanceAsync(ICollection<UpdateAttendanceCategorySessionDto> requestSession, IEnumerable<ClassSession> classSessions, Guid moduleId)
     {
 
@@ -35,7 +27,7 @@ internal class ClassSessionRepository : Repository<ClassSession>, IClassSessionR
         }
 
 
-        List<DateTime> holidayDates = await _holidayRepository.GetDatesAsync();
+        List<DateTime> holidayDates = await _holidayService.GetDatesAsync();
 
         Guid classId = classSessions.FirstOrDefault()!.ClassId;
 

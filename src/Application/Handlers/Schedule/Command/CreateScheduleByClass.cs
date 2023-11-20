@@ -1,31 +1,24 @@
-﻿using System;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public record CreateRoomScheduleByClassCommand : IRequest;
 
-
-
 internal class CreateRoomScheduleByClassCommandHandler : IRequestHandler<CreateRoomScheduleByClassCommand>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IClassRepository _classRepository;
-    readonly IRoomScheduleRepository _roomScheduleRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public CreateRoomScheduleByClassCommandHandler(
-                                IUnitOfWork unitOfWork,
-                                IClassRepository classRepository,
-                                IRoomScheduleRepository roomScheduleRepository)
+                                ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _classRepository = classRepository;
-        _roomScheduleRepository = roomScheduleRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(CreateRoomScheduleByClassCommand request, CancellationToken cancellationToken)
     {
 
-        IEnumerable<Class> allClasses = await _classRepository.GetAllAsync(predicate: null, tracking: false, "ClassSessions", "RoomSchedules");
+        IEnumerable<Class> allClasses = await _spaceDbContext.Classes
+            .Include(c => c.ClassSessions)
+            .Include(c => c.RoomSchedules)
+            .ToListAsync();
 
         foreach (Class @class in allClasses)
         {
@@ -47,10 +40,10 @@ internal class CreateRoomScheduleByClassCommandHandler : IRequestHandler<CreateR
                         StartTime = classSession.StartTime.ToString(),
                         EndTime = classSession.EndTime.ToString()
                     };
-                    await _roomScheduleRepository.AddAsync(roomSchedule);
+                    await _spaceDbContext.RoomSchedules.AddAsync(roomSchedule);
                 }
             }
         }
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SaveChangesAsync();
     }
 }

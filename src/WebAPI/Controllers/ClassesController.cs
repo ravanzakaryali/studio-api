@@ -40,7 +40,6 @@ public class ClassesController : BaseApiController
             SessionId = sessionId
         }));
 
-
     /// <summary>
     /// 
     /// </summary>
@@ -369,7 +368,7 @@ public class ClassesController : BaseApiController
         await Mediator.Send(new UpdateClassSessionCommand(id, date, request));
         return NoContent();
     }
-
+    //---------------
     /// <summary>
     /// Retrieves classes associated with a specific program based on its unique identifier.
     /// </summary>

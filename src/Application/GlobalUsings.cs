@@ -3,6 +3,8 @@ global using System.Net;
 global using System.Linq.Expressions;
 global using System.Runtime.Serialization;
 global using Reflection = System.Reflection;
+global using Space.Application.Abstractions.Services;
+
 
 //Package
 global using Microsoft.AspNetCore.Http;
@@ -30,6 +32,8 @@ global using Space.Application.DTOs;
 global using Space.Application.Exceptions;
 global using Space.Application.Handlers;
 global using Space.Application.Common;
+global using Microsoft.AspNetCore.Identity;
+
 
 
 

@@ -22,17 +22,17 @@ internal class GetClassesCountQueryHandler : IRequestHandler<GetClassesCountQuer
         int countNew = await query.Where(c => DateTime.Now < c.StartDate).CountAsync(cancellationToken: cancellationToken);
         return new List<GetClassCountResponse>()
         {
-            new GetClassCountResponse()
+            new()
             {
                 Count = countActive,
                 Status = ClassStatus.Active
             },
-            new GetClassCountResponse()
+            new()
             {
                 Count = countClose,
                 Status = ClassStatus.Close
             },
-            new GetClassCountResponse()
+            new()
             {
                 Status = ClassStatus.New,
                 Count = countNew,

@@ -8,26 +8,21 @@ public record GetWorkerGeneralReportQuery(Guid Id) : IRequest<GetWorkerGeneralRe
 
 internal class GetWorkerGeneralReportQueryHandler : IRequestHandler<GetWorkerGeneralReportQuery, GetWorkerGeneralReportResponseDto>
 {
-
-    readonly IUnitOfWork _unitOfWork;
-    readonly IWorkerRepository _workerRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public GetWorkerGeneralReportQueryHandler(
-        IUnitOfWork unitOfWork,
-        IWorkerRepository workerRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _workerRepository = workerRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetWorkerGeneralReportResponseDto> Handle(GetWorkerGeneralReportQuery request, CancellationToken cancellationToken)
     {
-        var worker = await _workerRepository.GetAsync(q => q.Id == request.Id) ?? throw new NotFoundException(nameof(Worker), request.Id);
+        Worker worker = await _spaceDbContext.Workers.FindAsync(request.Id) ??
+            throw new NotFoundException(nameof(Worker), request.Id);
 
-        //var classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(q => q.WorkerId == request.Id, tracking: false, "Class");
 
-
-        var response = new GetWorkerGeneralReportResponseDto
+        GetWorkerGeneralReportResponseDto response = new()
         {
             EMail = worker.Email,
             Name = worker.Name,

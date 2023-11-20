@@ -5,22 +5,19 @@ public record GetHolidayQuery(Guid Id) : IRequest<HolidayResponseDto>;
 internal class GetHolidayQueryHandler : IRequestHandler<GetHolidayQuery, HolidayResponseDto>
 {
     readonly IMapper _mapper;
-    readonly IUnitOfWork _unitOfWork;
-    readonly IHolidayRepository _holidayRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public GetHolidayQueryHandler(
-        IMapper mapper, 
-        IUnitOfWork unitOfWork, 
-        IHolidayRepository holidayRepository)
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
         _mapper = mapper;
-        _unitOfWork = unitOfWork;
-        _holidayRepository = holidayRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<HolidayResponseDto> Handle(GetHolidayQuery request, CancellationToken cancellationToken)
     {
-        Holiday holiday = await _holidayRepository.GetAsync(request.Id)
+        Holiday holiday = await _spaceDbContext.Holidays.FindAsync(request.Id)
             ?? throw new NotFoundException(nameof(Holiday), request.Id);
         return _mapper.Map<HolidayResponseDto>(holiday);
     }

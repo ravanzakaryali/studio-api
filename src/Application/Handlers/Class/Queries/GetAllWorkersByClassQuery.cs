@@ -1,72 +1,45 @@
-﻿using Space.Domain.Entities;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public record GetAllWorkersByClassQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetWorkersByClassResponseDto>>;
 
 internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersByClassQuery, IEnumerable<GetWorkersByClassResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-    readonly IClassRepository _classRepository;
-    readonly IClassSessionRepository _classSessionRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public GetAllWorkersByClassQueryHandler(
-        IUnitOfWork unitOfWork,
         IMapper mapper,
-        IClassRepository classRepository,
-        IClassSessionRepository classSessionRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _classRepository = classRepository;
-        _classSessionRepository = classSessionRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetWorkersByClassResponseDto>> Handle(GetAllWorkersByClassQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _classRepository.GetAsync(request.Id, tracking: false, "ClassModulesWorkers.Worker", "ClassModulesWorkers.Role", "ClassSessions.AttendancesWorkers", "Program.Modules.SubModules")
-            ?? throw new NotFoundException(nameof(Class), request.Id);
+        Class? @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id)
+            .Include(c => c.ClassModulesWorkers)
+            .ThenInclude(c => c.Worker)
+            .Include(c => c.ClassModulesWorkers)
+            .ThenInclude(c => c.Role)
+            .Include(c => c.ClassSessions)
+            .ThenInclude(c => c.AttendancesWorkers)
+            .FirstOrDefaultAsync()
+                ?? throw new NotFoundException(nameof(Class), request.Id);
 
-        IEnumerable<ClassSession> classSessions = await _classSessionRepository
-            .GetAllAsync(cs => cs.ClassId == @class.Id &&
-            cs.Category != ClassSessionCategory.Lab &&
-            request.Date >= cs.Date) ??
-            throw new NotFoundException(nameof(ClassSession), request.Id);
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+            .Where(c => c.ClassId == @class.Id && c.Category != ClassSessionCategory.Lab && request.Date >= c.Date)
+            .ToListAsync()
+                ?? throw new NotFoundException(nameof(ClassSession), request.Id);
 
-        List<Module> modules = @class.Program.Modules
-            .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null)
-            .Where(m => m.TopModuleId != null || m.SubModules!.Any())
-            .ToList();
-
-        int totalHour = classSessions.Sum(c => c.TotalHour);
-        Module? currentModule = null;
-        if (totalHour > 0)
+        return @class.ClassModulesWorkers.Where(c => c.StartDate >= request.Date && c.EndDate <= request.Date).Distinct(new GetModulesWorkerComparer()).Select(c =>
         {
-            double totalHourModule = 0;
-
-            for (int i = 0; i < modules.Count; i++)
-            {
-                totalHourModule += modules[i].Hours;
-                if (totalHourModule >= totalHour)
-                {
-                    currentModule = modules[i];
-                    break;
-                }
-            }
-            currentModule ??= modules.LastOrDefault(); ;
-        }
-        else
-        {
-            currentModule = modules.FirstOrDefault();
-        }
-        return @class.ClassModulesWorkers.Where(c => c.ModuleId == currentModule?.Id).Distinct(new GetModulesWorkerComparer()).Select(c =>
-        {
-            var classSessions = @class.ClassSessions.Where(c => c.Date == request.Date).ToList();
+            List<ClassSession> classSessions = @class.ClassSessions.Where(c => c.Date == request.Date).ToList();
             bool isAttendance = false;
-            foreach (var classSession in classSessions)
+            foreach (ClassSession classSession in classSessions)
             {
-                var attendance = classSession.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
+                AttendanceWorker? attendance = classSession.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
                 if (attendance != null)
                 {
                     isAttendance = attendance.TotalAttendanceHours == classSession.TotalHour;

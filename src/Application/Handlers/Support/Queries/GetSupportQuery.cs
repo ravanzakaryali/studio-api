@@ -6,22 +6,26 @@ internal class GetSupportQueryHandler : IRequestHandler<GetSupportQuery, GetSupp
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-    readonly ISupportRepository _supportRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public GetSupportQueryHandler(
         IUnitOfWork unitOfWork,
         IMapper mapper,
-        ISupportRepository supportRepository)
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _supportRepository = supportRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetSupportResponseDto> Handle(GetSupportQuery request, CancellationToken cancellationToken)
     {
-        Support? support = await _supportRepository.GetAsync(request.Id, false, "SupportImages", "User")
-            ?? throw new NotFoundException(nameof(Support), request.Id);
+        Support? support = await _spaceDbContext.Supports
+            .Include(c => c.SupportImages)
+            .Include(c => c.User)
+            .Where(c => c.Id == request.Id)
+            .FirstOrDefaultAsync()
+                ?? throw new NotFoundException(nameof(Support), request.Id);
 
         return _mapper.Map<GetSupportResponseDto>(support);
     }

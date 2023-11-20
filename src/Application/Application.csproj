@@ -10,7 +10,6 @@
 		<Compile Remove="Handlers\Auth\Queries\**" />
 		<EmbeddedResource Remove="Handlers\Auth\Queries\**" />
 		<None Remove="Handlers\Auth\Queries\**" />
-		<None Remove="Abstractions\Repositories\Schedule\" />
 		<None Remove="Handlers\Schedule\" />
 		<None Remove="Handlers\Schedule\Command\" />
 		<None Remove="DTOs\Schedule\" />

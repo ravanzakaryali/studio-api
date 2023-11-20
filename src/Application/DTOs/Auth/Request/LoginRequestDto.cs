@@ -1,4 +1,4 @@
-﻿namespace Space.Application.DTOs.Auth.Request;
+﻿namespace Space.Application.DTOs;
 
 public class LoginRequestDto
 {

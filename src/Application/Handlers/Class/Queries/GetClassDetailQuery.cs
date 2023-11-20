@@ -8,35 +8,31 @@ public class GetClassDetailQuery : IRequest<GetClassDetailResponse>
 
 internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery, GetClassDetailResponse>
 {
-    readonly IClassRepository _classRepository;
-    readonly IClassSessionRepository _classSessionRepository;
-    readonly ISessionRepository _sessionRepository;
-    readonly IHolidayRepository _holidayRepository;
+    readonly ISpaceDbContext _spaceDbContext;
+    readonly IUnitOfWork _unitOfWork;
 
-    public GetClassDetaulQueryHandler(IClassRepository classRepository,
-                                      IClassSessionRepository classSessionRepository,
-                                      ISessionRepository sessionRepository,
-                                      IHolidayRepository holidayRepository)
+    public GetClassDetaulQueryHandler(ISpaceDbContext spaceDbContext, IUnitOfWork unitOfWork)
     {
-        _classRepository = classRepository;
-        _classSessionRepository = classSessionRepository;
-        _sessionRepository = sessionRepository;
-        _holidayRepository = holidayRepository;
+        _spaceDbContext = spaceDbContext;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<GetClassDetailResponse> Handle(GetClassDetailQuery request, CancellationToken cancellationToken)
     {
-        Class @class = await _classRepository.GetAsync(r => r.Id == request.Id, false, "Program", "Session")
-                            ?? throw new NotFoundException(nameof(Class), request.Id);
+        Class @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id)
+            .Include(c => c.Program)
+            .Include(c => c.Session)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.Id);
 
-        IEnumerable<ClassSession> classSessoins = await _classSessionRepository.GetAllAsync(c =>
-                                                                                                c.ClassId == @class.Id &&
-                                                                                                c.Status != null &&
-                                                                                                c.Status != ClassSessionStatus.Cancelled,
-                                                                                                false,
-                                                                                                "Attendances");
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+            .Where(c => c.ClassId == @class.Id && c.Status != null && c.Status != ClassSessionStatus.Cancelled)
+            .Include(c => c.Attendances)
+            .ToListAsync();
+
         List<double> list = new();
-        foreach (ClassSession? item in classSessoins.Where(c => c.Attendances.Count > 0))
+        foreach (ClassSession? item in classSessions.Where(c => c.Attendances.Count > 0))
         {
             var total = item.TotalHour;
             var totalAttendance = item.Attendances.Average(c => c.TotalAttendanceHours);
@@ -48,12 +44,15 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
 
         if (request.SessionId != null)
         {
-            Session session = await _sessionRepository.GetAsync(s => s.Id == request.SessionId, false, "Details")
-                ?? throw new NotFoundException(nameof(Session), request.SessionId);
+            Session session = await _spaceDbContext.Sessions
+                .Where(c => c.Id == request.SessionId)
+                .Include(c => c.Details)
+                .FirstOrDefaultAsync() ??
+                    throw new NotFoundException(nameof(Session), request.SessionId);
 
-            List<DateTime> holidayDates = await _holidayRepository.GetDatesAsync();
+            List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
-            (DateTime StartDate, DateTime EndDate) responseDate = _classRepository.CalculateStartAndEndDate(session, @class, holidayDates);
+            (DateTime StartDate, DateTime EndDate) responseDate = _unitOfWork.ClassService.CalculateStartAndEndDate(session, @class, holidayDates);
             startDate = responseDate.StartDate;
             endDate = responseDate.EndDate;
         }

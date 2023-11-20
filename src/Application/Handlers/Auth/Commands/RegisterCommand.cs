@@ -12,11 +12,16 @@ internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, Registe
 
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public RegisterCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public RegisterCommandHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<RegisterResponseDto> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -26,12 +31,12 @@ internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, Registe
         user.ConfirmCode = code;
         user.ConfirmCodeExpires = DateTime.UtcNow.AddMinutes(15);
         await _unitOfWork.EmailService.SendMessageAsync(code, user.Email);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SaveChangesAsync();
         return new RegisterResponseDto()
         {
             Email = user.Email,
             Message = "Send email confirm code"
         };
     }
-   
+
 }

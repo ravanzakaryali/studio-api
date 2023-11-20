@@ -23,41 +23,28 @@ public class CreateClassSessionExtensionCommand : IRequest
 public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateClassSessionExtensionCommand>
 {
     readonly IUnitOfWork _unitOfWork;
-    readonly IClassRepository _classRepository;
-    readonly IRoomRepository _roomRepository;
-    readonly IHolidayRepository _holidayRepository;
-    readonly IClassSessionRepository _classSessionRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public CreateClassSessionExtensionCommandHandler(
-        IUnitOfWork unitOfWork,
-        IClassRepository classRepository,
-        IRoomRepository roomRepository,
-        IHolidayRepository holidayRepository,
-        IClassSessionRepository classSessionRepository)
+        IUnitOfWork unitOfWork, ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
-        _classRepository = classRepository;
-        _roomRepository = roomRepository;
-        _holidayRepository = holidayRepository;
-        _classSessionRepository = classSessionRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(CreateClassSessionExtensionCommand request, CancellationToken cancellationToken)
     {
-        Class? @class = await _classRepository.GetAsync(c => c.Id == request.ClassId, true, "ClassSessions") ??
-            throw new NotFoundException(nameof(Class), request.ClassId);
-        Room room = await _roomRepository.GetAsync(r => r.Id == request.RoomId) ??
+        Class? @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.ClassId)
+            .Include(c => c.ClassSessions)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.ClassId);
+        Room? room = await _spaceDbContext.Rooms.FindAsync(request.RoomId) ??
             throw new NotFoundException(nameof(Room), request.RoomId);
 
-        IEnumerable<Holiday> holidays = await _holidayRepository.GetAllAsync();
-        List<DateTime> holidayDates = new();
-        foreach (Holiday holiday in holidays)
-        {
-            for (DateOnly date = holiday.StartDate; date <= holiday.EndDate; date = date.AddDays(1))
-            {
-                holidayDates.Add(date.ToDateTime(new TimeOnly(0, 0)));
-            }
-        }
+
+
+        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         List<ClassSession> classSessions = new();
 
         DateTime startDate = request.StartDate ?? @class.ClassSessions.MaxBy(c => c.Date)!.Date;
@@ -65,6 +52,8 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
         int count = 0;
         double totalHour = request.Hours;
 
+
+        //Todo: COde Review
         while (totalHour > 0)
         {
             foreach (var session in request.Sessions.OrderBy(c => c.DayOfWeek))
@@ -101,7 +90,7 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
             count++;
         }
 
-        await _classSessionRepository.AddRangeAsync(classSessions);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions);
+        await _spaceDbContext.SaveChangesAsync();
     }
 }

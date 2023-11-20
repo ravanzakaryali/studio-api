@@ -1,13 +1,11 @@
-﻿using Space.Application.Handlers;
+﻿namespace Space.Infrastructure.Persistence.Concrete.Services;
 
-namespace Space.Infrastructure.Persistence.Concrete;
-
-internal class ClassRepository : Repository<Class>, IClassRepository
+public class ClassService : IClassService
 {
-    private readonly SpaceDbContext _spaceDb;
-    public ClassRepository(SpaceDbContext context) : base(context)
+    private readonly ISpaceDbContext _dbContext;
+    public ClassService(ISpaceDbContext dbContext)
     {
-        _spaceDb = context;
+        _dbContext = dbContext;
     }
 
     public (DateTime StartDate, DateTime EndDate) CalculateStartAndEndDate(Session session, Class @class, List<DateTime> holidayDates)

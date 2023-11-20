@@ -1,23 +1,26 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public record GetSchedulesWorkersQuery : IRequest<IEnumerable<GetSchedulesWorkersResponseDto>>;
 
 internal class GetSchedulesWorkersQueryHandler : IRequestHandler<GetSchedulesWorkersQuery, IEnumerable<GetSchedulesWorkersResponseDto>>
 {
     readonly IMapper _mapper;
-    readonly IWorkerRepository _workerRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetSchedulesWorkersQueryHandler(IMapper mapper, IWorkerRepository workerRepository)
+    public GetSchedulesWorkersQueryHandler(
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
         _mapper = mapper;
-        _workerRepository = workerRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetSchedulesWorkersResponseDto>> Handle(GetSchedulesWorkersQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Worker> workers = await _workerRepository.GetAllAsync(predicate: null, tracking: false, "ClassModulesWorkers.Class");
+        IEnumerable<Worker> workers = await _spaceDbContext.Workers
+            .Include(c => c.ClassModulesWorkers)
+            .ThenInclude(c => c.Class)
+            .ToListAsync();
 
         List<GetSchedulesWorkersResponseDto> response = new();
         foreach (Worker worker in workers)

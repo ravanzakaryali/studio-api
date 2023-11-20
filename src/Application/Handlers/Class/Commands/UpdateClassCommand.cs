@@ -10,38 +10,33 @@ public record UpdateClassCommand(
 internal class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, GetClassResponseDto>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
-    readonly IClassRepository _classRepository;
-    readonly IProgramRepository _programRepository;
-    readonly ISessionRepository _sessionRepository;
-    readonly IRoomRepository _roomRepository;
 
 
-    public UpdateClassCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IClassRepository classRepository, IProgramRepository programRepository, ISessionRepository sessionRepository, IRoomRepository roomRepository)
+    public UpdateClassCommandHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _classRepository = classRepository;
-        _programRepository = programRepository;
-        _sessionRepository = sessionRepository;
-        _roomRepository = roomRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetClassResponseDto> Handle(UpdateClassCommand request, CancellationToken cancellationToken)
     {
-        Class? @class = await _classRepository.GetAsync(c => c.Id == request.Id, tracking: false)
-            ?? throw new NotFoundException(nameof(Class), request.Id);
-
-        Program? program = await _programRepository.GetAsync(request.ProgramId) ??
+        Class @class = await _spaceDbContext.Classes.FindAsync(request.Id) ??
+            throw new NotFoundException(nameof(Class), request.Id);
+        Program program = await _spaceDbContext.Programs.FindAsync(request.ProgramId) ??
             throw new NotFoundException(nameof(Program), request.ProgramId);
 
-        Session session = await _sessionRepository.GetAsync(request.SessionId) ??
+        Session session = await _spaceDbContext.Sessions.FindAsync(request.SessionId) ??
             throw new NotFoundException(nameof(Session), request.SessionId);
-
         if (request.RoomId == null)
         {
             Guid roomIdNonNullable = request.RoomId ?? Guid.Empty;
-            Room room = await _roomRepository.GetAsync(roomIdNonNullable) ??
+            Room rooo = await _spaceDbContext.Rooms.FindAsync(roomIdNonNullable) ??
                 throw new NotFoundException(nameof(Room), roomIdNonNullable);
         }
 
@@ -49,8 +44,8 @@ internal class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, G
 
         newClass.Id = @class.Id;
 
-        _classRepository.Update(newClass);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _spaceDbContext.Classes.Update(newClass);
+        await _spaceDbContext.SaveChangesAsync();
         return _mapper.Map<GetClassResponseDto>(newClass);
     }
 }

@@ -4,22 +4,19 @@ public record GetAllRoomQuery : IRequest<IEnumerable<GetRoomResponseDto>>;
 
 internal class GetAllRoomQueryHandler : IRequestHandler<GetAllRoomQuery, IEnumerable<GetRoomResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
-    readonly IRoomRepository _roomRepository;
 
     public GetAllRoomQueryHandler(
-        IUnitOfWork unitOfWork,
         IMapper mapper,
-        IRoomRepository roomRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _roomRepository = roomRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetRoomResponseDto>> Handle(GetAllRoomQuery request, CancellationToken cancellationToken)
     {
-        return _mapper.Map<IEnumerable<GetRoomResponseDto>>(await _roomRepository.GetAllAsync());
+        return _mapper.Map<IEnumerable<GetRoomResponseDto>>(await _spaceDbContext.Rooms.ToListAsync());
     }
 }

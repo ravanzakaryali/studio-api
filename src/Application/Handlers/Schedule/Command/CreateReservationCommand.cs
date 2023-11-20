@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 
 public class CreateReservationCommand : IRequest<CreateReservationResponseDto>
@@ -21,15 +19,12 @@ public class CreateReservationCommand : IRequest<CreateReservationResponseDto>
 
 internal class CreateReservationCommandHandler : IRequestHandler<CreateReservationCommand, CreateReservationResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IReservationRepository _reservationRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public CreateReservationCommandHandler(
-        IUnitOfWork unitOfWork,
-        IReservationRepository reservationRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _reservationRepository = reservationRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<CreateReservationResponseDto> Handle(CreateReservationCommand request, CancellationToken cancellationToken)
@@ -40,7 +35,7 @@ internal class CreateReservationCommandHandler : IRequestHandler<CreateReservati
             Description = request.Description,
         };
 
-        await _reservationRepository.AddAsync(reservation);
+        await _spaceDbContext.Reservations.AddAsync(reservation);
 
         if (request.StartDate.DayOfYear != request.EndDate.DayOfYear)
         {

@@ -3,20 +3,20 @@
 public record GetProgramQuery(Guid Id) : IRequest<GetProgramResponseDto>;
 internal class GetProgramQueryHandler : IRequestHandler<GetProgramQuery, GetProgramResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
-    readonly IProgramRepository _programRepository;
 
-    public GetProgramQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IProgramRepository programRepository)
+    public GetProgramQueryHandler(
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _programRepository = programRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetProgramResponseDto> Handle(GetProgramQuery request, CancellationToken cancellationToken)
     {
-        Program? program = await _programRepository.GetAsync(request.Id)
+        Program? program = await _spaceDbContext.Programs.FindAsync(request.Id)
             ?? throw new NotFoundException(nameof(Program), request.Id);
         return _mapper.Map<GetProgramResponseDto>(program);
     }

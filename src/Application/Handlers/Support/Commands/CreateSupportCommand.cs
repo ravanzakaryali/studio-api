@@ -9,19 +9,19 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IStorageService _storageService;
-    readonly ISupportRepository _supportRepository;
     readonly ICurrentUserService _currentUserService;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public CreateSupportCommandHandler(
         IUnitOfWork unitOfWork,
         IStorageService storageService,
         ICurrentUserService currentUserService,
-        ISupportRepository supportRepository)
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
         _storageService = storageService;
         _currentUserService = currentUserService;
-        _supportRepository = supportRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(CreateSupportCommand request, CancellationToken cancellationToken)
@@ -51,7 +51,7 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
             }).ToList();
         }
 
-        Support support = await _supportRepository.AddAsync(newSupport);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.Supports.AddAsync(newSupport);
+        await _spaceDbContext.SaveChangesAsync();
     }
 }

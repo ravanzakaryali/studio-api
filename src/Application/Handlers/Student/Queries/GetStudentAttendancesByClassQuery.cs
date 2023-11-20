@@ -9,19 +9,28 @@ public record GetStudentAttendancesByClassQuery(Guid Id, Guid ClassId) : IReques
 internal class GetStudentAttendancesByClassQueryHandler : IRequestHandler<GetStudentAttendancesByClassQuery, GetStudentAttendancesByClassResponseDto>
 {
 
-    readonly IStudyRepository _studyRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public GetStudentAttendancesByClassQueryHandler(
-        IStudyRepository studyRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _studyRepository = studyRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetStudentAttendancesByClassResponseDto> Handle(GetStudentAttendancesByClassQuery request, CancellationToken cancellationToken)
     {
         GetStudentAttendancesByClassResponseDto response = new();
 
-        Study study = await _studyRepository.GetAsync(q => q.StudentId == request.Id && q.ClassId == request.ClassId, false, "Class.ClassSessions", "Student.Contact", "Attendances.ClassSession") ?? throw new NotFoundException();
+        Study study = await _spaceDbContext.Studies
+            .Where(q => q.StudentId == request.Id && q.ClassId == request.ClassId)
+            .Include(c => c.Class)
+            .ThenInclude(c => c.ClassSessions)
+            .Include(c => c.Student)
+            .ThenInclude(c => c.Contact)
+            .Include(c => c.Attendances)
+            .ThenInclude(c => c.ClassSession)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException();
 
         response.EMail = study.Student?.Email;
         response.Phone = study.Student?.Contact?.Phone;

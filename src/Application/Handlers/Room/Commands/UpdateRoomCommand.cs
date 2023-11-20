@@ -4,27 +4,24 @@ public record UpdateRoomCommand(Guid Id, UpdateRoomRequestDto UpdateRoom) : IReq
 
 internal class UpdateRoomCommandHandler : IRequestHandler<UpdateRoomCommand, GetRoomResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-    readonly IRoomRepository _roomRepository;
+    readonly ISpaceDbContext _spaceDbContext;
     public UpdateRoomCommandHandler(
-        IUnitOfWork unitOfWork, 
-        IMapper mapper, 
-        IRoomRepository roomRepository)
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _roomRepository = roomRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetRoomResponseDto> Handle(UpdateRoomCommand request, CancellationToken cancellationToken)
     {
-        Room? room = await _roomRepository.GetAsync(request.Id, tracking: false)
-            ?? throw new NotFoundException(nameof(Room),request.Id);
+        Room? room = await _spaceDbContext.Rooms.FindAsync(request.Id)
+            ?? throw new NotFoundException(nameof(Room), request.Id);
         Room newRoom = _mapper.Map<Room>(request.UpdateRoom);
         newRoom.Id = request.Id;
-        _roomRepository.Update(newRoom);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _spaceDbContext.Rooms.Update(newRoom);
+        await _spaceDbContext.SaveChangesAsync();
         return _mapper.Map<GetRoomResponseDto>(newRoom);
     }
 }

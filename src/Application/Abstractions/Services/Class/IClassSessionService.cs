@@ -1,9 +1,9 @@
-﻿namespace Space.Application.Abstractions;
+﻿namespace Space.Application.Abstractions.Services;
 
-public interface IClassSessionRepository : IRepository<ClassSession>
+public interface IClassSessionService
 {
     Task<DateTime> GetLastDateAsync(Guid classId);
-  
+
     Task GenerateAttendanceAsync(
                 ICollection<UpdateAttendanceCategorySessionDto> requestSession,
                 IEnumerable<ClassSession> classSessions,

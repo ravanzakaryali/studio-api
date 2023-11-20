@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Space.Application.Handlers;
-
-namespace Space.WebAPI.Controllers;
+﻿namespace Space.WebAPI.Controllers;
 
 /// <summary>
 /// Module controller

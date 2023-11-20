@@ -7,28 +7,40 @@ public record GetAllStudentsByClassQuery(Guid Id, DateTime Date) : IRequest<IEnu
 
 internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudentsByClassQuery, IEnumerable<GetAllStudentByClassResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-    readonly IClassRepository _classRepository;
-    readonly IClassSessionRepository _classSessionRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetAllStudentsByClassQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IClassRepository classRepository, IClassSessionRepository classSessionRepository)
+    public GetAllStudentsByClassQueryHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _classRepository = classRepository;
-        _classSessionRepository = classSessionRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetAllStudentByClassResponseDto>> Handle(GetAllStudentsByClassQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _classRepository.GetAsync(request.Id, tracking: false, "Studies.Student.Contact", "Studies.Attendances", "ClassSessions.Attendances")
-         ?? throw new NotFoundException(nameof(Class), request.Id);
+        Class? @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id)
+            .Include(c => c.Studies)
+            .ThenInclude(c => c.Student)
+            .ThenInclude(c => c.Contact)
+            .Include(c => c.Studies)
+            .ThenInclude(c => c.Attendances)
+            .Include(c => c.ClassSessions)
+            .ThenInclude(c => c.Attendances)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.Id);
 
-        IEnumerable<ClassSession> classSessions = await _classSessionRepository.GetAllAsync(s =>
-                                                        s.ClassId == @class.Id && s.Date == request.Date, tracking: false, "Attendances");
 
-        var studentResponses = @class.Studies.Where(c => c.StudyType != StudyType.Completion).Select(study =>
+        List<ClassSession> classSessoins = await _spaceDbContext.ClassSessions
+            .Where(c => c.ClassId == @class.Id && c.Date == request.Date)
+            .AsNoTracking()
+            .Include(c => c.Attendances)
+            .ToListAsync();
+
+        List<GetAllStudentByClassResponseDto> studentResponses = @class.Studies.Where(c => c.StudyType != StudyType.Completion).Select(study =>
         {
             double? attendancesHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Select(c => c.Attendances.Where(a => a.StudyId == study.Id).Sum(c => c.TotalAttendanceHours)).Sum();
             double? totalHour = @class.ClassSessions.Where(c => (c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online) && c.Category != ClassSessionCategory.Lab).Sum(s => s.TotalHour);
@@ -42,7 +54,7 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                 Id = study.Student!.Id,
                 StudentId = study.Id,
                 Attendance = (totalHour != 0 ? attendancesHour / totalHour * 100 : 0) ?? 0,
-                Sessions = classSessions.Select(c => new GetAllStudentCategoryDto()
+                Sessions = classSessoins.Select(c => new GetAllStudentCategoryDto()
                 {
                     ClassSessionCategory = c.Category,
                     Hour = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours ?? 0,

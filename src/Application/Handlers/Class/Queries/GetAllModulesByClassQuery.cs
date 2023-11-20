@@ -7,37 +7,35 @@ public record GetAllModulesByClassQuery(Guid Id, DateTime Date) : IRequest<IEnum
 
 internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesByClassQuery, IEnumerable<GetModuleDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
     readonly ICurrentUserService _currentUserService;
     readonly UserManager<User> _userManager;
-    readonly IClassRepository _classRepository;
-    readonly IClassSessionRepository _classSessionRepository;
 
     public GetAllModulesByClassQueryHandler(IUnitOfWork unitOfWork,
         IMapper mapper,
         ICurrentUserService currentUserService,
         UserManager<User> userManager,
-        IClassRepository classRepository,
-        IClassSessionRepository classSessionRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
         _currentUserService = currentUserService;
         _userManager = userManager;
-        _classRepository = classRepository;
-        _classSessionRepository = classSessionRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetModuleDto>> Handle(GetAllModulesByClassQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _classRepository
-            .GetAsync(request.Id, tracking: false, "Program.Modules.SubModules") ??
-            throw new NotFoundException(nameof(Class), request.Id);
+        Class @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id)
+            .Include(c => c.Program)
+            .ThenInclude(c => c.Modules)
+            .ThenInclude(c => c.SubModules)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.Id);
 
-
-        IEnumerable<ClassSession> classSessions = await _classSessionRepository
-            .GetAllAsync(cs => cs.ClassId == @class.Id && request.Date >= cs.Date && cs.Category != ClassSessionCategory.Lab) ?? throw new NotFoundException(nameof(ClassSession), request.Id);
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+            .Where(c => c.ClassId == @class.Id && request.Date >= c.Date && c.Category != ClassSessionCategory.Lab).ToListAsync();
 
         List<Module> modules = @class.Program.Modules
             .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null)
@@ -47,6 +45,8 @@ internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesB
         int totalHour = classSessions
             .Sum(c => c.TotalHour);
 
+
+        //Todo: Code Review 
         List<Module> modulesResponse = new();
         if (totalHour > 0)
         {
@@ -89,13 +89,6 @@ internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesB
                                 .ToList();
         }
 
-        //User user = await _userManager.FindByIdAsync(_currentUserService.UserId.ToString())
-        //    ?? throw new AutheticationException();
-        //List<Guid> ids = modulesResponse.Select(m => m.Id).ToList();
-
-        //if (await _unitOfWork.ClassModulesWorkerRepository.IsWorkerExist(user.Id, ids))
-        //{
-        //}
         return _mapper.Map<IEnumerable<GetModuleDto>>(modulesResponse.OrderBy(c => c.Version));
 
 

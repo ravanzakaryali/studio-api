@@ -4,21 +4,21 @@ public record GetClassCounterHourQuery(Guid Id) : IRequest<GetClassCounterHourRe
 
 internal class GetClassCounterHourQueryHandler : IRequestHandler<GetClassCounterHourQuery, GetClassCounterHourResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IClassRepository _classRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public GetClassCounterHourQueryHandler(
-        IUnitOfWork unitOfWork,
-        IClassRepository classRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _classRepository = classRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetClassCounterHourResponseDto> Handle(GetClassCounterHourQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _classRepository.GetAsync(request.Id, tracking: false, "ClassSessions") ??
-            throw new NotFoundException(nameof(Class), request.Id);
+        Class? @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id)
+            .Include(c => c.ClassSessions)
+            .FirstOrDefaultAsync()
+                ?? throw new NotFoundException(nameof(Class), request.Id);
         return new GetClassCounterHourResponseDto()
         {
             TotalHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Sum(c => c.TotalHour),

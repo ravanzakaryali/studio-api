@@ -10,7 +10,7 @@ namespace Space.WebAPI.Controllers;
 [Authorize(Roles = "admin")]
 public class ClassSessionsController : BaseApiController
 {
-    
+
     /// <summary>
     /// Retrieves details of a specific class session based on its unique identifier and date.
     /// </summary>

@@ -1,6 +1,6 @@
-﻿namespace Space.Application.Abstractions;
+﻿namespace Space.Application.Abstractions.Services;
 
-public interface IClassRepository : IRepository<Class>
+public interface IClassService
 {
     (DateTime StartDate, DateTime EndDate) CalculateStartAndEndDate(Session session, Class @class, List<DateTime> holidayDates);
 }

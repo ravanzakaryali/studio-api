@@ -8,24 +8,23 @@ public record GetWorkerClassSchedulesQuery() : IRequest<IEnumerable<GetWorkersSc
 
 internal class GetWorkerClassSchedulesQueryHandler : IRequestHandler<GetWorkerClassSchedulesQuery, IEnumerable<GetWorkersSchedulesResponseDto>>
 {
-    readonly IWorkerRepository _workerRepository;
-    readonly IClassSessionRepository _classSessionRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public GetWorkerClassSchedulesQueryHandler(
-        IWorkerRepository workerRepository,
-        IClassSessionRepository classSessionRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _workerRepository = workerRepository;
-        _classSessionRepository = classSessionRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetWorkersSchedulesResponseDto>> Handle(GetWorkerClassSchedulesQuery request, CancellationToken cancellationToken)
     {
 
-        var workers = await _workerRepository.GetAllAsync();
+        List<Worker> workers = await _spaceDbContext.Workers.ToListAsync();
 
-        var classSessions = await _classSessionRepository.GetAllAsync(q => q.IsActive, tracking: false, "Worker");
-        var classes = await _classSessionRepository.GetAllAsync();
+        //var classSessions = await _spaceDbContext.ClassSessions
+        //    .Include(c => c.AttendancesWorkers)
+        //    .ToListAsync();
+        List<Class> classes = await _spaceDbContext.Classes.ToListAsync();
 
 
         var response = new List<GetWorkersSchedulesResponseDto>();

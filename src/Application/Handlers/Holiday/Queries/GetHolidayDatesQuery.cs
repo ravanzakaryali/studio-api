@@ -6,16 +6,16 @@ public class GetHolidayDatesQuery : IRequest<IEnumerable<GetHolidayDatesDto>>
 
 internal class GetHolidayDatesQueryHandler : IRequestHandler<GetHolidayDatesQuery, IEnumerable<GetHolidayDatesDto>>
 {
-    readonly IHolidayRepository _holidayRepository;
+    readonly IUnitOfWork _unitOfWork;
 
-    public GetHolidayDatesQueryHandler(IHolidayRepository holidayRepository)
+    public GetHolidayDatesQueryHandler(IUnitOfWork unitOfWork)
     {
-        _holidayRepository = holidayRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<GetHolidayDatesDto>> Handle(GetHolidayDatesQuery request, CancellationToken cancellationToken)
     {
-        List<DateTime> dates = await _holidayRepository.GetDatesAsync();
+        List<DateTime> dates = await _unitOfWork.HolidayService.GetDatesAsync();
         return dates.Select(c => new GetHolidayDatesDto()
         {
             Date = c

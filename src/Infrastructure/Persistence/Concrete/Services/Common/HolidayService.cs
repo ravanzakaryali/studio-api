@@ -1,18 +1,17 @@
-﻿using Space.Application.Abstractions;
+﻿namespace Space.Infrastructure.Persistence.Concrete.Services;
 
-namespace Space.Infrastructure.Persistence.Concrete;
-
-internal class HolidayRepository : Repository<Holiday>, IHolidayRepository
+public class HolidayService : IHolidayService
 {
-    readonly ISpaceDbContext _context;
-    public HolidayRepository(SpaceDbContext context) : base(context)
+    readonly ISpaceDbContext _spaceDbContext;
+
+    public HolidayService(ISpaceDbContext spaceDbContext)
     {
-        _context = context;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<List<DateTime>> GetDatesAsync()
     {
-        List<Holiday> holidays = await _context.Holidays.ToListAsync();
+        List<Holiday> holidays = await _spaceDbContext.Holidays.ToListAsync();
 
         List<DateTime> holidayDates = new();
         foreach (Holiday holiday in holidays)

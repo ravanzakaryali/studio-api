@@ -9,45 +9,45 @@ public record GetClassWorkersModulesQuery(Guid Id, Guid SessionId) : IRequest<IE
 internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWorkersModulesQuery, IEnumerable<GetClassModuleResponseDto>>
 {
     readonly IMapper _mapper;
+    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly ICurrentUserService _currentUserService;
-    readonly IClassRepository _classRepository;
-    readonly ISessionRepository _sessionRepository;
-    readonly IModuleRepository _moduleRepository;
-    readonly IHolidayRepository _holidayRepository;
-    readonly IClassModulesWorkerRepository _classModulesWorkerRepository;
 
     public GetClassWorkersModulesQueryHandler(
         IMapper mapper,
-        ICurrentUserService
-        currentUserService,
-        IClassRepository classRepository,
-        IModuleRepository moduleRepository,
-        IClassModulesWorkerRepository classModulesWorkerRepository,
-        ISessionRepository sessionRepository,
-        IHolidayRepository holidayRepository)
+        ICurrentUserService currentUserService,
+        ISpaceDbContext spaceDbContext,
+        IUnitOfWork unitOfWork)
     {
         _mapper = mapper;
         _currentUserService = currentUserService;
-        _classRepository = classRepository;
-        _moduleRepository = moduleRepository;
-        _classModulesWorkerRepository = classModulesWorkerRepository;
-        _sessionRepository = sessionRepository;
-        _holidayRepository = holidayRepository;
+        _spaceDbContext = spaceDbContext;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<GetClassModuleResponseDto>> Handle(GetClassWorkersModulesQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _classRepository.GetAsync(request.Id, false, "Program") ??
-            throw new NotFoundException(nameof(Class), request.Id);
+        Class? @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id)
+            .Include(c => c.Program)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.Id);
 
-        Session? session = await _sessionRepository.GetAsync(request.SessionId, false, "Details") ??
+        Session? session = await _spaceDbContext.Sessions
+            .Where(c => c.Id == request.SessionId)
+            .Include(c => c.Details)
+            .FirstOrDefaultAsync() ??
             throw new NotFoundException(nameof(Session), request.SessionId);
 
-
-        IEnumerable<Module> modules = await _moduleRepository.GetAllAsync(m => m.ProgramId == @class.ProgramId && m.TopModuleId == null, tracking: false, "SubModules");
-
-        IEnumerable<ClassModulesWorker> classModulesWorkers = await _classModulesWorkerRepository.GetAllAsync(
-            cmw => cmw.ClassId == @class.Id, tracking: false, "Role", "Worker");
+        List<Module> modules = await _spaceDbContext.Modules
+            .Where(c => c.ProgramId == @class.ProgramId && c.TopModuleId == null)
+            .AsNoTracking()
+            .ToListAsync();
+        List<ClassModulesWorker> classModulesWorkers = await _spaceDbContext.ClassModulesWorkers
+            .Where(c => c.ClassId == @class.Id)
+            .Include(c => c.Role)
+            .Include(c => c.Worker)
+            .ToListAsync();
 
         List<GetClassModuleResponseDto> response = modules.Select(m => new GetClassModuleResponseDto()
         {
@@ -71,7 +71,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         DateTime startDateTime = @class.StartDate ?? DateTime.Now;
 
         int count = 0;
-        List<DateTime> holidayDates = await _holidayRepository.GetDatesAsync();
+        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         int totalHour = @class.Program.TotalHours;
 
         while (totalHour > 0)
@@ -114,7 +114,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         {
             item.SubModules = item.SubModules?.OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
         }
-
+        //Todo: Code review
         response.First().StartDate = @class.StartDate ?? DateTime.Now;
         response.Last().EndDate = classDateTimes.Last().DateTime;
 

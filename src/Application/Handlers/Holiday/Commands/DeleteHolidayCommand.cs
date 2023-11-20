@@ -4,35 +4,24 @@ public record DeleteHolidayCommand(Guid Id) : IRequest<HolidayResponseDto>;
 
 internal class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayCommand, HolidayResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-    readonly IHolidayRepository _holidayRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public DeleteHolidayCommandHandler(IUnitOfWork unitOfWork,
-                                       IMapper mapper,
-                                       IHolidayRepository holidayRepository)
+    public DeleteHolidayCommandHandler(
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _holidayRepository = holidayRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<HolidayResponseDto> Handle(DeleteHolidayCommand request, CancellationToken cancellationToken)
     {
-        Holiday holiday = await _holidayRepository.GetAsync(request.Id)
+        Holiday holiday = await _spaceDbContext.Holidays.FindAsync(request.Id)
             ?? throw new NotFoundException(nameof(Holiday), request.Id);
-        //#region Delete Holiday Date
-        //List<DateTime> deleteHolidayDates = new();
-        //for (DateOnly date = holiday.StartDate; date <= holiday.EndDate; date = date.AddDays(1))
-        //{
-        //    deleteHolidayDates.Add(date.ToDateTime(new TimeOnly(0, 0)));
-        //}
-        //#endregion
 
-
-
-        _holidayRepository.Remove(holiday);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        holiday.IsDeleted = true;
+        await _spaceDbContext.SaveChangesAsync();
         return _mapper.Map<HolidayResponseDto>(holiday);
     }
 }

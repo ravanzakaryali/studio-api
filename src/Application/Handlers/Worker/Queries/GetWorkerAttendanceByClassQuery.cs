@@ -8,22 +8,20 @@ namespace Space.Application.Handlers
     internal class GetWorkerAttendanceByClassQueryHandler : IRequestHandler<GetWorkerAttendanceByClassQuery, IEnumerable<GetWorkerAttendanceByClassDto>>
     {
 
-        readonly IUnitOfWork _unitOfWork;
-        readonly IClassSessionRepository _classSessionRepository;
-
+        readonly ISpaceDbContext _spaceDbContext;
         public GetWorkerAttendanceByClassQueryHandler(
-            IUnitOfWork unitOfWork,
-            IClassSessionRepository classSessionRepository)
+            ISpaceDbContext spaceDbContext)
         {
-            _unitOfWork = unitOfWork;
-            _classSessionRepository = classSessionRepository;
+            _spaceDbContext = spaceDbContext;
         }
 
         public async Task<IEnumerable<GetWorkerAttendanceByClassDto>> Handle(GetWorkerAttendanceByClassQuery request, CancellationToken cancellationToken)
         {
-            var data = await _classSessionRepository.GetAllAsync(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline));
+            List<ClassSession> data = await _spaceDbContext.ClassSessions
+                .Where(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline))
+                .ToListAsync();
 
-            var response = new List<GetWorkerAttendanceByClassDto>();
+            List<GetWorkerAttendanceByClassDto> response = new();
 
             //var data2 = data.GroupBy(q => q.WorkerId).Select(q => new
             //{

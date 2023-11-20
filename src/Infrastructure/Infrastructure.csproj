@@ -21,12 +21,6 @@
 	  </PackageReference>
 	</ItemGroup>
 	<ItemGroup>
-	  <None Remove="Persistence\Concrete\Repositories\Schedule\" />
-	  <None Remove="Persistence\Concrete\Repositories\Student\" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Persistence\Concrete\Repositories\Schedule\" />
-	  <Folder Include="Persistence\Concrete\Repositories\Student\" />
 	  <Folder Include="Persistence\Migrations\" />
 	</ItemGroup>
 	<ItemGroup>

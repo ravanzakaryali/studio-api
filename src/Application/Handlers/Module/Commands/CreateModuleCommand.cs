@@ -8,19 +8,16 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand,
 {
     readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-    readonly IProgramRepository _programRepository;
-    readonly IModuleRepository _moduleRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public CreateModuleCommandHandler(
         IMapper mapper,
         IUnitOfWork unitOfWork,
-        IProgramRepository programRepository,
-        IModuleRepository moduleRepository)
+        ISpaceDbContext spaceDbContext)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _programRepository = programRepository;
-        _moduleRepository = moduleRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetModuleDto>> Handle(CreateModuleCommand request, CancellationToken cancellationToken)
@@ -45,14 +42,17 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand,
                   }
               }).ToList();
 
-        Program? program = await _programRepository.GetAsync(a => a.Id == request.ProgramId, includeProperties: "Modules")
-                        ?? throw new NotFoundException(nameof(Program), request.ProgramId);
+        Program? program = await _spaceDbContext.Programs
+            .Include(c => c.Modules)
+            .Where(a => a.Id == request.ProgramId)
+            .FirstOrDefaultAsync()
+                ?? throw new NotFoundException(nameof(Program), request.ProgramId);
 
         if (program.Modules != null)
         {
             foreach (Module module in program.Modules)
             {
-                _moduleRepository.Remove(module);
+                module.IsDeleted = true;
             }
         }
 
@@ -71,8 +71,8 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand,
         //Module? modulesDb = await _unitOfWork.ModuleRepository.GetAsync(a => moduleNames.Contains(a.Name) && a.ProgramId == request.ProgramId);
         //if (modulesDb != null) throw new Exception("Module already exsist");
 
-        await _moduleRepository.AddRangeAsync(modules);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.Modules.AddRangeAsync(modules);
+        await _spaceDbContext.SaveChangesAsync();
         return _mapper.Map<IEnumerable<GetModuleDto>>(modules);
     }
 }

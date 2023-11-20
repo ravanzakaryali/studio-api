@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.FileProviders;
-using Space.Application.Abstractions.Repositories;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public class CreateClassModuleCommand : IRequest
 {
@@ -12,37 +9,32 @@ public class CreateClassModuleCommand : IRequest
 internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModuleCommand>
 {
     readonly IUnitOfWork _unitOfWork;
-    readonly IClassRepository _classRepository;
-    readonly IModuleRepository _moduleRepository;
-    readonly IWorkerRepository _workerRepository;
-    readonly IRoleRepository _roleRepository;
-    readonly IClassModulesWorkerRepository _classModulesWorkerRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public CreateClassModuleCommandHandler(
         IUnitOfWork unitOfWork,
-        IClassRepository classRepository,
-        IModuleRepository moduleRepository,
-        IWorkerRepository workerRepository,
-        IRoleRepository roleRepository,
-        IClassModulesWorkerRepository modulesWorkerRepository)
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
-        _classRepository = classRepository;
-        _moduleRepository = moduleRepository;
-        _workerRepository = workerRepository;
-        _roleRepository = roleRepository;
-        _classModulesWorkerRepository = modulesWorkerRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(CreateClassModuleCommand request, CancellationToken cancellationToken)
     {
 
-        Class? @class = await _classRepository.GetAsync(request.ClassId, tracking: false, "Program.Modules.SubModules")
-            ?? throw new NotFoundException(nameof(Class), request.ClassId);
+        Class? @class = await _spaceDbContext.Classes
+            .Include(c => c.Program)
+            .ThenInclude(c => c.Modules)
+            .ThenInclude(c => c.SubModules)
+            .Where(c => c.Id == request.ClassId)
+            .FirstOrDefaultAsync()
+                ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
 
         IEnumerable<Guid> moduleIds = request.CreateClassModule.Select(c => c.ModuleId);
-        IEnumerable<Module> modules = await _moduleRepository.GetAllAsync(c => moduleIds.Contains(c.Id), tracking: false);
+        IEnumerable<Module> modules = await _spaceDbContext.Modules
+            .Where(c => moduleIds.Contains(c.Id))
+            .ToListAsync();
         IEnumerable<Guid> existingModuleIds = modules.Select(m => m.Id);
         IEnumerable<Guid> nonExistingModuleIds = moduleIds.Except(existingModuleIds);
         if (nonExistingModuleIds.Any())
@@ -64,20 +56,26 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
 
         IEnumerable<Guid> workerIds = request.CreateClassModule.Select(c => c.WorkerId);
         //if (@class.Program.Modules.Any(c => moduleIds.Contains(c.Id))) throw new NotFoundException("Modules not found in modules of class program");
-        IEnumerable<Worker> workers = await _workerRepository.GetAllAsync(c => workerIds.Contains(c.Id));
+        IEnumerable<Worker> workers = await _spaceDbContext.Workers
+            .Where(c => workerIds.Contains(c.Id))
+            .ToListAsync();
         IEnumerable<Guid> existingWorkerIds = workers.Select(w => w.Id);
         IEnumerable<Guid> nonExistingWorkerIds = workerIds.Except(existingWorkerIds);
         if (nonExistingWorkerIds.Any())
             throw new NotFoundException(nameof(Worker), $"{string.Join(",", nonExistingWorkerIds)}");
 
         IEnumerable<Guid> roleIds = request.CreateClassModule.Select(c => c.RoleId);
-        IEnumerable<Role> roles = await _roleRepository.GetAllAsync(c => roleIds.Contains(c.Id));
+        IEnumerable<Role> roles = await _spaceDbContext.Roles.Where(c => roleIds.Contains(c.Id)).ToListAsync();
         IEnumerable<Guid> nonExistingRoleIds = roles.Select(w => w.Id);
         if (nonExistingRoleIds.Count() == 0)
-            throw new NotFoundException(nameof(Role), $"{string.Join(",", nonExistingRoleIds)}"); IEnumerable<ClassModulesWorker> classModulesWorker = await _classModulesWorkerRepository.GetAllAsync(c => c.ClassId == request.ClassId);
-        _classModulesWorkerRepository.RemoveRange(classModulesWorker);
+            throw new NotFoundException(nameof(Role), $"{string.Join(",", nonExistingRoleIds)}");
 
-        await _classModulesWorkerRepository.AddRangeAsync(request.CreateClassModule.Select(c => new ClassModulesWorker()
+        IEnumerable<ClassModulesWorker> classModulesWorker = await _spaceDbContext.ClassModulesWorkers
+            .Where(c => c.ClassId == request.ClassId)
+            .ToListAsync();
+        _spaceDbContext.ClassModulesWorkers.RemoveRange(classModulesWorker);
+
+        await _spaceDbContext.ClassModulesWorkers.AddRangeAsync(request.CreateClassModule.Select(c => new ClassModulesWorker()
         {
             WorkerId = c.WorkerId,
             StartDate = c.StartDate,

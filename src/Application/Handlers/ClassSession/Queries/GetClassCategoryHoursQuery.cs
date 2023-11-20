@@ -5,25 +5,22 @@ public record GetClassCategoryHoursQuery(Guid Id, DateTime Date) : IRequest<IEnu
 
 internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCategoryHoursQuery, IEnumerable<GetClassSessionCategoryHoursResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IClassSessionRepository _classSessionRepository;
-    readonly IClassRepository _classRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public GetClassCategoryHoursQueryHandler(
-        IUnitOfWork unitOfWork,
-        IClassSessionRepository sessionRepository,
-        IClassRepository classRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _classSessionRepository = sessionRepository;
-        _classRepository = classRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetClassSessionCategoryHoursResponseDto>> Handle(GetClassCategoryHoursQuery request, CancellationToken cancellationToken)
     {
-        Class? @class = await _classRepository.GetAsync(request.Id)
-            ?? throw new NotFoundException(nameof(Class), request.Id);
-        IEnumerable<ClassSession> classSessions = await _classSessionRepository.GetAllAsync(c => c.Date == request.Date && c.ClassId == @class.Id);
+        Class? @class = await _spaceDbContext.Classes.FindAsync(request.Id) ??
+            throw new NotFoundException(nameof(Class), request.Id);
+
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+            .Where(c => c.Date == request.Date && c.ClassId == @class.Id)
+            .ToListAsync();
 
         IEnumerable<GetClassSessionCategoryHoursResponseDto> response = classSessions.Select(c => new GetClassSessionCategoryHoursResponseDto()
         {

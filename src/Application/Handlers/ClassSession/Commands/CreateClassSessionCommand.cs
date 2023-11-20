@@ -1,49 +1,61 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Space.Domain.Entities;
-using System;
-using System.Reflection;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public class CreateClassSessionCommand : IRequest
 {
     public Guid ClassId { get; set; }
-    public IEnumerable<CreateClassSessionDto> Sessions { get; set; } = null!;
+    public Guid SessionId { get; set; }
 }
 
 internal class CreateClassSessionCommandHandler : IRequestHandler<CreateClassSessionCommand>
 {
     readonly IUnitOfWork _unitOfWork;
-    readonly IClassRepository _classRepository;
-    readonly IClassSessionRepository _classSessionRepository;
-    readonly IHolidayRepository _holidayRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public CreateClassSessionCommandHandler(IUnitOfWork unitOfWork, IClassRepository classRepository, IClassSessionRepository sessionRepository, IHolidayRepository holidayRepository)
+    public CreateClassSessionCommandHandler(
+        IUnitOfWork unitOfWork,
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
-        _classRepository = classRepository;
-        _classSessionRepository = sessionRepository;
-        _holidayRepository = holidayRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(CreateClassSessionCommand request, CancellationToken cancellationToken)
     {
-        Class @class = await _classRepository.GetAsync(request.ClassId, tracking: false, "Session.Details", "Program.Modules.SubModules")
-            ?? throw new NotFoundException(nameof(Class), request.ClassId);
-        _classSessionRepository.RemoveRange(await _classSessionRepository.GetAllAsync(cr => cr.ClassId == @class.Id));
+        Class @class = await _spaceDbContext.Classes
+            .Include(c => c.Session)
+            .ThenInclude(c => c.Details)
+            .Include(c => c.Program)
+            .ThenInclude(c => c.Modules)
+            .ThenInclude(c => c.SubModules)
+            .Where(c => c.Id == request.ClassId)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.ClassId);
+        _spaceDbContext.ClassSessions.RemoveRange(await _spaceDbContext.ClassSessions.Where(cr => cr.ClassId == @class.Id).ToListAsync());
 
+        Session session = await _spaceDbContext.Sessions
+            .Include(c => c.Details)
+            .Where(c => c.Id == request.SessionId)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Session), request.SessionId);
 
         if (@class.StartDate == null || @class.RoomId == null)
             throw new Exception("Class start date or room null");
 
-        List<CreateClassSessionDto> sessions = request.Sessions.ToList();
+        List<CreateClassSessionDto> sessions = session.Details
+            .Select(c => new CreateClassSessionDto()
+            {
+                Category = c.Category,
+                DayOfWeek = c.DayOfWeek,
+                End = c.EndTime,
+                Start = c.StartTime
+            }).ToList();
+
         List<DayOfWeek> selectedDays = sessions.Select(c => c.DayOfWeek).ToList();
 
-        List<DateTime> holidayDates = await _holidayRepository.GetDatesAsync();
+        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
 
-        List<ClassSession> classSessions = _classSessionRepository.GenerateSessions(
+        List<ClassSession> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
                                                                                        @class.Program.TotalHours,
                                                                                        sessions,
                                                                                        @class.StartDate.Value,
@@ -52,6 +64,6 @@ internal class CreateClassSessionCommandHandler : IRequestHandler<CreateClassSes
                                                                                        @class.RoomId.Value);
 
         @class.EndDate = classSessions.Max(c => c.Date).Date;
-        await _classSessionRepository.AddRangeAsync(classSessions);
+        await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions);
     }
 }

@@ -8,17 +8,19 @@ public class RefreshPasswordCommand : IRequest
 internal class RefreshPasswordCommandHandler : IRequestHandler<RefreshPasswordCommand>
 {
     readonly IUnitOfWork _unitOfWork;
-    readonly IWorkerRepository _workerRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public RefreshPasswordCommandHandler(IUnitOfWork unitOfWork, IWorkerRepository workerRepository)
+    public RefreshPasswordCommandHandler(
+            IUnitOfWork unitOfWork,
+            ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
-        _workerRepository = workerRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(RefreshPasswordCommand request, CancellationToken cancellationToken)
     {
-        Worker? worker = await _workerRepository.GetAsync(w => w.Email == request.Email) ??
+        Worker worker = await _spaceDbContext.Workers.Where(c => c.Email == request.Email).FirstOrDefaultAsync() ??
             throw new NotFoundException(nameof(Worker), request.Email);
 
         if (worker.LastPasswordUpdateDate != null
@@ -30,6 +32,6 @@ internal class RefreshPasswordCommandHandler : IRequestHandler<RefreshPasswordCo
         worker.LastPasswordUpdateDate = DateTime.UtcNow;
         string messaje = $"https://dev-studio.code.az/admin/auth/confirmpassword/{worker.Key}";
         await _unitOfWork.EmailService.SendMessageAsync(messaje, worker.Email, "Şifrənizi dəyiştirin (no-reply)");
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SaveChangesAsync();
     }
 }

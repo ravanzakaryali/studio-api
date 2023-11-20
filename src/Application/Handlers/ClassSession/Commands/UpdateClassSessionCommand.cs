@@ -4,36 +4,33 @@ public record UpdateClassSessionCommand(Guid Id, DateTime Date, IEnumerable<Upda
 
 internal class UpdateClassSessionCommandHandler : IRequestHandler<UpdateClassSessionCommand>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
-    readonly IClassSessionRepository _classSessionRepository;
-    readonly IClassRepository _classRepository;
 
     public UpdateClassSessionCommandHandler(
-        IUnitOfWork unitOfWork,
         IMapper mapper,
-        IClassSessionRepository classSessionRepository,
-        IClassRepository classRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _classSessionRepository = classSessionRepository;
-        _classRepository = classRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(UpdateClassSessionCommand request, CancellationToken cancellationToken)
     {
-        Class @class = await _classRepository.GetAsync(c => c.Id == request.Id && c.ClassSessions.Any(c => c.Date == request.Date))
-            ?? throw new NotFoundException(nameof(Class), request.Id);
+        Class @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id && c.ClassSessions.Any(c => c.Date == request.Date))
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.Id);
+
         if (@class.ClassSessions.Count == 0) throw new NotFoundException(nameof(ClassSession), request.Date);
 
         if (@class.ClassSessions.Any(cs => cs.Status != null)) throw new Exception("Offline, Online and Cancelled not change");
 
         DateTime date = request.UpdateClassSessions.DistinctBy(c => c.ClassSessionDate).First().ClassSessionDate;
 
-        if (await _classSessionRepository.GetAsync(c => c.Date == date) != null) throw new Exception("Class Session already date");
+        if (await _spaceDbContext.ClassSessions.Where(c => c.Date == date).FirstOrDefaultAsync() != null) throw new Exception("Class Session already date");
 
         @class.ClassSessions = _mapper.Map<List<ClassSession>>(request.UpdateClassSessions);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SaveChangesAsync();
     }
 }

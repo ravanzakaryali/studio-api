@@ -9,23 +9,16 @@ public record GetSchedulesRoomsQuery(int? Year) : IRequest<IEnumerable<GetSchedu
 
 internal class GetSchedulesRoomQueryHandler : IRequestHandler<GetSchedulesRoomsQuery, IEnumerable<GetSchedulesRoomsResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IMapper _mapper;
-    readonly IRoomRepository _roomRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetSchedulesRoomQueryHandler(
-        IUnitOfWork unitOfWork,
-        IMapper mapper,
-        IRoomRepository roomRepository)
+    public GetSchedulesRoomQueryHandler(ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-        _roomRepository = roomRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetSchedulesRoomsResponseDto>> Handle(GetSchedulesRoomsQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Room> rooms = await _roomRepository.GetAllAsync(includes: "RoomSchedules");
+        IEnumerable<Room> rooms = await _spaceDbContext.Rooms.Include(c => c.RoomSchedules).ToListAsync();
         List<GetSchedulesRoomsResponseDto> response = new();
 
         foreach (Room room in rooms)

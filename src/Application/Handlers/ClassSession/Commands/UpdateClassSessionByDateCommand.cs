@@ -1,7 +1,4 @@
-﻿using Space.Application.Abstractions;
-using System.Runtime.ExceptionServices;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public class UpdateClassSessionByDateCommand : IRequest
 {
@@ -14,17 +11,14 @@ public class UpdateClassSessionByDateCommand : IRequest
 internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateClassSessionByDateCommand>
 {
     readonly ISpaceDbContext _spaceDbContext;
-    readonly IClassSessionRepository _classSessionRepository;
-    readonly IHolidayRepository _holidayRepository;
+    readonly IUnitOfWork _unitOfWork;
 
     public UpdateClassSessionByDateCommandHandler(
         ISpaceDbContext spaceDbContext,
-        IClassSessionRepository classSessionRepository,
-        IHolidayRepository holidayRepository)
+        IUnitOfWork unitOfWork)
     {
         _spaceDbContext = spaceDbContext;
-        _classSessionRepository = classSessionRepository;
-        _holidayRepository = holidayRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task Handle(UpdateClassSessionByDateCommand request, CancellationToken cancellationToken)
@@ -42,9 +36,10 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
 
         if (@class.RoomId is null) throw new NotFoundException("Bu qrup hər hansı bir dərs otağına əlavə olunmayıb");
 
-        List<DateTime> holidayDates = await _holidayRepository.GetDatesAsync();
 
-        var responseClassSessions = _classSessionRepository.GenerateSessions(
+        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+
+        List<ClassSession> responseClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
             startDate: request.StartDate, request.Sessions.ToList(), request.EndDate, holidayDates, @class.Id, @class.RoomId.Value);
 
         await _spaceDbContext.ClassSessions.AddRangeAsync(responseClassSessions);

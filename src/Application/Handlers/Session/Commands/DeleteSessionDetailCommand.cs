@@ -4,29 +4,28 @@ public record DeleteSessionDetailCommand(Guid SessionId, Guid SessionDetailId) :
 
 internal class DeleteSessionDetailCommandHandler : IRequestHandler<DeleteSessionDetailCommand, GetSessionWithDetailsResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-    readonly ISessionRepository _sessionRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public DeleteSessionDetailCommandHandler(
-        IUnitOfWork unitOfWork, 
-        IMapper mapper, 
-        ISessionRepository sessionRepository)
+        IMapper mapper, ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _sessionRepository = sessionRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetSessionWithDetailsResponseDto> Handle(DeleteSessionDetailCommand request, CancellationToken cancellationToken)
     {
-        Session? session = await _sessionRepository.GetAsync(request.SessionId, include: "Details")
-            ?? throw new NotFoundException(nameof(Session), request.SessionId);
+        Session? session = await _spaceDbContext.Sessions
+            .Include(c => c.Details)
+            .Where(c => c.Id == request.SessionId)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Session), request.SessionId);
 
         SessionDetail? sessionDetail = session.Details.Where(sd => sd.Id == request.SessionDetailId).FirstOrDefault()
             ?? throw new NotFoundException(nameof(SessionDetail), request.SessionDetailId);
         session.Details.Remove(sessionDetail);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SaveChangesAsync();
         return _mapper.Map<GetSessionWithDetailsResponseDto>(session);
     }
 }

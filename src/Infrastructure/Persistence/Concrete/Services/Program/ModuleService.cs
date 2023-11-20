@@ -1,13 +1,9 @@
-﻿using Space.Application.Abstractions;
-using Space.Application.Exceptions;
-using Space.Domain.Entities;
+﻿namespace Space.Infrastructure.Persistence.Concrete.Services;
 
-namespace Space.Infrastructure.Persistence.Concrete;
-
-internal class ModuleRepository : Repository<Module>, IModuleRepository
+public class ModuleService : IModuleService
 {
     readonly ISpaceDbContext _context;
-    public ModuleRepository(SpaceDbContext context) : base(context)
+    public ModuleService(ISpaceDbContext context)
     {
         _context = context;
     }

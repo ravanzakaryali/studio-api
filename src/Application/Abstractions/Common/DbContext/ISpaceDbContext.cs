@@ -16,6 +16,7 @@ public interface ISpaceDbContext
     #endregion
     #region Common
     DbSet<University> Universities { get; }
+    DbSet<E.File> Files { get; }
 
     #endregion
     #region Identity
@@ -38,6 +39,7 @@ public interface ISpaceDbContext
     DbSet<RoomSchedule> RoomSchedules { get; }
 
     DbSet<Holiday> Holidays { get; }
+    DbSet<Support> Supports { get; }
 
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

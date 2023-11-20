@@ -5,18 +5,23 @@ public record GetAllWorkerQuery : IRequest<IEnumerable<GetWorkerDto>>;
 
 internal class GetAllWorkerQueryHandler : IRequestHandler<GetAllWorkerQuery, IEnumerable<GetWorkerDto>>
 {
-    readonly IWorkerRepository _workerRepository;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
 
-    public GetAllWorkerQueryHandler(IMapper mapper, IWorkerRepository workerRepository)
+    public GetAllWorkerQueryHandler(
+        IMapper mapper, ISpaceDbContext spaceDbContext)
     {
         _mapper = mapper;
-        _workerRepository = workerRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetWorkerDto>> Handle(GetAllWorkerQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<GetWorkerDto> workers = _mapper.Map<IEnumerable<GetWorkerDto>>(await _workerRepository.GetAllAsync(predicate: null, tracking: false, "UserRoles.Role"));
+        IEnumerable<GetWorkerDto> workers = _mapper.Map<IEnumerable<GetWorkerDto>>(
+            await _spaceDbContext.Workers
+                .Include(c => c.UserRoles)
+                .ThenInclude(c => c.Role)
+                .ToListAsync());
         return workers.ToList().OrderBy(w => w.Name);
     }
 }

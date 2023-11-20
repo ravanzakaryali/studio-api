@@ -4,18 +4,25 @@ public record GetAllStudentsDetailsByClassQuery(Guid Id) : IRequest<IEnumerable<
 
 internal class GetAllStudentsDetailsByClassQueryHandler : IRequestHandler<GetAllStudentsDetailsByClassQuery, IEnumerable<GetStudentsDetailsByClassResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IClassRepository _classRepository;
-    public GetAllStudentsDetailsByClassQueryHandler(IUnitOfWork unitOfWork, IClassRepository classRepository)
+    readonly ISpaceDbContext _spaceDbContext;
+    public GetAllStudentsDetailsByClassQueryHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _classRepository = classRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetStudentsDetailsByClassResponseDto>> Handle(GetAllStudentsDetailsByClassQuery request, CancellationToken cancellationToken)
     {
-        Class @class = await _classRepository.GetAsync(request.Id, tracking: false, "ClassSessions.Attendances", "Studies.Student.Contact")
-            ?? throw new NotFoundException(nameof(Class), request.Id);
+        Class @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id)
+            .Include(c => c.ClassSessions)
+            .ThenInclude(c => c.Attendances)
+            .Include(c => c.Studies)
+            .ThenInclude(c => c.Student)
+            .ThenInclude(c => c.Contact)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.Id);
+
         return @class.Studies.Where(c => c.StudyType != StudyType.Completion).Select(study =>
         {
             double? attendancesHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Select(c => c.Attendances.Where(a => a.StudyId == study.Id).Sum(c => c.TotalAttendanceHours)).Sum();

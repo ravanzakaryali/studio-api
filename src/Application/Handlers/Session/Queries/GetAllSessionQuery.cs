@@ -6,20 +6,21 @@ public class GetAllSessionQuery : IRequest<IEnumerable<GetSessionResponseDto>>
 
 internal class GetAllSessionQueryHandler : IRequestHandler<GetAllSessionQuery, IEnumerable<GetSessionResponseDto>>
 {
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
-    readonly ISessionRepository _sessionRepository;
 
     public GetAllSessionQueryHandler(
-        IMapper mapper,
-        ISessionRepository sessionRepository)
+        IMapper mapper, ISpaceDbContext spaceDbContext)
     {
         _mapper = mapper;
-        _sessionRepository = sessionRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetSessionResponseDto>> Handle(GetAllSessionQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Session> sessions = await _sessionRepository.GetAllAsync(includes: "Details");
+        IEnumerable<Session> sessions = await _spaceDbContext.Sessions
+            .Include(c => c.Details)
+            .ToListAsync();
         return _mapper.Map<IEnumerable<GetSessionResponseDto>>(sessions);
     }
 }

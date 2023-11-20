@@ -3,17 +3,17 @@
 public record GetAllHolidayQuery : IRequest<IEnumerable<HolidayResponseDto>>;
 internal class GetAllHolidayQueryHandler : IRequestHandler<GetAllHolidayQuery, IEnumerable<HolidayResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
-    readonly IHolidayRepository _holidayRepository;
 
-    public GetAllHolidayQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IHolidayRepository holidayRepository)
+    public GetAllHolidayQueryHandler(
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _holidayRepository = holidayRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<HolidayResponseDto>> Handle(GetAllHolidayQuery request, CancellationToken cancellationToken)
-        => _mapper.Map<IEnumerable<HolidayResponseDto>>(await _holidayRepository.GetAllAsync());
+        => _mapper.Map<IEnumerable<HolidayResponseDto>>(await _spaceDbContext.Holidays.ToListAsync());
 }

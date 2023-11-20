@@ -12,47 +12,42 @@ public class CreateClassAttendanceCommand : IRequest
 }
 internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClassAttendanceCommand>
 {
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IUnitOfWork _unitOfWork;
-    readonly IClassRepository _classRepository;
-    readonly IModuleRepository _moduleRepository;
-    readonly IClassSessionRepository _classSessionRepository;
 
     public CreateClassAttendanceCommandHandler(
         IUnitOfWork unitOfWork,
-        IClassRepository classRepository,
-        IModuleRepository moduleRepository,
-        IClassSessionRepository classSessionRepository)
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
-        _classRepository = classRepository;
-        _moduleRepository = moduleRepository;
-        _classSessionRepository = classSessionRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(CreateClassAttendanceCommand request, CancellationToken cancellationToken)
     {
+        Class @class = await _spaceDbContext.Classes
+            .Include(c => c.Studies)
+            .Include(c => c.Program)
+            .ThenInclude(c => c.Modules)
+            .ThenInclude(c => c.SubModules)
+            .Include(c => c.ClassModulesWorkers)
+            .ThenInclude(c => c.Worker)
+            .Include(c => c.ClassModulesWorkers)
+            .ThenInclude(c => c.Role)
+            .Where(c => c.Id == request.ClassId)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.ClassId);
 
-        Class @class = await _classRepository.GetAsync(
-                                                                  request.ClassId,
-                                                                  tracking: false,
-                                                                  "Studies",
-                                                                  "Program.Modules.SubModules",
-                                                                  "ClassModulesWorkers.Worker",
-                                                                  "ClassModulesWorkers.Role") ??
-                                                                        throw new NotFoundException(nameof(Class), request.ClassId);
+        Module? module = await _spaceDbContext.Modules.FindAsync(request.ModuleId) ??
+            throw new NotFoundException(nameof(Module), request.ModuleId);
 
-        Module module = await _moduleRepository.GetAsync(
-                                                                   request.ModuleId,
-                                                                   tracking: false) ??
-                                                                        throw new NotFoundException(nameof(Module), request.ModuleId);
 
-        IEnumerable<ClassSession> classSessionsHour = await _classSessionRepository.GetAllAsync(cs =>
-                                                                        cs.ClassId == @class.Id &&
-                                                                        request.Date >= cs.Date &&
-                                                                        cs.ModuleId != null &&
-                                                                        (cs.AttendancesWorkers != null &&
-                                                                        cs.AttendancesWorkers.Count != 0)) ??
-                                                                           throw new NotFoundException(nameof(ClassSession), @class.Id);
+        List<ClassSession> classSessionsHour = await _spaceDbContext.ClassSessions
+            .Where(c => c.ClassId == @class.Id &&
+                        request.Date >= c.Date &&
+                        c.ModuleId != null &&
+                        (c.AttendancesWorkers != null && c.AttendancesWorkers.Count != 0)).ToListAsync() ??
+                            throw new NotFoundException(nameof(ClassSession), @class.Id);
 
         List<Module> modules = @class.Program.Modules
                                                     .OrderBy(m => m.Version)
@@ -60,7 +55,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                                                     !m.SubModules!.Any()).ToList();
 
 
-        Module? currentModule = await _moduleRepository.GetCurrentModuleAsync(@class, request.Date);
+        Module? currentModule = await _unitOfWork.ModuleService.GetCurrentModuleAsync(@class, request.Date);
 
         IEnumerable<WokerDto> currentModuleWorkers = @class.ClassModulesWorkers
                                                                                 .Where(c => c.ModuleId == currentModule?.Id)
@@ -77,15 +72,13 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
 
         List<Study> ClassStudiesExsist = @class.Studies.Where(c => !studentIds.Contains(c.Id)).ToList();
 
-        IEnumerable<ClassSession> classSessions = await _classSessionRepository
-                    .GetAllAsync(c => c.Date == request.Date &&
-                                      c.ClassId == request.ClassId,
-                                      tracking: true,
-                                      "Attendances",
-                                      "AttendancesWorkers");
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+            .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
+            .Include(c => c.Attendances)
+            .Include(c => c.AttendancesWorkers)
+            .ToListAsync();
 
-        await _classSessionRepository.GenerateAttendanceAsync(request.Sessions, classSessions, request.ModuleId);
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.ClassSessionService.GenerateAttendanceAsync(request.Sessions, classSessions, request.ModuleId);
+        await _spaceDbContext.SaveChangesAsync();
     }
 }

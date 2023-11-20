@@ -93,4 +93,5 @@ public class HolidaysController : BaseApiController
     [HttpGet("dates")]
     public async Task<IActionResult> GetHolidaysDates()
         => Ok(await Mediator.Send(new GetHolidayDatesQuery()));
+
 }

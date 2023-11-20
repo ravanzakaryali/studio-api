@@ -7,26 +7,22 @@ public class CreateClassSessionByClassCommand : IRequest
 }
 internal class CreateClassSessionByClassCommandHandler : IRequestHandler<CreateClassSessionByClassCommand>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IClassRepository _classRepository;
-    readonly IRoomRepository _roomRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public CreateClassSessionByClassCommandHandler(
-        IUnitOfWork unitOfWork,
-        IClassRepository classRepository,
-        IRoomRepository roomRepository)
+    public CreateClassSessionByClassCommandHandler(ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _classRepository = classRepository;
-        _roomRepository = roomRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task Handle(CreateClassSessionByClassCommand request, CancellationToken cancellationToken)
     {
-        Class? @class = await _classRepository.GetAsync(request.Id, true, "ClassSessions") ??
-            throw new NotFoundException(nameof(Class), request.Id);
+        Class? @class = await _spaceDbContext.Classes
+            .Include("ClassSessions")
+            .Where(c => c.Id == request.Id)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Class), request.Id);
 
-        Room room = await _roomRepository.GetAsync(request.Session.RoomId) ??
+        Room? room = await _spaceDbContext.Rooms.FindAsync(request.Session.RoomId) ??
             throw new NotFoundException(nameof(Room), request.Session.RoomId);
 
         if (@class.ClassSessions.Any(c =>
@@ -46,6 +42,6 @@ internal class CreateClassSessionByClassCommandHandler : IRequestHandler<CreateC
             TotalHour = (request.Session.End - request.Session.Start).Hours,
             Category = request.Session.Category
         });
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SaveChangesAsync();
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 
 public record GetAllStudentsQuery : IRequest<IEnumerable<GetAllStudentsResponseDto>>;
@@ -8,18 +6,23 @@ public record GetAllStudentsQuery : IRequest<IEnumerable<GetAllStudentsResponseD
 
 internal class GetAllStudentsQueryHandler : IRequestHandler<GetAllStudentsQuery, IEnumerable<GetAllStudentsResponseDto>>
 {
-    readonly IStudyRepository _studyRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public GetAllStudentsQueryHandler(
-        IStudyRepository studyRepository)
+        ISpaceDbContext spaceDbContext)
     {
-        _studyRepository = studyRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetAllStudentsResponseDto>> Handle(GetAllStudentsQuery request, CancellationToken cancellationToken)
     {
 
-        var studies = await _studyRepository.GetAllAsync(q => q.Class!.EndDate > DateTime.Now, tracking: false, "Student.Contact", "Class");
+        List<Study> studies = await _spaceDbContext.Studies
+            .Include(c => c.Student)
+            .ThenInclude(c => c.Contact)
+            .Include(c => c.Class)
+            .Where(q => q.Class!.EndDate > DateTime.Now)
+            .ToListAsync();
 
         var response = new List<GetAllStudentsResponseDto>();
 

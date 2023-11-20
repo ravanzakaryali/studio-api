@@ -1,31 +1,26 @@
 ﻿namespace Space.Application.Handlers;
 
-
 public record CreateRoomCommand(string Name, int Capacity, RoomType Type) : IRequest<CreateRoomResponseDto>;
 
 internal class CreateRoomCommandHandler : IRequestHandler<CreateRoomCommand, CreateRoomResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
-    readonly IRoomRepository _roomRepository;
+    readonly ISpaceDbContext _spaceDbContext;
 
     public CreateRoomCommandHandler(
-        IUnitOfWork unitOfWork,
-        IMapper mapper,
-        IRoomRepository roomRepository)
+        IMapper mapper, ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _roomRepository = roomRepository;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<CreateRoomResponseDto> Handle(CreateRoomCommand request, CancellationToken cancellationToken)
     {
-        Room? room = await _roomRepository.GetAsync(a => a.Name == request.Name);
+        Room? room = await _spaceDbContext.Rooms.Where(a => a.Name == request.Name).FirstOrDefaultAsync();
         if (room is not null) throw new AlreadyExistsException(nameof(Room), request.Name);
         Room newRoom = _mapper.Map<Room>(request);
-        await _roomRepository.AddAsync(newRoom);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.Rooms.AddAsync(newRoom);
+        await _spaceDbContext.SaveChangesAsync();
         return _mapper.Map<CreateRoomResponseDto>(newRoom);
     }
 }

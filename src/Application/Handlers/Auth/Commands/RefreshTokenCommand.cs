@@ -15,15 +15,21 @@ public class RefreshTokenCommand : IRequest<AccessTokenResponseDto>
 internal class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, AccessTokenResponseDto>
 {
     readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IHttpContextAccessor _contextAccessor;
     readonly ICurrentUserService _currentUserService;
 
 
-    public RefreshTokenCommandHandler(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor, ICurrentUserService currentUserService)
+    public RefreshTokenCommandHandler(
+        IUnitOfWork unitOfWork,
+        IHttpContextAccessor contextAccessor,
+        ICurrentUserService currentUserService,
+        ISpaceDbContext spaceDbContext)
     {
         _unitOfWork = unitOfWork;
         _contextAccessor = contextAccessor;
         _currentUserService = currentUserService;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<AccessTokenResponseDto> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -46,7 +52,7 @@ internal class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand,
         string refreshToken = _unitOfWork.TokenService.GenerateRefreshToken();
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpires = token.Expires.AddMinutes(15);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SaveChangesAsync();
 
         _contextAccessor.HttpContext?.Response.Cookies.Append("token", token.AccessToken, new CookieOptions
         {

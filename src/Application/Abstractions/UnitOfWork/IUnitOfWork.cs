@@ -1,5 +1,4 @@
 ﻿using Space.Application.Abstraction.Common;
-using Space.Application.Abstractions.Repositories;
 
 namespace Space.Application.Abstractions;
 
@@ -14,5 +13,10 @@ public interface IUnitOfWork
     public ITelegramService TelegramService { get; }
     #endregion
 
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    #region Entity Services
+    public IClassSessionService ClassSessionService { get; }
+    public IModuleService ModuleService { get; }
+    public IHolidayService HolidayService { get; }
+    public IClassService ClassService { get; }
+    #endregion
 }

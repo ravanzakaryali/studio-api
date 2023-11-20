@@ -15,6 +15,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         _spaceDbContext = spaceDbContext;
     }
 
+    //Todo: Request module change - High
     public async Task Handle(CreateClassModuleSessionCommand request, CancellationToken cancellationToken)
     {
         Task createModuleTask = _mediator.Send(new CreateClassModuleCommand()
@@ -26,7 +27,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         Task createSessionTask = _mediator.Send(new CreateClassSessionCommand()
         {
             ClassId = request.ClassId,
-            Sessions = request.CreateClassModuleSessionDto.Sessions
+            SessionId = request.CreateClassModuleSessionDto.SessionId
         }, cancellationToken);
 
         Task[] tasks = new Task[] { createModuleTask, createSessionTask };

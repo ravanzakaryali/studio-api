@@ -50,7 +50,6 @@ public static class ConfigureService
             };
         });
 
-        services.AddRepositories();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IStorageService, StorageService>();
