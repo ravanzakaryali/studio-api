@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Space.Infrastructure.Services.SendEmailService;
 
 namespace Space.Infrastructure;
 
@@ -54,7 +56,11 @@ public static class ConfigureService
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IStorageService, StorageService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-        services.AddStorage<LocalStorage>();
+
+		services.AddScoped<SendEmailService>();
+		services.AddSingleton<IHostedService, EmailServiceLauncher>();
+
+		services.AddStorage<LocalStorage>();
 
         return services;
     }
