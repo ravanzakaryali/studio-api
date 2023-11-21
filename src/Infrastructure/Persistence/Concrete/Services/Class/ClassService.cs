@@ -42,7 +42,7 @@ public class ClassService : IClassService
             }
             count++;
         }
-        sessionDates = sessionDates.OrderByDescending(c => c).ToList();
+        sessionDates = sessionDates.OrderBy(c => c).ToList();
         return (sessionDates.First(), sessionDates.Last());
     }
 }
