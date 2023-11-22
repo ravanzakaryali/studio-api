@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Space.Infrastructure.Services.SendEmailService;
 
 namespace Space.Infrastructure;
 
@@ -56,15 +55,8 @@ public static class ConfigureService
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IStorageService, StorageService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-
-<<<<<<< HEAD
-		services.AddScoped<SendEmailService>();
-		services.AddSingleton<IHostedService, EmailServiceLauncher>();
-
 		services.AddStorage<LocalStorage>();
-=======
-        services.AddStorage<LocalStorage>();
->>>>>>> 347b230a34d05d5ec4367901a704c1db3f19a102
+
 
         return services;
     }

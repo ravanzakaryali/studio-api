@@ -30,13 +30,8 @@ internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, Registe
         string code = _unitOfWork.TokenService.GenerateVerificationCode();
         user.ConfirmCode = code;
         user.ConfirmCodeExpires = DateTime.UtcNow.AddMinutes(15);
-<<<<<<< HEAD
         await _unitOfWork.EmailService.SendMessageAsync(code, user.Email, "EmailTemplate.html");
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-=======
-        await _unitOfWork.EmailService.SendMessageAsync(code, user.Email);
         await _spaceDbContext.SaveChangesAsync();
->>>>>>> 347b230a34d05d5ec4367901a704c1db3f19a102
         return new RegisterResponseDto()
         {
             Email = user.Email,

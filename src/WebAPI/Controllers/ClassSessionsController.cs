@@ -52,8 +52,6 @@ public class ClassSessionsController : BaseApiController
         return NoContent();
     }
 
-<<<<<<< HEAD
-=======
     //[HttpPost("bulk-import")]
     //public async Task<IActionResult> Create(IEnumerable<ClassSessionImport> import)
     //{
@@ -79,5 +77,4 @@ public class ClassSessionsController : BaseApiController
     //    public Guid WorkerId { get; set; }
     //    public int TotalHour { get; set; }
     //}
->>>>>>> 347b230a34d05d5ec4367901a704c1db3f19a102
 }
