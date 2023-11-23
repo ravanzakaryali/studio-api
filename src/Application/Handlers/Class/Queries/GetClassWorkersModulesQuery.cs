@@ -40,7 +40,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             throw new NotFoundException(nameof(Session), request.SessionId);
 
         List<Module> modules = await _spaceDbContext.Modules
-            .Include(c=>c.SubModules)
+            .Include(c => c.SubModules)
             .Where(c => c.ProgramId == @class.ProgramId && c.TopModuleId == null)
             .AsNoTracking()
             .ToListAsync();

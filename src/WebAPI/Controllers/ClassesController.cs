@@ -182,6 +182,18 @@ public class ClassesController : BaseApiController
         return Ok(await Mediator.Send(new GetClassWorkersModulesQuery(id, sessionId)));
     }
 
+    [Authorize(Roles = "admin")]
+    [HttpPut("{id}/modules-workers")]
+    public async Task<IActionResult> UpdateClassModulesWorkers([FromRoute] Guid id, IEnumerable<CreateClassModuleRequestDto> modules)
+    {
+        await Mediator.Send(new CreateClassModuleCommand()
+        {
+            ClassId = id,
+            CreateClassModule = modules
+        });
+        return NoContent();
+    }
+
     /// <summary>
     /// Retrieves students related to a specific class based on its unique identifier and date.
     /// </summary>
