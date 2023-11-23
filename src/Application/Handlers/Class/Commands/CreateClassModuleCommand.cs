@@ -84,5 +84,6 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
             RoleId = c.RoleId,
             ClassId = @class.Id
         }));
+        await _spaceDbContext.SaveChangesAsync();
     }
 }
