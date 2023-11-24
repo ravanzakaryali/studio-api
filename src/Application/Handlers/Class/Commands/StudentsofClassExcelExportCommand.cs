@@ -51,14 +51,15 @@ internal class StudentsofClassExcelExport : IRequestHandler<StudentsofClassExcel
 
         var worksheet = workbook.Worksheets.Add("Davamiyyət göstəriciləri");
 
-        worksheet.Cell(1, 1).Value = "Adı";
-        worksheet.Cell(1, 2).Value = "Soyadı";
-        worksheet.Cell(1, 3).Value = "Email";
-        worksheet.Cell(1, 4).Value = "Tarix";
-        worksheet.Cell(1, 5).Value = "İştirak saatı";
+        worksheet.Cell(1, 1).Value = "Qrup adı";
+        worksheet.Cell(1, 2).Value = "Adı";
+        worksheet.Cell(1, 3).Value = "Soyadı";
+        worksheet.Cell(1, 4).Value = "Email";
+        worksheet.Cell(1, 5).Value = "Tarix";
+        worksheet.Cell(1, 6).Value = "İştirak saatı";
 
-        worksheet.Column(4).Width = 30;
-        worksheet.Column(4).Width = 30;
+        worksheet.Column(5).Width = 30;
+        worksheet.Column(5).Width = 30;
 
         worksheet.Cell(2, 1).InsertData(students.OrderByDescending(c => c.Date));
         using MemoryStream memoryStream = new();
