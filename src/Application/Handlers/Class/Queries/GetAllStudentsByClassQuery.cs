@@ -34,7 +34,7 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                 throw new NotFoundException(nameof(Class), request.Id);
 
 
-        List<ClassSession> classSessoins = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSessoins = await _spaceDbContext.ClassSessions
             .Where(c => c.ClassId == @class.Id && c.Date == request.Date)
             .AsNoTracking()
             .Include(c => c.Attendances)

@@ -5,7 +5,7 @@ public class CreateClassSessionAttendanceCommand : IRequest
     public Guid ClassId { get; set; }
 
     public Guid ModuleId { get; set; }
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
 }
 
@@ -77,7 +77,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
         List<Study> ClassStudiesExsist = @class.Studies
             .Where(c => !studentIds.Contains(c.Id)).ToList();
 
-        IEnumerable<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        IEnumerable<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
             .Include(c => c.Attendances)
             .Include(c => c.AttendancesWorkers)

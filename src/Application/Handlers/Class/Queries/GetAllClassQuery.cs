@@ -1,14 +1,11 @@
-﻿using Space.Application.DTOs.Enums;
-using Space.Domain.Entities;
-
-namespace Space.Application.Handlers.Queries;
+﻿namespace Space.Application.Handlers.Queries;
 
 public record GetAllClassQuery(ClassStatus Status) : IRequest<IEnumerable<GetClassModuleWorkersResponse>>;
-internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnumerable<GetClassModuleWorkersResponse>>
+internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerable<GetClassModuleWorkersResponse>>
 {
     readonly ISpaceDbContext _spaceDbContext;
 
-    public GetAllClassQueryHandler(ISpaceDbContext spaceDbContext)
+    public GetAllClassHandler(ISpaceDbContext spaceDbContext)
     {
         _spaceDbContext = spaceDbContext;
     }
@@ -45,11 +42,12 @@ internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnum
                             .Where(c =>
                             c.Status != ClassSessionStatus.Cancelled &&
                             c.Category != ClassSessionCategory.Lab)
-                        .Sum(c => c.TotalHour),
+                        .Sum(c => c.TotalHours),
             CurrentHour = cd.ClassSessions
                             .Where(c => c.Status != ClassSessionStatus.Cancelled &&
                                         c.Category != ClassSessionCategory.Lab &&
-                                        c.Date <= DateTime.UtcNow).Sum(c => c.TotalHour),
+                                        c.Date <= DateOnly.FromDateTime(DateTime.UtcNow))
+                            .Sum(c => c.TotalHours),
             ClassName = cd.Name,
             EndDate = cd.EndDate,
             ProgramId = cd.ProgramId,
@@ -84,19 +82,6 @@ internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnum
                 RoleId = cmw.Worker.UserRoles.FirstOrDefault(u => u.RoleId == cmw.RoleId)?.Role.Id
             }).Distinct(new GetModulesWorkerComparer())
         });
-    }
-    class GetModulesWorkerComparer : IEqualityComparer<GetWorkerForClassDto>
-    {
-        public bool Equals(GetWorkerForClassDto? x, GetWorkerForClassDto? y)
-        {
-            return x?.Id == y?.Id || x?.RoleId == y?.RoleId;
-        }
-
-        public int GetHashCode(GetWorkerForClassDto obj)
-        {
-            return obj.Id.GetHashCode() ^ obj.RoleId.GetHashCode();
-        }
-
     }
 }
 

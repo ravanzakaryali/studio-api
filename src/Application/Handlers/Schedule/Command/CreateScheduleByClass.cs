@@ -26,7 +26,7 @@ internal class CreateRoomScheduleByClassCommandHandler : IRequestHandler<CreateR
 
             if (scheduleControl == null)
             {
-                foreach (ClassSession classSession in @class.ClassSessions)
+                foreach (ClassTimeSheet classSession in @class.ClassSessions)
                 {
                     RoomSchedule roomSchedule = new()
                     {

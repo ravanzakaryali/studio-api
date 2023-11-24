@@ -28,16 +28,16 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
             .FirstOrDefaultAsync()
                 ?? throw new NotFoundException(nameof(Class), request.Id);
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => c.ClassId == @class.Id && c.Category != ClassSessionCategory.Lab && request.Date >= c.Date)
             .ToListAsync()
-                ?? throw new NotFoundException(nameof(ClassSession), request.Id);
+                ?? throw new NotFoundException(nameof(ClassTimeSheet), request.Id);
 
         return @class.ClassModulesWorkers.Where(c => c.StartDate >= request.Date && c.EndDate <= request.Date).Distinct(new GetModulesWorkerComparer()).Select(c =>
         {
-            List<ClassSession> classSessions = @class.ClassSessions.Where(c => c.Date == request.Date).ToList();
+            List<ClassTimeSheet> classSessions = @class.ClassSessions.Where(c => c.Date == request.Date).ToList();
             bool isAttendance = false;
-            foreach (ClassSession classSession in classSessions)
+            foreach (ClassTimeSheet classSession in classSessions)
             {
                 AttendanceWorker? attendance = classSession.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
                 if (attendance != null)
@@ -56,17 +56,5 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                 TotalLessonHours = @class.ClassSessions.Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online).SelectMany(c => c.AttendancesWorkers).Where(attendance => attendance.WorkerId == c.WorkerId).Sum(c => c.TotalAttendanceHours)
             };
         });
-    }
-}
-public class GetModulesWorkerComparer : IEqualityComparer<ClassModulesWorker>
-{
-    public bool Equals(ClassModulesWorker? x, ClassModulesWorker? y)
-    {
-        return x?.WorkerId == y?.WorkerId && x?.RoleId == y?.RoleId;
-    }
-
-    public int GetHashCode(ClassModulesWorker obj)
-    {
-        return obj.WorkerId.GetHashCode() ^ obj.RoleId.GetHashCode();
     }
 }

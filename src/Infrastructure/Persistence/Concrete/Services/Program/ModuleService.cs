@@ -7,9 +7,9 @@ public class ModuleService : IModuleService
     {
         _context = context;
     }
-    public async Task<Module?> GetCurrentModuleAsync(Class @class, DateTime requestDate)
+    public async Task<Module?> GetCurrentModuleAsync(Class @class, DateOnly requestDate)
     {
-        IEnumerable<ClassSession> classSessionsHour = await _context.ClassSessions
+        IEnumerable<ClassTimeSheet> classSessionsHour = await _context.ClassSessions
                                                                                     .Where(c => c.ClassId == @class.Id &&
                                                                                                 requestDate >= c.Date &&
                                                                                                 c.ModuleId != null &&

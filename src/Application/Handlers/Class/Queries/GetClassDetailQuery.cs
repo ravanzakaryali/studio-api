@@ -26,13 +26,13 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => c.ClassId == @class.Id && c.Status != null && c.Status != ClassSessionStatus.Cancelled)
             .Include(c => c.Attendances)
             .ToListAsync();
 
         List<double> list = new();
-        foreach (ClassSession? item in classSessions.Where(c => c.Attendances.Count > 0))
+        foreach (ClassTimeSheet? item in classSessions.Where(c => c.Attendances.Count > 0))
         {
             var total = item.TotalHour;
             var totalAttendance = item.Attendances.Average(c => c.TotalAttendanceHours);

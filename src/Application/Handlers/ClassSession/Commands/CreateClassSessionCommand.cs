@@ -55,7 +55,7 @@ internal class CreateClassSessionCommandHandler : IRequestHandler<CreateClassSes
         List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
 
-        List<ClassSession> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+        List<ClassTimeSheet> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
                                                                                        @class.Program.TotalHours,
                                                                                        sessions,
                                                                                        @class.StartDate.Value,

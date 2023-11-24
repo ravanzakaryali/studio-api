@@ -26,7 +26,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
         Class @class = await _spaceDbContext.Classes.FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken: cancellationToken)
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
                                                                 .Where(c => c.ClassId == request.ClassId &&
                                                                             c.Date >= request.StartDate &&
                                                                             c.Date <= request.EndDate)
@@ -39,7 +39,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
 
         List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
-        List<ClassSession> responseClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+        List<ClassTimeSheet> responseClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
             startDate: request.StartDate, request.Sessions.ToList(), request.EndDate, holidayDates, @class.Id, @class.RoomId.Value);
 
         await _spaceDbContext.ClassSessions.AddRangeAsync(responseClassSessions);

@@ -30,7 +30,7 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             .DistinctBy(cmw => cmw.ClassId);
 
         IEnumerable<Guid> classIds = classModuleWorker.Select(cm => cm.ClassId);
-        List<ClassSession> classSession = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSession = await _spaceDbContext.ClassSessions
             .Where(c => classIds.Contains(c.ClassId) && c.Date == DateTime.Now.Date)
             .ToListAsync();
 

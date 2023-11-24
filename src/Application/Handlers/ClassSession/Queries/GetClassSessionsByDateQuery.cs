@@ -15,7 +15,7 @@ internal class GetClassSessionsByDateQueryHandler : IRequestHandler<GetClassSess
 
     public async Task<IEnumerable<GetClassSessionsByDateResponseDto>> Handle(GetClassSessionsByDateQuery request, CancellationToken cancellationToken)
     {
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => c.Date.Year == request.Date.Year &&
                       c.Date.Day == request.Date.Day &&
                       c.Date.Month == request.Date.Month &&

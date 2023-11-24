@@ -6,16 +6,16 @@ public interface IClassSessionService
 
     Task GenerateAttendanceAsync(
                 ICollection<UpdateAttendanceCategorySessionDto> requestSession,
-                IEnumerable<ClassSession> classSessions,
+                IEnumerable<ClassTimeSheet> classSessions,
                 Guid moduleId);
-    List<ClassSession> GenerateSessions(
+    List<ClassTimeSheet> GenerateSessions(
                               int programTotalHour,
                               List<CreateClassSessionDto> sessions,
                               DateTime startDate,
                               List<DateTime> holidayDates,
                               Guid classId,
                               Guid roomId);
-    List<ClassSession> GenerateSessions(
+    List<ClassTimeSheet> GenerateSessions(
                                 DateTime startDate,
                                 List<CreateClassSessionDto> sessions,
                                 DateTime endDate,

@@ -17,7 +17,7 @@ namespace Space.Application.Handlers
 
         public async Task<IEnumerable<GetWorkerAttendanceByClassDto>> Handle(GetWorkerAttendanceByClassQuery request, CancellationToken cancellationToken)
         {
-            List<ClassSession> data = await _spaceDbContext.ClassSessions
+            List<ClassTimeSheet> data = await _spaceDbContext.ClassSessions
                 .Where(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline))
                 .ToListAsync();
 

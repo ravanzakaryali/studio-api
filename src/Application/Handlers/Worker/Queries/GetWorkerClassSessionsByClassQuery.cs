@@ -17,7 +17,7 @@ internal class GetWorkerClassSessionsByClassQueryHandler : IRequestHandler<GetWo
     public async Task<GetWorkerClassSessionsByClassResponseDto> Handle(GetWorkerClassSessionsByClassQuery request, CancellationToken cancellationToken)
     {
 
-        IEnumerable<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        IEnumerable<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
             .Include(c => c.Class)
             .Where(q => q.ClassId == request.Id && q.Status != null)
             .ToListAsync();
@@ -34,7 +34,7 @@ internal class GetWorkerClassSessionsByClassQueryHandler : IRequestHandler<GetWo
 
         List<GetWorkerClassSessionsDto> workerSessions = new List<GetWorkerClassSessionsDto>();
 
-        IOrderedEnumerable<ClassSession> orderedClasssessions = classSessions.OrderByDescending(q => q.Date);
+        IOrderedEnumerable<ClassTimeSheet> orderedClasssessions = classSessions.OrderByDescending(q => q.Date);
 
         int offlineHours = 0;
         int onlineHours = 0;

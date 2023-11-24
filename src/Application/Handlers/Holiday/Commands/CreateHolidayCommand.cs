@@ -51,7 +51,7 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
         }
         #endregion
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => holidayDates.Contains(c.Date))
             .ToListAsync();
 
@@ -60,7 +60,7 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
                         .Select(group => new { ClassId = group.Key, Sessions = group })
                         .ToList();
 
-        List<ClassSession> allClassSessions = await _spaceDbContext.ClassSessions.Where(c =>
+        List<ClassTimeSheet> allClassSessions = await _spaceDbContext.ClassSessions.Where(c =>
                     classIds.Select(cl => cl.ClassId).Contains(c.ClassId)).ToListAsync();
 
         foreach (var @class in classIds)

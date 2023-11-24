@@ -34,7 +34,7 @@ internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesB
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => c.ClassId == @class.Id && request.Date >= c.Date && c.Category != ClassSessionCategory.Lab).ToListAsync();
 
         List<Module> modules = @class.Program.Modules

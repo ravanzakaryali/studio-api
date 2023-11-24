@@ -22,7 +22,7 @@ internal class UpdateClassSessionCommandHandler : IRequestHandler<UpdateClassSes
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
-        if (@class.ClassSessions.Count == 0) throw new NotFoundException(nameof(ClassSession), request.Date);
+        if (@class.ClassSessions.Count == 0) throw new NotFoundException(nameof(ClassTimeSheet), request.Date);
 
         if (@class.ClassSessions.Any(cs => cs.Status != null)) throw new Exception("Offline, Online and Cancelled not change");
 
@@ -30,7 +30,7 @@ internal class UpdateClassSessionCommandHandler : IRequestHandler<UpdateClassSes
 
         if (await _spaceDbContext.ClassSessions.Where(c => c.Date == date).FirstOrDefaultAsync() != null) throw new Exception("Class Session already date");
 
-        @class.ClassSessions = _mapper.Map<List<ClassSession>>(request.UpdateClassSessions);
+        @class.ClassSessions = _mapper.Map<List<ClassTimeSheet>>(request.UpdateClassSessions);
         await _spaceDbContext.SaveChangesAsync();
     }
 }

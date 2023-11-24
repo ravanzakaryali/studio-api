@@ -4,7 +4,7 @@ public class ClassSessionMapper : Profile
 {
     public ClassSessionMapper()
     {
-        CreateMap<UpdateClassSessionRequestDto, ClassSession>()
+        CreateMap<UpdateClassSessionRequestDto, ClassTimeSheet>()
             .ForMember(c => c.Date, opt => opt.MapFrom(cs => cs.ClassSessionDate));
     }
 }

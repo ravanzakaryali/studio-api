@@ -23,6 +23,8 @@ global using FluentValidation.Results;
 global using Space.Domain.Entities;
 global using E = Space.Domain.Entities;
 global using IO = System.IO;
+global using Space.Application.DTOs.Enums;
+global using Space.Application.Helper.Compares;
 
 global using Space.Domain.Enums;
 global using Space.Application.Mappers;

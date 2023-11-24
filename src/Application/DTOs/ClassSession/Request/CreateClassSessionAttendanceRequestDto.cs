@@ -4,7 +4,7 @@ public class CreateClassSessionAttendanceRequestDto
 {
     public Guid ClassId { get; set; }
     public Guid ModuleId { get; set; }
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
 }
 public class UpdateAttendanceCategorySessionDto

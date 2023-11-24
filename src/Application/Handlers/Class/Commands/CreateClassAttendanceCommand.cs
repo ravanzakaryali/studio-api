@@ -42,12 +42,12 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
             throw new NotFoundException(nameof(Module), request.ModuleId);
 
 
-        List<ClassSession> classSessionsHour = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSessionsHour = await _spaceDbContext.ClassSessions
             .Where(c => c.ClassId == @class.Id &&
                         request.Date >= c.Date &&
                         c.ModuleId != null &&
                         (c.AttendancesWorkers != null && c.AttendancesWorkers.Count != 0)).ToListAsync() ??
-                            throw new NotFoundException(nameof(ClassSession), @class.Id);
+                            throw new NotFoundException(nameof(ClassTimeSheet), @class.Id);
 
         List<Module> modules = @class.Program.Modules
                                                     .OrderBy(m => m.Version)
@@ -72,7 +72,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
 
         List<Study> ClassStudiesExsist = @class.Studies.Where(c => !studentIds.Contains(c.Id)).ToList();
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
             .Include(c => c.Attendances)
             .Include(c => c.AttendancesWorkers)

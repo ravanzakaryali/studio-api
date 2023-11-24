@@ -18,7 +18,7 @@ internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCateg
         Class? @class = await _spaceDbContext.Classes.FindAsync(request.Id) ??
             throw new NotFoundException(nameof(Class), request.Id);
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => c.Date == request.Date && c.ClassId == @class.Id)
             .ToListAsync();
 
