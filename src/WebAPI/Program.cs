@@ -133,9 +133,9 @@ builder.Services.AddSwaggerGen(config =>
 
 var app = builder.Build();
 
+app.UseCors();
 app.UseTokenAuthetication();
 app.UseChangeTokenAuthetication();
-
 app.UseRateLimit();
 
 app.UseSerilogRequestLogging();
@@ -151,7 +151,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 
-app.UseCors();
 app.UseExceptionMiddleware();
 
 app.Run();
