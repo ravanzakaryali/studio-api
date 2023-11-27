@@ -7,7 +7,7 @@ public class TimeSheetService : ITimeSheetService
     {
         _holidayService = holidayService;
     }
-    public async List<ClassTimeSheet> GenerateClassTimeSheet(
+    public async Task<List<ClassTimeSheet>> GenerateClassTimeSheet(
         int totalHour,
         List<CreateClassSessionDto> sessions,
         DateOnly startDate,
@@ -18,14 +18,12 @@ public class TimeSheetService : ITimeSheetService
         List<DateOnly> holidayDates = await _holidayService.GetDatesAsync();
         DayOfWeek startDayOfWeek = startDate.DayOfWeek;
         int count = 0;
-
         while (totalHour > 0)
         {
             foreach (var session in sessions.OrderBy(c => c.DayOfWeek))
             {
-                var daysToAdd = ((int)session.DayOfWeek - (int)startDayOfWeek + 7) % 7;
+                int daysToAdd = ((int)session.DayOfWeek - (int)startDayOfWeek + 7) % 7;
                 int numSelectedDays = sessions.Count;
-
                 int hour = (session.End - session.Start).Hours;
 
                 DateOnly dateTime = startDate.AddDays(count * 7 + daysToAdd);
@@ -41,9 +39,7 @@ public class TimeSheetService : ITimeSheetService
                     IsHoliday = false
                 };
                 if (holidayDates.Contains(dateTime))
-                {
                     timeSheet.IsHoliday = true;
-                }
 
                 if (hour != 0)
                 {
@@ -52,7 +48,6 @@ public class TimeSheetService : ITimeSheetService
                         totalHour -= hour;
                     if (totalHour <= 0)
                         break;
-
                 }
             }
             count++;
