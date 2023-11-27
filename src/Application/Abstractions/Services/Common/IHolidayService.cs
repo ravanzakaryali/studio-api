@@ -2,5 +2,5 @@
 
 public interface IHolidayService
 {
-    Task<List<DateTime>> GetDatesAsync();
+    Task<List<DateOnly>> GetDatesAsync();
 }

@@ -17,5 +17,7 @@ public class ClassSessions : BaseAuditableEntity
     public ClassSessionCategory Category { get; set; }
     public Guid? RoomId { get; set; }
     public Room? Room { get; set; }
+    public Guid ClassTimeSheetId { get; set; }
+    public ClassTimeSheet ClassTimeSheet { get; set; }
     public ICollection<Worker> Workers { get; set; }
 }

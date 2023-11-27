@@ -16,6 +16,9 @@ public class ClassTimeSheet : BaseAuditableEntity, ICloneable
     public string? Note { get; set; }
     public ClassSessionCategory? Category { get; set; }
     public Guid ClassId { get; set; }
+    public bool IsHoliday { get; set; }
+    public Guid RoomId { get; set; }
+    public Room Room { get; set; }
     public Class Class { get; set; } = null!;
     public ICollection<Module> Modules { get; set; }
     public List<AttendanceWorker> AttendancesWorkers { get; set; }

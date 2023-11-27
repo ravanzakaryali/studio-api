@@ -116,8 +116,8 @@ public class ClassSessionService : IClassSessionService
     public List<ClassTimeSheet> GenerateSessions(
                                 int totalHour,
                                 List<CreateClassSessionDto> sessions,
-                                DateTime startDate,
-                                List<DateTime> holidayDates,
+                                DateOnly startDate,
+                                List<DateOnly> holidayDates,
                                 Guid classId,
                                 Guid roomId)
     {
@@ -134,25 +134,26 @@ public class ClassSessionService : IClassSessionService
 
                 int hour = (session.End - session.Start).Hours;
 
-                DateTime dateTime = startDate.AddDays(count * 7 + daysToAdd);
-
+                DateOnly dateTime = startDate.AddDays(count * 7 + daysToAdd);
+                ClassTimeSheet timeSheet = new()
+                {
+                    Category = session.Category,
+                    ClassId = classId,
+                    StartTime = session.Start,
+                    EndTime = session.End,
+                    RoomId = roomId,
+                    TotalHours = hour,
+                    Date = dateTime,
+                    IsHoliday = false
+                };
                 if (holidayDates.Contains(dateTime))
                 {
-                    continue;
+                    timeSheet.IsHoliday = true;
                 }
 
                 if (hour != 0)
                 {
-                    returnClassSessions.Add(new ClassTimeSheet()
-                    {
-                        Category = session.Category,
-                        ClassId = classId,
-                        StartTime = session.Start,
-                        EndTime = session.End,
-                        RoomId = roomId,
-                        TotalHour = hour,
-                        Date = dateTime
-                    });
+                    returnClassSessions.Add(timeSheet);
                     if (session.Category != ClassSessionCategory.Lab)
                         totalHour -= hour;
                     if (totalHour <= 0)
