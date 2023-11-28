@@ -33,7 +33,6 @@ public class TimeSheetService : ITimeSheetService
                     ClassId = classId,
                     StartTime = session.Start,
                     EndTime = session.End,
-                    RoomId = roomId,
                     TotalHours = hour,
                     Date = dateTime,
                     IsHoliday = false

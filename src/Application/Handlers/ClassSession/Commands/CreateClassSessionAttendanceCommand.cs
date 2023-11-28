@@ -62,7 +62,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
 
         IEnumerable<WokerDto> currentModuleWorkers = @class.ClassModulesWorkers
             .Where(c => c.ModuleId == currentModule?.Id)
-            .Distinct(new GetModulesWorkerComparer())
+            .Distinct(new ClassModulesWorkerComparer())
             .Select(c => new WokerDto()
             {
                 Id = c.WorkerId,
@@ -77,7 +77,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
         List<Study> ClassStudiesExsist = @class.Studies
             .Where(c => !studentIds.Contains(c.Id)).ToList();
 
-        IEnumerable<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
+        IEnumerable<ClassTimeSheet> classSessions = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
             .Include(c => c.Attendances)
             .Include(c => c.AttendancesWorkers)

@@ -25,7 +25,6 @@ public class StudentsController : BaseApiController
     [HttpGet("{id}/attendances")]
     public async Task<IActionResult> GetAttendancesStudentByClass([FromRoute] Guid id, [FromQuery] Guid classId)
     {
-
         return StatusCode(200, await Mediator.Send(new GetStudentAttendancesByClassQuery(id, classId)));
     }
 

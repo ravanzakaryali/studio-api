@@ -2,5 +2,5 @@
 
 public interface IClassService
 {
-    (DateTime StartDate, DateTime EndDate) CalculateStartAndEndDate(Session session, Class @class, List<DateTime> holidayDates);
+    (DateOnly StartDate, DateOnly EndDate) CalculateStartAndEndDate(Session session, Class @class, List<DateOnly> holidayDates);
 }

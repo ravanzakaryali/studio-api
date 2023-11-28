@@ -7,7 +7,7 @@ public class CreateClassAttendanceCommand : IRequest
 {
     public Guid ClassId { get; set; }
     public Guid ModuleId { get; set; }
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
 }
 internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClassAttendanceCommand>
@@ -37,15 +37,14 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
             .Where(c => c.Id == request.ClassId)
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException(nameof(Class), request.ClassId);
-
+        //Todo: attendance review 
         Module? module = await _spaceDbContext.Modules.FindAsync(request.ModuleId) ??
             throw new NotFoundException(nameof(Module), request.ModuleId);
 
 
-        List<ClassTimeSheet> classSessionsHour = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classSessionsHour = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.ClassId == @class.Id &&
                         request.Date >= c.Date &&
-                        c.ModuleId != null &&
                         (c.AttendancesWorkers != null && c.AttendancesWorkers.Count != 0)).ToListAsync() ??
                             throw new NotFoundException(nameof(ClassTimeSheet), @class.Id);
 
@@ -58,13 +57,13 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         Module? currentModule = await _unitOfWork.ModuleService.GetCurrentModuleAsync(@class, request.Date);
 
         IEnumerable<WokerDto> currentModuleWorkers = @class.ClassModulesWorkers
-                                                                                .Where(c => c.ModuleId == currentModule?.Id)
-                                                                                .Distinct(new GetModulesWorkerComparer())
-                                                                                .Select(c => new WokerDto()
-                                                                                {
-                                                                                    Id = c.WorkerId,
-                                                                                    RoleName = c.Role?.Name
-                                                                                });
+                                                            .Where(c => c.ModuleId == currentModule?.Id)
+                                                            .Distinct(new GetWorkerForClassDtoComparer())
+                                                            .Select(c => new WokerDto()
+                                                            {
+                                                                Id = c.WorkerId,
+                                                                RoleName = c.Role?.Name
+                                                            });
         List<Guid> studentIds = request.Sessions
                 .SelectMany(s => s.Attendances)
                 .Select(a => a.StudentId)
@@ -72,12 +71,13 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
 
         List<Study> ClassStudiesExsist = @class.Studies.Where(c => !studentIds.Contains(c.Id)).ToList();
 
-        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
             .Include(c => c.Attendances)
             .Include(c => c.AttendancesWorkers)
             .ToListAsync();
 
+        //Todo: review
         await _unitOfWork.ClassSessionService.GenerateAttendanceAsync(request.Sessions, classSessions, request.ModuleId);
         await _spaceDbContext.SaveChangesAsync();
     }

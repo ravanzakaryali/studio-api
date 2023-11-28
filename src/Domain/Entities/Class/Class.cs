@@ -19,9 +19,9 @@ public class Class : BaseAuditableEntity, IKometa
     public Guid? RoomId { get; set; }
     public Room? Room { get; set; }
     public int? KometaId { get; set; }
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
-    public DateTime? VitrinDate { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly? EndDate { get; set; }
+    public DateTime? WitrinDate { get; set; }
     public ICollection<Study> Studies { get; set; }
     public ICollection<ClassModulesWorker> ClassModulesWorkers { get; set; }
     public List<ClassTimeSheet> ClassTimeSheets { get; set; }

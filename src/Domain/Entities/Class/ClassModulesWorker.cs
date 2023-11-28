@@ -10,6 +10,6 @@ public class ClassModulesWorker : BaseAuditableEntity
     public Worker Worker { get; set; } = null!;
     public Module Module { get; set; } = null!;
     public Role? Role { get; set; } = null!;
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
+    public DateOnly? StartDate { get; set; }
+    public DateOnly? EndDate { get; set; }
 }

@@ -21,6 +21,7 @@ public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClas
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException();
 
+        //Todo: review
         IEnumerable<GetAllClassSessionByClassResponseDto> response = @class.ClassSessions.OrderByDescending(q => q.Date).DistinctBy(q => q.Date).Select(q => new GetAllClassSessionByClassResponseDto()
         {
             ClassName = q.Class.Name,

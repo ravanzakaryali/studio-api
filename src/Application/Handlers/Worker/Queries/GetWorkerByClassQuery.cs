@@ -4,7 +4,7 @@ public class GetWorkerByClassQuery : IRequest<GetWorkersByClassResponseDto>
 {
     public Guid ClassId { get; set; }
     public Guid WorkerId { get; set; }
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
     public Guid RoleId { get; set; }
 }
 
@@ -24,7 +24,7 @@ internal class GetWorkerByClassQueryHandler : IRequestHandler<GetWorkerByClassQu
             ?? throw new NotFoundException(nameof(Worker), request.WorkerId);
 
         Class? @class = await _spaceDbContext.Classes
-            .Include(c => c.ClassSessions)
+            .Include(c => c.ClassTimeSheets)
             .ThenInclude(cs => cs.AttendancesWorkers)
             .FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken)
                     ?? throw new NotFoundException(nameof(Class), request.ClassId);
@@ -35,7 +35,7 @@ internal class GetWorkerByClassQueryHandler : IRequestHandler<GetWorkerByClassQu
         int totalHour = 0;
         bool isAttendance = false;
 
-        @class.ClassSessions.ToList().ForEach(cs =>
+        @class.ClassTimeSheets.ToList().ForEach(cs =>
         {
             cs.AttendancesWorkers.Where(c => c.WorkerId == request.WorkerId).ToList().ForEach(aw =>
             {

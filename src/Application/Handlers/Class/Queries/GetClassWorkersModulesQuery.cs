@@ -30,25 +30,26 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         Class? @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
             .Include(c => c.Program)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
         Session? session = await _spaceDbContext.Sessions
             .Where(c => c.Id == request.SessionId)
             .Include(c => c.Details)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
             throw new NotFoundException(nameof(Session), request.SessionId);
 
         List<Module> modules = await _spaceDbContext.Modules
             .Include(c => c.SubModules)
             .Where(c => c.ProgramId == @class.ProgramId && c.TopModuleId == null)
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
         List<ClassModulesWorker> classModulesWorkers = await _spaceDbContext.ClassModulesWorkers
             .Where(c => c.ClassId == @class.Id)
             .Include(c => c.Role)
             .Include(c => c.Worker)
             .ToListAsync();
+        //todo: Modules yoxdursa error qaytar
 
         List<GetClassModuleResponseDto> response = modules.Select(m => new GetClassModuleResponseDto()
         {
@@ -69,10 +70,10 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         }).ToList();
 
         List<DateHourDto> classDateTimes = new();
-        DateTime startDateTime = @class.StartDate ?? DateTime.Now;
+        DateOnly startDateTime = @class.StartDate;
 
         int count = 0;
-        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+        List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         int totalHour = @class.Program.TotalHours;
 
         while (totalHour > 0)
@@ -85,7 +86,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                 int hour = (sessionItem.EndTime - sessionItem.StartTime).Hours;
 
 
-                DateTime dateTime = startDateTime.AddDays(count * 7 + daysToAdd);
+                DateOnly dateTime = startDateTime.AddDays(count * 7 + daysToAdd);
 
                 if (holidayDates.Contains(dateTime))
                 {
@@ -116,7 +117,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             item.SubModules = item.SubModules?.OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
         }
         //Todo: Code review
-        response.First().StartDate = @class.StartDate ?? DateTime.Now;
+        response.First().StartDate = @class.StartDate;
         response.Last().EndDate = classDateTimes.Last().DateTime;
 
         for (int i = 0; i < response.Count; i++)
@@ -179,6 +180,6 @@ public class GetWorkerForClassDtoComparer : IEqualityComparer<ClassModulesWorker
 }
 public class DateHourDto
 {
-    public DateTime DateTime { get; set; }
+    public DateOnly DateTime { get; set; }
     public int Hour { get; set; }
 }

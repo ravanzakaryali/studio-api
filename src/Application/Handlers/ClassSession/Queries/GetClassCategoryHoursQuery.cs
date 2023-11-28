@@ -1,7 +1,7 @@
 ﻿namespace Space.Application.Handlers;
 
 
-public record GetClassCategoryHoursQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetClassSessionCategoryHoursResponseDto>>;
+public record GetClassCategoryHoursQuery(Guid Id, DateOnly Date) : IRequest<IEnumerable<GetClassSessionCategoryHoursResponseDto>>;
 
 internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCategoryHoursQuery, IEnumerable<GetClassSessionCategoryHoursResponseDto>>
 {
@@ -18,16 +18,17 @@ internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCateg
         Class? @class = await _spaceDbContext.Classes.FindAsync(request.Id) ??
             throw new NotFoundException(nameof(Class), request.Id);
 
-        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.Date == request.Date && c.ClassId == @class.Id)
             .ToListAsync();
 
-        IEnumerable<GetClassSessionCategoryHoursResponseDto> response = classSessions.Select(c => new GetClassSessionCategoryHoursResponseDto()
-        {
-            CategoryName = c.Category?.ToString()!,
-            Status = c.Status,
-            Hour = c.TotalHour
-        });
+        IEnumerable<GetClassSessionCategoryHoursResponseDto> response = classTimeSheets
+            .Select(c => new GetClassSessionCategoryHoursResponseDto()
+            {
+                CategoryName = c.Category?.ToString()!,
+                Status = c.Status,
+                Hour = c.TotalHours
+            });
 
         return response;
     }

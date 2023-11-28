@@ -8,7 +8,7 @@ public class GetStudentAttendancesByClassResponseDto
     public string? Surname { get; set; } = null!;
     public string? FatherName { get; set; }
     public string? Phone { get; set; } = null!;
-    public string? EMail { get; set; } = null!;
+    public string? Email { get; set; } = null!;
     public double AttendancePercent { get; set; }
     public List<AttendancesDto> Attendances { get; set; } = null!;
 }

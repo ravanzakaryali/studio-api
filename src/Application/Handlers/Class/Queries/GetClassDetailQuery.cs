@@ -26,21 +26,21 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
-        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
-            .Where(c => c.ClassId == @class.Id && c.Status != null && c.Status != ClassSessionStatus.Cancelled)
+        List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
+            .Where(c => c.ClassId == @class.Id && c.Status != ClassSessionStatus.Cancelled)
             .Include(c => c.Attendances)
             .ToListAsync();
 
         List<double> list = new();
-        foreach (ClassTimeSheet? item in classSessions.Where(c => c.Attendances.Count > 0))
+        foreach (ClassTimeSheet? item in classTimeSheets.Where(c => c.Attendances.Count > 0))
         {
-            var total = item.TotalHour;
+            var total = item.TotalHours;
             var totalAttendance = item.Attendances.Average(c => c.TotalAttendanceHours);
             list.Add((totalAttendance * 100) / total);
         }
 
-        DateTime? startDate = @class.StartDate;
-        DateTime? endDate = @class.EndDate;
+        DateOnly startDate = @class.StartDate;
+        DateOnly? endDate = @class.EndDate;
 
         if (request.SessionId != null)
         {
@@ -50,9 +50,9 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
                 .FirstOrDefaultAsync() ??
                     throw new NotFoundException(nameof(Session), request.SessionId);
 
-            List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+            List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
-            (DateTime StartDate, DateTime EndDate) responseDate = _unitOfWork.ClassService.CalculateStartAndEndDate(session, @class, holidayDates);
+            (DateOnly StartDate, DateOnly EndDate) responseDate = _unitOfWork.ClassService.CalculateStartAndEndDate(session, @class, holidayDates);
             startDate = responseDate.StartDate;
             endDate = responseDate.EndDate;
         }

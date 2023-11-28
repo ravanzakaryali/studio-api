@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 
 public record GetStudentAttendancesByClassQuery(Guid Id, Guid ClassId) : IRequest<GetStudentAttendancesByClassResponseDto>;
@@ -21,18 +19,19 @@ internal class GetStudentAttendancesByClassQueryHandler : IRequestHandler<GetStu
     {
         GetStudentAttendancesByClassResponseDto response = new();
 
+        //Todo: Class session
         Study study = await _spaceDbContext.Studies
             .Where(q => q.StudentId == request.Id && q.ClassId == request.ClassId)
             .Include(c => c.Class)
-            .ThenInclude(c => c.ClassSessions)
+            .ThenInclude(c => c!.ClassSessions)
             .Include(c => c.Student)
-            .ThenInclude(c => c.Contact)
+            .ThenInclude(c => c!.Contact)
             .Include(c => c.Attendances)
-            .ThenInclude(c => c.ClassSession)
-            .FirstOrDefaultAsync() ??
+            .ThenInclude(c => c.ClassTimeSheets)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException();
 
-        response.EMail = study.Student?.Email;
+        response.Email = study.Student?.Email;
         response.Phone = study.Student?.Contact?.Phone;
         response.Name = study.Student?.Contact?.Name;
         response.FatherName = study.Student?.Contact?.FatherName;
@@ -43,9 +42,9 @@ internal class GetStudentAttendancesByClassQueryHandler : IRequestHandler<GetStu
         var attendanceList = new List<AttendancesDto>();
 
 
-        foreach (var item in study.Attendances)
+        foreach (Attendance item in study.Attendances)
         {
-            var attendanceDto = new AttendancesDto()
+            AttendancesDto attendanceDto = new()
             {
                 AttendanceHours = item.TotalAttendanceHours,
                 Date = item.ClassSession.Date,

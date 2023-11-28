@@ -21,11 +21,11 @@ internal class GetClassCounterHourQueryHandler : IRequestHandler<GetClassCounter
                 ?? throw new NotFoundException(nameof(Class), request.Id);
         return new GetClassCounterHourResponseDto()
         {
-            TotalHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Sum(c => c.TotalHour),
+            TotalHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Sum(c => c.TotalHours),
             Hour = @class.ClassSessions.Where(c =>
             c.Status != ClassSessionStatus.Cancelled &&
             c.Category != ClassSessionCategory.Lab &&
-            c.Date <= DateTime.UtcNow).Sum(c => c.TotalHour)
+            c.Date <= DateOnly.FromDateTime(DateTime.UtcNow)).Sum(c => c.TotalHours)
         };
     }
 }

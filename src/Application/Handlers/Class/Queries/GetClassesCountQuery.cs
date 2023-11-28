@@ -17,9 +17,18 @@ internal class GetClassesCountQueryHandler : IRequestHandler<GetClassesCountQuer
     public async Task<IEnumerable<GetClassCountResponse>> Handle(GetClassesCountQuery request, CancellationToken cancellationToken)
     {
         IQueryable<Class> query = _spaceDbContext.Classes.AsQueryable();
-        int countClose = await query.Where(c => DateTime.Now > c.EndDate).CountAsync(cancellationToken: cancellationToken);
-        int countActive = await query.Where(c => DateTime.Now > c.StartDate && DateTime.Now < c.EndDate).CountAsync(cancellationToken: cancellationToken);
-        int countNew = await query.Where(c => DateTime.Now < c.StartDate).CountAsync(cancellationToken: cancellationToken);
+        
+        int countClose = await query
+            .Where(c => DateOnly.FromDateTime(DateTime.Now) > c.EndDate)
+            .CountAsync(cancellationToken: cancellationToken);
+
+        int countActive = await query
+            .Where(c => DateOnly.FromDateTime(DateTime.Now) > c.StartDate && DateOnly.FromDateTime(DateTime.Now) < c.EndDate)
+            .CountAsync(cancellationToken: cancellationToken);
+
+        int countNew = await query
+            .Where(c => DateOnly.FromDateTime(DateTime.Now) < c.StartDate)
+            .CountAsync(cancellationToken: cancellationToken);
         return new List<GetClassCountResponse>()
         {
             new()

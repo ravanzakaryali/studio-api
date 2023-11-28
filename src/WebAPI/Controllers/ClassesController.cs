@@ -69,17 +69,17 @@ public class ClassesController : BaseApiController
     public async Task<IActionResult> GetSessionByClass([FromRoute] Guid id)
         => Ok(await Mediator.Send(new GetSessionByClassQuery(id)));
 
-    /// <summary>
-    /// Updates the "IsNew" status of a class module, accessible only to users with the "admin" role.
-    /// </summary>
-    /// <param name="request">A JSON object containing the unique identifier of the class module.</param>
-    /// <returns>
-    /// An HTTP response indicating the success of the "IsNew" status update.
-    /// </returns>
-    [Authorize(Roles = "admin")]
-    [HttpPost("updateIsNew")]
-    public async Task<IActionResult> ClassIsNew([FromBody] UpdateIsNewInClassRequestDto request)
-        => Ok(await Mediator.Send(new UpdateIsNewInClassCommand(request.Id)));
+    ///// <summary>
+    ///// Updates the "IsNew" status of a class module, accessible only to users with the "admin" role.
+    ///// </summary>
+    ///// <param name="request">A JSON object containing the unique identifier of the class module.</param>
+    ///// <returns>
+    ///// An HTTP response indicating the success of the "IsNew" status update.
+    ///// </returns>
+    //[Authorize(Roles = "admin")]
+    //[HttpPost("updateIsNew")]
+    //public async Task<IActionResult> ClassIsNew([FromBody] UpdateIsNewInClassRequestDto request)
+    //    => Ok(await Mediator.Send(new UpdateIsNewInClassCommand(request.Id)));
 
     /// <summary>
     /// Creates a new class, accessible only to users with the "admin" role.
@@ -171,7 +171,7 @@ public class ClassesController : BaseApiController
     /// </remarks>
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/modules")]
-    public async Task<IActionResult> GetModulesByClass([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetModulesByClass([FromRoute] Guid id, [FromQuery] DateOnly date)
       => Ok(await Mediator.Send(new GetAllModulesByClassQuery(id, date)));
 
 
@@ -209,7 +209,7 @@ public class ClassesController : BaseApiController
     /// </remarks>
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/students")]
-    public async Task<IActionResult> GetStudentsByClass([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetStudentsByClass([FromRoute] Guid id, [FromQuery] DateOnly date)
         => Ok(await Mediator.Send(new GetAllStudentsByClassQuery(id, date)));
 
     /// <summary>
@@ -259,7 +259,7 @@ public class ClassesController : BaseApiController
     /// </remarks>
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/workers")]
-    public async Task<IActionResult> GetWorkersByClass([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetWorkersByClass([FromRoute] Guid id, [FromQuery] DateOnly date)
         => Ok(await Mediator.Send(new GetAllWorkersByClassQuery(id, date)));
 
     /// <summary>
@@ -278,7 +278,7 @@ public class ClassesController : BaseApiController
     public async Task<IActionResult> GetWorkerByClass(
         [FromRoute] Guid id,
         [FromRoute] Guid workerId,
-        [FromQuery] DateTime date,
+        [FromQuery] DateOnly date,
         [FromQuery] Guid roleId)
     {
         return Ok(await Mediator.Send(new GetWorkerByClassQuery()
@@ -321,7 +321,7 @@ public class ClassesController : BaseApiController
     /// </remarks>
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/sessions-category")]
-    public async Task<IActionResult> GetSessionCategoryHours([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetSessionCategoryHours([FromRoute] Guid id, [FromQuery] DateOnly date)
         => Ok(await Mediator.Send(new GetClassCategoryHoursQuery(id, date)));
 
     /// <summary>
@@ -354,7 +354,7 @@ public class ClassesController : BaseApiController
     /// </remarks>
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/class-session")]
-    public async Task<IActionResult> GetClassSession([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetClassSession([FromRoute] Guid id, [FromQuery] DateOnly date)
         => Ok(await Mediator.Send(new GetClassSessionByClassQuery(id, date)));
 
     /// <summary>

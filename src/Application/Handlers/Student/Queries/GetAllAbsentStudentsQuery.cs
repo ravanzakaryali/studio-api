@@ -22,11 +22,11 @@ public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStud
             .Where(c => c.Id == request.Id)
             .Include(c => c.Studies)
             .ThenInclude(c => c.Attendances)
-            .ThenInclude(c => c.ClassSession)
+            .ThenInclude(c => c.ClassTimeSheets)
             .Include(c => c.Studies)
             .ThenInclude(c => c.Student)
             .ThenInclude(c => c.Contact)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
         var response = new List<GetAllAbsentStudentResponseDto>();
@@ -34,12 +34,12 @@ public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStud
         foreach (Study study in @class.Studies.Where(c => c.StudyType != StudyType.Completion))
         {
             var orderedAttendances = study.Attendances
-                .Where(c => c.ClassSession.Category != ClassSessionCategory.Lab)
-                .OrderBy(c => c.ClassSession.Date)
+                .Where(c => c.ClassTimeSheets.Category != ClassSessionCategory.Lab)
+                .OrderBy(c => c.ClassTimeSheets.Date)
                 .ToList();
 
             int consecutiveAbsentDays = 0;
-            DateTime previousAttendanceDate = DateTime.MinValue;
+            DateOnly previousAttendanceDate;
 
             foreach (var attendance in orderedAttendances)
             {
@@ -74,7 +74,7 @@ public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStud
                     consecutiveAbsentDays = 0;
                 }
 
-                previousAttendanceDate = attendance.ClassSession.Date;
+                previousAttendanceDate = attendance.ClassTimeSheets.Date;
             }
         }
 

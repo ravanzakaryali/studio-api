@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetAllWorkersByClassQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetWorkersByClassResponseDto>>;
+public record GetAllWorkersByClassQuery(Guid Id, DateOnly Date) : IRequest<IEnumerable<GetWorkersByClassResponseDto>>;
 
 internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersByClassQuery, IEnumerable<GetWorkersByClassResponseDto>>
 {
@@ -23,26 +23,26 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
             .ThenInclude(c => c.Worker)
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Role)
-            .Include(c => c.ClassSessions)
+            .Include(c => c.ClassTimeSheets)
             .ThenInclude(c => c.AttendancesWorkers)
             .FirstOrDefaultAsync()
                 ?? throw new NotFoundException(nameof(Class), request.Id);
 
-        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.ClassId == @class.Id && c.Category != ClassSessionCategory.Lab && request.Date >= c.Date)
             .ToListAsync()
                 ?? throw new NotFoundException(nameof(ClassTimeSheet), request.Id);
 
-        return @class.ClassModulesWorkers.Where(c => c.StartDate >= request.Date && c.EndDate <= request.Date).Distinct(new GetModulesWorkerComparer()).Select(c =>
+        return @class.ClassModulesWorkers.Where(c => c.StartDate >= request.Date && c.EndDate <= request.Date).Distinct(new GetWorkerForClassDtoComparer()).Select(c =>
         {
-            List<ClassTimeSheet> classSessions = @class.ClassSessions.Where(c => c.Date == request.Date).ToList();
+            List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(c => c.Date == request.Date).ToList();
             bool isAttendance = false;
-            foreach (ClassTimeSheet classSession in classSessions)
+            foreach (ClassTimeSheet classTimeSheet in classTimeSheets)
             {
-                AttendanceWorker? attendance = classSession.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
+                AttendanceWorker? attendance = classTimeSheet.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
                 if (attendance != null)
                 {
-                    isAttendance = attendance.TotalAttendanceHours == classSession.TotalHour;
+                    isAttendance = attendance.TotalAttendanceHours == classTimeSheet.TotalHours;
                 }
             }
             return new GetWorkersByClassResponseDto()
