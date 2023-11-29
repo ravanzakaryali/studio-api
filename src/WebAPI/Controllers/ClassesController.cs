@@ -375,7 +375,7 @@ public class ClassesController : BaseApiController
     [HttpPut("{id}/class-session")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> UpdateClassSession([FromRoute] Guid id, [FromQuery] DateTime date, [FromBody] IEnumerable<UpdateClassSessionRequestDto> request)
+    public async Task<IActionResult> UpdateClassSession([FromRoute] Guid id, [FromQuery] DateOnly date, [FromBody] IEnumerable<UpdateClassSessionRequestDto> request)
     {
         await Mediator.Send(new UpdateClassSessionCommand(id, date, request));
         return NoContent();
@@ -393,7 +393,7 @@ public class ClassesController : BaseApiController
     /// associated with a program based on the program's unique identifier.
     /// </remarks>
     [Authorize(Roles = "admin,mentor,ta,muellim")]
-    [HttpGet("{id}/class-by-program")]
+    [HttpGet("{id}/program")]
     public async Task<IActionResult> GetClassByProgram([FromRoute] Guid id)
     => Ok(await Mediator.Send(new GetClassByProgramQuery(id)));
 

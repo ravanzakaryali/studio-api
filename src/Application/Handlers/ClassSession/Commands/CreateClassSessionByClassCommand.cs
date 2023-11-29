@@ -33,15 +33,15 @@ internal class CreateClassSessionByClassCommandHandler : IRequestHandler<CreateC
             throw new DateTimeException("There is already a lesson in this date and time range");
         }
 
-        @class.ClassSessions.Add(new ClassTimeSheet()
+        @class.ClassSessions.Add(new ClassSessions()
         {
             StartTime = request.Session.Start,
             EndTime = request.Session.End,
-            Date = new DateTime(request.Session.Date.Day, request.Session.Date.Month, request.Session.Date.Day),
+            Date = request.Session.Date,
             RoomId = room.Id,
-            TotalHour = (request.Session.End - request.Session.Start).Hours,
+            TotalHours = (request.Session.End - request.Session.Start).Hours,
             Category = request.Session.Category
         });
-        await _spaceDbContext.SaveChangesAsync();
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

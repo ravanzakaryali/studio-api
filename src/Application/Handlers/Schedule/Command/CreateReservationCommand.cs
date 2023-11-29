@@ -26,7 +26,6 @@ internal class CreateReservationCommandHandler : IRequestHandler<CreateReservati
     {
         _spaceDbContext = spaceDbContext;
     }
-
     public async Task<CreateReservationResponseDto> Handle(CreateReservationCommand request, CancellationToken cancellationToken)
     {
         Reservation reservation = new()
@@ -42,7 +41,6 @@ internal class CreateReservationCommandHandler : IRequestHandler<CreateReservati
 
         }
 
-
         RoomSchedule roomSchedule = new()
         {
             Category = EnumScheduleCategory.Reservation,
@@ -54,8 +52,6 @@ internal class CreateReservationCommandHandler : IRequestHandler<CreateReservati
             DayOfWeek = Convert.ToInt32(request.StartDate.DayOfWeek),
             Year = request.EndDate.Year,
         };
-
-
 
         throw new NotImplementedException();
     }

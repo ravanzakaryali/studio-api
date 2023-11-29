@@ -7,6 +7,7 @@ public class ClassSessions : BaseAuditableEntity
         Workers = new HashSet<Worker>();
     }
     public Guid ClassId { get; set; }
+    public Class Class { get; set; } = null!;
     public DateOnly Date { get; set; }
     public TimeOnly StartTime { get; set; }
     public TimeOnly EndTime { get; set; }
@@ -18,6 +19,6 @@ public class ClassSessions : BaseAuditableEntity
     public Guid? RoomId { get; set; }
     public Room? Room { get; set; }
     public Guid ClassTimeSheetId { get; set; }
-    public ClassTimeSheet ClassTimeSheet { get; set; }
+    public ClassTimeSheet ClassTimeSheet { get; set; } = null!;
     public ICollection<Worker> Workers { get; set; }
 }

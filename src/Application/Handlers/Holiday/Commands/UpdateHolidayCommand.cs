@@ -17,13 +17,14 @@ internal class UpdateHolidayCommandHandler : IRequestHandler<UpdateHolidayComman
 
     public async Task<HolidayResponseDto> Handle(UpdateHolidayCommand request, CancellationToken cancellationToken)
     {
-        Holiday holiday = await _spaceDbContext.Holidays.FindAsync(request.Id)
-            ?? throw new NotFoundException(nameof(Holiday), request.Id);
-        Holiday updateHoliday = _mapper.Map<Holiday>(request.UpdateHoliday);
+        //Holiday holiday = await _spaceDbContext.Holidays.FindAsync(request.Id)
+        //    ?? throw new NotFoundException(nameof(Holiday), request.Id);
+        //Holiday updateHoliday = _mapper.Map<Holiday>(request.UpdateHoliday);
 
-        updateHoliday.Id = holiday.Id;
-        _spaceDbContext.Holidays.Update(updateHoliday);
-        await _spaceDbContext.SaveChangesAsync();
-        return _mapper.Map<HolidayResponseDto>(updateHoliday);
+        //updateHoliday.Id = holiday.Id;
+        //_spaceDbContext.Holidays.Update(updateHoliday);
+        //await _spaceDbContext.SaveChangesAsync();
+        //return _mapper.Map<HolidayResponseDto>(updateHoliday);
+        throw new NotFoundException();
     }
 }

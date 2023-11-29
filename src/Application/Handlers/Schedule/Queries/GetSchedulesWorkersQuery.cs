@@ -33,13 +33,13 @@ internal class GetSchedulesWorkersQueryHandler : IRequestHandler<GetSchedulesWor
             List<Class> workerClass = worker.ClassModulesWorkers.DistinctBy(c => c.ClassId).Select(c => c.Class).ToList();
             foreach (Class @class in workerClass)
             {
-                DateTime startDate = @class.StartDate ?? DateTime.Now;
-                DateTime endDate = @class.EndDate ?? DateTime.Now;
+                DateOnly startDate = @class.StartDate;
+                DateOnly endDate = @class.EndDate ?? DateOnly.FromDateTime(DateTime.Now);
                 scheduleWorker.Schedules.Add(new GetSchedulesClassDto()
                 {
                     Class = _mapper.Map<GetAllClassDto>(@class),
-                    EndDate = endDate,
-                    StartDate = startDate
+                    //EndDate = endDate,
+                    //StartDate = startDate
                 });
             }
             response.Add(scheduleWorker);

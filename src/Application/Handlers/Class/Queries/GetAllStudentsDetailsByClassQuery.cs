@@ -35,14 +35,14 @@ internal class GetAllStudentsDetailsByClassQueryHandler : IRequestHandler<GetAll
             double? totalHour = @class.ClassTimeSheets
             .Where(c => c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online)
             .Sum(s => s.TotalHours);
-            var studentResponse = new GetStudentsDetailsByClassResponseDto
+            GetStudentsDetailsByClassResponseDto studentResponse = new()
             {
                 Id = study.Id,
                 StudentId = study.StudentId,
                 Name = study.Student?.Contact?.Name,
                 Surname = study.Student?.Contact?.Surname,
                 ClassName = @class.Name,
-                Email = study.Student?.Contact?.Email,
+                Email = study.Student?.Email,
                 PhoneNumber = study.Student?.Contact?.Phone,
                 FatherName = study.Student?.Contact?.FatherName,
                 ArrivalHours = attendancesHour,

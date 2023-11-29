@@ -16,10 +16,10 @@ internal class GetClassSessionByClassQueryHandler : IRequestHandler<GetClassSess
         Class? @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
             .Include(c => c.ClassSessions)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException();
 
-        List<ClassTimeSheet> classSessions = @class.ClassSessions.Where(c => c.Date == request.Date).ToList();
+        List<ClassSessions> classSessions = @class.ClassSessions.Where(c => c.Date == request.Date).ToList();
         int totalHour = classSessions.Sum(c => c.TotalHours);
         return classSessions.Select(session => new GetClassSessionByClassResponseDto()
         {

@@ -29,11 +29,11 @@ public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStud
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
-        var response = new List<GetAllAbsentStudentResponseDto>();
+        List<GetAllAbsentStudentResponseDto> response = new();
 
         foreach (Study study in @class.Studies.Where(c => c.StudyType != StudyType.Completion))
         {
-            var orderedAttendances = study.Attendances
+            List<Attendance> orderedAttendances = study.Attendances
                 .Where(c => c.ClassTimeSheets.Category != ClassSessionCategory.Lab)
                 .OrderBy(c => c.ClassTimeSheets.Date)
                 .ToList();

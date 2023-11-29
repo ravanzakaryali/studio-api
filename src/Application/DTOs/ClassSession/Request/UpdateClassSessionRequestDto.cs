@@ -4,6 +4,6 @@ public class UpdateClassSessionRequestDto
 {
     public ClassSessionCategory Category { get; set; }
     public TimeOnly StartTime { get; set; }
-    public TimeOnly EndTime { get; set;}
-    public DateTime ClassSessionDate { get; set; }
+    public TimeOnly EndTime { get; set; }
+    public DateOnly ClassSessionDate { get; set; }
 }

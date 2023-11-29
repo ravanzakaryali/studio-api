@@ -30,7 +30,7 @@ internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesB
             .Include(c => c.Program)
             .ThenInclude(c => c.Modules)
             .ThenInclude(c => c.SubModules)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
         List<ClassTimeSheet> timeSheets = await _spaceDbContext.ClassTimeSheets
@@ -49,31 +49,24 @@ internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesB
             .FirstOrDefault(c => c.StartDate >= request.Date && c.EndDate <= request.Date)
                 ?? throw new NotFoundException(nameof(ClassModulesWorker), request.Date);
 
+        int currentModuleIndex = modules.FindIndex(c => c.Id == currentModuleWorker.Id);
         List<Module> modulesResponse = new();
-        int currentModuleIndex = modules
-            .IndexOf(modules.First(c => c.Id == currentModuleWorker.Id));
 
-        if (currentModuleIndex == 0)
-        {
-            modulesResponse.Add(modules[0]);
-            modulesResponse.Add(modules[1]);
-            modulesResponse.Add(modules[2]);
-        }
-        else if (currentModuleIndex == modules.Count - 1)
-        {
-            modulesResponse.Add(modules[^1]);
-            modulesResponse.Add(modules[^2]);
-            modulesResponse.Add(modules[^3]);
-        }
-        else
-        {
-            modulesResponse.Add(modules[currentModuleIndex]);
-            modulesResponse.Add(modules[currentModuleIndex - 1]);
-            modulesResponse.Add(modules[currentModuleIndex + 1]);
-        }
+        if (currentModuleIndex >= 0)
+            AddModuleToResponse(modules, currentModuleIndex, modulesResponse);
 
         return _mapper.Map<IEnumerable<GetModuleDto>>(modulesResponse.OrderBy(c => c.Version));
+    }
+    void AddModuleToResponse(List<Module> modulesList, int index, List<Module> responseList)
+    {
+        int[] indices = { index, index - 1, index + 1 };
 
-
+        foreach (var i in indices)
+        {
+            if (i >= 0 && i < modulesList.Count)
+            {
+                responseList.Add(modulesList[i]);
+            }
+        }
     }
 }

@@ -5,10 +5,9 @@ public class Study : BaseAuditableEntity, IKometa
     public int? KometaId { get; set; }
     public string Status { get; set; } = null!;
 
-    //Hack: Class id nullable
-    public Guid? ClassId { get; set; }
     public StudyType? StudyType { get; set; }
-    public Class? Class { get; set; }
+    public Guid ClassId { get; set; }
+    public Class Class { get; set; } = null!;
     //Hack: Student id nullable
     public Guid? StudentId { get; set; }
     public Student? Student { get; set; }

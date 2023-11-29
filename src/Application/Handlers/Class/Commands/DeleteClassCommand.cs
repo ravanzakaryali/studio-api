@@ -23,7 +23,7 @@ internal class DeleteClassCommandHandler : IRequestHandler<DeleteClassCommand, G
         Class @class = await _spaceDbContext.Classes.FindAsync(request.Id) ??
             throw new NotFoundException(nameof(Class), request.Id);
         @class.IsDeleted = true;
-        await _spaceDbContext.SaveChangesAsync();
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
         return _mapper.Map<GetClassResponseDto>(@class);
     }
 }

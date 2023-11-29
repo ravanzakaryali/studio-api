@@ -49,7 +49,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             .Include(c => c.Role)
             .Include(c => c.Worker)
             .ToListAsync();
-        //todo: Modules yoxdursa error qaytar
+        if (!@class.Program.Modules.Any()) throw new NotFoundException("The class has no modules");
 
         List<GetClassModuleResponseDto> response = modules.Select(m => new GetClassModuleResponseDto()
         {

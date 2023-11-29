@@ -38,8 +38,8 @@ internal class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, G
                 throw new NotFoundException(nameof(Room), roomIdNonNullable);
         }
 
-        EntityEntry<Class> createEntity = await _spaceDbContext.Classes.AddAsync(_mapper.Map<Class>(request));
-        await _spaceDbContext.SaveChangesAsync();
+        EntityEntry<Class> createEntity = await _spaceDbContext.Classes.AddAsync(_mapper.Map<Class>(request), cancellationToken);
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
         return _mapper.Map<GetWithIncludeClassResponseDto>(createEntity.Entity);
     }
 }

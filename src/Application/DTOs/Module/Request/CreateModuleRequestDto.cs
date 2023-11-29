@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace Space.Application.DTOs;
+﻿namespace Space.Application.DTOs;
 
 public class CreateModuleRequestDto
 {

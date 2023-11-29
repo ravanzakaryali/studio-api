@@ -24,15 +24,15 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
 
         if (request.Status == ClassStatus.Close)
         {
-            query = query.Where(c => DateTime.Now > c.EndDate);
+            query = query.Where(c => DateOnly.FromDateTime(DateTime.Now) > c.EndDate);
         }
         else if (request.Status == ClassStatus.Active)
         {
-            query = query.Where(c => DateTime.Now > c.StartDate && DateTime.Now < c.EndDate);
+            query = query.Where(c => DateOnly.FromDateTime(DateTime.Now) > c.StartDate && DateOnly.FromDateTime(DateTime.Now) < c.EndDate);
         }
         else
         {
-            query = query.Where(c => DateTime.Now < c.StartDate);
+            query = query.Where(c => DateOnly.FromDateTime(DateTime.Now) < c.StartDate);
         }
 
         List<GetClassModuleWorkers> classes = await query.Select(cd => new GetClassModuleWorkers()
@@ -55,7 +55,6 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
             SessionName = cd.Session.Name,
             StartDate = cd.StartDate,
             TotalModules = cd.Program.Modules.Count,
-            VitrinDate = cd.StartDate,
             ClassModulesWorkers = cd.ClassModulesWorkers
         }).ToListAsync(cancellationToken: cancellationToken);
 
@@ -71,7 +70,6 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
             SessionName = cd.SessionName,
             StartDate = cd.StartDate,
             TotalModules = cd.TotalModules,
-            VitrinDate = cd.VitrinDate,
             Workers = cd.ClassModulesWorkers.Select(cmw => new GetWorkerForClassDto()
             {
                 Id = cmw.Worker.Id,

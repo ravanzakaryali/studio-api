@@ -26,7 +26,7 @@ public class ClassSessionsController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
     [HttpGet("/api/class-sessions/{id}")]
-    public async Task<IActionResult> GetClassSessionDetail([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetClassSessionDetail([FromRoute] Guid id, [FromQuery] DateOnly date)
     {
         return Ok(await Mediator.Send(new GetClassSessionsByDateQuery(id, date)));
     }

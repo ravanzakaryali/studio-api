@@ -6,7 +6,7 @@ public class ClassTimeSheet : BaseAuditableEntity, ICloneable
     {
         Attendances = new HashSet<Attendance>();
         AttendancesWorkers = new List<AttendanceWorker>();
-        Modules = new HashSet<Module>();
+        HeldModules = new HashSet<HeldModule>();
     }
     public DateOnly Date { get; set; }
     public TimeOnly StartTime { get; set; }
@@ -18,7 +18,7 @@ public class ClassTimeSheet : BaseAuditableEntity, ICloneable
     public Guid ClassId { get; set; }
     public bool IsHoliday { get; set; }
     public Class Class { get; set; } = null!;
-    public ICollection<Module> Modules { get; set; }
+    public ICollection<HeldModule> HeldModules { get; set; }
     public List<AttendanceWorker> AttendancesWorkers { get; set; }
     public ICollection<Attendance> Attendances { get; set; }
 

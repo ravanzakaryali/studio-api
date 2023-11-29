@@ -1,14 +1,14 @@
-﻿using Space.Application.Abstractions;
-using Space.Domain.Entities;
+﻿using Space.Domain.Entities;
 
 namespace Space.Application.Handlers;
 
 public class CreateClassAttendanceCommand : IRequest
 {
     public Guid ClassId { get; set; }
-    public Guid ModuleId { get; set; }
     public DateOnly Date { get; set; }
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
+    //Todo: Change name 
+    public ICollection<CreateAttendanceModuleRequestDto> HeldModules { get; set; } = null!;
 }
 internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClassAttendanceCommand>
 {
@@ -35,50 +35,74 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Role)
             .Where(c => c.Id == request.ClassId)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.ClassId);
-        //Todo: attendance review 
-        Module? module = await _spaceDbContext.Modules.FindAsync(request.ModuleId) ??
-            throw new NotFoundException(nameof(Module), request.ModuleId);
 
+        List<ClassSessions> classSessions = await _spaceDbContext.ClassSessions
+            .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
+            .ToListAsync(cancellationToken: cancellationToken);
 
-        List<ClassTimeSheet> classSessionsHour = await _spaceDbContext.ClassTimeSheets
-            .Where(c => c.ClassId == @class.Id &&
-                        request.Date >= c.Date &&
-                        (c.AttendancesWorkers != null && c.AttendancesWorkers.Count != 0)).ToListAsync() ??
-                            throw new NotFoundException(nameof(ClassTimeSheet), @class.Id);
+        List<Guid> moduleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
+
+        List<Module> module = await _spaceDbContext.Modules.Where(request.HeldModules.) ??
 
         List<Module> modules = @class.Program.Modules
-                                                    .OrderBy(m => m.Version)
-                                                    .Where(m => m.TopModuleId != null ||
-                                                    !m.SubModules!.Any()).ToList();
+            .OrderBy(m => m.Version)
+            .Where(m => m.TopModuleId != null ||
+                        !m.SubModules!.Any())
+            .ToList();
 
-
-        Module? currentModule = await _unitOfWork.ModuleService.GetCurrentModuleAsync(@class, request.Date);
-
-        IEnumerable<WokerDto> currentModuleWorkers = @class.ClassModulesWorkers
-                                                            .Where(c => c.ModuleId == currentModule?.Id)
-                                                            .Distinct(new GetWorkerForClassDtoComparer())
-                                                            .Select(c => new WokerDto()
-                                                            {
-                                                                Id = c.WorkerId,
-                                                                RoleName = c.Role?.Name
-                                                            });
         List<Guid> studentIds = request.Sessions
                 .SelectMany(s => s.Attendances)
                 .Select(a => a.StudentId)
                 .ToList();
 
-        List<Study> ClassStudiesExsist = @class.Studies.Where(c => !studentIds.Contains(c.Id)).ToList();
+        if (@class.Studies.Any(c => !studentIds.Contains(c.Id))) throw new NotFoundException("Student not found");
 
         List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
-            .Include(c => c.Attendances)
-            .Include(c => c.AttendancesWorkers)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
-        //Todo: review
-        await _unitOfWork.ClassSessionService.GenerateAttendanceAsync(request.Sessions, classSessions, request.ModuleId);
+        if (classTimeSheets.Any())
+            _spaceDbContext.ClassTimeSheets.RemoveRange(classTimeSheets);
+
+        List<ClassTimeSheet> addTimeSheets = new();
+        foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
+        {
+            ClassTimeSheet? matchingClassTimeSheet = classTimeSheets.Where(cs => cs.Category == session.Category).FirstOrDefault();
+            if (matchingClassTimeSheet is null) continue;
+            addTimeSheets.Add(new ClassTimeSheet()
+            {
+                Attendances = session.Attendances.Select(c => new Attendance()
+                {
+                    StudyId = c.StudentId,
+                    Note = c.Note,
+                    Status = matchingClassTimeSheet.TotalHours == c.TotalAttendanceHours
+                                       ? StudentStatus.Attended
+                                       : c.TotalAttendanceHours == 0
+                                       ? StudentStatus.Absent
+                                       : StudentStatus.Partial,
+                    TotalAttendanceHours = c.TotalAttendanceHours
+                }).ToList(),
+                AttendancesWorkers = session.AttendancesWorkers.Select(wa => new AttendanceWorker()
+                {
+                    WorkerId = wa.WorkerId,
+                    TotalAttendanceHours = wa.IsAttendance ? matchingClassTimeSheet.TotalHours : 0,
+                    RoleId = wa.RoleId,
+                }).ToList(),
+                TotalHours = matchingClassTimeSheet.TotalHours,
+                Category = matchingClassTimeSheet.Category,
+                ClassId = matchingClassTimeSheet.ClassId,
+                EndTime = matchingClassTimeSheet.EndTime,
+                Date = matchingClassTimeSheet.Date,
+                HeldModules = //db dən tap əlavə et,
+                StartTime = matchingClassTimeSheet.StartTime,
+                Status = matchingClassTimeSheet.Status,
+            });
+        }
+
+        //varsa sil 
+        //daha sonra hər halda yarat
         await _spaceDbContext.SaveChangesAsync();
     }
 }

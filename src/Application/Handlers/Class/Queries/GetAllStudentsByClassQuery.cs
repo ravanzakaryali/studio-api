@@ -29,22 +29,32 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
             .ThenInclude(c => c.Attendances)
             .Include(c => c.ClassSessions)
             .Include(c => c.ClassTimeSheets)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
-
 
         List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.ClassId == @class.Id && c.Date == request.Date)
             .AsNoTracking()
             .Include(c => c.Attendances)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
         //Todo: Error
-        List<GetAllStudentByClassResponseDto> studentResponses = @class.Studies.Where(c => c.StudyType != StudyType.Completion).Select(study =>
+        List<GetAllStudentByClassResponseDto> studentResponses = @class.Studies
+            .Where(c => c.StudyType != StudyType.Completion)
+            .Select(study =>
         {
-            double? attendancesHour = @class.ClassTimeSheets.Where(c => c.Category != ClassSessionCategory.Lab).Select(c => c.Attendances.Where(a => a.StudyId == study.Id).Sum(c => c.TotalAttendanceHours)).Sum();
-            double? totalHour = @class.ClassSessions.Where(c => (c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online) && c.Category != ClassSessionCategory.Lab).Sum(s => s.TotalHour);
-            var studentResponse = new GetAllStudentByClassResponseDto
+            double? attendancesHour = @class.ClassTimeSheets
+                .Where(c => c.Category != ClassSessionCategory.Lab)
+                .Select(c => c.Attendances
+                                    .Where(a => a.StudyId == study.Id)
+                                    .Sum(c => c.TotalAttendanceHours))
+                .Sum();
+
+            double? totalHour = @class.ClassSessions
+                .Where(c => (c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online) && c.Category != ClassSessionCategory.Lab)
+                .Sum(s => s.TotalHours);
+
+            GetAllStudentByClassResponseDto studentResponse = new()
             {
                 Name = study.Student?.Contact?.Name,
                 Surname = study.Student?.Contact?.Surname,
