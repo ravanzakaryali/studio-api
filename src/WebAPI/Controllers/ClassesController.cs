@@ -448,7 +448,6 @@ public class ClassesController : BaseApiController
             ClassId = id,
             Date = request.Date,
             Sessions = request.Sessions,
-            ModuleId = request.ModuleId,
         });
         return StatusCode(StatusCodes.Status204NoContent);
     }

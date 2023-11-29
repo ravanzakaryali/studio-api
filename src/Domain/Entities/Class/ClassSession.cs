@@ -1,8 +1,8 @@
 ﻿namespace Space.Domain.Entities;
 
-public class ClassSessions : BaseAuditableEntity
+public class ClassSession : BaseAuditableEntity
 {
-    public ClassSessions()
+    public ClassSession()
     {
         Workers = new HashSet<Worker>();
     }
@@ -18,6 +18,7 @@ public class ClassSessions : BaseAuditableEntity
     public ClassSessionCategory Category { get; set; }
     public Guid? RoomId { get; set; }
     public Room? Room { get; set; }
+    public bool IsHoliday { get; set; }
     public Guid ClassTimeSheetId { get; set; }
     public ClassTimeSheet ClassTimeSheet { get; set; } = null!;
     public ICollection<Worker> Workers { get; set; }

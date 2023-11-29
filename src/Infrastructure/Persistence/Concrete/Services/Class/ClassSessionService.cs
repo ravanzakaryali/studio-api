@@ -12,109 +12,8 @@ public class ClassSessionService : IClassSessionService
         _context = context;
         _holidayService = holidayService;
     }
-    public async Task GenerateAttendanceAsync(ICollection<UpdateAttendanceCategorySessionDto> requestSession, IEnumerable<ClassTimeSheet> classSessions, Guid moduleId)
-    {
-
-        List<ClassTimeSheet> oldSessions = classSessions.Select(c => (ClassTimeSheet)c.Clone()).ToList();
-
-        foreach (ClassTimeSheet classSession in classSessions)
-        {
-
-            classSession.Status = null;
-            classSession.ModuleId = null;
-            classSession.Attendances = new List<Attendance>();
-            classSession.AttendancesWorkers = new List<AttendanceWorker>();
-        }
-
-
-        List<DateTime> holidayDates = await _holidayService.GetDatesAsync();
-
-        Guid classId = classSessions.FirstOrDefault()!.ClassId;
-
-        List<ClassTimeSheet> allClassSessions = await _context.ClassSessions
-                                                       .Where(c => c.ClassId == classId)
-                                                       .OrderByDescending(c => c.Date)
-                                                       .ToListAsync();
-
-        DateTime lastDate = allClassSessions.First().Date;
-
-
-        foreach (UpdateAttendanceCategorySessionDto session in requestSession)
-        {
-            ClassTimeSheet? matchingSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
-            ClassTimeSheet? matchingOldSession = oldSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
-
-            if (matchingSession == null) break;
-            if (matchingOldSession == null) break;
-
-            matchingSession.AttendancesWorkers.AddRange(session.AttendancesWorkers.Select(wa => new AttendanceWorker()
-            {
-                WorkerId = wa.WorkerId,
-                TotalAttendanceHours = wa.IsAttendance ? matchingSession.TotalHour : 0,
-                RoleId = wa.RoleId,
-            }));
-
-            matchingSession.ModuleId = moduleId;
-            matchingSession.Status = session.Status;
-
-            if (session.Status != ClassSessionStatus.Cancelled)
-            {
-                if (matchingOldSession.Status == ClassSessionStatus.Cancelled)
-                {
-                    _context.ClassSessions.RemoveRange(allClassSessions.Where(c => c.Date == lastDate).ToList());
-                }
-                matchingSession.Attendances = session.Attendances.Select(c => new Attendance()
-                {
-                    StudyId = c.StudentId,
-                    Note = c.Note,
-                    Status = matchingSession.TotalHour == c.TotalAttendanceHours
-                                        ? StudentStatus.Attended
-                                        : c.TotalAttendanceHours == 0
-                                        ? StudentStatus.Absent
-                                        : StudentStatus.Partial,
-                    TotalAttendanceHours = c.TotalAttendanceHours
-                }).ToList();
-            }
-            else
-            {
-
-                matchingSession.Attendances = new List<Attendance>();
-                matchingSession.AttendancesWorkers = new List<AttendanceWorker>();
-
-
-                if (matchingOldSession.Status != ClassSessionStatus.Cancelled)
-                {
-
-                    IEnumerable<DayOfWeek> classDayOfWeek = allClassSessions.DistinctBy(c => c.Date.DayOfWeek).Select(c => c.Date.DayOfWeek);
-
-
-                    var date2 = lastDate.AddDays(1);
-                    DayOfWeek startDateDayOfWeek = date2.DayOfWeek;
-                    while (!classDayOfWeek.Any(c => date2.DayOfWeek == c))
-                    {
-                        date2 = date2.AddDays(1);
-                        startDateDayOfWeek = date2.DayOfWeek;
-                    }
-                    List<ClassTimeSheet> generateClassSessions = GenerateSessions(
-                        matchingSession.TotalHour, requestSession.Select(r => new CreateClassSessionDto()
-                        {
-                            Category = r.Category,
-                            DayOfWeek = startDateDayOfWeek,
-                            End = matchingSession.EndTime,
-                            Start = matchingSession.StartTime
-                        }).ToList(),
-                        date2,
-                        holidayDates,
-                        matchingSession.ClassId,
-                        matchingSession.RoomId!.Value);
-
-                    await _context.ClassSessions.AddRangeAsync(generateClassSessions);
-                }
-            }
-        }
-    }
-    public List<ClassTimeSheet> GenerateSessions(
-                                int totalHour,
+    public List<ClassSession> GenerateSessions(
+                                int totalHours,
                                 List<CreateClassSessionDto> sessions,
                                 DateOnly startDate,
                                 List<DateOnly> holidayDates,
@@ -122,10 +21,10 @@ public class ClassSessionService : IClassSessionService
                                 Guid roomId)
     {
 
-        List<ClassTimeSheet> returnClassSessions = new();
+        List<ClassSession> returnClassSessions = new();
         DayOfWeek startDayOfWeek = startDate.DayOfWeek;
         int count = 0;
-        while (totalHour > 0)
+        while (totalHours > 0)
         {
             foreach (var session in sessions.OrderBy(c => c.DayOfWeek))
             {
@@ -135,28 +34,27 @@ public class ClassSessionService : IClassSessionService
                 int hour = (session.End - session.Start).Hours;
 
                 DateOnly dateTime = startDate.AddDays(count * 7 + daysToAdd);
-                ClassTimeSheet timeSheet = new()
+                ClassSession classSession = new()
                 {
                     Category = session.Category,
                     ClassId = classId,
                     StartTime = session.Start,
                     EndTime = session.End,
-                    RoomId = roomId,
                     TotalHours = hour,
                     Date = dateTime,
                     IsHoliday = false
                 };
                 if (holidayDates.Contains(dateTime))
                 {
-                    timeSheet.IsHoliday = true;
+                    classSession.IsHoliday = true;
                 }
 
                 if (hour != 0)
                 {
-                    returnClassSessions.Add(timeSheet);
+                    returnClassSessions.Add(classSession);
                     if (session.Category != ClassSessionCategory.Lab)
-                        totalHour -= hour;
-                    if (totalHour <= 0)
+                        totalHours -= hour;
+                    if (totalHours <= 0)
                         break;
 
                 }
@@ -166,16 +64,16 @@ public class ClassSessionService : IClassSessionService
         }
         return returnClassSessions;
     }
-    public List<ClassTimeSheet> GenerateSessions(
-                                DateTime startDate,
+    public List<ClassSession> GenerateSessions(
+                                DateOnly startDate,
                                 List<CreateClassSessionDto> sessions,
-                                DateTime endDate,
-                                List<DateTime> holidayDates,
+                                DateOnly endDate,
+                                List<DateOnly> holidayDates,
                                 Guid classId,
                                 Guid roomId)
     {
 
-        List<ClassTimeSheet> returnClassSessions = new();
+        List<ClassSession> returnClassSessions = new();
         DayOfWeek startDayOfWeek = startDate.DayOfWeek;
         int count = 0;
         while (returnClassSessions.Any(c => c.Date == endDate))
@@ -187,7 +85,7 @@ public class ClassSessionService : IClassSessionService
 
                 int hour = (session.End - session.Start).Hours;
 
-                DateTime dateTime = startDate.AddDays(count * 7 + daysToAdd);
+                DateOnly dateTime = startDate.AddDays(count * 7 + daysToAdd);
 
                 if (holidayDates.Contains(dateTime))
                 {
@@ -196,14 +94,14 @@ public class ClassSessionService : IClassSessionService
 
                 if (hour != 0)
                 {
-                    returnClassSessions.Add(new ClassTimeSheet()
+                    returnClassSessions.Add(new ClassSession()
                     {
                         Category = session.Category,
                         ClassId = classId,
                         StartTime = session.Start,
                         EndTime = session.End,
                         RoomId = roomId,
-                        TotalHour = hour,
+                        TotalHours = hour,
                         Date = dateTime
                     });
                     if (dateTime == endDate)
@@ -217,9 +115,9 @@ public class ClassSessionService : IClassSessionService
         return returnClassSessions;
     }
 
-    public async Task<DateTime> GetLastDateAsync(Guid classId)
+    public async Task<DateOnly> GetLastDateAsync(Guid classId)
     {
-        DateTime lastDate = await _context.ClassSessions
+        DateOnly lastDate = await _context.ClassSessions
                                                         .Where(c => c.ClassId == classId)
                                                         .Select(c => c.Date)
                                                         .OrderByDescending(c => c)

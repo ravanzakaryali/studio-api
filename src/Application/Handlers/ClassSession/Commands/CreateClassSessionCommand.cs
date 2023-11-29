@@ -38,8 +38,8 @@ internal class CreateClassSessionCommandHandler : IRequestHandler<CreateClassSes
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException(nameof(Session), request.SessionId);
 
-        if (@class.StartDate == null || @class.RoomId == null)
-            throw new Exception("Class start date or room null");
+        if (@class.RoomId == null)
+            throw new Exception("Class room null");
 
         List<CreateClassSessionDto> sessions = session.Details
             .Select(c => new CreateClassSessionDto()
@@ -52,18 +52,18 @@ internal class CreateClassSessionCommandHandler : IRequestHandler<CreateClassSes
 
         List<DayOfWeek> selectedDays = sessions.Select(c => c.DayOfWeek).ToList();
 
-        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+        List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
 
-        List<ClassTimeSheet> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+        List<ClassSession> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
                                                                                        @class.Program.TotalHours,
                                                                                        sessions,
-                                                                                       @class.StartDate.Value,
+                                                                                       @class.StartDate,
                                                                                        holidayDates,
                                                                                        @class.Id,
                                                                                        @class.RoomId.Value);
 
-        @class.EndDate = classSessions.Max(c => c.Date).Date;
+        @class.EndDate = classSessions.Max(c => c.Date);
         await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions);
 
     }

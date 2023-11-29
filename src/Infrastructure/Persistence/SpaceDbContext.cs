@@ -17,6 +17,7 @@ public class SpaceDbContext : IdentityDbContext<User, Role, Guid, IdentityUserCl
     }
     #region Class
     public DbSet<Class> Classes => Set<Class>();
+    public DbSet<ClassSession> ClassSessions => Set<ClassSession>();
     public DbSet<Room> Rooms => Set<Room>();
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<SessionDetail> SessionDetails => Set<SessionDetail>();

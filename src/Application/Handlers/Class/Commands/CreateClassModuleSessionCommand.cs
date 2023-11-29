@@ -99,8 +99,8 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException(nameof(Session), request.CreateClassModuleSessionDto.SessionId);
 
-        if (@class.StartDate == null || @class.RoomId == null)
-            throw new Exception("Class start date or room null");
+        if (@class.RoomId == null)
+            throw new Exception("Class room null");
 
         List<CreateClassSessionDto> sessions = session.Details
             .Select(c => new CreateClassSessionDto()
@@ -113,19 +113,19 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
 
         List<DayOfWeek> selectedDays = sessions.Select(c => c.DayOfWeek).ToList();
 
-        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+        List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
 
-        List<ClassTimeSheet> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+        List<ClassSession> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
                                                                                        @class.Program.TotalHours,
                                                                                        sessions,
-                                                                                       @class.StartDate.Value,
+                                                                                       @class.StartDate,
                                                                                        holidayDates,
                                                                                        @class.Id,
                                                                                        @class.RoomId.Value);
 
-        @class.EndDate = classSessions.Max(c => c.Date).Date;
-        await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions);
-        await _spaceDbContext.SaveChangesAsync();
+        @class.EndDate = classSessions.Max(c => c.Date);
+        await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions, cancellationToken);
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

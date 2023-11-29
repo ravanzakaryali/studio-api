@@ -46,7 +46,7 @@ internal class GetAllWorkersWithDetailsQueryHandler : IRequestHandler<GetAllWork
                     {
                         ClassId = workerClass.Class.Id,
                         ClassName = workerClass.Class.Name,
-                        IsOpen = workerClass.Class.EndDate > DateTime.Now,
+                        IsOpen = workerClass.Class.EndDate > DateOnly.FromDateTime(DateTime.Now),
                         StartDate = workerClass.Class.StartDate,
                         EndDate = workerClass.Class.EndDate
                     };

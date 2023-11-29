@@ -33,7 +33,7 @@ internal class CreateClassSessionByClassCommandHandler : IRequestHandler<CreateC
             throw new DateTimeException("There is already a lesson in this date and time range");
         }
 
-        @class.ClassSessions.Add(new ClassSessions()
+        @class.ClassSessions.Add(new ClassSession()
         {
             StartTime = request.Session.Start,
             EndTime = request.Session.End,

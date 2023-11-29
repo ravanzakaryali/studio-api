@@ -45,7 +45,7 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
 
 
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
-        List<ClassSessions> classSessions = new();
+        List<ClassSession> classSessions = new();
 
         DateOnly startDate = request.StartDate ?? @class.ClassSessions.MaxBy(c => c.Date)!.Date;
         int startDayOfWeek = (int)startDate.DayOfWeek;
@@ -72,7 +72,7 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
 
                 if (hour != 0)
                 {
-                    classSessions.Add(new ClassSessions()
+                    classSessions.Add(new ClassSession()
                     {
                         Category = session.Category,
                         ClassId = @class.Id,

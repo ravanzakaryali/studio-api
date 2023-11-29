@@ -3,8 +3,8 @@
 public class UpdateClassSessionByDateCommand : IRequest
 {
     public Guid ClassId { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly EndDate { get; set; }
     public IEnumerable<CreateClassSessionDto> Sessions { get; set; } = null!;
 }
 
@@ -26,7 +26,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
         Class @class = await _spaceDbContext.Classes.FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken: cancellationToken)
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
-        List<ClassTimeSheet> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
                                                                 .Where(c => c.ClassId == request.ClassId &&
                                                                             c.Date >= request.StartDate &&
                                                                             c.Date <= request.EndDate)
@@ -37,9 +37,9 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
         if (@class.RoomId is null) throw new NotFoundException("Bu qrup hər hansı bir dərs otağına əlavə olunmayıb");
 
 
-        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+        List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
-        List<ClassTimeSheet> responseClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+        List<ClassSession> responseClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
             startDate: request.StartDate, request.Sessions.ToList(), request.EndDate, holidayDates, @class.Id, @class.RoomId.Value);
 
         await _spaceDbContext.ClassSessions.AddRangeAsync(responseClassSessions);
