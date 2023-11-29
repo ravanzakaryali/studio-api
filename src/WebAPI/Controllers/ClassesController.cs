@@ -212,6 +212,20 @@ public class ClassesController : BaseApiController
     public async Task<IActionResult> GetStudentsByClass([FromRoute] Guid id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetAllStudentsByClassQuery(id, date)));
 
+    [Authorize(Roles = "admin")]
+    [HttpPost("{id}/students")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> CreateStudentsByClass([FromRoute] Guid id, [FromBody] IEnumerable<CreateStudentsDto> students)
+    {
+        await Mediator.Send(new CreateStudentComand()
+        {
+            ClassId = id,
+            Students = students
+        });
+        return NoContent();
+    }
+
     /// <summary>
     /// Retrieves detailed information about students related to a specific class based on its unique identifier.
     /// </summary>
