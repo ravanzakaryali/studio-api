@@ -1,6 +1,6 @@
 ﻿namespace Space.Domain.Entities;
 
-public class HeldModule
+public class HeldModule : BaseAuditableEntity
 {
     public Guid ModuleId { get; set; }
     public Module Module { get; set; } = null!;

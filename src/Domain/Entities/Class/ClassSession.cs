@@ -19,7 +19,7 @@ public class ClassSession : BaseAuditableEntity
     public Guid? RoomId { get; set; }
     public Room? Room { get; set; }
     public bool IsHoliday { get; set; }
-    public Guid ClassTimeSheetId { get; set; }
-    public ClassTimeSheet ClassTimeSheet { get; set; } = null!;
+    public Guid? ClassTimeSheetId { get; set; }
+    public ClassTimeSheet? ClassTimeSheet { get; set; }
     public ICollection<Worker> Workers { get; set; }
 }

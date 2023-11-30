@@ -145,11 +145,11 @@ app.UseHttpLogging();
 app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI();
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
 
 app.UseCors();
 app.UseExceptionMiddleware();

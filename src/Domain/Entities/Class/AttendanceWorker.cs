@@ -3,8 +3,8 @@
 public class AttendanceWorker : BaseAuditableEntity
 {
     public string? Note { get; set; }
-    public Guid ClassSessionId { get; set; }
-    public ClassTimeSheet ClassSession { get; set; } = null!;
+    public Guid ClassTimeSheetId { get; set; }
+    public ClassTimeSheet ClassTimeSheet { get; set; } = null!;
     public Guid WorkerId { get; set; }
     public Worker Worker { get; set; } = null!;
     public int TotalAttendanceHours { get; set; }
