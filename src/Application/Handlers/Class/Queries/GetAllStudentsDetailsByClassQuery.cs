@@ -15,7 +15,7 @@ internal class GetAllStudentsDetailsByClassQueryHandler : IRequestHandler<GetAll
     {
         Class @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
-            .Include(c => c.ClassSessions)
+            .Include(c => c.ClassTimeSheets)
             .ThenInclude(c => c.Attendances)
             .Include(c => c.Studies)
             .ThenInclude(c => c.Student)
@@ -25,16 +25,24 @@ internal class GetAllStudentsDetailsByClassQueryHandler : IRequestHandler<GetAll
 
         return @class.Studies.Where(c => c.StudyType != StudyType.Completion).Select(study =>
         {
-            double? attendancesHour = @class.ClassSessions.Where(c => c.Category != ClassSessionCategory.Lab).Select(c => c.Attendances.Where(a => a.StudyId == study.Id).Sum(c => c.TotalAttendanceHours)).Sum();
-            double? totalHour = @class.ClassSessions.Where(c => c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online).Sum(s => s.TotalHour);
-            var studentResponse = new GetStudentsDetailsByClassResponseDto
+            double? attendancesHour = @class.ClassTimeSheets
+            .Where(c => c.Category != ClassSessionCategory.Lab)
+            .Select(c => c.Attendances
+                .Where(a => a.StudyId == study.Id)
+                .Sum(c => c.TotalAttendanceHours))
+            .Sum();
+
+            double? totalHour = @class.ClassTimeSheets
+            .Where(c => c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online)
+            .Sum(s => s.TotalHours);
+            GetStudentsDetailsByClassResponseDto studentResponse = new()
             {
                 Id = study.Id,
                 StudentId = study.StudentId,
                 Name = study.Student?.Contact?.Name,
                 Surname = study.Student?.Contact?.Surname,
                 ClassName = @class.Name,
-                Email = study.Student?.Contact?.Email,
+                Email = study.Student?.Email,
                 PhoneNumber = study.Student?.Contact?.Phone,
                 FatherName = study.Student?.Contact?.FatherName,
                 ArrivalHours = attendancesHour,

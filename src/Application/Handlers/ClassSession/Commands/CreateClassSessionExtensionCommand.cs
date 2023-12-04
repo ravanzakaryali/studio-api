@@ -5,7 +5,7 @@ namespace Space.Application.Handlers;
 
 public class CreateClassSessionExtensionCommand : IRequest
 {
-    public CreateClassSessionExtensionCommand(double hours, Guid classId, Guid roomId, IEnumerable<CreateClassSessionDto> sessions, DateTime? startDate)
+    public CreateClassSessionExtensionCommand(double hours, Guid classId, Guid roomId, IEnumerable<CreateClassSessionDto> sessions, DateOnly? startDate)
     {
         Hours = hours;
         ClassId = classId;
@@ -14,7 +14,7 @@ public class CreateClassSessionExtensionCommand : IRequest
         StartDate = startDate;
     }
 
-    public DateTime? StartDate { get; set; }
+    public DateOnly? StartDate { get; set; }
     public double Hours { get; set; }
     public Guid ClassId { get; set; }
     public Guid RoomId { get; set; }
@@ -37,23 +37,23 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
         Class? @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.ClassId)
             .Include(c => c.ClassSessions)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.ClassId);
         Room? room = await _spaceDbContext.Rooms.FindAsync(request.RoomId) ??
             throw new NotFoundException(nameof(Room), request.RoomId);
 
 
 
-        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+        List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         List<ClassSession> classSessions = new();
 
-        DateTime startDate = request.StartDate ?? @class.ClassSessions.MaxBy(c => c.Date)!.Date;
+        DateOnly startDate = request.StartDate ?? @class.ClassSessions.MaxBy(c => c.Date)!.Date;
         int startDayOfWeek = (int)startDate.DayOfWeek;
         int count = 0;
         double totalHour = request.Hours;
 
 
-        //Todo: COde Review
+        //Todo: Code Review
         while (totalHour > 0)
         {
             foreach (var session in request.Sessions.OrderBy(c => c.DayOfWeek))
@@ -62,7 +62,7 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
                 int numSelectedDays = request.Sessions.Count();
 
                 int hour = (session.End - session.Start).Hours;
-                DateTime dateTime = startDate.AddDays(count * 7 + daysToAdd);
+                DateOnly dateTime = startDate.AddDays(count * 7 + daysToAdd);
                 Console.WriteLine(dateTime);
 
                 if (holidayDates.Contains(dateTime))
@@ -79,7 +79,7 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
                         StartTime = session.Start,
                         EndTime = session.End,
                         RoomId = @class.RoomId,
-                        TotalHour = hour,
+                        TotalHours = hour,
                         Date = dateTime
                     });
                     if (session.Category != ClassSessionCategory.Lab)
@@ -90,7 +90,7 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
             count++;
         }
 
-        await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions);
-        await _spaceDbContext.SaveChangesAsync();
+        await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions, cancellationToken);
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

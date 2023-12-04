@@ -21,7 +21,8 @@ internal class GetAllWorkerQueryHandler : IRequestHandler<GetAllWorkerQuery, IEn
             await _spaceDbContext.Workers
                 .Include(c => c.UserRoles)
                 .ThenInclude(c => c.Role)
-                .ToListAsync());
+                .ToListAsync(cancellationToken: cancellationToken));
+
         return workers.ToList().OrderBy(w => w.Name);
     }
 }

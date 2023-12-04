@@ -20,7 +20,7 @@ public class AttendancesController : BaseApiController
         {
             ClassId = request.ClassId,
             Date = request.Date,
-            ModuleId = request.ModuleId,
+            HeldModules = request.HeldModules,
             Sessions = request.Sessions
         });
         return NoContent();

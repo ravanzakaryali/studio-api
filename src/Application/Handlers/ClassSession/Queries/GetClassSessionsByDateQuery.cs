@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetClassSessionsByDateQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetClassSessionsByDateResponseDto>>;
+public record GetClassSessionsByDateQuery(Guid Id, DateOnly Date) : IRequest<IEnumerable<GetClassSessionsByDateResponseDto>>;
 
 
 internal class GetClassSessionsByDateQueryHandler : IRequestHandler<GetClassSessionsByDateQuery, IEnumerable<GetClassSessionsByDateResponseDto>>
@@ -15,20 +15,19 @@ internal class GetClassSessionsByDateQueryHandler : IRequestHandler<GetClassSess
 
     public async Task<IEnumerable<GetClassSessionsByDateResponseDto>> Handle(GetClassSessionsByDateQuery request, CancellationToken cancellationToken)
     {
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
-            .Where(c => c.Date.Year == request.Date.Year &&
-                      c.Date.Day == request.Date.Day &&
-                      c.Date.Month == request.Date.Month &&
+        List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
+            .Where(c => c.Date == request.Date &&
                       c.ClassId == request.Id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
+        //Todo: total hour name changed
 
-        IEnumerable<GetClassSessionsByDateResponseDto> response = classSessions.Select(q => new GetClassSessionsByDateResponseDto()
+        IEnumerable<GetClassSessionsByDateResponseDto> response = classTimeSheets.Select(q => new GetClassSessionsByDateResponseDto()
         {
             StartTime = q.StartTime,
             EndTime = q.EndTime,
             Status = q.Status,
-            TotalHour = q.TotalHour,
+            TotalHour = q.TotalHours,
             Id = q.Id,
         });
 

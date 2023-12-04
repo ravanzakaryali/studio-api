@@ -2,8 +2,6 @@
 
 
 public record GetAllStudentsQuery : IRequest<IEnumerable<GetAllStudentsResponseDto>>;
-
-
 internal class GetAllStudentsQueryHandler : IRequestHandler<GetAllStudentsQuery, IEnumerable<GetAllStudentsResponseDto>>
 {
     readonly ISpaceDbContext _spaceDbContext;
@@ -13,18 +11,17 @@ internal class GetAllStudentsQueryHandler : IRequestHandler<GetAllStudentsQuery,
     {
         _spaceDbContext = spaceDbContext;
     }
-
     public async Task<IEnumerable<GetAllStudentsResponseDto>> Handle(GetAllStudentsQuery request, CancellationToken cancellationToken)
     {
-
+        //Todo: Contact nullable
         List<Study> studies = await _spaceDbContext.Studies
             .Include(c => c.Student)
             .ThenInclude(c => c.Contact)
             .Include(c => c.Class)
-            .Where(q => q.Class!.EndDate > DateTime.Now)
-            .ToListAsync();
+            .Where(q => q.Class!.EndDate > DateOnly.FromDateTime(DateTime.Now))
+            .ToListAsync(cancellationToken: cancellationToken);
 
-        var response = new List<GetAllStudentsResponseDto>();
+        List<GetAllStudentsResponseDto> response = new();
 
 
         foreach (var item in studies)

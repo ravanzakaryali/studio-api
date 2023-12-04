@@ -98,7 +98,7 @@ public class ChangeTokenAutheticationMiddlewares
                         httpContext.Response.Cookies.Append("token", newAccessToken.AccessToken, new CookieOptions
                         {
                             Expires = newAccessToken.Expires.AddDays(7),
-                            HttpOnly = true,
+                            HttpOnly = false,
                             SameSite = SameSiteMode.None,
                             Secure = true,
                         });

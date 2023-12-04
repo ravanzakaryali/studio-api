@@ -17,20 +17,21 @@ internal class UpdateClassSessionCommandHandler : IRequestHandler<UpdateClassSes
 
     public async Task Handle(UpdateClassSessionCommand request, CancellationToken cancellationToken)
     {
+        DateOnly requestDate = DateOnly.FromDateTime(request.Date);
+
         Class @class = await _spaceDbContext.Classes
-            .Where(c => c.Id == request.Id && c.ClassSessions.Any(c => c.Date == request.Date))
-            .FirstOrDefaultAsync() ??
+            .Include(c => c.ClassSessions)
+            .Where(c => c.Id == request.Id && c.ClassSessions.Any(c => c.Date == requestDate))
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
-        if (@class.ClassSessions.Count == 0) throw new NotFoundException(nameof(ClassSession), request.Date);
+        if (@class.ClassSessions.Count == 0) throw new NotFoundException(nameof(ClassTimeSheet), request.Date);
 
-        if (@class.ClassSessions.Any(cs => cs.Status != null)) throw new Exception("Offline, Online and Cancelled not change");
+        DateOnly date = request.UpdateClassSessions.DistinctBy(c => c.ClassSessionDate).First().ClassSessionDate;
 
-        DateTime date = request.UpdateClassSessions.DistinctBy(c => c.ClassSessionDate).First().ClassSessionDate;
+        if (await _spaceDbContext.ClassSessions.Where(c => c.Date == date).FirstOrDefaultAsync() != null)
+            throw new Exception("Class Session already date");
 
-        if (await _spaceDbContext.ClassSessions.Where(c => c.Date == date).FirstOrDefaultAsync() != null) throw new Exception("Class Session already date");
-
-        @class.ClassSessions = _mapper.Map<List<ClassSession>>(request.UpdateClassSessions);
-        await _spaceDbContext.SaveChangesAsync();
+        throw new NotFoundException();
     }
 }

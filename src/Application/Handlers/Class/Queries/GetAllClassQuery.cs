@@ -1,14 +1,11 @@
-﻿using Space.Application.DTOs.Enums;
-using Space.Domain.Entities;
-
-namespace Space.Application.Handlers.Queries;
+﻿namespace Space.Application.Handlers.Queries;
 
 public record GetAllClassQuery(ClassStatus Status) : IRequest<IEnumerable<GetClassModuleWorkersResponse>>;
-internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnumerable<GetClassModuleWorkersResponse>>
+internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerable<GetClassModuleWorkersResponse>>
 {
     readonly ISpaceDbContext _spaceDbContext;
 
-    public GetAllClassQueryHandler(ISpaceDbContext spaceDbContext)
+    public GetAllClassHandler(ISpaceDbContext spaceDbContext)
     {
         _spaceDbContext = spaceDbContext;
     }
@@ -23,19 +20,23 @@ internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnum
             .ThenInclude(c => c.Worker)
             .ThenInclude(c => c.UserRoles)
             .ThenInclude(c => c.Role)
-            .Include(c => c.Session).AsQueryable();
+            .Include(c => c.Session)
+            .AsQueryable();
+
+        DateOnly now = DateOnly.FromDateTime(DateTime.Now);
+
 
         if (request.Status == ClassStatus.Close)
         {
-            query = query.Where(c => DateTime.Now > c.EndDate);
+            query = query.Where(c => now > c.EndDate);
         }
         else if (request.Status == ClassStatus.Active)
         {
-            query = query.Where(c => DateTime.Now > c.StartDate && DateTime.Now < c.EndDate);
+            query = query.Where(c => now > c.StartDate && now < c.EndDate);
         }
         else
         {
-            query = query.Where(c => DateTime.Now < c.StartDate);
+            query = query.Where(c => now < c.StartDate);
         }
 
         List<GetClassModuleWorkers> classes = await query.Select(cd => new GetClassModuleWorkers()
@@ -45,11 +46,11 @@ internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnum
                             .Where(c =>
                             c.Status != ClassSessionStatus.Cancelled &&
                             c.Category != ClassSessionCategory.Lab)
-                        .Sum(c => c.TotalHour),
-            CurrentHour = cd.ClassSessions
+                        .Sum(c => c.TotalHours),
+            CurrentHour = cd.ClassTimeSheets
                             .Where(c => c.Status != ClassSessionStatus.Cancelled &&
-                                        c.Category != ClassSessionCategory.Lab &&
-                                        c.Date <= DateTime.UtcNow).Sum(c => c.TotalHour),
+                                        c.Category != ClassSessionCategory.Lab)
+                            .Sum(c => c.TotalHours),
             ClassName = cd.Name,
             EndDate = cd.EndDate,
             ProgramId = cd.ProgramId,
@@ -57,7 +58,6 @@ internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnum
             SessionName = cd.Session.Name,
             StartDate = cd.StartDate,
             TotalModules = cd.Program.Modules.Count,
-            VitrinDate = cd.StartDate,
             ClassModulesWorkers = cd.ClassModulesWorkers
         }).ToListAsync(cancellationToken: cancellationToken);
 
@@ -73,10 +73,9 @@ internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnum
             SessionName = cd.SessionName,
             StartDate = cd.StartDate,
             TotalModules = cd.TotalModules,
-            VitrinDate = cd.VitrinDate,
             Workers = cd.ClassModulesWorkers.Select(cmw => new GetWorkerForClassDto()
             {
-                Id = cmw.Worker.Id,
+                Id = cmw.WorkerId,
                 Email = cmw.Worker.Email,
                 Name = cmw.Worker.Name,
                 Surname = cmw.Worker.Surname,
@@ -84,19 +83,6 @@ internal class GetAllClassQueryHandler : IRequestHandler<GetAllClassQuery, IEnum
                 RoleId = cmw.Worker.UserRoles.FirstOrDefault(u => u.RoleId == cmw.RoleId)?.Role.Id
             }).Distinct(new GetModulesWorkerComparer())
         });
-    }
-    class GetModulesWorkerComparer : IEqualityComparer<GetWorkerForClassDto>
-    {
-        public bool Equals(GetWorkerForClassDto? x, GetWorkerForClassDto? y)
-        {
-            return x?.Id == y?.Id || x?.RoleId == y?.RoleId;
-        }
-
-        public int GetHashCode(GetWorkerForClassDto obj)
-        {
-            return obj.Id.GetHashCode() ^ obj.RoleId.GetHashCode();
-        }
-
     }
 }
 

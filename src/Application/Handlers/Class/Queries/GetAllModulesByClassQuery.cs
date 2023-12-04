@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public record GetAllModulesByClassQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetModuleDto>>;
 
@@ -28,69 +26,52 @@ internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesB
     {
         Class @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
+            .Include(c => c.ClassModulesWorkers)
             .Include(c => c.Program)
             .ThenInclude(c => c.Modules)
             .ThenInclude(c => c.SubModules)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
-            .Where(c => c.ClassId == @class.Id && request.Date >= c.Date && c.Category != ClassSessionCategory.Lab).ToListAsync();
+        DateOnly requestDate = DateOnly.FromDateTime(request.Date);
+
+        List<ClassTimeSheet> timeSheets = await _spaceDbContext.ClassTimeSheets
+            .Where(c => c.ClassId == @class.Id && requestDate >= c.Date && c.Category != ClassSessionCategory.Lab)
+            .ToListAsync(cancellationToken: cancellationToken);
 
         List<Module> modules = @class.Program.Modules
             .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null)
-            .Where(m => m.TopModuleId != null || m.SubModules!.Any())
+            .Where(m => m.TopModuleId != null)
             .ToList();
 
-        int totalHour = classSessions
-            .Sum(c => c.TotalHour);
+        int totalHour = timeSheets
+            .Sum(c => c.TotalHours);
 
+        //2023-12-12
+        //2023-12-14
+        //2023-12-24
+        ClassModulesWorker? currentModuleWorker = @class.ClassModulesWorkers
+            .FirstOrDefault(c => c.StartDate <= requestDate && c.EndDate >= requestDate)
+                ?? throw new NotFoundException(nameof(ClassModulesWorker), requestDate);
 
-        //Todo: Code Review 
+        int currentModuleIndex = modules.FindIndex(c => c.Id == currentModuleWorker.ModuleId);
         List<Module> modulesResponse = new();
-        if (totalHour > 0)
-        {
-            double totalHourModule = 0;
 
-            for (int i = 0; i < modules.Count; i++)
-            {
-                totalHourModule += modules[i].Hours;
-                if (totalHourModule >= totalHour)
-                {
-                    modulesResponse.Add(modules[i]);
-                    if (i == 0 && modules.Count > 1)
-                    {
-                        modulesResponse.Add(modules[i + 1]);
-                    }
-                    else if (modules.Count == i - 1 && modules.Count > 1)
-                    {
-                        modulesResponse.Add(modules[i - 1]);
-                    }
-                    else
-                    {
-                        if (i != modules.Count - 1)
-                        {
-                            modulesResponse.Add(modules[i + 1]);
-                        }
-                        modulesResponse.Add(modules[i - 1]);
-                    }
-                    break;
-                }
-            }
-            if (modulesResponse.Count == 0)
-            {
-                modulesResponse = modules.TakeLast(2).ToList();
-            }
-        }
-        else
-        {
-            modulesResponse = modules
-                                .Take(2)
-                                .ToList();
-        }
+        if (currentModuleIndex >= 0)
+            AddModuleToResponse(modules, currentModuleIndex, modulesResponse);
 
         return _mapper.Map<IEnumerable<GetModuleDto>>(modulesResponse.OrderBy(c => c.Version));
+    }
+    void AddModuleToResponse(List<Module> modulesList, int index, List<Module> responseList)
+    {
+        int[] indices = { index, index - 1, index + 1 };
 
-
+        foreach (var i in indices)
+        {
+            if (i >= 0 && i < modulesList.Count)
+            {
+                responseList.Add(modulesList[i]);
+            }
+        }
     }
 }

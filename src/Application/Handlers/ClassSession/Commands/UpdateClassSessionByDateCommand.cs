@@ -3,8 +3,8 @@
 public class UpdateClassSessionByDateCommand : IRequest
 {
     public Guid ClassId { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly EndDate { get; set; }
     public IEnumerable<CreateClassSessionDto> Sessions { get; set; } = null!;
 }
 
@@ -32,12 +32,13 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
                                                                             c.Date <= request.EndDate)
                                                                 .ToListAsync(cancellationToken: cancellationToken);
 
+        //Todo: Code review
         if (classSessions.Any(c => c.Status != null)) throw new Exception("Seçilən tarix daxilində qeyd olunmuş sessiya var!");
 
         if (@class.RoomId is null) throw new NotFoundException("Bu qrup hər hansı bir dərs otağına əlavə olunmayıb");
 
 
-        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+        List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
         List<ClassSession> responseClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
             startDate: request.StartDate, request.Sessions.ToList(), request.EndDate, holidayDates, @class.Id, @class.RoomId.Value);

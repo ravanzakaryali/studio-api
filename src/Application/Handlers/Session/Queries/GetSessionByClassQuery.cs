@@ -1,6 +1,5 @@
 ﻿namespace Space.Application.Handlers;
 
-
 public record GetSessionByClassQuery(Guid Id) : IRequest<IEnumerable<GetSessionDetailDto>>;
 
 internal class GetSessionByClassQueryCommand : IRequestHandler<GetSessionByClassQuery, IEnumerable<GetSessionDetailDto>>

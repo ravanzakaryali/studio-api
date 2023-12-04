@@ -23,8 +23,8 @@ internal class CreateSessionDetailCommandHandler : IRequestHandler<CreateSession
                 throw new NotFoundException(nameof(Session), request.Id);
         SessionDetail newSessionDetail = _mapper.Map<SessionDetail>(request.Details);
         newSessionDetail.SessionId = session.Id;
-        await _spaceDbContext.SessionDetails.AddAsync(newSessionDetail);
-        await _spaceDbContext.SaveChangesAsync();
+        await _spaceDbContext.SessionDetails.AddAsync(newSessionDetail, cancellationToken);
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
         return _mapper.Map<GetSessionWithDetailsResponseDto>(session);
     }
 }

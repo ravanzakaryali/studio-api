@@ -5,7 +5,7 @@ public class Module : BaseAuditableEntity
     public Module()
     {
         ClassModulesWorkers = new HashSet<ClassModulesWorker>();
-        ClassSessions = new HashSet<ClassSession>();
+        ClassTimeSheets = new HashSet<ClassTimeSheet>();
         SubModules = new List<Module>();
     }
     public double Hours { get; set; }
@@ -17,5 +17,5 @@ public class Module : BaseAuditableEntity
     public Module? TopModule { get; set; }
     public List<Module>? SubModules { get; set; }
     public ICollection<ClassModulesWorker> ClassModulesWorkers { get; set; }
-    public ICollection<ClassSession> ClassSessions { get; set; }
+    public ICollection<ClassTimeSheet> ClassTimeSheets { get; set; }
 }

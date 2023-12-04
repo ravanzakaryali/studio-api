@@ -25,7 +25,7 @@ internal class StudentsofClassExcelExport : IRequestHandler<StudentsofClassExcel
     {
         Class? @class = await _dbContext.Classes
                                                 .Where(c => c.Id == request.ClassId)
-                                                .Include(c => c.ClassSessions)
+                                                .Include(c => c.ClassTimeSheets)
                                                 .ThenInclude(c => c.Attendances)
                                                 .ThenInclude(c => c.Student)
                                                 .ThenInclude(c => c.Student)
@@ -33,7 +33,7 @@ internal class StudentsofClassExcelExport : IRequestHandler<StudentsofClassExcel
                                                 .FirstOrDefaultAsync()
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
-        IEnumerable<StudentExcelExportDto> students = @class.ClassSessions.Where(c => c.Status != null).SelectMany(c =>
+        IEnumerable<StudentExcelExportDto> students = @class.ClassTimeSheets.SelectMany(c =>
         {
             List<StudentExcelExportDto> studentResponse = new();
             studentResponse.AddRange(c.Attendances.Select(at => new StudentExcelExportDto()

@@ -2,24 +2,20 @@
 
 public interface IClassSessionService
 {
-    Task<DateTime> GetLastDateAsync(Guid classId);
+    Task<DateOnly> GetLastDateAsync(Guid classId);
 
-    Task GenerateAttendanceAsync(
-                ICollection<UpdateAttendanceCategorySessionDto> requestSession,
-                IEnumerable<ClassSession> classSessions,
-                Guid moduleId);
     List<ClassSession> GenerateSessions(
-                              int programTotalHour,
+                              int totalHours,
                               List<CreateClassSessionDto> sessions,
-                              DateTime startDate,
-                              List<DateTime> holidayDates,
+                              DateOnly startDate,
+                              List<DateOnly> holidayDates,
                               Guid classId,
                               Guid roomId);
     List<ClassSession> GenerateSessions(
-                                DateTime startDate,
+                                DateOnly startDate,
                                 List<CreateClassSessionDto> sessions,
-                                DateTime endDate,
-                                List<DateTime> holidayDates,
+                                DateOnly endDate,
+                                List<DateOnly> holidayDates,
                                 Guid classId,
                                 Guid roomId);
 }

@@ -15,7 +15,7 @@ internal class GetHolidayDatesQueryHandler : IRequestHandler<GetHolidayDatesQuer
 
     public async Task<IEnumerable<GetHolidayDatesDto>> Handle(GetHolidayDatesQuery request, CancellationToken cancellationToken)
     {
-        List<DateTime> dates = await _unitOfWork.HolidayService.GetDatesAsync();
+        List<DateOnly> dates = await _unitOfWork.HolidayService.GetDatesAsync();
         return dates.Select(c => new GetHolidayDatesDto()
         {
             Date = c

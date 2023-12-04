@@ -1,14 +1,11 @@
-﻿using Space.Application.Abstractions;
-using Space.Domain.Entities;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public class CreateClassAttendanceCommand : IRequest
 {
     public Guid ClassId { get; set; }
-    public Guid ModuleId { get; set; }
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
+    public ICollection<CreateAttendanceModuleRequestDto> HeldModules { get; set; } = null!;
 }
 internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClassAttendanceCommand>
 {
@@ -25,8 +22,11 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
 
     public async Task Handle(CreateClassAttendanceCommand request, CancellationToken cancellationToken)
     {
+        //classın datalarını gətir
         Class @class = await _spaceDbContext.Classes
             .Include(c => c.Studies)
+            .Include(c => c.Session)
+            .ThenInclude(c => c.Details)
             .Include(c => c.Program)
             .ThenInclude(c => c.Modules)
             .ThenInclude(c => c.SubModules)
@@ -35,50 +35,109 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Role)
             .Where(c => c.Id == request.ClassId)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.ClassId);
 
-        Module? module = await _spaceDbContext.Modules.FindAsync(request.ModuleId) ??
-            throw new NotFoundException(nameof(Module), request.ModuleId);
+        //həmin günün class sessiona bax
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+            .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
+            .ToListAsync(cancellationToken: cancellationToken);
 
+        List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+        DateOnly classLastDate = await _unitOfWork.ClassSessionService.GetLastDateAsync(@class.Id);
 
-        List<ClassSession> classSessionsHour = await _spaceDbContext.ClassSessions
-            .Where(c => c.ClassId == @class.Id &&
-                        request.Date >= c.Date &&
-                        c.ModuleId != null &&
-                        (c.AttendancesWorkers != null && c.AttendancesWorkers.Count != 0)).ToListAsync() ??
-                            throw new NotFoundException(nameof(ClassSession), @class.Id);
+        //əgər yoxdursa o zaman error qaytar
+        List<Guid> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
+        if (classSessions.Count != requestModuleIds.Count) throw new NotFoundException("Module not found");
 
-        List<Module> modules = @class.Program.Modules
-                                                    .OrderBy(m => m.Version)
-                                                    .Where(m => m.TopModuleId != null ||
-                                                    !m.SubModules!.Any()).ToList();
+        List<Module> module = await _spaceDbContext.Modules
+            .Where(m => requestModuleIds.Contains(m.Id))
+            .ToListAsync(cancellationToken: cancellationToken);
+        if (requestModuleIds.Count != module.Count) throw new NotFoundException("Modules not found");
 
-
-        Module? currentModule = await _unitOfWork.ModuleService.GetCurrentModuleAsync(@class, request.Date);
-
-        IEnumerable<WokerDto> currentModuleWorkers = @class.ClassModulesWorkers
-                                                                                .Where(c => c.ModuleId == currentModule?.Id)
-                                                                                .Distinct(new GetModulesWorkerComparer())
-                                                                                .Select(c => new WokerDto()
-                                                                                {
-                                                                                    Id = c.WorkerId,
-                                                                                    RoleName = c.Role?.Name
-                                                                                });
         List<Guid> studentIds = request.Sessions
                 .SelectMany(s => s.Attendances)
                 .Select(a => a.StudentId)
                 .ToList();
 
-        List<Study> ClassStudiesExsist = @class.Studies.Where(c => !studentIds.Contains(c.Id)).ToList();
+        if (@class.Studies.Any(c => !studentIds.Contains(c.Id))) throw new NotFoundException("Student not found");
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
-            .Include(c => c.Attendances)
-            .Include(c => c.AttendancesWorkers)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
-        await _unitOfWork.ClassSessionService.GenerateAttendanceAsync(request.Sessions, classSessions, request.ModuleId);
-        await _spaceDbContext.SaveChangesAsync();
+        if (classTimeSheets.Any())
+            _spaceDbContext.ClassTimeSheets.RemoveRange(classTimeSheets);
+
+        List<ClassTimeSheet> addTimeSheets = new();
+        foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
+        {
+            ClassSession? classSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
+            if (classSession is null) continue;
+
+            if (classSession.Status != ClassSessionStatus.Cancelled)
+            {
+                addTimeSheets.Add(new ClassTimeSheet()
+                {
+                    Attendances = session.Attendances.Select(c => new Attendance()
+                    {
+                        StudyId = c.StudentId,
+                        Note = c.Note,
+                        Status = classSession.TotalHours == c.TotalAttendanceHours
+                                           ? StudentStatus.Attended
+                                           : c.TotalAttendanceHours == 0
+                                           ? StudentStatus.Absent
+                                           : StudentStatus.Partial,
+                        TotalAttendanceHours = c.TotalAttendanceHours
+                    }).ToList(),
+                    AttendancesWorkers = session.AttendancesWorkers.Select(wa => new AttendanceWorker()
+                    {
+                        WorkerId = wa.WorkerId,
+                        TotalAttendanceHours = wa.IsAttendance ? classSession.TotalHours : 0,
+                        RoleId = wa.RoleId,
+                    }).ToList(),
+                    TotalHours = classSession.TotalHours,
+                    Category = classSession.Category,
+                    ClassId = classSession.ClassId,
+                    EndTime = classSession.EndTime,
+                    Date = classSession.Date,
+                    HeldModules = request.HeldModules.Select(hm => new HeldModule()
+                    {
+                        ModuleId = hm.ModuleId,
+                        TotalHours = hm.TotalHours,
+                    }).ToList(),
+                    StartTime = classSession.StartTime,
+                    Status = classSession.Status,
+                });
+            }
+            else
+            {
+                session.Status = ClassSessionStatus.Cancelled;
+
+                DateOnly date2 = classLastDate.AddDays(1);
+                DayOfWeek startDateDayOfWeek = date2.DayOfWeek;
+                while (!@class.Session.Details.Select(c => c.DayOfWeek).Any(c => date2.DayOfWeek == c))
+                {
+                    date2 = date2.AddDays(1);
+                    startDateDayOfWeek = date2.DayOfWeek;
+                }
+                List<ClassSession> generateClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+                    classSession.TotalHours, request.Sessions.Select(r => new CreateClassSessionDto()
+                    {
+                        Category = r.Category,
+                        DayOfWeek = startDateDayOfWeek,
+                        End = classSession.EndTime,
+                        Start = classSession.StartTime
+                    }).ToList(),
+                    date2,
+                    holidayDates,
+                    @class.Id,
+                    classSession.RoomId!.Value);
+
+                await _spaceDbContext.ClassSessions.AddRangeAsync(generateClassSessions, cancellationToken);
+            }
+        }
+
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

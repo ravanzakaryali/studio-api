@@ -21,31 +21,29 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Class)
             .Where(c => c.Id == request.Id)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Worker), request.Id);
 
 
         IEnumerable<ClassModulesWorker> classModuleWorker = worker.ClassModulesWorkers
-            .Where(q => q.StartDate >= DateTime.Now && q.EndDate <= DateTime.Now)
+            .Where(q => q.StartDate >= DateOnly.FromDateTime(DateTime.Now) && q.EndDate <= DateOnly.FromDateTime(DateTime.Now))
             .DistinctBy(cmw => cmw.ClassId);
 
         IEnumerable<Guid> classIds = classModuleWorker.Select(cm => cm.ClassId);
-        List<ClassSession> classSession = await _spaceDbContext.ClassSessions
-            .Where(c => classIds.Contains(c.ClassId) && c.Date == DateTime.Now.Date)
+        List<ClassTimeSheet> classTimeSheet = await _spaceDbContext.ClassTimeSheets
+            .Where(c => classIds.Contains(c.ClassId) && c.Date == DateOnly.FromDateTime(DateTime.Now.Date))
             .ToListAsync();
 
         return classModuleWorker.Select(cmw => new GetAllClassDto()
         {
             Id = cmw.ClassId,
-            Start = classSession
+            Start = classTimeSheet
                     .Where(c => c.ClassId == cmw.ClassId)
-                    .Select(c => (TimeOnly?)c.StartTime)
-                    .DefaultIfEmpty(null)
+                    .Select(c => c.StartTime)
                     .Min(),
-            End = classSession
+            End = classTimeSheet
                     .Where(c => c.ClassId == cmw.ClassId)
-                    .Select(c => (TimeOnly?)c.EndTime)
-                    .DefaultIfEmpty(null)
+                    .Select(c => c.EndTime)
                     .Max(),
             Name = cmw.Class.Name
         });

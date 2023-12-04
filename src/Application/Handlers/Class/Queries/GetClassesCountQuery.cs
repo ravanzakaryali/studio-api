@@ -1,6 +1,4 @@
-﻿using Space.Application.DTOs.Enums;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public class GetClassesCountQuery : IRequest<IEnumerable<GetClassCountResponse>>
 {
@@ -17,9 +15,20 @@ internal class GetClassesCountQueryHandler : IRequestHandler<GetClassesCountQuer
     public async Task<IEnumerable<GetClassCountResponse>> Handle(GetClassesCountQuery request, CancellationToken cancellationToken)
     {
         IQueryable<Class> query = _spaceDbContext.Classes.AsQueryable();
-        int countClose = await query.Where(c => DateTime.Now > c.EndDate).CountAsync(cancellationToken: cancellationToken);
-        int countActive = await query.Where(c => DateTime.Now > c.StartDate && DateTime.Now < c.EndDate).CountAsync(cancellationToken: cancellationToken);
-        int countNew = await query.Where(c => DateTime.Now < c.StartDate).CountAsync(cancellationToken: cancellationToken);
+
+        DateOnly now = DateOnly.FromDateTime(DateTime.Now);
+
+        int countClose = await query
+            .Where(c => now > c.EndDate)
+            .CountAsync(cancellationToken: cancellationToken);
+
+        int countActive = await query
+            .Where(c => now > c.StartDate && now < c.EndDate)
+            .CountAsync(cancellationToken: cancellationToken);
+
+        int countNew = await query
+            .Where(c => now < c.StartDate)
+            .CountAsync(cancellationToken: cancellationToken);
         return new List<GetClassCountResponse>()
         {
             new()

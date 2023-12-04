@@ -9,18 +9,18 @@ public class HolidayService : IHolidayService
         _spaceDbContext = spaceDbContext;
     }
 
-    public async Task<List<DateTime>> GetDatesAsync()
+    public async Task<List<DateOnly>> GetDatesAsync()
     {
         List<Holiday> holidays = await _spaceDbContext.Holidays.ToListAsync();
 
-        List<DateTime> holidayDates = new();
+        List<DateOnly> holidayDates = new();
         foreach (Holiday holiday in holidays)
         {
             for (DateOnly date = holiday.StartDate; date <= holiday.EndDate; date = date.AddDays(1))
             {
-                holidayDates.Add(date.ToDateTime(new TimeOnly(0, 0)));
-            }
+                holidayDates.Add(date);
         }
+    }
         return holidayDates;
     }
 }

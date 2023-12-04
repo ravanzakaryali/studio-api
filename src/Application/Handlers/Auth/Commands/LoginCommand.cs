@@ -36,7 +36,7 @@ internal class LoginCommandHandler : IRequestHandler<LoginCommand>
         _contextAccessor.HttpContext?.Response.Cookies.Append("token", token.AccessToken, new CookieOptions
         {
             Expires = token.Expires.AddDays(7),
-            HttpOnly = true,
+            HttpOnly = false,
             SameSite = SameSiteMode.None,
             Secure = true,
         });

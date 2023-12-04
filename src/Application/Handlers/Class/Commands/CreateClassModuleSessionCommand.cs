@@ -32,7 +32,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
            .ThenInclude(c => c.Modules)
            .ThenInclude(c => c.SubModules)
            .Where(c => c.Id == request.ClassId)
-           .FirstOrDefaultAsync() ??
+           .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                throw new NotFoundException(nameof(Class), request.ClassId);
         //Create Modules
 
@@ -40,7 +40,8 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         IEnumerable<Guid> moduleIds = request.CreateClassModuleSessionDto.Modules.Select(c => c.ModuleId);
         IEnumerable<Module> modules = await _spaceDbContext.Modules
             .Where(c => moduleIds.Contains(c.Id))
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
+
         IEnumerable<Guid> existingModuleIds = modules.Select(m => m.Id);
         IEnumerable<Guid> nonExistingModuleIds = moduleIds.Except(existingModuleIds);
         if (nonExistingModuleIds.Any())
@@ -64,24 +65,24 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         //if (@class.Program.Modules.Any(c => moduleIds.Contains(c.Id))) throw new NotFoundException("Modules not found in modules of class program");
         IEnumerable<Worker> workers = await _spaceDbContext.Workers
             .Where(c => workerIds.Contains(c.Id))
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
         IEnumerable<Guid> existingWorkerIds = workers.Select(w => w.Id);
         IEnumerable<Guid> nonExistingWorkerIds = workerIds.Except(existingWorkerIds);
         if (nonExistingWorkerIds.Any())
             throw new NotFoundException(nameof(Worker), $"{string.Join(",", nonExistingWorkerIds)}");
 
         IEnumerable<Guid> roleIds = request.CreateClassModuleSessionDto.Modules.Select(c => c.RoleId);
-        IEnumerable<Role> roles = await _spaceDbContext.Roles.Where(c => roleIds.Contains(c.Id)).ToListAsync();
+        IEnumerable<Role> roles = await _spaceDbContext.Roles.Where(c => roleIds.Contains(c.Id)).ToListAsync(cancellationToken: cancellationToken);
         IEnumerable<Guid> nonExistingRoleIds = roles.Select(w => w.Id);
-        if (nonExistingRoleIds.Count() == 0)
+        if (!nonExistingRoleIds.Any())
             throw new NotFoundException(nameof(Role), $"{string.Join(",", nonExistingRoleIds)}");
 
         IEnumerable<ClassModulesWorker> classModulesWorker = await _spaceDbContext.ClassModulesWorkers
             .Where(c => c.ClassId == request.ClassId)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
         _spaceDbContext.ClassModulesWorkers.RemoveRange(classModulesWorker);
 
-        await _spaceDbContext.ClassModulesWorkers.AddRangeAsync(request.CreateClassModuleSessionDto.Modules.Select(c => new ClassModulesWorker()
+        IEnumerable<ClassModulesWorker> classModuleWorkers = request.CreateClassModuleSessionDto.Modules.Select(c => new ClassModulesWorker()
         {
             WorkerId = c.WorkerId,
             StartDate = c.StartDate,
@@ -89,18 +90,19 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
             ModuleId = c.ModuleId,
             RoleId = c.RoleId,
             ClassId = @class.Id
-        }));
+        });
+        await _spaceDbContext.ClassModulesWorkers.AddRangeAsync(classModuleWorkers, cancellationToken);
 
-        _spaceDbContext.ClassSessions.RemoveRange(await _spaceDbContext.ClassSessions.Where(cr => cr.ClassId == @class.Id).ToListAsync());
+        _spaceDbContext.ClassSessions.RemoveRange(await _spaceDbContext.ClassSessions.Where(cr => cr.ClassId == @class.Id).ToListAsync(cancellationToken: cancellationToken));
 
         Session session = await _spaceDbContext.Sessions
             .Include(c => c.Details)
             .Where(c => c.Id == request.CreateClassModuleSessionDto.SessionId)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Session), request.CreateClassModuleSessionDto.SessionId);
 
-        if (@class.StartDate == null || @class.RoomId == null)
-            throw new Exception("Class start date or room null");
+        if (@class.RoomId == null)
+            throw new Exception("Class room null");
 
         List<CreateClassSessionDto> sessions = session.Details
             .Select(c => new CreateClassSessionDto()
@@ -113,19 +115,19 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
 
         List<DayOfWeek> selectedDays = sessions.Select(c => c.DayOfWeek).ToList();
 
-        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+        List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
 
         List<ClassSession> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
                                                                                        @class.Program.TotalHours,
                                                                                        sessions,
-                                                                                       @class.StartDate.Value,
+                                                                                       @class.StartDate,
                                                                                        holidayDates,
                                                                                        @class.Id,
                                                                                        @class.RoomId.Value);
 
-        @class.EndDate = classSessions.Max(c => c.Date).Date;
-        await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions);
-        await _spaceDbContext.SaveChangesAsync();
+        @class.EndDate = classSessions.Max(c => c.Date);
+        await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions, cancellationToken);
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

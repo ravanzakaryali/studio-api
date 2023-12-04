@@ -1,36 +1,31 @@
-﻿using System;
-using Space.Application.DTOs.Class.Response;
+﻿namespace Space.Application.Handlers;
 
-namespace Space.Application.Handlers
+
+public record GetClassByProgramQuery(Guid Id) : IRequest<IEnumerable<GetClassByProgramQueryDto>>;
+
+internal class GetClassByProgramQueryHandler : IRequestHandler<GetClassByProgramQuery, IEnumerable<GetClassByProgramQueryDto>>
 {
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public record GetClassByProgramQuery(Guid Id) : IRequest<IEnumerable<GetClassByProgramQueryDto>>;
-
-    internal class GetClassByProgramQueryHandler : IRequestHandler<GetClassByProgramQuery, IEnumerable<GetClassByProgramQueryDto>>
+    public GetClassByProgramQueryHandler(
+    ISpaceDbContext spaceDbContext)
     {
-        readonly ISpaceDbContext _spaceDbContext;
-
-        public GetClassByProgramQueryHandler(
-        ISpaceDbContext spaceDbContext)
-        {
-            _spaceDbContext = spaceDbContext;
-        }
-
-
-        public async Task<IEnumerable<GetClassByProgramQueryDto>> Handle(GetClassByProgramQuery request, CancellationToken cancellationToken)
-        {
-
-            List<Class> classes = await _spaceDbContext.Classes.Where(c => c.ProgramId == request.Id).ToListAsync();
-
-            IEnumerable<GetClassByProgramQueryDto> response = classes.Select(q => new GetClassByProgramQueryDto()
-            {
-                Id = q.Id,
-                Name = q.Name
-            });
-
-            return response;
-        }
+        _spaceDbContext = spaceDbContext;
     }
 
+
+    public async Task<IEnumerable<GetClassByProgramQueryDto>> Handle(GetClassByProgramQuery request, CancellationToken cancellationToken)
+    {
+
+        List<Class> classes = await _spaceDbContext.Classes.Where(c => c.ProgramId == request.Id).ToListAsync(cancellationToken: cancellationToken);
+
+        IEnumerable<GetClassByProgramQueryDto> response = classes.Select(q => new GetClassByProgramQueryDto()
+        {
+            Id = q.Id,
+            Name = q.Name
+        });
+
+        return response;
+    }
 }
 

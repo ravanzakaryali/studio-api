@@ -5,6 +5,7 @@ public interface ISpaceDbContext
 
     #region Class
     DbSet<Class> Classes { get; }
+    DbSet<ClassTimeSheet> ClassTimeSheets { get; }
     DbSet<ClassSession> ClassSessions { get; }
     DbSet<Attendance> Attendances { get; }
     DbSet<Room> Rooms { get; }
@@ -12,7 +13,7 @@ public interface ISpaceDbContext
     DbSet<SessionDetail> SessionDetails { get; }
     DbSet<ClassModulesWorker> ClassModulesWorkers { get; }
     DbSet<AttendanceWorker> AttendancesWorkers { get; }
-
+    DbSet<AttendingWorker> AttendingWorkers { get; }
     #endregion
     #region Common
     DbSet<University> Universities { get; }

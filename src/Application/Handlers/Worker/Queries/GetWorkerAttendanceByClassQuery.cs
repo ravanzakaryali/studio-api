@@ -15,11 +15,13 @@ namespace Space.Application.Handlers
             _spaceDbContext = spaceDbContext;
         }
 
+        //Todo: İstifadə olunmur
         public async Task<IEnumerable<GetWorkerAttendanceByClassDto>> Handle(GetWorkerAttendanceByClassQuery request, CancellationToken cancellationToken)
         {
-            List<ClassSession> data = await _spaceDbContext.ClassSessions
-                .Where(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline))
-                .ToListAsync();
+
+            //List<ClassTimeSheet> data = await _spaceDbContext.ClassSessions
+            //    .Where(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline))
+            //    .ToListAsync();
 
             List<GetWorkerAttendanceByClassDto> response = new();
 

@@ -22,7 +22,10 @@ internal class UserLoginQueryHandler : IRequestHandler<UserLoginQuery, GetUserRe
         string userId = _contextAccessor.HttpContext?.User?.GetLoginUserId()
            ?? throw new UnauthorizedAccessException();
 
-        User? user = await _userManager.Users.Where(c => c.Id == new Guid(userId)).Include(c => c.UserRoles).ThenInclude(c => c.Role).FirstOrDefaultAsync(cancellationToken: cancellationToken)
+        User? user = await _userManager.Users
+            .Where(c => c.Id == new Guid(userId))
+            .Include(c => c.UserRoles).ThenInclude(c => c.Role)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken)
             ?? throw new UnauthorizedAccessException();
         return new GetUserResponseDto()
         {

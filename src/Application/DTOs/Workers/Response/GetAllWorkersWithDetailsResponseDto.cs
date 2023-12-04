@@ -18,6 +18,6 @@ public class WorkersClassesDto
     public string ClassName { get; set; } = null!;
     public Guid ClassId { get; set; }
     public bool IsOpen { get; set; }
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly? EndDate { get; set; }
 }

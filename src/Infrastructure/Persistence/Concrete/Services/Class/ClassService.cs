@@ -8,12 +8,12 @@ public class ClassService : IClassService
         _dbContext = dbContext;
     }
 
-    public (DateTime StartDate, DateTime EndDate) CalculateStartAndEndDate(Session session, Class @class, List<DateTime> holidayDates)
+    public (DateOnly StartDate, DateOnly EndDate) CalculateStartAndEndDate(Session session, Class @class, List<DateOnly> holidayDates)
     {
         int count = 0;
         int totalHour = @class.Program.TotalHours;
-        DateTime startDate = @class.StartDate ?? DateTime.Now;
-        List<DateTime> sessionDates = new();
+        DateOnly startDate = @class.StartDate;
+        List<DateOnly> sessionDates = new();
         while (totalHour > 0)
         {
             foreach (var sessionItem in session.Details.OrderBy(c => c.DayOfWeek))
@@ -24,7 +24,7 @@ public class ClassService : IClassService
                 int hour = (sessionItem.EndTime - sessionItem.StartTime).Hours;
 
 
-                DateTime dateTime = startDate.AddDays(count * 7 + daysToAdd);
+                DateOnly dateTime = startDate.AddDays(count * 7 + daysToAdd);
 
                 if (holidayDates.Contains(dateTime))
                 {

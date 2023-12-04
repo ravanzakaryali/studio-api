@@ -23,26 +23,34 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
             .ThenInclude(c => c.Worker)
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Role)
-            .Include(c => c.ClassSessions)
+            .Include(c => c.ClassTimeSheets)
             .ThenInclude(c => c.AttendancesWorkers)
-            .FirstOrDefaultAsync()
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken)
                 ?? throw new NotFoundException(nameof(Class), request.Id);
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
-            .Where(c => c.ClassId == @class.Id && c.Category != ClassSessionCategory.Lab && request.Date >= c.Date)
-            .ToListAsync()
-                ?? throw new NotFoundException(nameof(ClassSession), request.Id);
 
-        return @class.ClassModulesWorkers.Where(c => c.StartDate >= request.Date && c.EndDate <= request.Date).Distinct(new GetModulesWorkerComparer()).Select(c =>
+        DateOnly requestDate = DateOnly.FromDateTime(request.Date);
+
+        List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
+            .Where(c => c.ClassId == @class.Id && c.Category != ClassSessionCategory.Lab && requestDate >= c.Date)
+            .ToListAsync(cancellationToken: cancellationToken)
+                ?? throw new NotFoundException(nameof(ClassTimeSheet), request.Id);
+
+
+
+        return @class.ClassModulesWorkers
+            .Where(c => c.StartDate >= requestDate && c.EndDate <= requestDate)
+            .Distinct(new GetWorkerForClassDtoComparer())
+            .Select(c =>
         {
-            List<ClassSession> classSessions = @class.ClassSessions.Where(c => c.Date == request.Date).ToList();
+            List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(c => c.Date == requestDate).ToList();
             bool isAttendance = false;
-            foreach (ClassSession classSession in classSessions)
+            foreach (ClassTimeSheet classTimeSheet in classTimeSheets)
             {
-                AttendanceWorker? attendance = classSession.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
+                AttendanceWorker? attendance = classTimeSheet.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
                 if (attendance != null)
                 {
-                    isAttendance = attendance.TotalAttendanceHours == classSession.TotalHour;
+                    isAttendance = attendance.TotalAttendanceHours == classTimeSheet.TotalHours;
                 }
             }
             return new GetWorkersByClassResponseDto()
@@ -53,20 +61,8 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                 RoleName = c.Role!.Name,
                 WorkerId = c.WorkerId,
                 IsAttendance = isAttendance,
-                TotalLessonHours = @class.ClassSessions.Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online).SelectMany(c => c.AttendancesWorkers).Where(attendance => attendance.WorkerId == c.WorkerId).Sum(c => c.TotalAttendanceHours)
+                TotalLessonHours = @class.ClassTimeSheets.Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online).SelectMany(c => c.AttendancesWorkers).Where(attendance => attendance.WorkerId == c.WorkerId).Sum(c => c.TotalAttendanceHours)
             };
         });
-    }
-}
-public class GetModulesWorkerComparer : IEqualityComparer<ClassModulesWorker>
-{
-    public bool Equals(ClassModulesWorker? x, ClassModulesWorker? y)
-    {
-        return x?.WorkerId == y?.WorkerId && x?.RoleId == y?.RoleId;
-    }
-
-    public int GetHashCode(ClassModulesWorker obj)
-    {
-        return obj.WorkerId.GetHashCode() ^ obj.RoleId.GetHashCode();
     }
 }

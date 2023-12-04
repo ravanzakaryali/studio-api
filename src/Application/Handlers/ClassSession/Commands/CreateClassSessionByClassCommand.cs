@@ -8,7 +8,6 @@ public class CreateClassSessionByClassCommand : IRequest
 internal class CreateClassSessionByClassCommandHandler : IRequestHandler<CreateClassSessionByClassCommand>
 {
     readonly ISpaceDbContext _spaceDbContext;
-
     public CreateClassSessionByClassCommandHandler(ISpaceDbContext spaceDbContext)
     {
         _spaceDbContext = spaceDbContext;
@@ -19,11 +18,8 @@ internal class CreateClassSessionByClassCommandHandler : IRequestHandler<CreateC
         Class? @class = await _spaceDbContext.Classes
             .Include("ClassSessions")
             .Where(c => c.Id == request.Id)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
-
-        Room? room = await _spaceDbContext.Rooms.FindAsync(request.Session.RoomId) ??
-            throw new NotFoundException(nameof(Room), request.Session.RoomId);
 
         if (@class.ClassSessions.Any(c =>
                                     (c.StartTime >= request.Session.Start && c.StartTime < request.Session.Start) ||
@@ -37,11 +33,11 @@ internal class CreateClassSessionByClassCommandHandler : IRequestHandler<CreateC
         {
             StartTime = request.Session.Start,
             EndTime = request.Session.End,
-            Date = new DateTime(request.Session.Date.Day, request.Session.Date.Month, request.Session.Date.Day),
-            RoomId = room.Id,
-            TotalHour = (request.Session.End - request.Session.Start).Hours,
+            Date = request.Session.Date,
+            RoomId = @class.RoomId,
+            TotalHours = (request.Session.End - request.Session.Start).Hours,
             Category = request.Session.Category
         });
-        await _spaceDbContext.SaveChangesAsync();
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

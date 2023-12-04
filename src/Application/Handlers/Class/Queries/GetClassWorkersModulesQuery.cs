@@ -1,8 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.AspNetCore.SignalR;
-using System.Linq;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public record GetClassWorkersModulesQuery(Guid Id, Guid SessionId) : IRequest<IEnumerable<GetClassModuleResponseDto>>;
 
@@ -30,25 +26,28 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         Class? @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
             .Include(c => c.Program)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
         Session? session = await _spaceDbContext.Sessions
             .Where(c => c.Id == request.SessionId)
             .Include(c => c.Details)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
             throw new NotFoundException(nameof(Session), request.SessionId);
 
         List<Module> modules = await _spaceDbContext.Modules
             .Include(c => c.SubModules)
             .Where(c => c.ProgramId == @class.ProgramId && c.TopModuleId == null)
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
+
         List<ClassModulesWorker> classModulesWorkers = await _spaceDbContext.ClassModulesWorkers
             .Where(c => c.ClassId == @class.Id)
             .Include(c => c.Role)
             .Include(c => c.Worker)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        //if (@class.Program.Modules.Any()) throw new NotFoundException("The class has no modules");
 
         List<GetClassModuleResponseDto> response = modules.Select(m => new GetClassModuleResponseDto()
         {
@@ -69,15 +68,15 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         }).ToList();
 
         List<DateHourDto> classDateTimes = new();
-        DateTime startDateTime = @class.StartDate ?? DateTime.Now;
+        DateOnly startDateTime = @class.StartDate;
 
         int count = 0;
-        List<DateTime> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+        List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         int totalHour = @class.Program.TotalHours;
 
         while (totalHour > 0)
         {
-            foreach (var sessionItem in session.Details.OrderBy(c => c.DayOfWeek))
+            foreach (SessionDetail? sessionItem in session.Details.OrderBy(c => c.DayOfWeek))
             {
                 var daysToAdd = ((int)sessionItem.DayOfWeek - (int)startDateTime.DayOfWeek + 7) % 7;
                 int numSelectedDays = session.Details.Count;
@@ -85,7 +84,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                 int hour = (sessionItem.EndTime - sessionItem.StartTime).Hours;
 
 
-                DateTime dateTime = startDateTime.AddDays(count * 7 + daysToAdd);
+                DateOnly dateTime = startDateTime.AddDays(count * 7 + daysToAdd);
 
                 if (holidayDates.Contains(dateTime))
                 {
@@ -99,7 +98,8 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                         DateTime = dateTime,
                         Hour = hour,
                     });
-                    totalHour -= hour;
+                    if (sessionItem.Category != ClassSessionCategory.Lab)
+                        totalHour -= hour;
                     if (totalHour <= 0)
                         break;
 
@@ -116,7 +116,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             item.SubModules = item.SubModules?.OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
         }
         //Todo: Code review
-        response.First().StartDate = @class.StartDate ?? DateTime.Now;
+        response.First().StartDate = @class.StartDate;
         response.Last().EndDate = classDateTimes.Last().DateTime;
 
         for (int i = 0; i < response.Count; i++)
@@ -179,6 +179,6 @@ public class GetWorkerForClassDtoComparer : IEqualityComparer<ClassModulesWorker
 }
 public class DateHourDto
 {
-    public DateTime DateTime { get; set; }
+    public DateOnly DateTime { get; set; }
     public int Hour { get; set; }
 }

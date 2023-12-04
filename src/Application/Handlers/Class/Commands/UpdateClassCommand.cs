@@ -45,7 +45,7 @@ internal class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, G
         newClass.Id = @class.Id;
 
         _spaceDbContext.Classes.Update(newClass);
-        await _spaceDbContext.SaveChangesAsync();
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
         return _mapper.Map<GetClassResponseDto>(newClass);
     }
 }
