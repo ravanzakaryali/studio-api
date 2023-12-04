@@ -73,7 +73,6 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
         {
             ClassSession? classSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (classSession is null) continue;
-
             if (classSession.Status != ClassSessionStatus.Cancelled)
             {
                 addTimeSheets.Add(new ClassTimeSheet()

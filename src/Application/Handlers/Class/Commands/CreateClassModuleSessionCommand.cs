@@ -74,7 +74,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         IEnumerable<Guid> roleIds = request.CreateClassModuleSessionDto.Modules.Select(c => c.RoleId);
         IEnumerable<Role> roles = await _spaceDbContext.Roles.Where(c => roleIds.Contains(c.Id)).ToListAsync(cancellationToken: cancellationToken);
         IEnumerable<Guid> nonExistingRoleIds = roles.Select(w => w.Id);
-        if (nonExistingRoleIds.Count() == 0)
+        if (!nonExistingRoleIds.Any())
             throw new NotFoundException(nameof(Role), $"{string.Join(",", nonExistingRoleIds)}");
 
         IEnumerable<ClassModulesWorker> classModulesWorker = await _spaceDbContext.ClassModulesWorkers

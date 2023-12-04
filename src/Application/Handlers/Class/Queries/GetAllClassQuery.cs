@@ -47,10 +47,9 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
                             c.Status != ClassSessionStatus.Cancelled &&
                             c.Category != ClassSessionCategory.Lab)
                         .Sum(c => c.TotalHours),
-            CurrentHour = cd.ClassSessions
+            CurrentHour = cd.ClassTimeSheets
                             .Where(c => c.Status != ClassSessionStatus.Cancelled &&
-                                        c.Category != ClassSessionCategory.Lab &&
-                                        c.Date <= now)
+                                        c.Category != ClassSessionCategory.Lab)
                             .Sum(c => c.TotalHours),
             ClassName = cd.Name,
             EndDate = cd.EndDate,
@@ -76,7 +75,7 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
             TotalModules = cd.TotalModules,
             Workers = cd.ClassModulesWorkers.Select(cmw => new GetWorkerForClassDto()
             {
-                Id = cmw.Worker.Id,
+                Id = cmw.WorkerId,
                 Email = cmw.Worker.Email,
                 Name = cmw.Worker.Name,
                 Surname = cmw.Worker.Surname,

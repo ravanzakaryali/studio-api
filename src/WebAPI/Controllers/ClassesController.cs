@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using SixLabors.ImageSharp;
 using Space.Application.DTOs.Enums;
+using Space.Application.Enums;
 using Space.Domain.Enums;
 
 namespace Space.WebAPI.Controllers;
@@ -248,6 +250,22 @@ public class ClassesController : BaseApiController
         });
         return NoContent();
     }
+    [Authorize(Roles = "admin")]
+    [HttpGet("{id}/attendance-rate")]
+    public async Task<IActionResult> GetAttendanceRateByClass([FromRoute] Guid id, [FromQuery] MonthOfYear month, [FromQuery] int year)
+        => Ok(await Mediator.Send(new GetAttendanceRateByClassQuery()
+        {
+            Id = id,
+            MonthOfYear = month,
+            Year = year
+        }));
+    [Authorize]
+    [HttpGet("{id}/unmarked-attendance-days")]
+    public async Task<IActionResult> GetUnnotedAttendanceDays([FromQuery] Guid id)
+        => Ok(await Mediator.Send(new GetUnattendedDaysByClassQuery()
+        {
+            Id = id
+        }));
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/export/excel")]
@@ -259,4 +277,5 @@ public class ClassesController : BaseApiController
         });
 
     }
+
 }

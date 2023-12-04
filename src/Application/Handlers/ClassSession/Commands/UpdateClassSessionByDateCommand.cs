@@ -32,6 +32,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
                                                                             c.Date <= request.EndDate)
                                                                 .ToListAsync(cancellationToken: cancellationToken);
 
+        //Todo: Code review
         if (classSessions.Any(c => c.Status != null)) throw new Exception("Seçilən tarix daxilində qeyd olunmuş sessiya var!");
 
         if (@class.RoomId is null) throw new NotFoundException("Bu qrup hər hansı bir dərs otağına əlavə olunmayıb");

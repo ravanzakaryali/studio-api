@@ -76,7 +76,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
 
         while (totalHour > 0)
         {
-            foreach (var sessionItem in session.Details.OrderBy(c => c.DayOfWeek))
+            foreach (SessionDetail? sessionItem in session.Details.OrderBy(c => c.DayOfWeek))
             {
                 var daysToAdd = ((int)sessionItem.DayOfWeek - (int)startDateTime.DayOfWeek + 7) % 7;
                 int numSelectedDays = session.Details.Count;
@@ -98,7 +98,8 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                         DateTime = dateTime,
                         Hour = hour,
                     });
-                    totalHour -= hour;
+                    if (sessionItem.Category != ClassSessionCategory.Lab)
+                        totalHour -= hour;
                     if (totalHour <= 0)
                         break;
 
