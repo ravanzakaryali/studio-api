@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Space.Infrastructure.Persistence;
 
@@ -11,9 +12,10 @@ using Space.Infrastructure.Persistence;
 namespace Space.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SpaceDbContext))]
-    partial class SpaceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231201112721_WitrinDateUpdate")]
+    partial class WitrinDateUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -463,6 +465,9 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("ModuleId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("RoomId")
                         .HasColumnType("uniqueidentifier");
 
@@ -485,6 +490,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.HasIndex("ClassTimeSheetId")
                         .IsUnique()
                         .HasFilter("[ClassTimeSheetId] IS NOT NULL");
+
+                    b.HasIndex("ModuleId");
 
                     b.HasIndex("RoomId");
 
@@ -1666,6 +1673,12 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .WithOne("ClassSession")
                         .HasForeignKey("Space.Domain.Entities.ClassSession", "ClassTimeSheetId");
 
+                    b.HasOne("Space.Domain.Entities.Module", "Module")
+                        .WithMany("ClassSessions")
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Space.Domain.Entities.Room", "Room")
                         .WithMany()
                         .HasForeignKey("RoomId");
@@ -1673,6 +1686,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("Class");
 
                     b.Navigation("ClassTimeSheet");
+
+                    b.Navigation("Module");
 
                     b.Navigation("Room");
                 });
@@ -1872,6 +1887,8 @@ namespace Space.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Space.Domain.Entities.Module", b =>
                 {
                     b.Navigation("ClassModulesWorkers");
+
+                    b.Navigation("ClassSessions");
 
                     b.Navigation("ClassTimeSheets");
 

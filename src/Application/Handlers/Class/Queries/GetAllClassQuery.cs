@@ -20,19 +20,23 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
             .ThenInclude(c => c.Worker)
             .ThenInclude(c => c.UserRoles)
             .ThenInclude(c => c.Role)
-            .Include(c => c.Session).AsQueryable();
+            .Include(c => c.Session)
+            .AsQueryable();
+
+        DateOnly now = DateOnly.FromDateTime(DateTime.Now);
+
 
         if (request.Status == ClassStatus.Close)
         {
-            query = query.Where(c => DateOnly.FromDateTime(DateTime.Now) > c.EndDate);
+            query = query.Where(c => now > c.EndDate);
         }
         else if (request.Status == ClassStatus.Active)
         {
-            query = query.Where(c => DateOnly.FromDateTime(DateTime.Now) > c.StartDate && DateOnly.FromDateTime(DateTime.Now) < c.EndDate);
+            query = query.Where(c => now > c.StartDate && now < c.EndDate);
         }
         else
         {
-            query = query.Where(c => DateOnly.FromDateTime(DateTime.Now) < c.StartDate);
+            query = query.Where(c => now < c.StartDate);
         }
 
         List<GetClassModuleWorkers> classes = await query.Select(cd => new GetClassModuleWorkers()
@@ -46,7 +50,7 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
             CurrentHour = cd.ClassSessions
                             .Where(c => c.Status != ClassSessionStatus.Cancelled &&
                                         c.Category != ClassSessionCategory.Lab &&
-                                        c.Date <= DateOnly.FromDateTime(DateTime.UtcNow))
+                                        c.Date <= now)
                             .Sum(c => c.TotalHours),
             ClassName = cd.Name,
             EndDate = cd.EndDate,

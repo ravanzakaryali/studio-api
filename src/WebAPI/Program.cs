@@ -1,21 +1,16 @@
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.Context;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 using Space.Application.Helper;
 using Space.WebAPI.Filters;
-using Space.WebAPI.Middlewares;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Reflection;
 using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-var columnOpts = new ColumnOptions();
+ColumnOptions columnOpts = new ColumnOptions();
 columnOpts.Store.Remove(StandardColumn.Properties);
 columnOpts.Store.Add(StandardColumn.LogEvent);
 columnOpts.PrimaryKey = columnOpts.TimeStamp;
@@ -127,7 +122,7 @@ builder.Services.Configure<ClientRateLimitOptions>(options =>
 builder.Services.AddSwaggerGen(config =>
 {
     config.OperationFilter<AuthenticationRequirementOperationFilter>();
-    config.IncludeXmlComments(Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".xml"));
+    //config.IncludeXmlComments(Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".xml"));
     config.UseInlineDefinitionsForEnums();
 });
 

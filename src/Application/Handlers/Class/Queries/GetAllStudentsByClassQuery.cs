@@ -2,7 +2,7 @@
 
 namespace Space.Application.Handlers;
 
-public record GetAllStudentsByClassQuery(Guid Id, DateOnly Date) : IRequest<IEnumerable<GetAllStudentByClassResponseDto>>;
+public record GetAllStudentsByClassQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetAllStudentByClassResponseDto>>;
 
 
 internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudentsByClassQuery, IEnumerable<GetAllStudentByClassResponseDto>>
@@ -32,8 +32,11 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
+
+        DateOnly requestDate = DateOnly.FromDateTime(request.Date);
+
         List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
-            .Where(c => c.ClassId == @class.Id && c.Date == request.Date)
+            .Where(c => c.ClassId == @class.Id && c.Date == requestDate)
             .AsNoTracking()
             .Include(c => c.Attendances)
             .ToListAsync(cancellationToken: cancellationToken);

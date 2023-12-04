@@ -1,8 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.AspNetCore.SignalR;
-using System.Linq;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public record GetClassWorkersModulesQuery(Guid Id, Guid SessionId) : IRequest<IEnumerable<GetClassModuleResponseDto>>;
 
@@ -44,12 +40,14 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             .Where(c => c.ProgramId == @class.ProgramId && c.TopModuleId == null)
             .AsNoTracking()
             .ToListAsync(cancellationToken: cancellationToken);
+
         List<ClassModulesWorker> classModulesWorkers = await _spaceDbContext.ClassModulesWorkers
             .Where(c => c.ClassId == @class.Id)
             .Include(c => c.Role)
             .Include(c => c.Worker)
-            .ToListAsync();
-        if (!@class.Program.Modules.Any()) throw new NotFoundException("The class has no modules");
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        //if (@class.Program.Modules.Any()) throw new NotFoundException("The class has no modules");
 
         List<GetClassModuleResponseDto> response = modules.Select(m => new GetClassModuleResponseDto()
         {

@@ -21,7 +21,6 @@ public class Class : BaseAuditableEntity, IKometa
     public int? KometaId { get; set; }
     public DateOnly StartDate { get; set; }
     public DateOnly? EndDate { get; set; }
-    public DateTime? WitrinDate { get; set; }
     public ICollection<Study> Studies { get; set; }
     public ICollection<ClassModulesWorker> ClassModulesWorkers { get; set; }
     public List<ClassTimeSheet> ClassTimeSheets { get; set; }

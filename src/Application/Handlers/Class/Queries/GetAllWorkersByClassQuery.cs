@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetAllWorkersByClassQuery(Guid Id, DateOnly Date) : IRequest<IEnumerable<GetWorkersByClassResponseDto>>;
+public record GetAllWorkersByClassQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetWorkersByClassResponseDto>>;
 
 internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersByClassQuery, IEnumerable<GetWorkersByClassResponseDto>>
 {
@@ -28,17 +28,22 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
             .FirstOrDefaultAsync(cancellationToken: cancellationToken)
                 ?? throw new NotFoundException(nameof(Class), request.Id);
 
+
+        DateOnly requestDate = DateOnly.FromDateTime(request.Date);
+
         List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
-            .Where(c => c.ClassId == @class.Id && c.Category != ClassSessionCategory.Lab && request.Date >= c.Date)
+            .Where(c => c.ClassId == @class.Id && c.Category != ClassSessionCategory.Lab && requestDate >= c.Date)
             .ToListAsync(cancellationToken: cancellationToken)
                 ?? throw new NotFoundException(nameof(ClassTimeSheet), request.Id);
 
+
+
         return @class.ClassModulesWorkers
-            .Where(c => c.StartDate >= request.Date && c.EndDate <= request.Date)
+            .Where(c => c.StartDate >= requestDate && c.EndDate <= requestDate)
             .Distinct(new GetWorkerForClassDtoComparer())
             .Select(c =>
         {
-            List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(c => c.Date == request.Date).ToList();
+            List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(c => c.Date == requestDate).ToList();
             bool isAttendance = false;
             foreach (ClassTimeSheet classTimeSheet in classTimeSheets)
             {

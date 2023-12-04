@@ -5,7 +5,9 @@ using Space.Domain.Entities;
 
 namespace Space.Infrastructure.Persistence;
 
-public class SpaceDbContext : IdentityDbContext<User, Role, Guid, IdentityUserClaim<Guid>, UserRole, IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>, ISpaceDbContext
+public class SpaceDbContext :
+    IdentityDbContext<User, Role, Guid, IdentityUserClaim<Guid>, UserRole, IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>,
+    ISpaceDbContext
 {
     private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
     public SpaceDbContext(
@@ -25,6 +27,7 @@ public class SpaceDbContext : IdentityDbContext<User, Role, Guid, IdentityUserCl
     public DbSet<ClassTimeSheet> ClassTimeSheets => Set<ClassTimeSheet>();
     public DbSet<Attendance> Attendances => Set<Attendance>();
     public DbSet<AttendanceWorker> AttendancesWorkers => Set<AttendanceWorker>();
+    public DbSet<AttendingWorker> AttendingWorkers => Set<AttendingWorker>();
     #endregion
     #region Common
     public DbSet<University> Universities => Set<University>();

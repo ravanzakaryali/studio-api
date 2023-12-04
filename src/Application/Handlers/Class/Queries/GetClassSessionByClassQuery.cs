@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetClassSessionByClassQuery(Guid Id, DateOnly Date) : IRequest<IEnumerable<GetClassSessionByClassResponseDto>>;
+public record GetClassSessionByClassQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetClassSessionByClassResponseDto>>;
 internal class GetClassSessionByClassQueryHandler : IRequestHandler<GetClassSessionByClassQuery, IEnumerable<GetClassSessionByClassResponseDto>>
 {
     readonly ISpaceDbContext _spaceDbContext;
@@ -19,7 +19,9 @@ internal class GetClassSessionByClassQueryHandler : IRequestHandler<GetClassSess
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException();
 
-        List<ClassSession> classSessions = @class.ClassSessions.Where(c => c.Date == request.Date).ToList();
+        DateOnly requestDate = DateOnly.FromDateTime(request.Date);
+
+        List<ClassSession> classSessions = @class.ClassSessions.Where(c => c.Date == requestDate).ToList();
         int totalHour = classSessions.Sum(c => c.TotalHours);
         return classSessions.Select(session => new GetClassSessionByClassResponseDto()
         {

@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record UpdateClassSessionCommand(Guid Id, DateOnly Date, IEnumerable<UpdateClassSessionRequestDto> UpdateClassSessions) : IRequest;
+public record UpdateClassSessionCommand(Guid Id, DateTime Date, IEnumerable<UpdateClassSessionRequestDto> UpdateClassSessions) : IRequest;
 
 internal class UpdateClassSessionCommandHandler : IRequestHandler<UpdateClassSessionCommand>
 {
@@ -17,9 +17,11 @@ internal class UpdateClassSessionCommandHandler : IRequestHandler<UpdateClassSes
 
     public async Task Handle(UpdateClassSessionCommand request, CancellationToken cancellationToken)
     {
+        DateOnly requestDate = DateOnly.FromDateTime(request.Date);
+
         Class @class = await _spaceDbContext.Classes
             .Include(c => c.ClassSessions)
-            .Where(c => c.Id == request.Id && c.ClassSessions.Any(c => c.Date == request.Date))
+            .Where(c => c.Id == request.Id && c.ClassSessions.Any(c => c.Date == requestDate))
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 

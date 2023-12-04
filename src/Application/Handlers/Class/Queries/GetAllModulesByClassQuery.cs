@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetAllModulesByClassQuery(Guid Id, DateOnly Date) : IRequest<IEnumerable<GetModuleDto>>;
+public record GetAllModulesByClassQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetModuleDto>>;
 
 
 internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesByClassQuery, IEnumerable<GetModuleDto>>
@@ -33,23 +33,28 @@ internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesB
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
+        DateOnly requestDate = DateOnly.FromDateTime(request.Date);
+
         List<ClassTimeSheet> timeSheets = await _spaceDbContext.ClassTimeSheets
-            .Where(c => c.ClassId == @class.Id && request.Date >= c.Date && c.Category != ClassSessionCategory.Lab)
+            .Where(c => c.ClassId == @class.Id && requestDate >= c.Date && c.Category != ClassSessionCategory.Lab)
             .ToListAsync(cancellationToken: cancellationToken);
 
         List<Module> modules = @class.Program.Modules
             .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null)
-            .Where(m => m.TopModuleId != null || m.SubModules!.Any())
+            .Where(m => m.TopModuleId != null)
             .ToList();
 
         int totalHour = timeSheets
             .Sum(c => c.TotalHours);
 
+        //2023-12-12
+        //2023-12-14
+        //2023-12-24
         ClassModulesWorker? currentModuleWorker = @class.ClassModulesWorkers
-            .FirstOrDefault(c => c.StartDate >= request.Date && c.EndDate <= request.Date)
-                ?? throw new NotFoundException(nameof(ClassModulesWorker), request.Date);
+            .FirstOrDefault(c => c.StartDate <= requestDate && c.EndDate >= requestDate)
+                ?? throw new NotFoundException(nameof(ClassModulesWorker), requestDate);
 
-        int currentModuleIndex = modules.FindIndex(c => c.Id == currentModuleWorker.Id);
+        int currentModuleIndex = modules.FindIndex(c => c.Id == currentModuleWorker.ModuleId);
         List<Module> modulesResponse = new();
 
         if (currentModuleIndex >= 0)

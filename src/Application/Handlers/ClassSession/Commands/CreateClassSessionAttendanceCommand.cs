@@ -1,16 +1,11 @@
-﻿using Space.Domain.Entities;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public class CreateClassSessionAttendanceCommand : IRequest
 {
     public Guid ClassId { get; set; }
-
-
     public DateOnly Date { get; set; }
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
     public ICollection<CreateAttendanceModuleRequestDto> HeldModules { get; set; } = null!;
-
 }
 
 internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<CreateClassSessionAttendanceCommand>

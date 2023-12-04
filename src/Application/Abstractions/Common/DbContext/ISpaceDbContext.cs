@@ -13,7 +13,7 @@ public interface ISpaceDbContext
     DbSet<SessionDetail> SessionDetails { get; }
     DbSet<ClassModulesWorker> ClassModulesWorkers { get; }
     DbSet<AttendanceWorker> AttendancesWorkers { get; }
-
+    DbSet<AttendingWorker> AttendingWorkers { get; }
     #endregion
     #region Common
     DbSet<University> Universities { get; }
