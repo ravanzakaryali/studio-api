@@ -4,3 +4,4 @@ public class GetUnmarkedAttedanceClassesByProgramQuery
 {
     public Guid Id { get; set; }
 }
+internal class GetUnmarkedAttedanceClassesByProgramHandler 

@@ -41,9 +41,9 @@ public class ProgramsController : BaseApiController
     public async Task<IActionResult> GetUnMarkedAttendancesByPrograms()
         => Ok(await Mediator.Send(new GetUnMarkedAttendancesByProgramsQuery()));
 
-    //[Authorize(Roles = "admin")]
-    //[HttpGet("{id}/unmarked-attendances-classes")]
-    //public async Task<IActionResult> GetUnmarkedAttedamceClasses([FromRoute] Guid id)
-        //=> Ok(await Mediator.Send());
+    [Authorize(Roles = "admin")]
+    [HttpGet("{id}/unmarked-attendances-classes")]
+    public async Task<IActionResult> GetUnmarkedAttedamceClasses([FromRoute] Guid id)
+        => Ok(await Mediator.Send());
 
 }
