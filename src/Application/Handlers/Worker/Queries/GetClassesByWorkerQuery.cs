@@ -24,14 +24,15 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Worker), request.Id);
 
+        DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
 
         IEnumerable<ClassModulesWorker> classModuleWorker = worker.ClassModulesWorkers
-            .Where(q => q.StartDate >= DateOnly.FromDateTime(DateTime.Now) && q.EndDate <= DateOnly.FromDateTime(DateTime.Now))
+            .Where(q => q.StartDate >= dateNow && q.EndDate <= dateNow)
             .DistinctBy(cmw => cmw.ClassId);
 
         IEnumerable<Guid> classIds = classModuleWorker.Select(cm => cm.ClassId);
         List<ClassTimeSheet> classTimeSheet = await _spaceDbContext.ClassTimeSheets
-            .Where(c => classIds.Contains(c.ClassId) && c.Date == DateOnly.FromDateTime(DateTime.Now.Date))
+            .Where(c => classIds.Contains(c.ClassId) && c.Date == dateNow)
             .ToListAsync();
 
         return classModuleWorker.Select(cmw => new GetAllClassDto()

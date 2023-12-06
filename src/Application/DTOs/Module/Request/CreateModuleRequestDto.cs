@@ -2,6 +2,6 @@
 
 public class CreateModuleRequestDto
 {
-    public Guid ProgramId { get; set; }
-    public IEnumerable<ModuleDto> Modules { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public List<string>? SubModules { get; set; }
 }

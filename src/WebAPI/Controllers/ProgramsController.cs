@@ -1,4 +1,5 @@
 ﻿using Space.Application.DTOs.Program.Request;
+using Microsoft.AspNetCore.Http;
 
 namespace Space.WebAPI.Controllers;
 
@@ -44,6 +45,16 @@ public class ProgramsController : BaseApiController
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/unmarked-attendances-classes")]
     public async Task<IActionResult> GetUnmarkedAttedamceClasses([FromRoute] Guid id)
-        => Ok(await Mediator.Send());
+        => Ok(await Mediator.Send(new GetUnmarkedAttedanceClassesByProgramQuery()
+        {
+            Id = id
+        }));
+
+    [Authorize(Roles = "admin")]
+    [HttpPost("{id}/modules")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> CreateModules([FromRoute] Guid id, [FromBody] CreateModuleWithProgramRequestDto modules)
+        => StatusCode(201, await Mediator.Send(new CreateModuleCommand(id, modules.Modules)));
 
 }
