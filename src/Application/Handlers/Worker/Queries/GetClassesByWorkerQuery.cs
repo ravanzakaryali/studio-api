@@ -35,17 +35,18 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             .Where(c => classIds.Contains(c.ClassId) && c.Date == dateNow)
             .ToListAsync();
 
+
         return classModuleWorker.Select(cmw => new GetAllClassDto()
         {
             Id = cmw.ClassId,
-            Start = classTimeSheet
+            Start = classTimeSheet.Any() ? classTimeSheet
                     .Where(c => c.ClassId == cmw.ClassId)
                     .Select(c => c.StartTime)
-                    .Min(),
-            End = classTimeSheet
+                    .Min() : null,
+            End = classTimeSheet.Any() ? classTimeSheet
                     .Where(c => c.ClassId == cmw.ClassId)
-                    .Select(c => c.EndTime)
-                    .Max(),
+                    .Select(c => c.StartTime)
+                    .Max() : null,
             Name = cmw.Class.Name
         });
     }
