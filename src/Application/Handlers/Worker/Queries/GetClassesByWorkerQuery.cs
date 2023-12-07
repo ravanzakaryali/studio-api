@@ -31,22 +31,21 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             .DistinctBy(cmw => cmw.ClassId);
 
         IEnumerable<Guid> classIds = classModuleWorker.Select(cm => cm.ClassId);
-        List<ClassTimeSheet> classTimeSheet = await _spaceDbContext.ClassTimeSheets
+
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => classIds.Contains(c.ClassId) && c.Date == dateNow)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
 
         return classModuleWorker.Select(cmw => new GetAllClassDto()
         {
             Id = cmw.ClassId,
-            Start = classTimeSheet.Any() ? classTimeSheet
-                    .Where(c => c.ClassId == cmw.ClassId)
-                    .Select(c => c.StartTime)
-                    .Min() : null,
-            End = classTimeSheet.Any() ? classTimeSheet
-                    .Where(c => c.ClassId == cmw.ClassId)
-                    .Select(c => c.StartTime)
-                    .Max() : null,
+            Start = classSessions.Where(c => c.ClassId == cmw.ClassId).Any() ?
+                    classSessions.Select(c => c.StartTime).Min() :
+                    null,
+            End = classSessions.Where(c => c.ClassId == cmw.ClassId).Any() ?
+                    classSessions.Select(c => c.StartTime).Max() :
+                    null,
             Name = cmw.Class.Name
         });
     }
