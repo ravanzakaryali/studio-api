@@ -293,7 +293,7 @@ public class ClassesController : BaseApiController
         }));
     [Authorize]
     [HttpGet("{id}/unmarked-attendance-days")]
-    public async Task<IActionResult> GetUnnotedAttendanceDays([FromQuery] Guid id)
+    public async Task<IActionResult> GetUnnotedAttendanceDays([FromRoute] Guid id)
         => Ok(await Mediator.Send(new GetUnattendedDaysByClassQuery()
         {
             Id = id
