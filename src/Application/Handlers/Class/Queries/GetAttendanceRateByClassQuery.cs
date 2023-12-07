@@ -1,4 +1,5 @@
-﻿using Space.Application.Enums;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Space.Application.Enums;
 
 namespace Space.Application.Handlers;
 
@@ -23,13 +24,14 @@ internal class GetAttendanceRateByClassHandler : IRequestHandler<GetAttendanceRa
             .Where(c => c.Id == request.Id)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
+        int month = (int)request.MonthOfYear;
 
         IEnumerable<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
-            .Where(c => c.Date.Month == (int)request.MonthOfYear && c.ClassId == @class.Id)
+            .Where(c => c.ClassId == @class.Id)
             .Include(c => c.Attendances)
             .ToListAsync(cancellationToken: cancellationToken);
 
-        return classTimeSheets.Select(c => new GetAttendanceRateByClassDto()
+        return classTimeSheets.Where(c => c.Date.Month == month).Select(c => new GetAttendanceRateByClassDto()
         {
             Status = c.Status,
             TotalStudentsCount = c.Attendances.Count,
