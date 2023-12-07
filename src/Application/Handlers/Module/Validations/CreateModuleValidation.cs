@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers.Validations;
 
-public class CreateModuleValidation : AbstractValidator<CreateModuleCommand>
+public class CreateModuleValidation : AbstractValidator<CreateModuleWithProgramCommand>
 {
     public CreateModuleValidation()
     {

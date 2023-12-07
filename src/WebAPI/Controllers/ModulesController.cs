@@ -1,10 +1,19 @@
-﻿namespace Space.WebAPI.Controllers;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Space.WebAPI.Controllers;
 
 [Authorize(Roles = "admin")]
 public class ModulesController : BaseApiController
 {
 
-    //post edim
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> Create([FromBody] CreateModuleRequestDto module)
+        => StatusCode(201, await Mediator.Send(new CreateModuleCommand()
+        {
+            Module = module
+        }));
 
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

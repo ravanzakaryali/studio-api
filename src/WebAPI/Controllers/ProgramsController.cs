@@ -55,6 +55,6 @@ public class ProgramsController : BaseApiController
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
     public async Task<IActionResult> CreateModules([FromRoute] Guid id, [FromBody] CreateModuleWithProgramRequestDto modules)
-        => StatusCode(201, await Mediator.Send(new CreateModuleCommand(id, modules.Modules)));
+        => StatusCode(201, await Mediator.Send(new CreateModuleWithProgramCommand(id, modules.Modules)));
 
 }
