@@ -4,25 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Space.WebAPI.Controllers;
 
-/// <summary>
-/// Class sessions controller
-/// </summary>
 [Authorize(Roles = "admin")]
 public class ClassSessionsController : BaseApiController
 {
 
-    /// <summary>
-    /// Retrieves details of a specific class session based on its unique identifier and date.
-    /// </summary>
-    /// <param name="id">The unique identifier of the class session to retrieve details for.</param>
-    /// <param name="date">The date of the class session to retrieve details for.</param>
-    /// <returns>
-    /// An HTTP response with a status code 200 (OK) containing details of the specified class session upon successful retrieval.
-    /// </returns>
-    /// <remarks>
-    /// This endpoint allows authorized users to retrieve details of a specific class session based on its unique identifier
-    /// and date. It returns a 200 status code along with the requested class session details upon successful retrieval.
-    /// </remarks>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
     [HttpGet("/api/class-sessions/{id}")]
@@ -31,18 +16,6 @@ public class ClassSessionsController : BaseApiController
         return Ok(await Mediator.Send(new GetClassSessionsByDateQuery(id, date)));
     }
 
-    /// <summary>
-    /// Extends a class session by a specified number of hours and updates session details.
-    /// </summary>
-    /// <param name="request">A JSON object containing details for extending the class session.</param>
-    /// <returns>
-    /// An HTTP response with a status code 204 (No Content) upon successful extension of the class session.
-    /// </returns>
-    /// <remarks>
-    /// This endpoint allows authorized users to extend a class session by a specified number of hours and update
-    /// session details by providing a JSON object with the necessary details. It returns a 204 status code upon
-    /// successful extension of the class session.
-    /// </remarks>
     [HttpPost("/api/session-extensions")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]

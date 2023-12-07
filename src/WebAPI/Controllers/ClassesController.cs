@@ -90,6 +90,14 @@ public class ClassesController : BaseApiController
       => Ok(await Mediator.Send(new GetAllModulesByClassQuery(id, date)));
 
 
+    [Authorize(Roles = "admin,mentor,ta,muellim")]
+    [HttpGet("{id}/held-modules")]
+    public async Task<IActionResult> GetHeldModules([FromRoute] Guid id)
+        => Ok(await Mediator.Send(new GetHeldModulesByClassQuery()
+        {
+            Id = id
+        }));
+
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/modules-workers")]
     public async Task<IActionResult> GetClassModulesWorkers([FromRoute] Guid id, [FromQuery] Guid sessionId)

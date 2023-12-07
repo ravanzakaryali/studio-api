@@ -4,8 +4,8 @@ public class CreateClassSessionAttendanceCommand : IRequest
 {
     public Guid ClassId { get; set; }
     public DateOnly Date { get; set; }
-    public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
     public ICollection<CreateAttendanceModuleRequestDto> HeldModules { get; set; } = null!;
+    public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
 }
 
 internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<CreateClassSessionAttendanceCommand>
@@ -50,8 +50,8 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
         DateOnly classLastDate = await _unitOfWork.ClassSessionService.GetLastDateAsync(@class.Id);
 
         List<Module> module = await _spaceDbContext.Modules
-            .Where(m => requestModuleIds.Contains(m.Id))
-            .ToListAsync(cancellationToken: cancellationToken);
+        .Where(m => requestModuleIds.Contains(m.Id))
+        .ToListAsync(cancellationToken: cancellationToken);
         if (requestModuleIds.Count != module.Count) throw new NotFoundException("Modules not found");
 
         List<Guid> studentIds = request.Sessions
@@ -75,7 +75,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
             if (classSession is null) continue;
             if (classSession.Status != ClassSessionStatus.Cancelled)
             {
-                addTimeSheets.Add(new ClassTimeSheet()
+                ClassTimeSheet classTimeSheet = new()
                 {
                     Attendances = session.Attendances.Select(c => new Attendance()
                     {
@@ -99,14 +99,17 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
                     ClassId = classSession.ClassId,
                     EndTime = classSession.EndTime,
                     Date = classSession.Date,
-                    HeldModules = request.HeldModules.Select(hm => new HeldModule()
+
+                    StartTime = classSession.StartTime,
+                    Status = classSession.Status,
+                };
+                if (session.Category == ClassSessionCategory.Theoric)
+                    classTimeSheet.HeldModules = request.HeldModules.Select(hm => new HeldModule()
                     {
                         ModuleId = hm.ModuleId,
                         TotalHours = hm.TotalHours,
-                    }).ToList(),
-                    StartTime = classSession.StartTime,
-                    Status = classSession.Status,
-                });
+                    }).ToList();
+                addTimeSheets.Add(classTimeSheet);
             }
             else
             {
