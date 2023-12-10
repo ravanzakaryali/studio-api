@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Space.Infrastructure.Persistence.Migrations
 {
-    public partial class ClassSessionsAdd : Migration
+    public partial class ChangeAttendanceWorkers : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -20,10 +20,14 @@ namespace Space.Infrastructure.Persistence.Migrations
             migrationBuilder.DropTable(
                 name: "ClassSessions");
 
-            migrationBuilder.RenameColumn(
+            migrationBuilder.DropColumn(
                 name: "VitrinDate",
-                table: "Classes",
-                newName: "WitrinDate");
+                table: "Classes");
+
+            migrationBuilder.RenameColumn(
+                name: "TotalAttendanceHours",
+                table: "AttendancesWorkers",
+                newName: "TotalMinutes");
 
             migrationBuilder.RenameColumn(
                 name: "ClassSessionId",
@@ -38,48 +42,70 @@ namespace Space.Infrastructure.Persistence.Migrations
             migrationBuilder.RenameColumn(
                 name: "ClassSessionId",
                 table: "Attendances",
-                newName: "ClassTimeSheetId");
+                newName: "ClassTimeSheetsId");
 
-            //migrationBuilder.RenameIndex(
-            //    name: "IX_Attendances_ClassSessionId",
-            //    table: "Attendances",
-            //    newName: "IX_Attendances_ClassTimeSheetId");
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "GenerateClassSessionId",
-                table: "Workers",
-                type: "uniqueidentifier",
-                nullable: true);
-
-            migrationBuilder.AlterColumn<DateTime>(
-                name: "StartDate",
-                table: "ClassModulesWorkers",
-                type: "datetime2",
-                nullable: true,
-                defaultValueSql: "Convert(date, getdate())",
-                oldClrType: typeof(DateTime),
-                oldType: "datetime2",
+            migrationBuilder.AlterColumn<TimeSpan>(
+                name: "StartTime",
+                table: "SessionDetails",
+                type: "time",
+                nullable: false,
+                defaultValue: new TimeSpan(0, 0, 0, 0, 0),
+                oldClrType: typeof(TimeSpan),
+                oldType: "time",
                 oldNullable: true);
 
-            migrationBuilder.AlterColumn<DateTime>(
+            migrationBuilder.AlterColumn<TimeSpan>(
+                name: "EndTime",
+                table: "SessionDetails",
+                type: "time",
+                nullable: false,
+                defaultValue: new TimeSpan(0, 0, 0, 0, 0),
+                oldClrType: typeof(TimeSpan),
+                oldType: "time",
+                oldNullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "Category",
+                table: "SessionDetails",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "Theoric");
+
+            migrationBuilder.AddColumn<DateTime>(
                 name: "EndDate",
                 table: "ClassModulesWorkers",
                 type: "datetime2",
-                nullable: true,
-                defaultValueSql: "Convert(date, getdate())",
-                oldClrType: typeof(DateTime),
-                oldType: "datetime2",
-                oldNullable: true);
+                nullable: true);
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "StartDate",
+                table: "ClassModulesWorkers",
+                type: "datetime2",
+                nullable: true);
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "StartDate",
                 table: "Classes",
                 type: "datetime2",
-                nullable: true,
+                nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2",
                 oldNullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "AttendanceStatus",
+                table: "AttendancesWorkers",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<int>(
+                name: "TotalHours",
+                table: "AttendancesWorkers",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
 
             migrationBuilder.CreateTable(
                 name: "ClassTimeSheets",
@@ -92,9 +118,9 @@ namespace Space.Infrastructure.Persistence.Migrations
                     TotalHours = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ClassId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClassSessionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ClassGenerateSessionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "Getutcdate()"),
@@ -114,32 +140,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "HeldModule",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    ModuleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TotalHours = table.Column<int>(type: "int", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "Getutcdate()"),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_HeldModule", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_HeldModule_Modules_ModuleId",
-                        column: x => x.ModuleId,
-                        principalTable: "Modules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "GenerateClassSessions",
+                name: "ClassGenerateSessions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
@@ -148,7 +149,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                     StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     TotalHours = table.Column<int>(type: "int", nullable: false),
-                    ModuleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: "Offline"),
                     Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -163,64 +163,73 @@ namespace Space.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GenerateClassSessions", x => x.Id);
+                    table.PrimaryKey("PK_ClassGenerateSessions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GenerateClassSessions_Classes_ClassId",
+                        name: "FK_ClassGenerateSessions_Classes_ClassId",
                         column: x => x.ClassId,
                         principalTable: "Classes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_GenerateClassSessions_ClassTimeSheets_ClassTimeSheetId",
+                        name: "FK_ClassGenerateSessions_ClassTimeSheets_ClassTimeSheetId",
                         column: x => x.ClassTimeSheetId,
                         principalTable: "ClassTimeSheets",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_GenerateClassSessions_Modules_ModuleId",
-                        column: x => x.ModuleId,
-                        principalTable: "Modules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_GenerateClassSessions_Rooms_RoomId",
+                        name: "FK_ClassGenerateSessions_Rooms_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Rooms",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClassTimeSheetHeldModule",
+                name: "HeldModules",
                 columns: table => new
                 {
-                    ClassTimeSheetsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    HeldModulesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    ModuleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ClassTimeSheetId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TotalHours = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "Getutcdate()"),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClassTimeSheetHeldModule", x => new { x.ClassTimeSheetsId, x.HeldModulesId });
+                    table.PrimaryKey("PK_HeldModules", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClassTimeSheetHeldModule_ClassTimeSheets_ClassTimeSheetsId",
-                        column: x => x.ClassTimeSheetsId,
+                        name: "FK_HeldModules_ClassTimeSheets_ClassTimeSheetId",
+                        column: x => x.ClassTimeSheetId,
                         principalTable: "ClassTimeSheets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ClassTimeSheetHeldModule_HeldModule_HeldModulesId",
-                        column: x => x.HeldModulesId,
-                        principalTable: "HeldModule",
+                        name: "FK_HeldModules_Modules_ModuleId",
+                        column: x => x.ModuleId,
+                        principalTable: "Modules",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Workers_GenerateClassSessionId",
-                table: "Workers",
-                column: "GenerateClassSessionId");
+                name: "IX_ClassGenerateSessions_ClassId",
+                table: "ClassGenerateSessions",
+                column: "ClassId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClassTimeSheetHeldModule_HeldModulesId",
-                table: "ClassTimeSheetHeldModule",
-                column: "HeldModulesId");
+                name: "IX_ClassGenerateSessions_ClassTimeSheetId",
+                table: "ClassGenerateSessions",
+                column: "ClassTimeSheetId",
+                unique: true,
+                filter: "[ClassTimeSheetId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClassGenerateSessions_RoomId",
+                table: "ClassGenerateSessions",
+                column: "RoomId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClassTimeSheets_ClassId",
@@ -228,36 +237,19 @@ namespace Space.Infrastructure.Persistence.Migrations
                 column: "ClassId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GenerateClassSessions_ClassId",
-                table: "GenerateClassSessions",
-                column: "ClassId");
+                name: "IX_HeldModules_ClassTimeSheetId",
+                table: "HeldModules",
+                column: "ClassTimeSheetId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GenerateClassSessions_ClassTimeSheetId",
-                table: "GenerateClassSessions",
-                column: "ClassTimeSheetId",
-                unique: true,
-                filter: "[ClassTimeSheetId] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GenerateClassSessions_ModuleId",
-                table: "GenerateClassSessions",
-                column: "ModuleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GenerateClassSessions_RoomId",
-                table: "GenerateClassSessions",
-                column: "RoomId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_HeldModule_ModuleId",
-                table: "HeldModule",
+                name: "IX_HeldModules_ModuleId",
+                table: "HeldModules",
                 column: "ModuleId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Attendances_ClassTimeSheets_ClassTimeSheetId",
+                name: "FK_Attendances_ClassTimeSheets_ClassTimeSheetsId",
                 table: "Attendances",
-                column: "ClassTimeSheetId",
+                column: "ClassTimeSheetsId",
                 principalTable: "ClassTimeSheets",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
@@ -269,53 +261,51 @@ namespace Space.Infrastructure.Persistence.Migrations
                 principalTable: "ClassTimeSheets",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Workers_GenerateClassSessions_GenerateClassSessionId",
-                table: "Workers",
-                column: "GenerateClassSessionId",
-                principalTable: "GenerateClassSessions",
-                principalColumn: "Id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Attendances_ClassTimeSheets_ClassTimeSheetId",
+                name: "FK_Attendances_ClassTimeSheets_ClassTimeSheetsId",
                 table: "Attendances");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_AttendancesWorkers_ClassTimeSheets_ClassTimeSheetId",
                 table: "AttendancesWorkers");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_Workers_GenerateClassSessions_GenerateClassSessionId",
-                table: "Workers");
+            migrationBuilder.DropTable(
+                name: "ClassGenerateSessions");
 
             migrationBuilder.DropTable(
-                name: "ClassTimeSheetHeldModule");
-
-            migrationBuilder.DropTable(
-                name: "GenerateClassSessions");
-
-            migrationBuilder.DropTable(
-                name: "HeldModule");
+                name: "HeldModules");
 
             migrationBuilder.DropTable(
                 name: "ClassTimeSheets");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Workers_GenerateClassSessionId",
-                table: "Workers");
+            migrationBuilder.DropColumn(
+                name: "Category",
+                table: "SessionDetails");
 
             migrationBuilder.DropColumn(
-                name: "GenerateClassSessionId",
-                table: "Workers");
+                name: "EndDate",
+                table: "ClassModulesWorkers");
+
+            migrationBuilder.DropColumn(
+                name: "StartDate",
+                table: "ClassModulesWorkers");
+
+            migrationBuilder.DropColumn(
+                name: "AttendanceStatus",
+                table: "AttendancesWorkers");
+
+            migrationBuilder.DropColumn(
+                name: "TotalHours",
+                table: "AttendancesWorkers");
 
             migrationBuilder.RenameColumn(
-                name: "WitrinDate",
-                table: "Classes",
-                newName: "VitrinDate");
+                name: "TotalMinutes",
+                table: "AttendancesWorkers",
+                newName: "TotalAttendanceHours");
 
             migrationBuilder.RenameColumn(
                 name: "ClassTimeSheetId",
@@ -328,32 +318,26 @@ namespace Space.Infrastructure.Persistence.Migrations
                 newName: "IX_AttendancesWorkers_ClassSessionId");
 
             migrationBuilder.RenameColumn(
-                name: "ClassTimeSheetId",
+                name: "ClassTimeSheetsId",
                 table: "Attendances",
                 newName: "ClassSessionId");
 
-            //migrationBuilder.RenameIndex(
-            //    name: "IX_Attendances_ClassTimeSheetId",
-            //    table: "Attendances",
-            //    newName: "IX_Attendances_ClassSessionId");
 
-            migrationBuilder.AlterColumn<DateTime>(
-                name: "StartDate",
-                table: "ClassModulesWorkers",
-                type: "datetime2",
+            migrationBuilder.AlterColumn<TimeSpan>(
+                name: "StartTime",
+                table: "SessionDetails",
+                type: "time",
                 nullable: true,
-                oldClrType: typeof(DateTime),
-                oldType: "datetime2",
-                oldDefaultValueSql: "Convert(date, getdate())");
+                oldClrType: typeof(TimeSpan),
+                oldType: "time");
 
-            migrationBuilder.AlterColumn<DateTime>(
-                name: "EndDate",
-                table: "ClassModulesWorkers",
-                type: "datetime2",
+            migrationBuilder.AlterColumn<TimeSpan>(
+                name: "EndTime",
+                table: "SessionDetails",
+                type: "time",
                 nullable: true,
-                oldClrType: typeof(DateTime),
-                oldType: "datetime2",
-                oldDefaultValueSql: "Convert(date, getdate())");
+                oldClrType: typeof(TimeSpan),
+                oldType: "time");
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "StartDate",
@@ -362,6 +346,12 @@ namespace Space.Infrastructure.Persistence.Migrations
                 nullable: true,
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2");
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "VitrinDate",
+                table: "Classes",
+                type: "datetime2",
+                nullable: true);
 
             migrationBuilder.CreateTable(
                 name: "ClassSessions",

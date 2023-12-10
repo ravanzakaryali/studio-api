@@ -22,8 +22,8 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
 
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
 
-        List<ClassSession> classSessions = await _spaceDbContext
-            .ClassSessions
+        List<ClassGenerateSession> classSessions = await _spaceDbContext
+            .ClassGenerateSessions
             .Include(c => c.Class)
             .Where(c => c.Class.ProgramId == program.Id && c.ClassTimeSheetId == null && c.Date <= dateNow)
             .ToListAsync(cancellationToken: cancellationToken);

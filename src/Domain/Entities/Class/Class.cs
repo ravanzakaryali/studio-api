@@ -7,7 +7,7 @@ public class Class : BaseAuditableEntity, IKometa
         ClassModulesWorkers = new HashSet<ClassModulesWorker>();
         Studies = new HashSet<Study>();
         ClassTimeSheets = new HashSet<ClassTimeSheet>();
-        ClassSessions = new HashSet<ClassSession>();
+        ClassGenerateSessions = new HashSet<ClassGenerateSession>();
         RoomSchedules = new HashSet<RoomSchedule>();
     }
     public string Name { get; set; } = null!;
@@ -24,7 +24,7 @@ public class Class : BaseAuditableEntity, IKometa
     public ICollection<Study> Studies { get; set; }
     public ICollection<ClassModulesWorker> ClassModulesWorkers { get; set; }
     public ICollection<ClassTimeSheet> ClassTimeSheets { get; set; }
-    public ICollection<ClassSession> ClassSessions { get; set; }
+    public ICollection<ClassGenerateSession> ClassGenerateSessions { get; set; }
     public ICollection<RoomSchedule> RoomSchedules { get; set; }
 
 }

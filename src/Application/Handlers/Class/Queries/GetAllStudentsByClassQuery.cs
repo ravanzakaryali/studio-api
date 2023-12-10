@@ -27,7 +27,7 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
             .ThenInclude(c => c.Contact)
             .Include(c => c.Studies)
             .ThenInclude(c => c.Attendances)
-            .Include(c => c.ClassSessions)
+            .Include(c => c.ClassGenerateSessions)
             .Include(c => c.ClassTimeSheets)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
@@ -53,7 +53,7 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                                     .Sum(c => c.TotalAttendanceHours))
                 .Sum();
 
-            double? totalHour = @class.ClassSessions
+            double? totalHour = @class.ClassGenerateSessions
                 .Where(c => (c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online) && c.Category != ClassSessionCategory.Lab)
                 .Sum(s => s.TotalHours);
 

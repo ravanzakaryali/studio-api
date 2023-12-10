@@ -12,7 +12,7 @@ public class ClassSessionService : IClassSessionService
         _context = context;
         _holidayService = holidayService;
     }
-    public List<ClassSession> GenerateSessions(
+    public List<ClassGenerateSession> GenerateSessions(
                                 int totalHours,
                                 List<CreateClassSessionDto> sessions,
                                 DateOnly startDate,
@@ -21,7 +21,7 @@ public class ClassSessionService : IClassSessionService
                                 Guid roomId)
     {
 
-        List<ClassSession> returnClassSessions = new();
+        List<ClassGenerateSession> returnClassSessions = new();
         DayOfWeek startDayOfWeek = startDate.DayOfWeek;
         int count = 0;
         while (totalHours > 0)
@@ -34,7 +34,7 @@ public class ClassSessionService : IClassSessionService
                 int hour = (session.End - session.Start).Hours;
 
                 DateOnly dateTime = startDate.AddDays(count * 7 + daysToAdd);
-                ClassSession classSession = new()
+                ClassGenerateSession classSession = new()
                 {
                     Category = session.Category,
                     ClassId = classId,
@@ -64,7 +64,7 @@ public class ClassSessionService : IClassSessionService
         }
         return returnClassSessions;
     }
-    public List<ClassSession> GenerateSessions(
+    public List<ClassGenerateSession> GenerateSessions(
                                 DateOnly startDate,
                                 List<CreateClassSessionDto> sessions,
                                 DateOnly endDate,
@@ -73,7 +73,7 @@ public class ClassSessionService : IClassSessionService
                                 Guid roomId)
     {
 
-        List<ClassSession> returnClassSessions = new();
+        List<ClassGenerateSession> returnClassSessions = new();
         DayOfWeek startDayOfWeek = startDate.DayOfWeek;
         int count = 0;
         while (returnClassSessions.Any(c => c.Date == endDate))
@@ -94,7 +94,7 @@ public class ClassSessionService : IClassSessionService
 
                 if (hour != 0)
                 {
-                    returnClassSessions.Add(new ClassSession()
+                    returnClassSessions.Add(new ClassGenerateSession()
                     {
                         Category = session.Category,
                         ClassId = classId,
@@ -117,7 +117,7 @@ public class ClassSessionService : IClassSessionService
 
     public async Task<DateOnly> GetLastDateAsync(Guid classId)
     {
-        DateOnly lastDate = await _context.ClassSessions
+        DateOnly lastDate = await _context.ClassGenerateSessions
                                                         .Where(c => c.ClassId == classId)
                                                         .Select(c => c.Date)
                                                         .OrderByDescending(c => c)

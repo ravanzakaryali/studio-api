@@ -39,7 +39,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                 throw new NotFoundException(nameof(Class), request.ClassId);
 
         //həmin günün class sessiona bax
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassGenerateSession> classSessions = await _spaceDbContext.ClassGenerateSessions
             .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
             .ToListAsync(cancellationToken: cancellationToken);
 
@@ -72,7 +72,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         List<ClassTimeSheet> addTimeSheets = new();
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
-            ClassSession? classSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
+            ClassGenerateSession? classSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (classSession is null) continue;
 
             if (classSession.Status != ClassSessionStatus.Cancelled)
@@ -123,7 +123,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                     date2 = date2.AddDays(1);
                     startDateDayOfWeek = date2.DayOfWeek;
                 }
-                List<ClassSession> generateClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+                List<ClassGenerateSession> generateClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
                     classSession.TotalHours, request.Sessions.Select(r => new CreateClassSessionDto()
                     {
                         Category = r.Category,
@@ -136,7 +136,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                     @class.Id,
                     classSession.RoomId!.Value);
 
-                await _spaceDbContext.ClassSessions.AddRangeAsync(generateClassSessions, cancellationToken);
+                await _spaceDbContext.ClassGenerateSessions.AddRangeAsync(generateClassSessions, cancellationToken);
             }
         }
 

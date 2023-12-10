@@ -122,7 +122,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("WorkersId");
 
-                    b.ToTable("ReservationWorker", (string)null);
+                    b.ToTable("ReservationWorker");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Attendance", b =>
@@ -179,6 +179,70 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.HasIndex("StudyId");
 
                     b.ToTable("Attendances");
+                });
+
+            modelBuilder.Entity("Space.Domain.Entities.AttendanceWorker", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<string>("AttendanceStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ClassTimeSheetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("Getutcdate()");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TotalHours")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("WorkerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassTimeSheetId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("WorkerId");
+
+                    b.ToTable("AttendancesWorkers");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Class", b =>
@@ -250,69 +314,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.ToTable("Classes");
                 });
 
-            modelBuilder.Entity("Space.Domain.Entities.ClassModulesWorker", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<Guid>("ClassId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("Getutcdate()");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ModuleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("WorkerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClassId");
-
-                    b.HasIndex("ModuleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("WorkerId");
-
-                    b.ToTable("ClassModulesWorkers");
-                });
-
-            modelBuilder.Entity("Space.Domain.Entities.ClassSession", b =>
+            modelBuilder.Entity("Space.Domain.Entities.ClassGenerateSession", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -387,7 +389,69 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("ClassSessions");
+                    b.ToTable("ClassGenerateSessions");
+                });
+
+            modelBuilder.Entity("Space.Domain.Entities.ClassModulesWorker", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("Getutcdate()");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ModuleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("WorkerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("ModuleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("WorkerId");
+
+                    b.ToTable("ClassModulesWorkers");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassTimeSheet", b =>
@@ -398,12 +462,13 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("Category")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ClassId")
+                    b.Property<Guid>("ClassGenerateSessionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ClassSessionId")
+                    b.Property<Guid>("ClassId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CreatedBy")
@@ -430,20 +495,30 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<Guid?>("WorkerId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalHours")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClassId");
 
-                    b.HasIndex("ModuleId");
-
-                    b.HasIndex("RoomId");
-
-                    b.HasIndex("WorkerId");
-
-                    b.ToTable("ClassSessions", (string)null);
+                    b.ToTable("ClassTimeSheets");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Contact", b =>
@@ -588,7 +663,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("HeldModule");
+                    b.ToTable("HeldModules");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Holiday", b =>
@@ -1453,58 +1528,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("Worker");
                 });
 
-            modelBuilder.Entity("Space.Domain.Entities.AttendingWorker", b =>
-                {
-                    b.HasOne("Space.Domain.Entities.ClassSession", "ClassSession")
-                        .WithMany()
-                        .HasForeignKey("ClassSessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Space.Domain.Entities.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Space.Domain.Entities.Worker", "Worker")
-                        .WithMany()
-                        .HasForeignKey("WorkerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ClassSession");
-
-                    b.Navigation("Role");
-
-                    b.Navigation("Worker");
-                });
-
-            modelBuilder.Entity("Space.Domain.Entities.AttendanceWorker", b =>
-                {
-                    b.HasOne("Space.Domain.Entities.ClassSession", "ClassSession")
-                        .WithMany("AttendancesWorkers")
-                        .HasForeignKey("ClassSessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Space.Domain.Entities.Role", "Role")
-                        .WithMany("AttendanceWorkers")
-                        .HasForeignKey("RoleId");
-
-                    b.HasOne("Space.Domain.Entities.Worker", "Worker")
-                        .WithMany("AttendancesWorkers")
-                        .HasForeignKey("WorkerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ClassSession");
-
-                    b.Navigation("Role");
-
-                    b.Navigation("Worker");
-                });
-
             modelBuilder.Entity("Space.Domain.Entities.Class", b =>
                 {
                     b.HasOne("Space.Domain.Entities.Program", "Program")
@@ -1528,6 +1551,29 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("Room");
 
                     b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("Space.Domain.Entities.ClassGenerateSession", b =>
+                {
+                    b.HasOne("Space.Domain.Entities.Class", "Class")
+                        .WithMany("ClassGenerateSessions")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Space.Domain.Entities.ClassTimeSheet", "ClassTimeSheet")
+                        .WithOne("ClassGenerateSession")
+                        .HasForeignKey("Space.Domain.Entities.ClassGenerateSession", "ClassTimeSheetId");
+
+                    b.HasOne("Space.Domain.Entities.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId");
+
+                    b.Navigation("Class");
+
+                    b.Navigation("ClassTimeSheet");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassModulesWorker", b =>
@@ -1563,25 +1609,13 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("Worker");
                 });
 
-            modelBuilder.Entity("Space.Domain.Entities.ClassSession", b =>
+            modelBuilder.Entity("Space.Domain.Entities.ClassTimeSheet", b =>
                 {
                     b.HasOne("Space.Domain.Entities.Class", "Class")
-                        .WithMany("ClassSessions")
+                        .WithMany("ClassTimeSheets")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Space.Domain.Entities.ClassTimeSheet", "ClassTimeSheet")
-                        .WithOne("ClassSession")
-                        .HasForeignKey("Space.Domain.Entities.ClassSession", "ClassTimeSheetId");
-
-                    b.HasOne("Space.Domain.Entities.Room", "Room")
-                        .WithMany()
-                        .HasForeignKey("RoomId");
-
-                    b.HasOne("Space.Domain.Entities.Worker", "Worker")
-                        .WithMany("ClassSessions")
-                        .HasForeignKey("WorkerId");
 
                     b.Navigation("Class");
                 });
@@ -1600,9 +1634,9 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Room");
+                    b.Navigation("ClassTimeSheet");
 
-                    b.Navigation("Worker");
+                    b.Navigation("Module");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Holiday", b =>
@@ -1735,9 +1769,9 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Class", b =>
                 {
-                    b.Navigation("ClassModulesWorkers");
+                    b.Navigation("ClassGenerateSessions");
 
-                    b.Navigation("ClassSessions");
+                    b.Navigation("ClassModulesWorkers");
 
                     b.Navigation("ClassTimeSheets");
 
@@ -1749,6 +1783,13 @@ namespace Space.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Space.Domain.Entities.ClassTimeSheet", b =>
                 {
                     b.Navigation("Attendances");
+
+                    b.Navigation("AttendancesWorkers");
+
+                    b.Navigation("ClassGenerateSession")
+                        .IsRequired();
+
+                    b.Navigation("HeldModules");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Contact", b =>
@@ -1759,8 +1800,6 @@ namespace Space.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Space.Domain.Entities.Module", b =>
                 {
                     b.Navigation("ClassModulesWorkers");
-
-                    b.Navigation("ClassTimeSheets");
 
                     b.Navigation("SubModules");
                 });

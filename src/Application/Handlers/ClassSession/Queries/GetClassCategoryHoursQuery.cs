@@ -22,7 +22,7 @@ internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCateg
 
         DateOnly requestDate = DateOnly.FromDateTime(request.Date);
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassGenerateSession> classSessions = await _spaceDbContext.ClassGenerateSessions
             .Where(c => c.Date == requestDate && c.ClassId == @class.Id)
             .ToListAsync(cancellationToken: cancellationToken);
 

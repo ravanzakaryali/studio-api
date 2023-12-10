@@ -32,7 +32,7 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
 
         IEnumerable<Guid> classIds = classModuleWorker.Select(cm => cm.ClassId);
 
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+        List<ClassGenerateSession> classSessions = await _spaceDbContext.ClassGenerateSessions
             .Where(c => classIds.Contains(c.ClassId) && c.Date == dateNow)
             .ToListAsync(cancellationToken: cancellationToken);
 

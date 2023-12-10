@@ -30,7 +30,7 @@ internal class CreateClassSessionCommandHandler : IRequestHandler<CreateClassSes
             .Where(c => c.Id == request.ClassId)
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException(nameof(Class), request.ClassId);
-        _spaceDbContext.ClassSessions.RemoveRange(await _spaceDbContext.ClassSessions.Where(cr => cr.ClassId == @class.Id).ToListAsync());
+        _spaceDbContext.ClassGenerateSessions.RemoveRange(await _spaceDbContext.ClassGenerateSessions.Where(cr => cr.ClassId == @class.Id).ToListAsync());
 
         Session session = await _spaceDbContext.Sessions
             .Include(c => c.Details)
@@ -55,7 +55,7 @@ internal class CreateClassSessionCommandHandler : IRequestHandler<CreateClassSes
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
 
-        List<ClassSession> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+        List<ClassGenerateSession> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
                                                                                        @class.Program.TotalHours,
                                                                                        sessions,
                                                                                        @class.StartDate,
@@ -64,7 +64,7 @@ internal class CreateClassSessionCommandHandler : IRequestHandler<CreateClassSes
                                                                                        @class.RoomId.Value);
 
         @class.EndDate = classSessions.Max(c => c.Date);
-        await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions);
+        await _spaceDbContext.ClassGenerateSessions.AddRangeAsync(classSessions);
 
     }
 }

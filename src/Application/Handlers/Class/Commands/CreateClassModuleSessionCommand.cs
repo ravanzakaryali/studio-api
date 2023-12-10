@@ -93,7 +93,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         });
         await _spaceDbContext.ClassModulesWorkers.AddRangeAsync(classModuleWorkers, cancellationToken);
 
-        _spaceDbContext.ClassSessions.RemoveRange(await _spaceDbContext.ClassSessions.Where(cr => cr.ClassId == @class.Id).ToListAsync(cancellationToken: cancellationToken));
+        _spaceDbContext.ClassGenerateSessions.RemoveRange(await _spaceDbContext.ClassGenerateSessions.Where(cr => cr.ClassId == @class.Id).ToListAsync(cancellationToken: cancellationToken));
 
         Session session = await _spaceDbContext.Sessions
             .Include(c => c.Details)
@@ -118,7 +118,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
 
-        List<ClassSession> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+        List<ClassGenerateSession> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
                                                                                        @class.Program.TotalHours,
                                                                                        sessions,
                                                                                        @class.StartDate,
@@ -127,7 +127,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
                                                                                        @class.RoomId.Value);
 
         @class.EndDate = classSessions.Max(c => c.Date);
-        await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions, cancellationToken);
+        await _spaceDbContext.ClassGenerateSessions.AddRangeAsync(classSessions, cancellationToken);
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

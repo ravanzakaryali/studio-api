@@ -21,7 +21,7 @@ internal class GetStudentAttendancesByClassQueryHandler : IRequestHandler<GetStu
         Study study = await _spaceDbContext.Studies
             .Where(q => q.StudentId == request.Id && q.ClassId == request.ClassId)
             .Include(c => c.Class)
-            .ThenInclude(c => c!.ClassSessions)
+            .ThenInclude(c => c!.ClassGenerateSessions)
             .Include(c => c.Student)
             .ThenInclude(c => c!.Contact)
             .Include(c => c.Attendances)

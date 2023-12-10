@@ -1,6 +1,6 @@
 ﻿namespace Space.Domain.Entities;
 
-public class ClassSession : BaseAuditableEntity
+public class ClassGenerateSession : BaseAuditableEntity
 {
     public Guid ClassId { get; set; }
     public Class Class { get; set; } = null!;

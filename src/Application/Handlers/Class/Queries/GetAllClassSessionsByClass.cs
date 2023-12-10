@@ -15,12 +15,12 @@ public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClas
     {
         Class @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
-            .Include(c => c.ClassSessions)
+            .Include(c => c.ClassGenerateSessions)
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException();
 
         //Todo: review
-        IEnumerable<GetAllClassSessionByClassResponseDto> response = @class.ClassSessions
+        IEnumerable<GetAllClassSessionByClassResponseDto> response = @class.ClassGenerateSessions
             .OrderByDescending(q => q.Date).DistinctBy(q => q.Date)
             .Select(q => new GetAllClassSessionByClassResponseDto()
             {

@@ -4,14 +4,14 @@ public interface IClassSessionService
 {
     Task<DateOnly> GetLastDateAsync(Guid classId);
 
-    List<ClassSession> GenerateSessions(
+    List<ClassGenerateSession> GenerateSessions(
                               int totalHours,
                               List<CreateClassSessionDto> sessions,
                               DateOnly startDate,
                               List<DateOnly> holidayDates,
                               Guid classId,
                               Guid roomId);
-    List<ClassSession> GenerateSessions(
+    List<ClassGenerateSession> GenerateSessions(
                                 DateOnly startDate,
                                 List<CreateClassSessionDto> sessions,
                                 DateOnly endDate,
