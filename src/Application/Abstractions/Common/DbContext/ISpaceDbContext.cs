@@ -14,6 +14,7 @@ public interface ISpaceDbContext
     DbSet<ClassModulesWorker> ClassModulesWorkers { get; }
     DbSet<AttendanceWorker> AttendancesWorkers { get; }
     DbSet<AttendingWorker> AttendingWorkers { get; }
+    DbSet<HeldModule> HeldModules { get; }
     #endregion
     #region Common
     DbSet<University> Universities { get; }

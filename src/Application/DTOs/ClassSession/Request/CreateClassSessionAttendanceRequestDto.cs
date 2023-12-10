@@ -18,7 +18,9 @@ public class CreateAttendanceWorker
 {
     public Guid WorkerId { get; set; }
     public Guid RoleId { get; set; }
-    public bool IsAttendance { get; set; }
+    public int TotalHours { get; set; }
+    public int TotalMinutes { get; set; }
+    public AttendanceStatus AttendanceStatus { get; set; }
 }
 public class UpdateAttendanceDto
 {

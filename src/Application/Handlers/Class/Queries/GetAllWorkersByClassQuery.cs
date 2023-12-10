@@ -44,14 +44,13 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
             .Select(c =>
         {
             List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(c => c.Date == requestDate).ToList();
-            bool isAttendance = false;
+            int? totalHours = 0;
+            int? totalMinutes = 0;
             foreach (ClassTimeSheet classTimeSheet in classTimeSheets)
             {
                 AttendanceWorker? attendance = classTimeSheet.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
-                if (attendance != null)
-                {
-                    isAttendance = attendance.TotalAttendanceHours == classTimeSheet.TotalHours;
-                }
+                totalHours = attendance?.TotalHours;
+                totalMinutes = attendance?.TotalMinutes;
             }
             return new GetWorkersByClassResponseDto()
             {
@@ -60,8 +59,9 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                 RoleId = c.RoleId,
                 RoleName = c.Role!.Name,
                 WorkerId = c.WorkerId,
-                IsAttendance = isAttendance,
-                TotalLessonHours = @class.ClassTimeSheets.Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online).SelectMany(c => c.AttendancesWorkers).Where(attendance => attendance.WorkerId == c.WorkerId).Sum(c => c.TotalAttendanceHours)
+                TotalHours = totalHours,
+                TotalMinutes = totalMinutes,
+                TotalLessonHours = @class.ClassTimeSheets.Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online).SelectMany(c => c.AttendancesWorkers).Where(attendance => attendance.WorkerId == c.WorkerId).Sum(c => c.TotalHours)
             };
         });
     }

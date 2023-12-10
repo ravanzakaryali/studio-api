@@ -93,7 +93,9 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                     AttendancesWorkers = session.AttendancesWorkers.Select(wa => new AttendanceWorker()
                     {
                         WorkerId = wa.WorkerId,
-                        TotalAttendanceHours = wa.IsAttendance ? classSession.TotalHours : 0,
+                        TotalHours = wa.TotalHours,
+                        TotalMinutes = wa.TotalMinutes,
+                        AttendanceStatus = wa.AttendanceStatus,
                         RoleId = wa.RoleId,
                     }).ToList(),
                     TotalHours = classSession.TotalHours,

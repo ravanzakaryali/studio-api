@@ -32,6 +32,6 @@ internal class GetUnattendedDaysByClassHandler : IRequestHandler<GetUnattendedDa
         return classSessionDates.Select(c => new GetUnAttendedByClassDto()
         {
             Date = c
-        });
+        }).OrderByDescending(c => c.Date);
     }
 }

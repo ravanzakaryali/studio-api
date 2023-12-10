@@ -8,5 +8,6 @@ public class GetWorkersByClassResponseDto
     public int TotalLessonHours { get; set; }
     public string RoleName { get; set; } = null!;
     public Guid? RoleId { get; set; }
-    public bool IsAttendance { get; set; }
+    public int? TotalHours { get; set; }
+    public int? TotalMinutes { get; set; }
 }

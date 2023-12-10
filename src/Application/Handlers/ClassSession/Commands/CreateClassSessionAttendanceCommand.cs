@@ -91,8 +91,10 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
                     AttendancesWorkers = session.AttendancesWorkers.Select(wa => new AttendanceWorker()
                     {
                         WorkerId = wa.WorkerId,
-                        TotalAttendanceHours = wa.IsAttendance ? classSession.TotalHours : 0,
+                        TotalHours = wa.TotalHours,
+                        TotalMinutes = wa.TotalMinutes,
                         RoleId = wa.RoleId,
+                        AttendanceStatus = wa.AttendanceStatus,
                     }).ToList(),
                     TotalHours = classSession.TotalHours,
                     Category = classSession.Category,
