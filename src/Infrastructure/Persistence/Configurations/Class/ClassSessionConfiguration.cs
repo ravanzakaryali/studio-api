@@ -27,4 +27,5 @@ public class ClassSessionConfiguration : IEntityTypeConfiguration<ClassSession>
                 .HasOne(s => s.ClassTimeSheet)
                 .WithOne(c => c.ClassSession)
                 .HasForeignKey<ClassSession>(c => c.ClassTimeSheetId);
-    }}
+    }
+}
