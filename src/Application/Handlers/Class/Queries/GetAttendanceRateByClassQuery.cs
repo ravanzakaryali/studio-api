@@ -26,18 +26,20 @@ internal class GetAttendanceRateByClassHandler : IRequestHandler<GetAttendanceRa
                 throw new NotFoundException(nameof(Class), request.Id);
         int month = (int)request.MonthOfYear;
 
-        IEnumerable<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
+        IEnumerable<ClassGenerateSession> classGenerateSessions = await _spaceDbContext.ClassGenerateSessions
+            .Include(c => c.ClassTimeSheet)
+            .ThenInclude(c=>c!.Attendances)
             .Where(c => c.ClassId == @class.Id)
-            .Include(c => c.Attendances)
             .ToListAsync(cancellationToken: cancellationToken);
 
-        return classTimeSheets.Where(c => c.Date.Month == month).Select(c => new GetAttendanceRateByClassDto()
+
+        return classGenerateSessions.Where(c => c.Date.Month == month).Select(c => new GetAttendanceRateByClassDto()
         {
-            Status = c.Status,
-            TotalStudentsCount = c.Attendances.Count,
-            AttendingStudentsCount = c.Attendances.Where(c => c.TotalAttendanceHours != 0).Count(),
+            Status = c.ClassTimeSheet?.Status,
+            TotalStudentsCount = c.ClassTimeSheet?.Attendances.Count,
+            AttendingStudentsCount = c.ClassTimeSheet?.Attendances.Where(c => c.TotalAttendanceHours != 0).Count(),
             Date = c.Date,
-        });
+        }).OrderBy(c=>c.Date);
     }
 }
 
