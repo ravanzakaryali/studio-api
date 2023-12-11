@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetAllStudentsDetailsByClassQuery(Guid Id) : IRequest<IEnumerable<GetStudentsDetailsByClassResponseDto>>;
+public record GetAllStudentsDetailsByClassQuery(int Id) : IRequest<IEnumerable<GetStudentsDetailsByClassResponseDto>>;
 
 internal class GetAllStudentsDetailsByClassQueryHandler : IRequestHandler<GetAllStudentsDetailsByClassQuery, IEnumerable<GetStudentsDetailsByClassResponseDto>>
 {
@@ -13,14 +13,15 @@ internal class GetAllStudentsDetailsByClassQueryHandler : IRequestHandler<GetAll
 
     public async Task<IEnumerable<GetStudentsDetailsByClassResponseDto>> Handle(GetAllStudentsDetailsByClassQuery request, CancellationToken cancellationToken)
     {
+        //Todo: Contact null
         Class @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
             .Include(c => c.ClassTimeSheets)
             .ThenInclude(c => c.Attendances)
             .Include(c => c.Studies)
             .ThenInclude(c => c.Student)
-            .ThenInclude(c => c.Contact)
-            .FirstOrDefaultAsync() ??
+            .ThenInclude(c => c!.Contact)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
         return @class.Studies.Where(c => c.StudyType != StudyType.Completion).Select(study =>

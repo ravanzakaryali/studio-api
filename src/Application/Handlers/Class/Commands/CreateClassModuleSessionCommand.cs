@@ -4,7 +4,7 @@ namespace Space.Application.Handlers;
 
 public class CreateClassModuleSessionCommand : IRequest
 {
-    public Guid ClassId { get; set; }
+    public int ClassId { get; set; }
     public CreateClassModuleSessionRequestDto CreateClassModuleSessionDto { get; set; } = null!;
 }
 internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModuleSessionCommand>
@@ -37,13 +37,13 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         //Create Modules
 
 
-        IEnumerable<Guid> moduleIds = request.CreateClassModuleSessionDto.Modules.Select(c => c.ModuleId);
+        IEnumerable<int> moduleIds = request.CreateClassModuleSessionDto.Modules.Select(c => c.ModuleId);
         IEnumerable<Module> modules = await _spaceDbContext.Modules
             .Where(c => moduleIds.Contains(c.Id))
             .ToListAsync(cancellationToken: cancellationToken);
 
-        IEnumerable<Guid> existingModuleIds = modules.Select(m => m.Id);
-        IEnumerable<Guid> nonExistingModuleIds = moduleIds.Except(existingModuleIds);
+        IEnumerable<int> existingModuleIds = modules.Select(m => m.Id);
+        IEnumerable<int> nonExistingModuleIds = moduleIds.Except(existingModuleIds);
         if (nonExistingModuleIds.Any())
             throw new NotFoundException(nameof(Module), $"{string.Join(",", nonExistingModuleIds)}");
 
@@ -61,19 +61,19 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         }
 
 
-        IEnumerable<Guid> workerIds = request.CreateClassModuleSessionDto.Modules.Select(c => c.WorkerId);
+        IEnumerable<int> workerIds = request.CreateClassModuleSessionDto.Modules.Select(c => c.WorkerId);
         //if (@class.Program.Modules.Any(c => moduleIds.Contains(c.Id))) throw new NotFoundException("Modules not found in modules of class program");
         IEnumerable<Worker> workers = await _spaceDbContext.Workers
             .Where(c => workerIds.Contains(c.Id))
             .ToListAsync(cancellationToken: cancellationToken);
-        IEnumerable<Guid> existingWorkerIds = workers.Select(w => w.Id);
-        IEnumerable<Guid> nonExistingWorkerIds = workerIds.Except(existingWorkerIds);
+        IEnumerable<int> existingWorkerIds = workers.Select(w => w.Id);
+        IEnumerable<int> nonExistingWorkerIds = workerIds.Except(existingWorkerIds);
         if (nonExistingWorkerIds.Any())
             throw new NotFoundException(nameof(Worker), $"{string.Join(",", nonExistingWorkerIds)}");
 
-        IEnumerable<Guid> roleIds = request.CreateClassModuleSessionDto.Modules.Select(c => c.RoleId);
+        IEnumerable<int> roleIds = request.CreateClassModuleSessionDto.Modules.Select(c => c.RoleId);
         IEnumerable<Role> roles = await _spaceDbContext.Roles.Where(c => roleIds.Contains(c.Id)).ToListAsync(cancellationToken: cancellationToken);
-        IEnumerable<Guid> nonExistingRoleIds = roles.Select(w => w.Id);
+        IEnumerable<int> nonExistingRoleIds = roles.Select(w => w.Id);
         if (!nonExistingRoleIds.Any())
             throw new NotFoundException(nameof(Role), $"{string.Join(",", nonExistingRoleIds)}");
 
@@ -93,7 +93,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         });
         await _spaceDbContext.ClassModulesWorkers.AddRangeAsync(classModuleWorkers, cancellationToken);
 
-        _spaceDbContext.ClassGenerateSessions.RemoveRange(await _spaceDbContext.ClassGenerateSessions.Where(cr => cr.ClassId == @class.Id).ToListAsync(cancellationToken: cancellationToken));
+        _spaceDbContext.ClassSessions.RemoveRange(await _spaceDbContext.ClassSessions.Where(cr => cr.ClassId == @class.Id).ToListAsync(cancellationToken: cancellationToken));
 
         Session session = await _spaceDbContext.Sessions
             .Include(c => c.Details)
@@ -118,7 +118,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
 
-        List<ClassGenerateSession> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+        List<ClassSession> classSessions = _unitOfWork.ClassSessionService.GenerateSessions(
                                                                                        @class.Program.TotalHours,
                                                                                        sessions,
                                                                                        @class.StartDate,
@@ -127,7 +127,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
                                                                                        @class.RoomId.Value);
 
         @class.EndDate = classSessions.Max(c => c.Date);
-        await _spaceDbContext.ClassGenerateSessions.AddRangeAsync(classSessions, cancellationToken);
+        await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions, cancellationToken);
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

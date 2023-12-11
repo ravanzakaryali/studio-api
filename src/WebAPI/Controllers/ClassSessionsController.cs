@@ -11,7 +11,7 @@ public class ClassSessionsController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
     [HttpGet("/api/class-sessions/{id}")]
-    public async Task<IActionResult> GetClassSessionDetail([FromRoute] Guid id, [FromQuery] DateOnly date)
+    public async Task<IActionResult> GetClassSessionDetail([FromRoute] int id, [FromQuery] DateOnly date)
     {
         return Ok(await Mediator.Send(new GetClassSessionsByDateQuery(id, date)));
     }
@@ -36,7 +36,7 @@ public class ClassSessionsController : BaseApiController
     //        {
     //            ClassSessionId = session.Id,
     //            TotalAttendanceHours = session.TotalHour,
-    //            RoleId = new Guid("39489493-d615-49e2-a0ce-507eaf38f234"),
+    //            RoleId = new int("39489493-d615-49e2-a0ce-507eaf38f234"),
     //            WorkerId = item.WorkerId
     //        });
     //    }
@@ -46,8 +46,8 @@ public class ClassSessionsController : BaseApiController
     //public class ClassSessionImport
     //{
     //    public DateTime Date { get; set; }
-    //    public Guid ClassId { get; set; }
-    //    public Guid WorkerId { get; set; }
+    //    public int ClassId { get; set; }
+    //    public int WorkerId { get; set; }
     //    public int TotalHour { get; set; }
     //}
 }

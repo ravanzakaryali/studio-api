@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetWorkerClassSessionsByClassQuery(Guid Id) : IRequest<GetWorkerClassSessionsByClassResponseDto>;
+public record GetWorkerClassSessionsByClassQuery(int Id) : IRequest<GetWorkerClassSessionsByClassResponseDto>;
 
 
 internal class GetWorkerClassSessionsByClassQueryHandler : IRequestHandler<GetWorkerClassSessionsByClassQuery, GetWorkerClassSessionsByClassResponseDto>

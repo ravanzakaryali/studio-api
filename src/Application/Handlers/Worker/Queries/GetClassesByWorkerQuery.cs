@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetClassesByWorkerQuery(Guid Id) : IRequest<IEnumerable<GetAllClassDto>>;
+public record GetClassesByWorkerQuery(int Id) : IRequest<IEnumerable<GetAllClassDto>>;
 
 internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWorkerQuery, IEnumerable<GetAllClassDto>>
 {
@@ -30,9 +30,9 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             .Where(q => q.StartDate >= dateNow && q.EndDate <= dateNow)
             .DistinctBy(cmw => cmw.ClassId);
 
-        IEnumerable<Guid> classIds = classModuleWorker.Select(cm => cm.ClassId);
+        IEnumerable<int> classIds = classModuleWorker.Select(cm => cm.ClassId);
 
-        List<ClassGenerateSession> classSessions = await _spaceDbContext.ClassGenerateSessions
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => classIds.Contains(c.ClassId) && c.Date == dateNow)
             .ToListAsync(cancellationToken: cancellationToken);
 

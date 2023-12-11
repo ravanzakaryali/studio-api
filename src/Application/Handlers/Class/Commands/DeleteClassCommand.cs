@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers.Commands;
 
-public record DeleteClassCommand(Guid Id) : IRequest<GetClassResponseDto>;
+public record DeleteClassCommand(int Id) : IRequest<GetClassResponseDto>;
 
 internal class DeleteClassCommandHandler : IRequestHandler<DeleteClassCommand, GetClassResponseDto>
 {

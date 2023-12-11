@@ -5,7 +5,7 @@ namespace Space.Application.Handlers;
 
 public class GetAttendanceRateByClassQuery : IRequest<IEnumerable<GetAttendanceRateByClassDto>>
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public MonthOfYear MonthOfYear { get; set; }
     public int Year { get; set; }
 }

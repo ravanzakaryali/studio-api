@@ -40,7 +40,7 @@ internal class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand,
         }
         if (_currentUserService.UserId == null) throw new UnauthorizedAccessException();
 
-        User? user = await _unitOfWork.UserService.FindById(new Guid(_currentUserService.UserId));
+        User? user = await _unitOfWork.UserService.FindById(int.Parse(_currentUserService.UserId));
 
         if (user == null || user.RefreshToken != request.RefreshToken || user.RefreshTokenExpires <= DateTime.UtcNow)
             throw new TokenExpiredException();

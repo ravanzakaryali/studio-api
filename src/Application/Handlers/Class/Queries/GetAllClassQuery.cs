@@ -15,7 +15,7 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         IQueryable<Class> query = _spaceDbContext.Classes
             .Include(c => c.Program)
             .ThenInclude(c => c.Modules)
-            .Include(c => c.ClassGenerateSessions)
+            .Include(c => c.ClassSessions)
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Worker)
             .ThenInclude(c => c.UserRoles)
@@ -42,7 +42,7 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         List<GetClassModuleWorkers> classes = await query.Select(cd => new GetClassModuleWorkers()
         {
             Id = cd.Id,
-            TotalHour = cd.ClassGenerateSessions
+            TotalHour = cd.ClassSessions
                             .Where(c =>
                             c.Status != ClassSessionStatus.Cancelled &&
                             c.Category != ClassSessionCategory.Lab)

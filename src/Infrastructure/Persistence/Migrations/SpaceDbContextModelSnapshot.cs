@@ -22,7 +22,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,8 +36,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -46,7 +46,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,8 +60,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -70,7 +70,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(450)");
@@ -81,8 +81,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -91,10 +91,10 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(450)");
@@ -112,11 +112,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ReservationWorker", b =>
                 {
-                    b.Property<Guid>("ReservationsId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ReservationsId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("WorkersId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("WorkersId")
+                        .HasColumnType("int");
 
                     b.HasKey("ReservationsId", "WorkersId");
 
@@ -127,13 +127,14 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Attendance", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ClassTimeSheetsId")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ClassTimeSheetsId")
+                        .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -166,8 +167,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("StudyId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("StudyId")
+                        .HasColumnType("int");
 
                     b.Property<int>("TotalAttendanceHours")
                         .HasColumnType("int");
@@ -183,17 +184,18 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.AttendanceWorker", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("AttendanceStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ClassTimeSheetId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ClassTimeSheetId")
+                        .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -222,8 +224,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("RoleId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("RoleId")
+                        .HasColumnType("int");
 
                     b.Property<int>("TotalHours")
                         .HasColumnType("int");
@@ -231,8 +233,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<int>("TotalMinutes")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("WorkerId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("WorkerId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -247,10 +249,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Class", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -291,14 +294,14 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ProgramId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ProgramId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid?>("RoomId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("SessionId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("SessionId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -314,22 +317,86 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.ToTable("Classes");
                 });
 
-            modelBuilder.Entity("Space.Domain.Entities.ClassGenerateSession", b =>
+            modelBuilder.Entity("Space.Domain.Entities.ClassModulesWorker", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("Getutcdate()");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ModuleId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("WorkerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("ModuleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("WorkerId");
+
+                    b.ToTable("ClassModulesWorkers");
+                });
+
+            modelBuilder.Entity("Space.Domain.Entities.ClassSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ClassId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid?>("ClassTimeSheetId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("ClassTimeSheetId")
+                        .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -364,8 +431,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("RoomId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("int");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
@@ -389,87 +456,26 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("ClassGenerateSessions");
-                });
-
-            modelBuilder.Entity("Space.Domain.Entities.ClassModulesWorker", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<Guid>("ClassId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("Getutcdate()");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ModuleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("WorkerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClassId");
-
-                    b.HasIndex("ModuleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("WorkerId");
-
-                    b.ToTable("ClassModulesWorkers");
+                    b.ToTable("ClassSessions");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassTimeSheet", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ClassGenerateSessionId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ClassId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ClassSessionId")
+                        .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -523,10 +529,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Contact", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -579,9 +586,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.File", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
@@ -619,13 +628,14 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.HeldModule", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ClassTimeSheetId")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ClassTimeSheetId")
+                        .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -651,8 +661,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("ModuleId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ModuleId")
+                        .HasColumnType("int");
 
                     b.Property<int>("TotalHours")
                         .HasColumnType("int");
@@ -668,13 +678,14 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Holiday", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
 
-                    b.Property<Guid?>("ClassId")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("ClassId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -708,10 +719,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Module", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -744,11 +756,11 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ProgramId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("ProgramId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid?>("TopModuleId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("TopModuleId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Version")
                         .HasColumnType("nvarchar(max)");
@@ -764,10 +776,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Program", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Color")
                         .IsRequired()
@@ -814,9 +827,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Reservation", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -850,9 +865,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Role", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -888,10 +905,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Room", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int?>("Capacity")
                         .HasColumnType("int");
@@ -938,15 +956,17 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.RoomSchedule", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("Category")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("ClassId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("ClassId")
+                        .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -979,11 +999,11 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("ReservationId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("ReservationId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid?>("RoomId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("int");
 
                     b.Property<string>("StartTime")
                         .IsRequired()
@@ -1005,10 +1025,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Session", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -1048,10 +1069,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.SessionDetail", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -1092,8 +1114,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("SessionId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("SessionId")
+                        .HasColumnType("int");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
@@ -1110,13 +1132,14 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Student", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
 
-                    b.Property<Guid?>("ContactId")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("ContactId")
+                        .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -1159,13 +1182,14 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Study", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
 
-                    b.Property<Guid?>("ClassId")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("ClassId")
+                        .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -1198,8 +1222,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("StudentId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
 
                     b.Property<string>("StudyType")
                         .HasColumnType("nvarchar(max)");
@@ -1215,10 +1239,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Support", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -1251,8 +1276,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1263,10 +1288,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.University", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -1292,9 +1318,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
@@ -1389,16 +1417,17 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.UserRole", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1413,8 +1442,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                 {
                     b.HasBaseType("Space.Domain.Entities.File");
 
-                    b.Property<Guid>("SupportId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("SupportId")
+                        .HasColumnType("int");
 
                     b.HasIndex("SupportId");
 
@@ -1440,7 +1469,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.ToTable("Workers", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Space.Domain.Entities.Role", null)
                         .WithMany()
@@ -1449,7 +1478,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
                     b.HasOne("Space.Domain.Entities.User", null)
                         .WithMany()
@@ -1458,7 +1487,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
                     b.HasOne("Space.Domain.Entities.User", null)
                         .WithMany()
@@ -1467,7 +1496,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
                     b.HasOne("Space.Domain.Entities.User", null)
                         .WithMany()
@@ -1560,29 +1589,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("Session");
                 });
 
-            modelBuilder.Entity("Space.Domain.Entities.ClassGenerateSession", b =>
-                {
-                    b.HasOne("Space.Domain.Entities.Class", "Class")
-                        .WithMany("ClassGenerateSessions")
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Space.Domain.Entities.ClassTimeSheet", "ClassTimeSheet")
-                        .WithOne("ClassGenerateSession")
-                        .HasForeignKey("Space.Domain.Entities.ClassGenerateSession", "ClassTimeSheetId");
-
-                    b.HasOne("Space.Domain.Entities.Room", "Room")
-                        .WithMany()
-                        .HasForeignKey("RoomId");
-
-                    b.Navigation("Class");
-
-                    b.Navigation("ClassTimeSheet");
-
-                    b.Navigation("Room");
-                });
-
             modelBuilder.Entity("Space.Domain.Entities.ClassModulesWorker", b =>
                 {
                     b.HasOne("Space.Domain.Entities.Class", "Class")
@@ -1614,6 +1620,29 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("Worker");
+                });
+
+            modelBuilder.Entity("Space.Domain.Entities.ClassSession", b =>
+                {
+                    b.HasOne("Space.Domain.Entities.Class", "Class")
+                        .WithMany("ClassSessions")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Space.Domain.Entities.ClassTimeSheet", "ClassTimeSheet")
+                        .WithOne("ClassSession")
+                        .HasForeignKey("Space.Domain.Entities.ClassSession", "ClassTimeSheetId");
+
+                    b.HasOne("Space.Domain.Entities.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId");
+
+                    b.Navigation("Class");
+
+                    b.Navigation("ClassTimeSheet");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassTimeSheet", b =>
@@ -1776,9 +1805,9 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.Class", b =>
                 {
-                    b.Navigation("ClassGenerateSessions");
-
                     b.Navigation("ClassModulesWorkers");
+
+                    b.Navigation("ClassSessions");
 
                     b.Navigation("ClassTimeSheets");
 
@@ -1793,7 +1822,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.Navigation("AttendancesWorkers");
 
-                    b.Navigation("ClassGenerateSession")
+                    b.Navigation("ClassSession")
                         .IsRequired();
 
                     b.Navigation("HeldModules");

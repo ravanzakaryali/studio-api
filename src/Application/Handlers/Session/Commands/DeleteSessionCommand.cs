@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record DeleteSessionCommand(Guid Id) : IRequest<GetSessionResponseDto>;
+public record DeleteSessionCommand(int Id) : IRequest<GetSessionResponseDto>;
 internal class DeleteSessionCommandHandler : IRequestHandler<DeleteSessionCommand, GetSessionResponseDto>
 {
     readonly ISpaceDbContext _spaceDbContext;

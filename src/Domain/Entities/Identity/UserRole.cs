@@ -1,10 +1,10 @@
 ﻿namespace Space.Domain.Entities;
 
-public class UserRole : IdentityUserRole<Guid>
+public class UserRole : IdentityUserRole<int>
 {
-    public Guid Id { get; set; }
-    public override Guid UserId { get; set; }
+    public int Id { get; set; }
+    public override int UserId { get; set; }
     public virtual User User { get; set; } = null!;
-    public override Guid RoleId { get; set; }
+    public override int RoleId { get; set; }
     public virtual Role Role { get; set; } = null!;
 }

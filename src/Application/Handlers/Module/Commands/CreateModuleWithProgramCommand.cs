@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace Space.Application.Handlers.Commands;
 
-public record CreateModuleWithProgramCommand(Guid ProgramId, IEnumerable<ModuleDto> Modules) : IRequest<IEnumerable<GetModuleDto>>;
+public record CreateModuleWithProgramCommand(int ProgramId, IEnumerable<ModuleDto> Modules) : IRequest<IEnumerable<GetModuleDto>>;
 internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleWithProgramCommand, IEnumerable<GetModuleDto>>
 {
     readonly IUnitOfWork _unitOfWork;

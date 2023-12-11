@@ -3,7 +3,7 @@ namespace Space.Application.Handlers;
 
 public class GetHeldModulesByClassQuery : IRequest<IEnumerable<GetHeldModulesDto>>
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 }
 internal class GetHeldModulesByClassHandler : IRequestHandler<GetHeldModulesByClassQuery, IEnumerable<GetHeldModulesDto>>
 {

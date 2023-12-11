@@ -16,7 +16,7 @@ internal class GetAllStudentsQueryHandler : IRequestHandler<GetAllStudentsQuery,
         //Todo: Contact nullable
         List<Study> studies = await _spaceDbContext.Studies
             .Include(c => c.Student)
-            .ThenInclude(c => c.Contact)
+            .ThenInclude(c => c!.Contact)
             .Include(c => c.Class)
             .Where(q => q.Class!.EndDate > DateOnly.FromDateTime(DateTime.Now))
             .ToListAsync(cancellationToken: cancellationToken);

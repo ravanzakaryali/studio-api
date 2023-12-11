@@ -52,7 +52,7 @@ public class RoomsController : BaseApiController
     /// indicate the success of the operation.
     /// </remarks>
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRoomRequestDto request)
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateRoomRequestDto request)
        => StatusCode(200, await Mediator.Send(new UpdateRoomCommand(id, request)));
 
     /// <summary>
@@ -68,6 +68,6 @@ public class RoomsController : BaseApiController
     /// indicate the success of the operation.
     /// </remarks>
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    public async Task<IActionResult> Delete([FromRoute] int id)
         => StatusCode(200, await Mediator.Send(new DeleteRoomCommand(id)));
 }

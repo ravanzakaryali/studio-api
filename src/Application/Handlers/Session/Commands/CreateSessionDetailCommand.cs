@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record CreateSessionDetailCommand(Guid Id, CreateSessionDetailRequestDto Details) : IRequest<GetSessionWithDetailsResponseDto>;
+public record CreateSessionDetailCommand(int Id, CreateSessionDetailRequestDto Details) : IRequest<GetSessionWithDetailsResponseDto>;
 internal class CreateSessionDetailCommandHandler : IRequestHandler<CreateSessionDetailCommand, GetSessionWithDetailsResponseDto>
 {
     readonly IMapper _mapper;

@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record DeleteHolidayCommand(Guid Id) : IRequest<HolidayResponseDto>;
+public record DeleteHolidayCommand(int Id) : IRequest<HolidayResponseDto>;
 
 internal class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayCommand, HolidayResponseDto>
 {

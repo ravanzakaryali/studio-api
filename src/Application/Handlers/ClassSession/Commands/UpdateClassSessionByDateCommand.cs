@@ -2,7 +2,7 @@
 
 public class UpdateClassSessionByDateCommand : IRequest
 {
-    public Guid ClassId { get; set; }
+    public int ClassId { get; set; }
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
     public IEnumerable<CreateClassSessionDto> Sessions { get; set; } = null!;
@@ -26,7 +26,7 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
         Class @class = await _spaceDbContext.Classes.FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken: cancellationToken)
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
-        List<ClassGenerateSession> classSessions = await _spaceDbContext.ClassGenerateSessions
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
                                                                 .Where(c => c.ClassId == request.ClassId &&
                                                                             c.Date >= request.StartDate &&
                                                                             c.Date <= request.EndDate)
@@ -40,11 +40,11 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
 
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
 
-        List<ClassGenerateSession> responseClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+        List<ClassSession> responseClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
             startDate: request.StartDate, request.Sessions.ToList(), request.EndDate, holidayDates, @class.Id, @class.RoomId.Value);
 
-        await _spaceDbContext.ClassGenerateSessions.AddRangeAsync(responseClassSessions);
-        _spaceDbContext.ClassGenerateSessions.RemoveRange(classSessions);
+        await _spaceDbContext.ClassSessions.AddRangeAsync(responseClassSessions);
+        _spaceDbContext.ClassSessions.RemoveRange(classSessions);
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

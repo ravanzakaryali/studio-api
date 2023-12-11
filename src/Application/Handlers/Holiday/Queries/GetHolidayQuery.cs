@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetHolidayQuery(Guid Id) : IRequest<HolidayResponseDto>;
+public record GetHolidayQuery(int Id) : IRequest<HolidayResponseDto>;
 
 internal class GetHolidayQueryHandler : IRequestHandler<GetHolidayQuery, HolidayResponseDto>
 {

@@ -2,7 +2,7 @@
 
 namespace Space.Application.Handlers;
 
-public record CreateRoleByUserCommand(Guid Id, IEnumerable<CreateRoleRequestDto> Roles) : IRequest;
+public record CreateRoleByUserCommand(int Id, IEnumerable<CreateRoleRequestDto> Roles) : IRequest;
 
 internal class CreateRoleByUserCommandHandler : IRequestHandler<CreateRoleByUserCommand>
 {
@@ -21,7 +21,7 @@ internal class CreateRoleByUserCommandHandler : IRequestHandler<CreateRoleByUser
     {
         User user = await _userManager.FindByIdAsync(request.Id.ToString())
             ?? throw new NotFoundException(nameof(User), request.Id);
-        List<Guid> roles = request.Roles.Select(r => r.Id).ToList();
+        List<int> roles = request.Roles.Select(r => r.Id).ToList();
         IList<string> userRoles = await _userManager.GetRolesAsync(user);
         if (userRoles.Count != 0) await _userManager.RemoveFromRolesAsync(user, userRoles);
         List<string> rolesDb = await _roleManager.Roles.Where(r => roles.ToList().Contains(r.Id)).Select(c => c.Name).ToListAsync();

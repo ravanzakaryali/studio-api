@@ -14,7 +14,7 @@ public class UserService : IUserService
         _userManager = userManager;
     }
 
-    public async Task<User> FindById(Guid id)
+    public async Task<User> FindById(int id)
          => await _userManager.FindByIdAsync(id.ToString()) ??
             throw new NotFoundException("User", id);
     public async Task<User> FindByEmailAsync(string email)
@@ -24,7 +24,7 @@ public class UserService : IUserService
        => await _userManager.FindByNameAsync(username) ??
            throw new NotFoundException("User", username);
 
-    public async Task PasswordAssignAsync(Guid id, string password)
+    public async Task PasswordAssignAsync(int id, string password)
     {
         User user = await _userManager.FindByIdAsync(id.ToString());
         _ = new IdentityResult();

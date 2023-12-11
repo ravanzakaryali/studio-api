@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers.Commands;
 
-public record DeleteProgramCommand(Guid Id) : IRequest;
+public record DeleteProgramCommand(int Id) : IRequest;
 
 internal class DeleteProgramCommandHandler : IRequestHandler<DeleteProgramCommand>
 {

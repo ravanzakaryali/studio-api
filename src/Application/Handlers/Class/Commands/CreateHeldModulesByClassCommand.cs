@@ -3,7 +3,7 @@ namespace Space.Application.Handlers;
 
 public class CreateHeldModulesByClassCommand : IRequest
 {
-    public Guid ClassId { get; set; }
+    public int ClassId { get; set; }
     public IEnumerable<CreateAttendanceModuleRequestDto> HeldModules { get; set; } = null!;
 }
 internal class CreateHeldModulesByClassHandler : IRequestHandler<CreateHeldModulesByClassCommand>

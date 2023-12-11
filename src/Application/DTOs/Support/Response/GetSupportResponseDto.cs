@@ -6,7 +6,7 @@ public class GetSupportResponseDto
     {
         Images = new HashSet<GetFileResponse>();
     }
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public string Title { get; set; } = null!;
     public string? Description { get; set; }
     public string? UserEmail { get; set; }

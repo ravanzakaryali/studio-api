@@ -2,8 +2,8 @@
 
 public class GetAllAbsentStudentResponseDto
 {
-    public Guid Id { get; set; }
-    public Guid? StudentId { get; set; }
+    public int Id { get; set; }
+    public int? StudentId { get; set; }
     public string Name { get; set; } = null!;
     public string Surname { get; set; } = null!;
     public string? Father { get; set; }

@@ -15,7 +15,7 @@ public class WorkersController : BaseApiController
 
     [Authorize]
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get([FromRoute] Guid id)
+    public async Task<IActionResult> Get([FromRoute] int id)
             => StatusCode(200, await Mediator.Send(new GetWorkerQuery(id)));
 
     [Authorize(Roles = "admin")]
@@ -31,24 +31,24 @@ public class WorkersController : BaseApiController
 
     [Authorize(Roles = "mentor,ta,muellim,admin")]
     [HttpGet("{id}/worker-class-sessions-by-class")]
-    public async Task<IActionResult> GetWorkerClassSessionsByClass([FromRoute] Guid id)
+    public async Task<IActionResult> GetWorkerClassSessionsByClass([FromRoute] int id)
             => StatusCode(200, await Mediator.Send(new GetWorkerClassSessionsByClassQuery(id)));
 
     [Authorize(Roles = "mentor,ta,muellim,admin")]
     [HttpGet("{id}/get-worker-general-report")]
-    public async Task<IActionResult> GetWorkerGeneralReport([FromRoute] Guid id)
+    public async Task<IActionResult> GetWorkerGeneralReport([FromRoute] int id)
             => StatusCode(200, await Mediator.Send(new GetWorkerGeneralReportQuery(id)));
 
 
     [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    public async Task<IActionResult> Delete([FromRoute] int id)
         => StatusCode(200, await Mediator.Send(new DeleteWorkerCommand(id)));
 
 
     [Authorize(Roles = "admin")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWorkerReuqest request)
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateWorkerReuqest request)
           => StatusCode(200, await Mediator.Send(new UpdateWorkerCommand()
           {
               Id = id,
@@ -63,12 +63,12 @@ public class WorkersController : BaseApiController
 
     [Authorize(Roles = "admin,muellim,mentor,ta")]
     [HttpGet("{id}/classes")]
-    public async Task<IActionResult> GetClassByWorker([FromRoute] Guid id)
+    public async Task<IActionResult> GetClassByWorker([FromRoute] int id)
         => Ok(await Mediator.Send(new GetClassesByWorkerQuery(id)));
 
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/attendance-by-class")]
-    public async Task<IActionResult> GetWorkerAttendanceByClassId([FromRoute] Guid id) =>
+    public async Task<IActionResult> GetWorkerAttendanceByClassId([FromRoute] int id) =>
         StatusCode(200, await Mediator.Send(new GetWorkerAttendanceByClassQuery(id)));
 }

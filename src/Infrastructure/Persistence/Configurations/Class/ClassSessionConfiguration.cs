@@ -1,8 +1,8 @@
 ﻿namespace Space.Infrastructure.Persistence.Configurations;
 
-public class ClassSessionConfiguration : IEntityTypeConfiguration<ClassGenerateSession>
+public class ClassSessionConfiguration : IEntityTypeConfiguration<ClassSession>
 {
-    public void Configure(EntityTypeBuilder<ClassGenerateSession> builder)
+    public void Configure(EntityTypeBuilder<ClassSession> builder)
     {
         builder.ConfigureBaseAuditableEntity();
         builder
@@ -25,7 +25,7 @@ public class ClassSessionConfiguration : IEntityTypeConfiguration<ClassGenerateS
 
         builder
                 .HasOne(s => s.ClassTimeSheet)
-                .WithOne(c => c.ClassGenerateSession)
-                .HasForeignKey<ClassGenerateSession>(c => c.ClassTimeSheetId);
+                .WithOne(c => c.ClassSession)
+                .HasForeignKey<ClassSession>(c => c.ClassTimeSheetId);
     }
 }

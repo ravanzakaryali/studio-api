@@ -42,7 +42,7 @@ public class SessionsController : BaseApiController
     [HttpPost("{id}/details")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateDetails([FromRoute] Guid id, [FromBody] CreateSessionDetailRequestDto request)
+    public async Task<IActionResult> CreateDetails([FromRoute] int id, [FromBody] CreateSessionDetailRequestDto request)
         => StatusCode(201, await Mediator.Send(new CreateSessionDetailCommand(id, request)));
 
     /// <summary>
@@ -76,7 +76,7 @@ public class SessionsController : BaseApiController
     /// </remarks>
     [Authorize(Roles = "admin,ta,mentor,muellim")]
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get([FromRoute] Guid id)
+    public async Task<IActionResult> Get([FromRoute] int id)
         => StatusCode(200, await Mediator.Send(new GetSessionQuery(id)));
 
     /// <summary>
@@ -94,7 +94,7 @@ public class SessionsController : BaseApiController
     /// </remarks>
     [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    public async Task<IActionResult> Delete([FromRoute] int id)
            => StatusCode(200, await Mediator.Send(new DeleteSessionCommand(id)));
 
     /// <summary>
@@ -113,6 +113,6 @@ public class SessionsController : BaseApiController
     /// </remarks>
     [Authorize(Roles = "admin")]
     [HttpDelete("{sessionId}/details/{sessionDetailId}")]
-    public async Task<IActionResult> DeleteSessionDetail([FromRoute] Guid sessionId, [FromRoute] Guid sessionDetailId)
+    public async Task<IActionResult> DeleteSessionDetail([FromRoute] int sessionId, [FromRoute] int sessionDetailId)
         => StatusCode(200, await Mediator.Send(new DeleteSessionDetailCommand(sessionId, sessionDetailId)));
 }

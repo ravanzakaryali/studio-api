@@ -2,7 +2,7 @@
 
 namespace Space.Application.Handlers;
 
-public record GetAllStudentsByClassQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetAllStudentByClassResponseDto>>;
+public record GetAllStudentsByClassQuery(int Id, DateTime Date) : IRequest<IEnumerable<GetAllStudentByClassResponseDto>>;
 
 
 internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudentsByClassQuery, IEnumerable<GetAllStudentByClassResponseDto>>
@@ -20,14 +20,15 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
 
     public async Task<IEnumerable<GetAllStudentByClassResponseDto>> Handle(GetAllStudentsByClassQuery request, CancellationToken cancellationToken)
     {
+        //Todo: Contact null
         Class? @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
             .Include(c => c.Studies)
             .ThenInclude(c => c.Student)
-            .ThenInclude(c => c.Contact)
+            .ThenInclude(c => c!.Contact)
             .Include(c => c.Studies)
             .ThenInclude(c => c.Attendances)
-            .Include(c => c.ClassGenerateSessions)
+            .Include(c => c.ClassSessions)
             .Include(c => c.ClassTimeSheets)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
@@ -53,7 +54,7 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                                     .Sum(c => c.TotalAttendanceHours))
                 .Sum();
 
-            double? totalHour = @class.ClassGenerateSessions
+            double? totalHour = @class.ClassSessions
                 .Where(c => (c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online) && c.Category != ClassSessionCategory.Lab)
                 .Sum(s => s.TotalHours);
 

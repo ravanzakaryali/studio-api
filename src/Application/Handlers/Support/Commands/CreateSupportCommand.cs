@@ -29,7 +29,7 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
         string loginUserId = _currentUserService?.UserId
             ?? throw new UnauthorizedAccessException();
 
-        User? user = await _unitOfWork.UserService.FindById(new Guid(loginUserId))
+        User? user = await _unitOfWork.UserService.FindById(int.Parse(loginUserId))
             ?? throw new NotFoundException(nameof(User), "");
 
         Support newSupport = new()

@@ -5,7 +5,7 @@ namespace Space.Application.DTOs
     {
         public string FullName { get; set; } = null!;
 
-        public Guid? WorkerId { get; set; }
+        public int? WorkerId { get; set; }
 
         public int Hours { get; set; }
 

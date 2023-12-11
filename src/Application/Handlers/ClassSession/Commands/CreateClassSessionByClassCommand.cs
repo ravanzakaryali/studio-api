@@ -2,7 +2,7 @@
 
 public class CreateClassSessionByClassCommand : IRequest
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public CreateClassSessionByClassRequestDto Session { get; set; } = null!;
 }
 internal class CreateClassSessionByClassCommandHandler : IRequestHandler<CreateClassSessionByClassCommand>
@@ -16,12 +16,12 @@ internal class CreateClassSessionByClassCommandHandler : IRequestHandler<CreateC
     public async Task Handle(CreateClassSessionByClassCommand request, CancellationToken cancellationToken)
     {
         Class? @class = await _spaceDbContext.Classes
-            .Include("ClassGenerateSessions")
+            .Include("ClassSessions")
             .Where(c => c.Id == request.Id)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
-        if (@class.ClassGenerateSessions.Any(c =>
+        if (@class.ClassSessions.Any(c =>
                                     (c.StartTime >= request.Session.Start && c.StartTime < request.Session.Start) ||
                                     (c.EndTime > request.Session.End && c.StartTime <= request.Session.End) &&
                                     (new DateOnly(c.Date.Year, c.Date.Month, c.Date.Day) == request.Session.Date)))
@@ -29,7 +29,7 @@ internal class CreateClassSessionByClassCommandHandler : IRequestHandler<CreateC
             throw new DateTimeException("There is already a lesson in this date and time range");
         }
 
-        @class.ClassGenerateSessions.Add(new ClassGenerateSession()
+        @class.ClassSessions.Add(new ClassSession()
         {
             StartTime = request.Session.Start,
             EndTime = request.Session.End,

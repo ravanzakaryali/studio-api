@@ -23,13 +23,13 @@ internal class UserLoginQueryHandler : IRequestHandler<UserLoginQuery, GetUserRe
            ?? throw new UnauthorizedAccessException();
 
         User? user = await _userManager.Users
-            .Where(c => c.Id == new Guid(userId))
+            .Where(c => c.Id ==  int.Parse(userId))
             .Include(c => c.UserRoles).ThenInclude(c => c.Role)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken)
             ?? throw new UnauthorizedAccessException();
         return new GetUserResponseDto()
         {
-            Id = new Guid(userId),
+            Id = int.Parse(userId),
             Surname = user.Surname,
             Name = user.Name,
             RoleName = user.UserRoles.Select(u => u.Role.Name).ToList()

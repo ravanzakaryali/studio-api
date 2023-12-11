@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetAllModulesByClassQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetModuleDto>>;
+public record GetAllModulesByClassQuery(int Id, DateTime Date) : IRequest<IEnumerable<GetModuleDto>>;
 
 
 internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesByClassQuery, IEnumerable<GetModuleDto>>

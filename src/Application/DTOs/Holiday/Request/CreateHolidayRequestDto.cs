@@ -5,5 +5,5 @@ public class CreateHolidayRequestDto
     public string Description { get; set; } = null!;
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
-    public Guid? ClassId { get; set; }
+    public int? ClassId { get; set; }
 }

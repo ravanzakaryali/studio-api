@@ -3,7 +3,7 @@ using Space.Domain.Entities;
 
 namespace Space.Application.Handlers;
 
-public record CreateHolidayCommand(string Description, DateOnly StartDate, DateOnly EndDate, Guid? ClassId) : IRequest<HolidayResponseDto>;
+public record CreateHolidayCommand(string Description, DateOnly StartDate, DateOnly EndDate, int? ClassId) : IRequest<HolidayResponseDto>;
 
 internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayCommand, HolidayResponseDto>
 {
@@ -52,11 +52,11 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
         }
         #endregion
 
-        List<ClassGenerateSession> classSessions = await _spaceDbContext.ClassGenerateSessions
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => holidayDates.Contains(c.Date))
             .ToListAsync();
 
-        List<ClassGenerateSession> allClassSessions = await _spaceDbContext.ClassGenerateSessions
+        List<ClassSession> allClassSessions = await _spaceDbContext.ClassSessions
             .Where(c => classSessions
                         .GroupBy(c => c.ClassId)
                         .Select(group => new { ClassId = group.Key, Sessions = group })
@@ -68,7 +68,7 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
                         .Select(group => new { ClassId = group.Key, Sessions = group })
                         .ToList())
         {
-            foreach (ClassGenerateSession? session in @class.Sessions)
+            foreach (ClassSession? session in @class.Sessions)
             {
                 IEnumerable<DayOfWeek> dayOfWeeks = classSessions.Where(s => s.ClassId == @class.ClassId).DistinctBy(c => c.Date.DayOfWeek).Select(c => c.Date.DayOfWeek);
                 DateOnly maxDate = allClassSessions.Where(s => s.ClassId == @class.ClassId).Max(c => c.Date);

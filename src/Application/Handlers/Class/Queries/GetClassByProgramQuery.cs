@@ -1,7 +1,7 @@
 ﻿namespace Space.Application.Handlers;
 
 
-public record GetClassByProgramQuery(Guid Id) : IRequest<IEnumerable<GetClassByProgramQueryDto>>;
+public record GetClassByProgramQuery(int Id) : IRequest<IEnumerable<GetClassByProgramQueryDto>>;
 
 internal class GetClassByProgramQueryHandler : IRequestHandler<GetClassByProgramQuery, IEnumerable<GetClassByProgramQueryDto>>
 {

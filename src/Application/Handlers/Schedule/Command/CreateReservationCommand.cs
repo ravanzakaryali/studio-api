@@ -11,7 +11,7 @@ public class CreateReservationCommand : IRequest<CreateReservationResponseDto>
     public string? Description { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public Guid RoomId { get; set; }
+    public int RoomId { get; set; }
     public ICollection<string> WorkersId { get; set; }
 }
 

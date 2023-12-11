@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace Space.Application.Handlers;
 
-public record GetAllAbsentStudentsQuery(Guid Id) : IRequest<IEnumerable<GetAllAbsentStudentResponseDto>>;
+public record GetAllAbsentStudentsQuery(int Id) : IRequest<IEnumerable<GetAllAbsentStudentResponseDto>>;
 
 public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStudentsQuery, IEnumerable<GetAllAbsentStudentResponseDto>>
 {
@@ -18,6 +18,7 @@ public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStud
 
     public async Task<IEnumerable<GetAllAbsentStudentResponseDto>> Handle(GetAllAbsentStudentsQuery request, CancellationToken cancellationToken)
     {
+        //Todo: Contact null
         Class @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
             .Include(c => c.Studies)
@@ -25,7 +26,7 @@ public class GetAllAbsentStudentsQueryHandler : IRequestHandler<GetAllAbsentStud
             .ThenInclude(c => c.ClassTimeSheets)
             .Include(c => c.Studies)
             .ThenInclude(c => c.Student)
-            .ThenInclude(c => c.Contact)
+            .ThenInclude(c => c!.Contact)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 

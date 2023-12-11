@@ -15,7 +15,7 @@ public class ProgramsController : BaseApiController
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(int id)
         => Ok(await Mediator.Send(new GetProgramQuery(id)));
 
     [Authorize(Roles = "admin")]
@@ -32,7 +32,7 @@ public class ProgramsController : BaseApiController
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    public async Task<IActionResult> Delete([FromRoute] int id)
     {
         await Mediator.Send(new DeleteProgramCommand(id));
         return NoContent();
@@ -44,7 +44,7 @@ public class ProgramsController : BaseApiController
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/unmarked-attendances-classes")]
-    public async Task<IActionResult> GetUnmarkedAttedamceClasses([FromRoute] Guid id)
+    public async Task<IActionResult> GetUnmarkedAttedamceClasses([FromRoute] int id)
         => Ok(await Mediator.Send(new GetUnmarkedAttedanceClassesByProgramQuery()
         {
             Id = id
@@ -54,7 +54,7 @@ public class ProgramsController : BaseApiController
     [HttpPost("{id}/modules")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateModules([FromRoute] Guid id, [FromBody] CreateModuleWithProgramRequestDto modules)
+    public async Task<IActionResult> CreateModules([FromRoute] int id, [FromBody] CreateModuleWithProgramRequestDto modules)
         => StatusCode(201, await Mediator.Send(new CreateModuleWithProgramCommand(id, modules.Modules)));
 
 }

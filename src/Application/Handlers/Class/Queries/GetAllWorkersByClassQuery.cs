@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetAllWorkersByClassQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetWorkersByClassResponseDto>>;
+public record GetAllWorkersByClassQuery(int Id, DateTime Date) : IRequest<IEnumerable<GetWorkersByClassResponseDto>>;
 
 internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersByClassQuery, IEnumerable<GetWorkersByClassResponseDto>>
 {

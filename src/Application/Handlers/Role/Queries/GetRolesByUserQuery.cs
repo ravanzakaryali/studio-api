@@ -2,7 +2,7 @@
 
 namespace Space.Application.Handlers;
 
-public record GetRolesByUserQuery(Guid Id) : IRequest<IEnumerable<GetRoleDto>>;
+public record GetRolesByUserQuery(int Id) : IRequest<IEnumerable<GetRoleDto>>;
 
 
 internal class GetRolesByUserQueryHandler : IRequestHandler<GetRolesByUserQuery, IEnumerable<GetRoleDto>>

@@ -21,7 +21,7 @@ public class ClassesController : BaseApiController
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetClassDetail([FromRoute] Guid id, [FromQuery] Guid? sessionId)
+    public async Task<IActionResult> GetClassDetail([FromRoute] int id, [FromQuery] int? sessionId)
         => Ok(await Mediator.Send(new GetClassDetailQuery()
         {
             Id = id,
@@ -35,7 +35,7 @@ public class ClassesController : BaseApiController
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/sessions")]
-    public async Task<IActionResult> GetSessionByClass([FromRoute] Guid id)
+    public async Task<IActionResult> GetSessionByClass([FromRoute] int id)
         => Ok(await Mediator.Send(new GetSessionByClassQuery(id)));
 
 
@@ -64,7 +64,7 @@ public class ClassesController : BaseApiController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> Update(Guid id, UpdateClassRequestDto request)
+    public async Task<IActionResult> Update(int id, UpdateClassRequestDto request)
     {
         await Mediator.Send(new UpdateClassCommand(id,
             request.Name,
@@ -81,18 +81,18 @@ public class ClassesController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    public async Task<IActionResult> Delete([FromRoute] int id)
         => StatusCode(StatusCodes.Status200OK, await Mediator.Send(new DeleteClassCommand(id)));
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/modules")]
-    public async Task<IActionResult> GetModulesByClass([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetModulesByClass([FromRoute] int id, [FromQuery] DateTime date)
       => Ok(await Mediator.Send(new GetAllModulesByClassQuery(id, date)));
 
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/held-modules")]
-    public async Task<IActionResult> GetHeldModules([FromRoute] Guid id)
+    public async Task<IActionResult> GetHeldModules([FromRoute] int id)
         => Ok(await Mediator.Send(new GetHeldModulesByClassQuery()
         {
             Id = id
@@ -100,14 +100,16 @@ public class ClassesController : BaseApiController
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/modules-workers")]
-    public async Task<IActionResult> GetClassModulesWorkers([FromRoute] Guid id, [FromQuery] Guid sessionId)
+    public async Task<IActionResult> GetClassModulesWorkers([FromRoute] int id, [FromQuery] int sessionId)
     {
         return Ok(await Mediator.Send(new GetClassWorkersModulesQuery(id, sessionId)));
     }
 
     [Authorize(Roles = "admin")]
     [HttpPut("{id}/modules-workers")]
-    public async Task<IActionResult> UpdateClassModulesWorkers([FromRoute] Guid id, IEnumerable<CreateClassModuleRequestDto> modules)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> UpdateClassModulesWorkers([FromRoute] int id, IEnumerable<CreateClassModuleRequestDto> modules)
     {
         await Mediator.Send(new CreateClassModuleCommand()
         {
@@ -119,14 +121,14 @@ public class ClassesController : BaseApiController
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/students")]
-    public async Task<IActionResult> GetStudentsByClass([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetStudentsByClass([FromRoute] int id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetAllStudentsByClassQuery(id, date)));
 
     [Authorize(Roles = "admin")]
     [HttpPost("{id}/students")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateStudentsByClass([FromRoute] Guid id, [FromBody] IEnumerable<CreateStudentsDto> students)
+    public async Task<IActionResult> CreateStudentsByClass([FromRoute] int id, [FromBody] IEnumerable<CreateStudentsDto> students)
     {
         await Mediator.Send(new CreateStudentComand()
         {
@@ -149,28 +151,28 @@ public class ClassesController : BaseApiController
     /// </remarks>
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/students-details")]
-    public async Task<IActionResult> GetStudentsDetailsByClass([FromRoute] Guid id)
+    public async Task<IActionResult> GetStudentsDetailsByClass([FromRoute] int id)
        => Ok(await Mediator.Send(new GetAllStudentsDetailsByClassQuery(id)));
 
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/students-absent")]
-    public async Task<IActionResult> GetAllAbsentStudents([FromRoute] Guid id)
+    public async Task<IActionResult> GetAllAbsentStudents([FromRoute] int id)
      => Ok(await Mediator.Send(new GetAllAbsentStudentsQuery(id)));
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/workers")]
-    public async Task<IActionResult> GetWorkersByClass([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetWorkersByClass([FromRoute] int id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetAllWorkersByClassQuery(id, date)));
 
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/workers/{workerId}")]
     public async Task<IActionResult> GetWorkerByClass(
-        [FromRoute] Guid id,
-        [FromRoute] Guid workerId,
+        [FromRoute] int id,
+        [FromRoute] int workerId,
         [FromQuery] DateOnly date,
-        [FromQuery] Guid roleId)
+        [FromQuery] int roleId)
     {
         return Ok(await Mediator.Send(new GetWorkerByClassQuery()
         {
@@ -184,25 +186,25 @@ public class ClassesController : BaseApiController
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/counter")]
-    public async Task<IActionResult> GetClassCounterHour([FromRoute] Guid id)
+    public async Task<IActionResult> GetClassCounterHour([FromRoute] int id)
         => Ok(await Mediator.Send(new GetClassCounterHourQuery(id)));
 
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/sessions-category")]
-    public async Task<IActionResult> GetSessionCategoryHours([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetSessionCategoryHours([FromRoute] int id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetClassCategoryHoursQuery(id, date)));
 
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/class-sessions")]
-    public async Task<IActionResult> GetAllClassSessions([FromRoute] Guid id)
+    public async Task<IActionResult> GetAllClassSessions([FromRoute] int id)
         => Ok(await Mediator.Send(new GetAllClassSessionsByClassQuery(id)));
 
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/class-session")]
-    public async Task<IActionResult> GetClassSession([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetClassSession([FromRoute] int id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetClassSessionByClassQuery(id, date)));
 
 
@@ -210,7 +212,7 @@ public class ClassesController : BaseApiController
     [HttpPut("{id}/class-session")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> UpdateClassSession([FromRoute] Guid id, [FromQuery] DateTime date, [FromBody] IEnumerable<UpdateClassSessionRequestDto> request)
+    public async Task<IActionResult> UpdateClassSession([FromRoute] int id, [FromQuery] DateTime date, [FromBody] IEnumerable<UpdateClassSessionRequestDto> request)
     {
         await Mediator.Send(new UpdateClassSessionCommand(id, date, request));
         return NoContent();
@@ -218,7 +220,7 @@ public class ClassesController : BaseApiController
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/program")]
-    public async Task<IActionResult> GetClassByProgram([FromRoute] Guid id)
+    public async Task<IActionResult> GetClassByProgram([FromRoute] int id)
     => Ok(await Mediator.Send(new GetClassByProgramQuery(id)));
 
 
@@ -226,7 +228,7 @@ public class ClassesController : BaseApiController
     [HttpPost("{id}/class-session")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateClassSession([FromRoute] Guid id, [FromBody] CreateClassSessionByClassRequestDto request)
+    public async Task<IActionResult> CreateClassSession([FromRoute] int id, [FromBody] CreateClassSessionByClassRequestDto request)
     {
         await Mediator.Send(new CreateClassSessionByClassCommand()
         {
@@ -241,7 +243,7 @@ public class ClassesController : BaseApiController
     [HttpPost("{id}/attendances")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateClassAttendances([FromRoute] Guid id, [FromBody] CreateClassAttendanceRequestDto request)
+    public async Task<IActionResult> CreateClassAttendances([FromRoute] int id, [FromBody] CreateClassAttendanceRequestDto request)
     {
         await Mediator.Send(new CreateClassAttendanceCommand()
         {
@@ -257,7 +259,7 @@ public class ClassesController : BaseApiController
     [HttpPost("{id}/sessions")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> Create([FromRoute] Guid id, [FromBody] CreateClassModuleSessionRequestDto request)
+    public async Task<IActionResult> Create([FromRoute] int id, [FromBody] CreateClassModuleSessionRequestDto request)
     {
         await Mediator.Send(new CreateClassModuleSessionCommand()
         {
@@ -271,7 +273,7 @@ public class ClassesController : BaseApiController
     [HttpPut("{id}/sessions")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateClassSessionAttendance([FromRoute] Guid id, [FromBody] UpdateClassSessionByDateRequestDto request)
+    public async Task<IActionResult> CreateClassSessionAttendance([FromRoute] int id, [FromBody] UpdateClassSessionByDateRequestDto request)
     {
         await Mediator.Send(new UpdateClassSessionByDateCommand()
         {
@@ -284,7 +286,7 @@ public class ClassesController : BaseApiController
     }
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/attendance-rate")]
-    public async Task<IActionResult> GetAttendanceRateByClass([FromRoute] Guid id, [FromQuery] MonthOfYear month, [FromQuery] int year)
+    public async Task<IActionResult> GetAttendanceRateByClass([FromRoute] int id, [FromQuery] MonthOfYear month, [FromQuery] int year)
         => Ok(await Mediator.Send(new GetAttendanceRateByClassQuery()
         {
             Id = id,
@@ -293,7 +295,7 @@ public class ClassesController : BaseApiController
         }));
     [Authorize]
     [HttpGet("{id}/unmarked-attendance-days")]
-    public async Task<IActionResult> GetUnnotedAttendanceDays([FromRoute] Guid id)
+    public async Task<IActionResult> GetUnnotedAttendanceDays([FromRoute] int id)
         => Ok(await Mediator.Send(new GetUnattendedDaysByClassQuery()
         {
             Id = id
@@ -301,7 +303,7 @@ public class ClassesController : BaseApiController
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/export/excel")]
-    public async Task ClassExcelExport([FromRoute] Guid id)
+    public async Task ClassExcelExport([FromRoute] int id)
     {
         _ = await Mediator.Send(new StudentsofClassExcelExportCommand()
         {

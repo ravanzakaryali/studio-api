@@ -2,8 +2,8 @@
 
 public class GetClassDetailQuery : IRequest<GetClassDetailResponse>
 {
-    public Guid Id { get; set; }
-    public Guid? SessionId { get; set; }
+    public int Id { get; set; }
+    public int? SessionId { get; set; }
 }
 
 internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery, GetClassDetailResponse>

@@ -3,7 +3,7 @@
 namespace Space.Application.Handlers;
 
 
-public record GetClassCategoryHoursQuery(Guid Id, DateTime Date) : IRequest<IEnumerable<GetClassSessionCategoryHoursResponseDto>>;
+public record GetClassCategoryHoursQuery(int Id, DateTime Date) : IRequest<IEnumerable<GetClassSessionCategoryHoursResponseDto>>;
 
 internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCategoryHoursQuery, IEnumerable<GetClassSessionCategoryHoursResponseDto>>
 {
@@ -22,7 +22,7 @@ internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCateg
 
         DateOnly requestDate = DateOnly.FromDateTime(request.Date);
 
-        List<ClassGenerateSession> classSessions = await _spaceDbContext.ClassGenerateSessions
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => c.Date == requestDate && c.ClassId == @class.Id)
             .ToListAsync(cancellationToken: cancellationToken);
 

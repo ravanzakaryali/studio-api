@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record UpdateClassSessionCommand(Guid Id, DateTime Date, IEnumerable<UpdateClassSessionRequestDto> UpdateClassSessions) : IRequest;
+public record UpdateClassSessionCommand(int Id, DateTime Date, IEnumerable<UpdateClassSessionRequestDto> UpdateClassSessions) : IRequest;
 
 internal class UpdateClassSessionCommandHandler : IRequestHandler<UpdateClassSessionCommand>
 {
@@ -20,16 +20,16 @@ internal class UpdateClassSessionCommandHandler : IRequestHandler<UpdateClassSes
         DateOnly requestDate = DateOnly.FromDateTime(request.Date);
 
         Class @class = await _spaceDbContext.Classes
-            .Include(c => c.ClassGenerateSessions)
-            .Where(c => c.Id == request.Id && c.ClassGenerateSessions.Any(c => c.Date == requestDate))
+            .Include(c => c.ClassSessions)
+            .Where(c => c.Id == request.Id && c.ClassSessions.Any(c => c.Date == requestDate))
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
-        if (@class.ClassGenerateSessions.Count == 0) throw new NotFoundException(nameof(ClassTimeSheet), request.Date);
+        if (@class.ClassSessions.Count == 0) throw new NotFoundException(nameof(ClassTimeSheet), request.Date);
 
         DateOnly date = request.UpdateClassSessions.DistinctBy(c => c.ClassSessionDate).First().ClassSessionDate;
 
-        if (await _spaceDbContext.ClassGenerateSessions.Where(c => c.Date == date).FirstOrDefaultAsync() != null)
+        if (await _spaceDbContext.ClassSessions.Where(c => c.Date == date).FirstOrDefaultAsync() != null)
             throw new Exception("Class Session already date");
 
         throw new NotFoundException();

@@ -3,7 +3,7 @@ namespace Space.Application.Handlers;
 
 public class GetUnmarkedAttedanceClassesByProgramQuery : IRequest<IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 }
 internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<GetUnmarkedAttedanceClassesByProgramQuery, IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
@@ -22,8 +22,8 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
 
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
 
-        List<ClassGenerateSession> classSessions = await _spaceDbContext
-            .ClassGenerateSessions
+        List<ClassSession> classSessions = await _spaceDbContext
+            .ClassSessions
             .Include(c => c.Class)
             .Where(c => c.Class.ProgramId == program.Id && c.ClassTimeSheetId == null && c.Date <= dateNow)
             .ToListAsync(cancellationToken: cancellationToken);

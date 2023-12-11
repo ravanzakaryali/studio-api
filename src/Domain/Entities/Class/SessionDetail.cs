@@ -7,7 +7,7 @@ public class SessionDetail : BaseAuditableEntity
     public DayOfWeek DayOfWeek { get; set; }
     public ClassSessionCategory Category { get; set; }
     public int TotalHours { get; set; }
-    public Guid SessionId { get; set; }
+    public int SessionId { get; set; }
     public Session Session { get; set; } = null!;
     public int? KometaId { get; set; }
 }

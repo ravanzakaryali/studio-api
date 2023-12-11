@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record DeleteRoomCommand(Guid Id) : IRequest<GetRoomResponseDto>;
+public record DeleteRoomCommand(int Id) : IRequest<GetRoomResponseDto>;
 
 internal class DeleteRoomCommandHanler : IRequestHandler<DeleteRoomCommand, GetRoomResponseDto>
 {
