@@ -46,15 +46,18 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
             List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(c => c.Date == requestDate).ToList();
             int? totalHours = 0;
             int? totalMinutes = 0;
+            AttendanceStatus? attendanceStatus = null;
             foreach (ClassTimeSheet classTimeSheet in classTimeSheets)
             {
                 AttendanceWorker? attendance = classTimeSheet.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
                 totalHours = attendance?.TotalHours;
                 totalMinutes = attendance?.TotalMinutes;
+                attendanceStatus = attendance?.AttendanceStatus;
             }
             return new GetWorkersByClassResponseDto()
             {
                 Name = c.Worker.Name!,
+                AttendanceStatus = attendanceStatus,
                 Surname = c.Worker.Surname!,
                 RoleId = c.RoleId,
                 RoleName = c.Role!.Name,

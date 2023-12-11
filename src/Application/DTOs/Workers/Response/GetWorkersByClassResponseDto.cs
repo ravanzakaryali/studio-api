@@ -7,6 +7,7 @@ public class GetWorkersByClassResponseDto
     public string Surname { get; set; } = null!;
     public int TotalLessonHours { get; set; }
     public string RoleName { get; set; } = null!;
+    public AttendanceStatus? AttendanceStatus { get; set; }
     public Guid? RoleId { get; set; }
     public int? TotalHours { get; set; }
     public int? TotalMinutes { get; set; }
