@@ -13,12 +13,13 @@ internal class GetAllStudentsQueryHandler : IRequestHandler<GetAllStudentsQuery,
     }
     public async Task<IEnumerable<GetAllStudentsResponseDto>> Handle(GetAllStudentsQuery request, CancellationToken cancellationToken)
     {
+        DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
         //Todo: Contact nullable
         List<Study> studies = await _spaceDbContext.Studies
             .Include(c => c.Student)
             .ThenInclude(c => c.Contact)
             .Include(c => c.Class)
-            .Where(q => q.Class!.EndDate > DateOnly.FromDateTime(DateTime.Now))
+            .Where(q => q.Class!.EndDate > dateNow)
             .ToListAsync(cancellationToken: cancellationToken);
 
         List<GetAllStudentsResponseDto> response = new();
