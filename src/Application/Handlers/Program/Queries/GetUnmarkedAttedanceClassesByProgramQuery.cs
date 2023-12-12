@@ -51,7 +51,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
             });
         }
 
-        response.AddRange(classSessions.Where(c => c.Date <= dateNow).DistinctBy(c => c.ClassId).Select(c => new GetUnmarkedAttedanceClassesByProgramResponseDto()
+        response.AddRange(classSessions.Where(c=>c.Date <= dateNow).DistinctBy(c => c.ClassId).Select(c => new GetUnmarkedAttedanceClassesByProgramResponseDto()
         {
             StudentsCount = c.Class.Studies.Count,
             AttendancePercentage = Math.Round(list.Where(l => l.ClassId == c.ClassId).Any() ? list.Where(l => l.ClassId == c.ClassId).Average(a => a.AverageHours) : 0, 2),
