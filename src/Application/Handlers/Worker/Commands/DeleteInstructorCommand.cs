@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record DeleteWorkerCommand(Guid Id) : IRequest<GetWorkerResponseDto>;
+public record DeleteWorkerCommand(int Id) : IRequest<GetWorkerResponseDto>;
 internal class DeleteWorkerCommandHandler : IRequestHandler<DeleteWorkerCommand, GetWorkerResponseDto>
 {
     readonly ISpaceDbContext _spaceDbContext;

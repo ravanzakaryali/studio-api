@@ -11,12 +11,12 @@ namespace Space.Domain.Entities
         public int Year { get; set; }
         public string StartTime { get; set; } = null!;
         public string EndTime { get; set; } = null!;
-        public Guid? RoomId { get; set; }
+        public int? RoomId { get; set; }
         public Room? Room { get; set; }
-        public Guid? ReservationId { get; set; }
+        public int? ReservationId { get; set; }
         public Reservation? Reservation { get; set; }
         public EnumScheduleCategory Category { get; set; }
-        public Guid? ClassId { get; set; }
+        public int? ClassId { get; set; }
         public Class? @Class { get; set; }
 
     }

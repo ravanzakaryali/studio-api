@@ -3,5 +3,5 @@
 public class CreateClassModuleSessionRequestDto
 {
     public IEnumerable<CreateClassModuleRequestDto> Modules { get; set; } = null!;
-    public Guid SessionId { get; set; }
+    public int SessionId { get; set; }
 }

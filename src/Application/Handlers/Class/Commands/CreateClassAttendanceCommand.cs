@@ -2,7 +2,7 @@
 
 public class CreateClassAttendanceCommand : IRequest
 {
-    public Guid ClassId { get; set; }
+    public int ClassId { get; set; }
     public DateOnly Date { get; set; }
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
     public ICollection<CreateAttendanceModuleRequestDto> HeldModules { get; set; } = null!;
@@ -39,7 +39,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                 throw new NotFoundException(nameof(Class), request.ClassId);
 
         //həmin günün class sessiona bax
-        List<ClassGenerateSession> classSessions = await _spaceDbContext.ClassGenerateSessions
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
             .ToListAsync(cancellationToken: cancellationToken);
 
@@ -47,7 +47,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         DateOnly classLastDate = await _unitOfWork.ClassSessionService.GetLastDateAsync(@class.Id);
 
         //əgər yoxdursa o zaman error qaytar
-        List<Guid> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
+        List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
         if (classSessions.Count != requestModuleIds.Count) throw new NotFoundException("Module not found");
 
         List<Module> module = await _spaceDbContext.Modules
@@ -55,7 +55,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
             .ToListAsync(cancellationToken: cancellationToken);
         if (requestModuleIds.Count != module.Count) throw new NotFoundException("Modules not found");
 
-        List<Guid> studentIds = request.Sessions
+        List<int> studentIds = request.Sessions
                 .SelectMany(s => s.Attendances)
                 .Select(a => a.StudentId)
                 .ToList();
@@ -72,7 +72,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         List<ClassTimeSheet> addTimeSheets = new();
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
-            ClassGenerateSession? classSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
+            ClassSession? classSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (classSession is null) continue;
 
             if (classSession.Status != ClassSessionStatus.Cancelled)
@@ -123,7 +123,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                     date2 = date2.AddDays(1);
                     startDateDayOfWeek = date2.DayOfWeek;
                 }
-                List<ClassGenerateSession> generateClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
+                List<ClassSession> generateClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(
                     classSession.TotalHours, request.Sessions.Select(r => new CreateClassSessionDto()
                     {
                         Category = r.Category,
@@ -136,7 +136,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                     @class.Id,
                     classSession.RoomId!.Value);
 
-                await _spaceDbContext.ClassGenerateSessions.AddRangeAsync(generateClassSessions, cancellationToken);
+                await _spaceDbContext.ClassSessions.AddRangeAsync(generateClassSessions, cancellationToken);
             }
         }
 

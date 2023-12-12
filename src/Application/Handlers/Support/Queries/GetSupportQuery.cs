@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetSupportQuery(Guid Id) : IRequest<GetSupportResponseDto>;
+public record GetSupportQuery(int Id) : IRequest<GetSupportResponseDto>;
 
 internal class GetSupportQueryHandler : IRequestHandler<GetSupportQuery, GetSupportResponseDto>
 {

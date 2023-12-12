@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Space.Application.Handlers
 {
 
-    public record GetWorkerAttendanceQuery(Guid Id, DateTime date) : IRequest<IEnumerable<GetWorkerAttendanceDto>>;
+    public record GetWorkerAttendanceQuery(int Id, DateTime date) : IRequest<IEnumerable<GetWorkerAttendanceDto>>;
 
     internal class GetWorkerAttendanceQueryHandler : IRequestHandler<GetWorkerAttendanceQuery, IEnumerable<GetWorkerAttendanceDto>>
     {

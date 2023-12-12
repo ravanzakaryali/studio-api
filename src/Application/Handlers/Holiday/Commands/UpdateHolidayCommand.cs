@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record UpdateHolidayCommand(Guid Id, UpdateHolidayRequestDto UpdateHoliday) : IRequest<HolidayResponseDto>;
+public record UpdateHolidayCommand(int Id, UpdateHolidayRequestDto UpdateHoliday) : IRequest<HolidayResponseDto>;
 
 internal class UpdateHolidayCommandHandler : IRequestHandler<UpdateHolidayCommand, HolidayResponseDto>
 {

@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetClassWorkersModulesQuery(Guid Id, Guid SessionId) : IRequest<IEnumerable<GetClassModuleResponseDto>>;
+public record GetClassWorkersModulesQuery(int Id, int SessionId) : IRequest<IEnumerable<GetClassModuleResponseDto>>;
 
 internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWorkersModulesQuery, IEnumerable<GetClassModuleResponseDto>>
 {

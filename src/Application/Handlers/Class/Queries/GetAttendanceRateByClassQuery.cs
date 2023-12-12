@@ -5,7 +5,7 @@ namespace Space.Application.Handlers;
 
 public class GetAttendanceRateByClassQuery : IRequest<IEnumerable<GetAttendanceRateByClassDto>>
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public MonthOfYear MonthOfYear { get; set; }
     public int Year { get; set; }
 }
@@ -26,14 +26,14 @@ internal class GetAttendanceRateByClassHandler : IRequestHandler<GetAttendanceRa
                 throw new NotFoundException(nameof(Class), request.Id);
         int month = (int)request.MonthOfYear;
 
-        IEnumerable<ClassGenerateSession> classGenerateSessions = await _spaceDbContext.ClassGenerateSessions
+        IEnumerable<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Include(c => c.ClassTimeSheet)
             .ThenInclude(c=>c!.Attendances)
             .Where(c => c.ClassId == @class.Id)
             .ToListAsync(cancellationToken: cancellationToken);
 
 
-        return classGenerateSessions.Where(c => c.Date.Month == month).Select(c => new GetAttendanceRateByClassDto()
+        return classSessions.Where(c => c.Date.Month == month).Select(c => new GetAttendanceRateByClassDto()
         {
             Status = c.ClassTimeSheet?.Status,
             TotalStudentsCount = c.ClassTimeSheet?.Attendances.Count,

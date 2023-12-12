@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetClassSessionsByDateQuery(Guid Id, DateOnly Date) : IRequest<IEnumerable<GetClassSessionsByDateResponseDto>>;
+public record GetClassSessionsByDateQuery(int Id, DateOnly Date) : IRequest<IEnumerable<GetClassSessionsByDateResponseDto>>;
 
 
 internal class GetClassSessionsByDateQueryHandler : IRequestHandler<GetClassSessionsByDateQuery, IEnumerable<GetClassSessionsByDateResponseDto>>

@@ -5,7 +5,7 @@ namespace Space.Application.Handlers;
 
 public class StudentsofClassExcelExportCommand : IRequest<FileContentResponseDto>
 {
-    public Guid ClassId { get; set; }
+    public int ClassId { get; set; }
 }
 internal class StudentsofClassExcelExport : IRequestHandler<StudentsofClassExcelExportCommand, FileContentResponseDto>
 {

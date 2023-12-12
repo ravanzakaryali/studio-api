@@ -5,7 +5,7 @@ namespace Space.Application.Handlers;
 
 public class GetUnmarkedAttedanceClassesByProgramQuery : IRequest<IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 }
 internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<GetUnmarkedAttedanceClassesByProgramQuery, IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
@@ -23,13 +23,9 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                 throw new NotFoundException(nameof(Program), request.Id);
 
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
-        //programa yazılmamış davamiyyətini çıxart
-        //daha sonra group məlu
 
-        List<ClassGenerateSession> classSessions = await _spaceDbContext
-            .ClassGenerateSessions
-            .Include(c => c.ClassTimeSheet)
-            .ThenInclude(c => c.Attendances)
+        List<ClassSession> classSessions = await _spaceDbContext
+            .ClassSessions
             .Include(c => c.Class)
             .ThenInclude(c => c.Studies)
             .Where(c => c.Class.ProgramId == program.Id)
@@ -40,7 +36,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
         List<AvarageClassDto> list = new();
 
 
-        foreach (ClassGenerateSession? item in classSessions.Where(c => c.ClassTimeSheet?.Attendances.Count > 0))
+        foreach (ClassSession? item in classSessions.Where(c => c.ClassTimeSheet?.Attendances.Count > 0))
         {
             int total = item.TotalHours;
             double totalAttendance = item.ClassTimeSheet?.Attendances.Average(c => c.TotalAttendanceHours) ?? 0;
@@ -67,6 +63,6 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
     private class AvarageClassDto
     {
         public double AverageHours { get; set; }
-        public Guid ClassId { get; set; }
+        public int ClassId { get; set; }
     }
 }

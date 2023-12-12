@@ -1,5 +1,5 @@
 ﻿namespace Space.Application.Handlers;
-public record GetAllClassSessionsByClassQuery(Guid Id) : IRequest<IEnumerable<GetAllClassSessionByClassResponseDto>>;
+public record GetAllClassSessionsByClassQuery(int Id) : IRequest<IEnumerable<GetAllClassSessionByClassResponseDto>>;
 
 public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClassSessionsByClassQuery, IEnumerable<GetAllClassSessionByClassResponseDto>>
 {
@@ -15,12 +15,12 @@ public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClas
     {
         Class @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
-            .Include(c => c.ClassGenerateSessions)
+            .Include(c => c.ClassSessions)
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException();
 
         //Todo: review
-        IEnumerable<GetAllClassSessionByClassResponseDto> response = @class.ClassGenerateSessions
+        IEnumerable<GetAllClassSessionByClassResponseDto> response = @class.ClassSessions
             .OrderByDescending(q => q.Date).DistinctBy(q => q.Date)
             .Select(q => new GetAllClassSessionByClassResponseDto()
             {

@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers.Queries;
 
-public record GetProgramQuery(Guid Id) : IRequest<GetProgramResponseDto>;
+public record GetProgramQuery(int Id) : IRequest<GetProgramResponseDto>;
 internal class GetProgramQueryHandler : IRequestHandler<GetProgramQuery, GetProgramResponseDto>
 {
     readonly ISpaceDbContext _spaceDbContext;

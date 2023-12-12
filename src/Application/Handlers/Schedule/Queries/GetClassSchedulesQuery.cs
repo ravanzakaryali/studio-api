@@ -29,9 +29,9 @@ internal class GetClassSchedulesQueryHandler : IRequestHandler<GetClassSchedules
         {
             IOrderedEnumerable<RoomSchedule> classSchedules = roomSchedules.Where(q => q.ClassId == item.Id).OrderBy(q => q.GeneralDate);
 
-            IEnumerable<Guid?> rooms = classSchedules.Select(q => q.RoomId).Distinct();
+            IEnumerable<int?> rooms = classSchedules.Select(q => q.RoomId).Distinct();
 
-            foreach (Guid? room in rooms)
+            foreach (int? room in rooms)
             {
                 DateTime? startDate = classSchedules.Where(q => q.RoomId == room).OrderBy(q => q.GeneralDate)?.Take(1).FirstOrDefault()?.GeneralDate;
                 DateTime? endDate = classSchedules.Where(q => q.RoomId == room).OrderByDescending(q => q.GeneralDate)?.Take(1).FirstOrDefault()?.GeneralDate;

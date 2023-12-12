@@ -8,7 +8,6 @@ public static class ConfigurationExtensions
        where TEntity : BaseEntity
     {
         builder.HasKey(e => e.Id);
-        builder.Property(e=>e.Id).HasDefaultValueSql("NEWID()");
         builder.Property(e => e.IsDeleted).HasDefaultValue(false);
         builder.Property(e => e.IsActive).HasDefaultValue(true);
         builder.HasQueryFilter(b => !b.IsDeleted && b.IsActive);

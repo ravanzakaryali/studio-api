@@ -13,11 +13,11 @@ internal class GetScheduleByDayQueryHandler : IRequestHandler<GetScheduleByDayQu
 
     public async Task<IEnumerable<GetScheduleByDayResponseDto>> Handle(GetScheduleByDayQuery request, CancellationToken cancellationToken)
     {
-
+        //Todo: Program is null
         var roomSchedule = new List<RoomSchedule>();
         List<RoomSchedule> roomScheduleQuery = await _spaceDbContext.RoomSchedules
             .Include(c => c.Class)
-            .ThenInclude(c => c.Program)
+            .ThenInclude(c => c!.Program)
             .Where(q => q.DayOfMonth == DateTime.Now.Month && q.Year == DateTime.Now.Year)
             .ToListAsync();
 

@@ -9,7 +9,7 @@ namespace Space.Application.DTOs
     public class GetClassSessionsByDateResponseDto
     {
         public string ClassName { get; set; } = null!;
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public int TotalHour { get; set; }

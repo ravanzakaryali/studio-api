@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetWorkerQuery(Guid Id) : IRequest<GetWorkerByIdDto>;
+public record GetWorkerQuery(int Id) : IRequest<GetWorkerByIdDto>;
 public class GetWorkerQueryCommand : IRequestHandler<GetWorkerQuery, GetWorkerByIdDto>
 {
     readonly ISpaceDbContext _spaceDbContext;

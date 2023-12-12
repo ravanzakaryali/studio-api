@@ -1,11 +1,11 @@
 ﻿namespace Space.Application.Handlers.Commands;
 
 public record UpdateClassCommand(
-    Guid Id,
+    int Id,
     string Name,
-    Guid SessionId,
-    Guid ProgramId,
-    Guid? RoomId
+    int SessionId,
+    int ProgramId,
+    int? RoomId
     ) : IRequest<GetClassResponseDto>;
 internal class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, GetClassResponseDto>
 {
@@ -35,9 +35,8 @@ internal class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, G
             throw new NotFoundException(nameof(Session), request.SessionId);
         if (request.RoomId == null)
         {
-            Guid roomIdNonNullable = request.RoomId ?? Guid.Empty;
-            Room rooo = await _spaceDbContext.Rooms.FindAsync(roomIdNonNullable) ??
-                throw new NotFoundException(nameof(Room), roomIdNonNullable);
+            Room rooo = await _spaceDbContext.Rooms.FindAsync(request.RoomId) ??
+                throw new NotFoundException(nameof(Room), request.RoomId);
         }
 
         Class newClass = _mapper.Map<Class>(request);

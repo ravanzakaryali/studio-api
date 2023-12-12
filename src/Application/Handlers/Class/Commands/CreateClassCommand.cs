@@ -4,9 +4,9 @@ namespace Space.Application.Handlers.Commands;
 
 public record CreateClassCommand(
         string Name,
-        Guid ProgramId,
-        Guid SessionId,
-        Guid? RoomId) : IRequest<GetWithIncludeClassResponseDto>;
+        int ProgramId,
+        int SessionId,
+        int? RoomId) : IRequest<GetWithIncludeClassResponseDto>;
 internal class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, GetWithIncludeClassResponseDto>
 {
     readonly IUnitOfWork _unitOfWork;
@@ -31,11 +31,10 @@ internal class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, G
         Session session = await _spaceDbContext.Sessions.FindAsync(request.SessionId) ??
             throw new NotFoundException(nameof(Session), request.SessionId);
 
-        if (request.RoomId != null)
+        if (request.RoomId is not null)
         {
-            Guid roomIdNonNullable = request.RoomId ?? Guid.Empty;
-            Room room = await _spaceDbContext.Rooms.FindAsync(roomIdNonNullable) ??
-                throw new NotFoundException(nameof(Room), roomIdNonNullable);
+            Room room = await _spaceDbContext.Rooms.FindAsync(request.RoomId) ??
+                throw new NotFoundException(nameof(Room), request.RoomId);
         }
 
         EntityEntry<Class> createEntity = await _spaceDbContext.Classes.AddAsync(_mapper.Map<Class>(request), cancellationToken);

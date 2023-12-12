@@ -2,7 +2,7 @@
 
 namespace Space.Application.Handlers
 {
-    public record GetWorkerAttendanceByClassQuery(Guid Id) : IRequest<IEnumerable<GetWorkerAttendanceByClassDto>>;
+    public record GetWorkerAttendanceByClassQuery(int Id) : IRequest<IEnumerable<GetWorkerAttendanceByClassDto>>;
 
 
     internal class GetWorkerAttendanceByClassQueryHandler : IRequestHandler<GetWorkerAttendanceByClassQuery, IEnumerable<GetWorkerAttendanceByClassDto>>

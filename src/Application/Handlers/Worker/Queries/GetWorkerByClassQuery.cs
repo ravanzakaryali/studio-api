@@ -2,10 +2,10 @@
 
 public class GetWorkerByClassQuery : IRequest<GetWorkersByClassResponseDto>
 {
-    public Guid ClassId { get; set; }
-    public Guid WorkerId { get; set; }
+    public int ClassId { get; set; }
+    public int WorkerId { get; set; }
     public DateOnly Date { get; set; }
-    public Guid RoleId { get; set; }
+    public int RoleId { get; set; }
 }
 
 internal class GetWorkerByClassQueryHandler : IRequestHandler<GetWorkerByClassQuery, GetWorkersByClassResponseDto>

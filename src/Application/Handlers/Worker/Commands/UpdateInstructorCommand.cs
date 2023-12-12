@@ -4,7 +4,7 @@ namespace Space.Application.Handlers;
 
 public class UpdateWorkerCommand : IRequest<GetWorkerResponseDto>
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public WorkerDto Worker { get; set; } = null!;
 }
 internal class UpdateWorkerCommandHandler : IRequestHandler<UpdateWorkerCommand, GetWorkerResponseDto>

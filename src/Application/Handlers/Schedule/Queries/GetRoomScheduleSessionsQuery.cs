@@ -13,10 +13,10 @@ internal class GetRoomScheduleSessionsQueryHandler : IRequestHandler<GetRoomSche
 
     public async Task<IEnumerable<GetRoomScheduleSessionsResponseDto>> Handle(GetRoomScheduleSessionsQuery request, CancellationToken cancellationToken)
     {
-
+        //Todo: Session nullable
         IEnumerable<RoomSchedule> roomScheduleQuery = await _spaceDbContext.RoomSchedules
             .Include(c => c.Class)
-            .ThenInclude(c => c.Session)
+            .ThenInclude(c => c!.Session)
             .Where(q => q.Year == 2023)
             .ToListAsync();
 

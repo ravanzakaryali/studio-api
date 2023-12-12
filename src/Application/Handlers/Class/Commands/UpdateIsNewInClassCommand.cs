@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record UpdateIsNewInClassCommand(Guid Id) : IRequest<GetUpdateIsNewInClassResponseDto>;
+public record UpdateIsNewInClassCommand(int Id) : IRequest<GetUpdateIsNewInClassResponseDto>;
 internal class UpdateIsNewInClassCommandHander : IRequestHandler<UpdateIsNewInClassCommand, GetUpdateIsNewInClassResponseDto>
 {
     readonly IMapper _mapper;

@@ -53,7 +53,7 @@ public class HolidaysController : BaseApiController
     /// HTTP response upon successful retrieval.
     /// </remarks>
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetAsync([FromRoute] Guid id)
+    public async Task<IActionResult> GetAsync([FromRoute] int id)
         => Ok(await Mediator.Send(new GetHolidayQuery(id)));
 
     /// <summary>
@@ -71,7 +71,7 @@ public class HolidaysController : BaseApiController
     /// of the holiday.
     /// </remarks>
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] UpdateHolidayRequestDto request)
+    public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] UpdateHolidayRequestDto request)
         => Ok(await Mediator.Send(new UpdateHolidayCommand(id, request)));
 
     /// <summary>
@@ -87,7 +87,7 @@ public class HolidaysController : BaseApiController
     /// it returns an HTTP response indicating the success of the operation.
     /// </remarks>
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
+    public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         => Ok(await Mediator.Send(new DeleteHolidayCommand(id)));
 
     [HttpGet("dates")]

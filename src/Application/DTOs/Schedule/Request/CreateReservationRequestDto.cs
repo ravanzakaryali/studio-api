@@ -8,7 +8,7 @@ public class CreateReservationRequestDto
     public string Description { get; set; } = null!;
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public Guid RoomId { get; set; }
+    public int RoomId { get; set; }
     public List<string> WorkersId { get; set; } = null!;
 }
 

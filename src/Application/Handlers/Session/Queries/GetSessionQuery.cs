@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetSessionQuery(Guid Id) : IRequest<GetSessionWithDetailsResponseDto>;
+public record GetSessionQuery(int Id) : IRequest<GetSessionWithDetailsResponseDto>;
 
 internal class GetSessionQueryHandler : IRequestHandler<GetSessionQuery, GetSessionWithDetailsResponseDto>
 {

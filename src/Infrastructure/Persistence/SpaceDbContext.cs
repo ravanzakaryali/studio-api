@@ -6,7 +6,7 @@ using Space.Domain.Entities;
 namespace Space.Infrastructure.Persistence;
 
 public class SpaceDbContext :
-    IdentityDbContext<User, Role, Guid, IdentityUserClaim<Guid>, UserRole, IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>,
+    IdentityDbContext<User, Role, int, IdentityUserClaim<int>, UserRole, IdentityUserLogin<int>, IdentityRoleClaim<int>, IdentityUserToken<int>>,
     ISpaceDbContext
 {
     private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
@@ -19,7 +19,7 @@ public class SpaceDbContext :
     }
     #region Class
     public DbSet<Class> Classes => Set<Class>();
-    public DbSet<ClassGenerateSession> ClassGenerateSessions => Set<ClassGenerateSession>();
+    public DbSet<ClassSession> ClassSessions => Set<ClassSession>();
     public DbSet<Room> Rooms => Set<Room>();
     public DbSet<HeldModule> HeldModules => Set<HeldModule>();
     public DbSet<Session> Sessions => Set<Session>();

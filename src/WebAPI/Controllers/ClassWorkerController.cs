@@ -16,7 +16,7 @@ public class ClassModulesWorkerController : BaseApiController
     ///// <param name="WorkerId">The ID of the Worker.</param>
     ///// <returns>The Worker of the class.</returns>
     //[HttpGet("/classes/{classId}/Worker/{WorkerId}")]
-    //public async Task<IActionResult> Get([FromRoute] Guid classId, [FromRoute] Guid WorkerId)
+    //public async Task<IActionResult> Get([FromRoute] int classId, [FromRoute] int WorkerId)
     //        => StatusCode(200, await Mediator.Send(new GetClassModulesWorkerQuery(classId, WorkerId)));
 
 
@@ -53,6 +53,6 @@ public class ClassModulesWorkerController : BaseApiController
     ///// <param name="WorkerId">The ID of the Worker.</param>
     ///// <returns>The status code of the operation.</returns>
     //[HttpDelete("/classes/{classId}/Worker/{WorkerId}")]
-    //public async Task<IActionResult> Delete([FromRoute] Guid classId, [FromRoute] Guid WorkerId)
+    //public async Task<IActionResult> Delete([FromRoute] int classId, [FromRoute] int WorkerId)
     //          => StatusCode(200, await Mediator.Send(new DeleteClassModulesWorkerCommand(classId, WorkerId)));
 }

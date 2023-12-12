@@ -3,7 +3,7 @@ namespace Space.Application.DTOs;
 
 public class GetAllWorkersWithDetailsResponseDto
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public string? EMail { get; set; }
     public string? Name { get; set; }
     public string? Surname { get; set; }
@@ -16,7 +16,7 @@ public class GetAllWorkersWithDetailsResponseDto
 public class WorkersClassesDto
 {
     public string ClassName { get; set; } = null!;
-    public Guid ClassId { get; set; }
+    public int ClassId { get; set; }
     public bool IsOpen { get; set; }
     public DateOnly StartDate { get; set; }
     public DateOnly? EndDate { get; set; }

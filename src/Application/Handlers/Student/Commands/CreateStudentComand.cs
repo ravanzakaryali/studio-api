@@ -3,7 +3,7 @@ namespace Space.Application.Handlers;
 
 public class CreateStudentComand : IRequest
 {
-    public Guid ClassId { get; set; }
+    public int ClassId { get; set; }
     public IEnumerable<CreateStudentsDto> Students { get; set; } = null!;
 }
 internal class CreateStudentHandler : IRequestHandler<CreateStudentComand>
@@ -17,10 +17,11 @@ internal class CreateStudentHandler : IRequestHandler<CreateStudentComand>
 
     public async Task Handle(CreateStudentComand request, CancellationToken cancellationToken)
     {
+        //Todo: Contact is null
         Class @class = await _spaceDbContext.Classes
             .Include(c => c.Studies)
             .ThenInclude(c => c.Student)
-            .ThenInclude(c => c.Contact).FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken: cancellationToken)
+            .ThenInclude(c => c!.Contact).FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken: cancellationToken)
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
         @class.Studies = new List<Study>();

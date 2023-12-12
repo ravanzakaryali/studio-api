@@ -19,11 +19,11 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
     {
         List<Program> programs = await _spaceDbContext.Programs
             .Include(p => p.Classes)
-            .ThenInclude(c => c.ClassGenerateSessions)
+            .ThenInclude(c => c.ClassSessions)
             .ToListAsync(cancellationToken: cancellationToken);
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
 
-        List<ClassGenerateSession> classSessions = await _spaceDbContext.ClassGenerateSessions
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Include(c => c.Class)
             .Where(c => c.Date <= dateNow)
             .ToListAsync(cancellationToken: cancellationToken);

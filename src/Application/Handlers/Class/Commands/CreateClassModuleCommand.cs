@@ -2,7 +2,7 @@
 
 public class CreateClassModuleCommand : IRequest
 {
-    public Guid ClassId { get; set; }
+    public int ClassId { get; set; }
     public IEnumerable<CreateClassModuleRequestDto> CreateClassModule { get; set; } = null!;
 }
 
@@ -31,13 +31,13 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
                 ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
 
-        IEnumerable<Guid> moduleIds = request.CreateClassModule.Select(c => c.ModuleId);
+        IEnumerable<int> moduleIds = request.CreateClassModule.Select(c => c.ModuleId);
         IEnumerable<Module> modules = await _spaceDbContext.Modules
             .Where(c => moduleIds.Contains(c.Id))
             .ToListAsync(cancellationToken: cancellationToken);
 
-        IEnumerable<Guid> existingModuleIds = modules.Select(m => m.Id);
-        IEnumerable<Guid> nonExistingModuleIds = moduleIds.Except(existingModuleIds);
+        IEnumerable<int> existingModuleIds = modules.Select(m => m.Id);
+        IEnumerable<int> nonExistingModuleIds = moduleIds.Except(existingModuleIds);
         if (nonExistingModuleIds.Any())
             throw new NotFoundException(nameof(Module), $"{string.Join(",", nonExistingModuleIds)}");
 
@@ -54,19 +54,19 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
             }
         }
 
-        IEnumerable<Guid> workerIds = request.CreateClassModule.Select(c => c.WorkerId);
+        IEnumerable<int> workerIds = request.CreateClassModule.Select(c => c.WorkerId);
         //if (@class.Program.Modules.Any(c => moduleIds.Contains(c.Id))) throw new NotFoundException("Modules not found in modules of class program");
         IEnumerable<Worker> workers = await _spaceDbContext.Workers
             .Where(c => workerIds.Contains(c.Id))
             .ToListAsync();
-        IEnumerable<Guid> existingWorkerIds = workers.Select(w => w.Id);
-        IEnumerable<Guid> nonExistingWorkerIds = workerIds.Except(existingWorkerIds);
+        IEnumerable<int> existingWorkerIds = workers.Select(w => w.Id);
+        IEnumerable<int> nonExistingWorkerIds = workerIds.Except(existingWorkerIds);
         if (nonExistingWorkerIds.Any())
             throw new NotFoundException(nameof(Worker), $"{string.Join(",", nonExistingWorkerIds)}");
 
-        IEnumerable<Guid> roleIds = request.CreateClassModule.Select(c => c.RoleId);
+        IEnumerable<int> roleIds = request.CreateClassModule.Select(c => c.RoleId);
         IEnumerable<Role> roles = await _spaceDbContext.Roles.Where(c => roleIds.Contains(c.Id)).ToListAsync(cancellationToken: cancellationToken);
-        IEnumerable<Guid> nonExistingRoleIds = roles.Select(w => w.Id);
+        IEnumerable<int> nonExistingRoleIds = roles.Select(w => w.Id);
         if (!nonExistingRoleIds.Any())
             throw new NotFoundException(nameof(Role), $"{string.Join(",", nonExistingRoleIds)}");
 

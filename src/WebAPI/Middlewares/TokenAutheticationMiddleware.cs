@@ -90,7 +90,7 @@ public class ChangeTokenAutheticationMiddlewares
                     string? loginUserId = claimsPrincipal.GetLoginUserId();
                     if (expiration <= DateTime.UtcNow && loginUserId != null)
                     {
-                        User? user = await unitOfWork.UserService.FindById(new Guid(loginUserId));
+                        User? user = await unitOfWork.UserService.FindById(int.Parse(loginUserId));
                         IList<string> roles = await unitOfWork.RoleService.GetRolesByUser(user);
 
                         Token newAccessToken = tokenService.GenerateToken(user, TimeSpan.FromSeconds(10), roles);

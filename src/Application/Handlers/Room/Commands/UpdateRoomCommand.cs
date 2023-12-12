@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record UpdateRoomCommand(Guid Id, UpdateRoomRequestDto UpdateRoom) : IRequest<GetRoomResponseDto>;
+public record UpdateRoomCommand(int Id, UpdateRoomRequestDto UpdateRoom) : IRequest<GetRoomResponseDto>;
 
 internal class UpdateRoomCommandHandler : IRequestHandler<UpdateRoomCommand, GetRoomResponseDto>
 {

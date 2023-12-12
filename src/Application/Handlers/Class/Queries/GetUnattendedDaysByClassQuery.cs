@@ -3,7 +3,7 @@ namespace Space.Application.Handlers;
 
 public class GetUnattendedDaysByClassQuery : IRequest<IEnumerable<GetUnAttendedByClassDto>>
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 }
 internal class GetUnattendedDaysByClassHandler : IRequestHandler<GetUnattendedDaysByClassQuery, IEnumerable<GetUnAttendedByClassDto>>
 {
@@ -23,7 +23,7 @@ internal class GetUnattendedDaysByClassHandler : IRequestHandler<GetUnattendedDa
 
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
 
-        List<DateOnly> classSessionDates = await _spaceDbContext.ClassGenerateSessions
+        List<DateOnly> classSessionDates = await _spaceDbContext.ClassSessions
             .Where(c => c.ClassId == @class.Id && c.Date < dateNow && c.ClassTimeSheetId == null)
             .Select(c => c.Date)
             .ToListAsync(cancellationToken: cancellationToken);

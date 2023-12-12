@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record DeleteSupportCommand(Guid Id) : IRequest;
+public record DeleteSupportCommand(int Id) : IRequest;
 
 internal class DeleteSupportCommandHandler : IRequestHandler<DeleteSupportCommand>
 {

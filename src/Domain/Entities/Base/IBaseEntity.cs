@@ -2,7 +2,7 @@
 
 public interface IBaseEntity
 {
-    Guid Id { get; set; }
+    int Id { get; set; }
     bool IsDeleted { get; set; }
     bool IsActive { get; set; }
 }

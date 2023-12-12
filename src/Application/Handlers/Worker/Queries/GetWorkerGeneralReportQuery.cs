@@ -3,7 +3,7 @@
 namespace Space.Application.Handlers;
 
 
-public record GetWorkerGeneralReportQuery(Guid Id) : IRequest<GetWorkerGeneralReportResponseDto>;
+public record GetWorkerGeneralReportQuery(int Id) : IRequest<GetWorkerGeneralReportResponseDto>;
 
 
 internal class GetWorkerGeneralReportQueryHandler : IRequestHandler<GetWorkerGeneralReportQuery, GetWorkerGeneralReportResponseDto>

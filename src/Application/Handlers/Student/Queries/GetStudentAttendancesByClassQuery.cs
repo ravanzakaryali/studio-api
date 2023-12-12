@@ -1,7 +1,7 @@
 ﻿namespace Space.Application.Handlers;
 
 
-public record GetStudentAttendancesByClassQuery(Guid Id, Guid ClassId) : IRequest<GetStudentAttendancesByClassResponseDto>;
+public record GetStudentAttendancesByClassQuery(int Id, int ClassId) : IRequest<GetStudentAttendancesByClassResponseDto>;
 
 
 internal class GetStudentAttendancesByClassQueryHandler : IRequestHandler<GetStudentAttendancesByClassQuery, GetStudentAttendancesByClassResponseDto>
@@ -21,7 +21,7 @@ internal class GetStudentAttendancesByClassQueryHandler : IRequestHandler<GetStu
         Study study = await _spaceDbContext.Studies
             .Where(q => q.StudentId == request.Id && q.ClassId == request.ClassId)
             .Include(c => c.Class)
-            .ThenInclude(c => c!.ClassGenerateSessions)
+            .ThenInclude(c => c!.ClassSessions)
             .Include(c => c.Student)
             .ThenInclude(c => c!.Contact)
             .Include(c => c.Attendances)
@@ -53,7 +53,8 @@ internal class GetStudentAttendancesByClassQueryHandler : IRequestHandler<GetStu
             };
             attendanceList.Add(attendanceDto);
         }
-        double? totalHour = (study.Class.ClassTimeSheets.Where(c => c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online).Sum(c => c.TotalHours));
+        //Todo: Study class null
+        double? totalHour = (study.Class!.ClassTimeSheets.Where(c => c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online).Sum(c => c.TotalHours));
         double? attendancesHour = study.Attendances.Where(c => c.ClassTimeSheets.Category != ClassSessionCategory.Lab).Sum(c => c.TotalAttendanceHours);
         response.AttendancePercent = (totalHour != 0 ? attendancesHour / totalHour * 100 : 0) ?? 0;
         response.Attendances = attendanceList.OrderByDescending(q => q.Date).ToList();

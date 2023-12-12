@@ -39,7 +39,7 @@ public class UsersController : BaseApiController
     [HttpPost("{id}/roles")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateUserRole([FromRoute] Guid id, [FromBody] IEnumerable<CreateRoleRequestDto> request)
+    public async Task<IActionResult> CreateUserRole([FromRoute] int id, [FromBody] IEnumerable<CreateRoleRequestDto> request)
     {
         await Mediator.Send(new CreateRoleByUserCommand(id, request));
         return NoContent();
@@ -60,6 +60,6 @@ public class UsersController : BaseApiController
     /// </remarks>
     [Authorize]
     [HttpGet("{id}/roles")]
-    public async Task<IActionResult> GetRoles([FromRoute] Guid id)
+    public async Task<IActionResult> GetRoles([FromRoute] int id)
         => Ok(await Mediator.Send(new GetRolesByUserQuery(id)));
 }
