@@ -131,7 +131,12 @@ public class ExceptionHandlingMiddleware
         {
             if (httpContext.Request?.Path == "/api/Users/login")
             {
-                httpContext.Response.Cookies.Delete("token");
+                httpContext.Response.Cookies.Delete("token", new CookieOptions
+                {
+                    HttpOnly = false,
+                    SameSite = SameSiteMode.None,
+                    Secure = true,
+                });
             }
             ErrorResponse error = await HandleExceptionAsync(httpContext, ex);
             _logger.LogError(ex, $"Request {httpContext.Request?.Method}: {httpContext.Request?.Path.Value} failed Error: {@error}", error);
