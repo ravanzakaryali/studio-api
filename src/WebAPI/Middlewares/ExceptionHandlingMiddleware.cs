@@ -37,6 +37,7 @@ public class ExceptionHandlingMiddleware
     {
         _unitOfWork = unitOfWork;
         _currentUserService = currentUserService;
+       
         try
         {
 
@@ -44,6 +45,7 @@ public class ExceptionHandlingMiddleware
         }
         catch (DateTimeException ex)
         {
+
             httpContext.Response.ContentType = "application/json";
             httpContext.Response.StatusCode = (int)ex.HttpStatusCode;
 
@@ -129,15 +131,6 @@ public class ExceptionHandlingMiddleware
         }
         catch (Exception ex)
         {
-            if (httpContext.Request?.Path == "/api/Users/login")
-            {
-                httpContext.Response.Cookies.Delete("token", new CookieOptions
-                {
-                    HttpOnly = false,
-                    SameSite = SameSiteMode.None,
-                    Secure = true,
-                });
-            }
             ErrorResponse error = await HandleExceptionAsync(httpContext, ex);
             _logger.LogError(ex, $"Request {httpContext.Request?.Method}: {httpContext.Request?.Path.Value} failed Error: {@error}", error);
         }

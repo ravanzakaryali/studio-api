@@ -38,6 +38,7 @@ public class TokenAutheticationMiddlewares
     /// <param name="httpContext">The HTTP context for the current request.</param>
     public async Task InvokeAsync(HttpContext httpContext)
     {
+
         if (httpContext.Request.Cookies.TryGetValue("token", out string? token))
         {
             httpContext.Request.Headers.Add("Authorization", "Bearer " + token);
@@ -90,6 +91,17 @@ public class ChangeTokenAutheticationMiddlewares
                     string? loginUserId = claimsPrincipal.GetLoginUserId();
                     if (expiration <= DateTime.UtcNow && loginUserId != null)
                     {
+                        if (!int.TryParse(loginUserId, out int result))
+                        {
+                            httpContext.Response.Cookies.Append("token", "delete", new CookieOptions
+                            {
+                                Expires = DateTime.Now.AddDays(-1),
+                                HttpOnly = false,
+                                SameSite = SameSiteMode.None,
+                                Secure = true,
+                            });
+                            await _next(httpContext);
+                        }
                         User? user = await unitOfWork.UserService.FindById(int.Parse(loginUserId));
                         IList<string> roles = await unitOfWork.RoleService.GetRolesByUser(user);
 

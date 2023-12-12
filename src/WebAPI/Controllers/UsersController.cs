@@ -1,4 +1,6 @@
 ﻿namespace Space.WebAPI.Controllers;
+using Microsoft.Extensions.Configuration;
+
 
 /// <summary>
 /// User controller
@@ -19,7 +21,9 @@ public class UsersController : BaseApiController
     /// </remarks>
     [HttpGet("login")]
     public async Task<IActionResult> GetUserLogin()
-        => Ok(await Mediator.Send(new UserLoginQuery()));
+    {
+        return Ok(await Mediator.Send(new UserLoginQuery()));
+    }
 
     /// <summary>
     /// Creates user roles for a specific user by their unique identifier.

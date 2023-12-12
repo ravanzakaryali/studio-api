@@ -1,4 +1,6 @@
-﻿namespace Space.WebAPI.Controllers;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Space.WebAPI.Controllers;
 
 /// <summary>
 /// Authentication controller
@@ -19,12 +21,14 @@ public class AuthController : BaseApiController
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
+
         await Mediator.Send(new LoginCommand()
         {
             Email = request.Email,
             Password = request.Password,
             //ReCaptchaToken = request.Token,
         });
+
         return Ok();
     }
 
