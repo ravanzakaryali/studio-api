@@ -1,4 +1,6 @@
 ﻿
+using Space.Domain.Entities;
+
 namespace Space.Application.Handlers;
 
 public class GetUnmarkedAttedanceClassesByProgramQuery : IRequest<IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
@@ -21,13 +23,50 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                 throw new NotFoundException(nameof(Program), request.Id);
 
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
+        //programa yazılmamış davamiyyətini çıxart
+        //daha sonra group məlu
 
         List<ClassGenerateSession> classSessions = await _spaceDbContext
             .ClassGenerateSessions
+            .Include(c => c.ClassTimeSheet)
+            .ThenInclude(c => c.Attendances)
             .Include(c => c.Class)
-            .Where(c => c.Class.ProgramId == program.Id && c.ClassTimeSheetId == null && c.Date <= dateNow)
+            .ThenInclude(c => c.Studies)
+            .Where(c => c.Class.ProgramId == program.Id)
             .ToListAsync(cancellationToken: cancellationToken);
-        throw new NotFoundException("Not found endpoint");
 
+
+        List<GetUnmarkedAttedanceClassesByProgramResponseDto> response = new();
+        List<AvarageClassDto> list = new();
+
+
+        foreach (ClassGenerateSession? item in classSessions.Where(c => c.ClassTimeSheet?.Attendances.Count > 0))
+        {
+            int total = item.TotalHours;
+            double totalAttendance = item.ClassTimeSheet?.Attendances.Average(c => c.TotalAttendanceHours) ?? 0;
+            list.Add(new AvarageClassDto()
+            {
+                AverageHours = (totalAttendance * 100) / total,
+                ClassId = item.ClassId,
+            });
+        }
+
+        response.AddRange(classSessions.Where(c => c.Date <= dateNow).DistinctBy(c => c.ClassId).Select(c => new GetUnmarkedAttedanceClassesByProgramResponseDto()
+        {
+            StudentsCount = c.Class.Studies.Count,
+            AttendancePercentage = Math.Round(list.Where(l => l.ClassId == c.ClassId).Any() ? list.Where(l => l.ClassId == c.ClassId).Average(a => a.AverageHours) : 0, 2),
+            UnMarkDays = classSessions.Where(cs => cs.ClassId == c.ClassId).Count(),
+            Class = new GetClassDto()
+            {
+                Id = c.ClassId,
+                Name = c.Class.Name
+            },
+        }).ToList());
+        return response;
+    }
+    private class AvarageClassDto
+    {
+        public double AverageHours { get; set; }
+        public Guid ClassId { get; set; }
     }
 }
