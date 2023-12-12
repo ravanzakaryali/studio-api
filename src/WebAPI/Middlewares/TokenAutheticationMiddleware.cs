@@ -101,6 +101,7 @@ public class ChangeTokenAutheticationMiddlewares
                                 Secure = true,
                             });
                             await _next(httpContext);
+                            return;
                         }
                         User? user = await unitOfWork.UserService.FindById(int.Parse(loginUserId));
                         IList<string> roles = await unitOfWork.RoleService.GetRolesByUser(user);
