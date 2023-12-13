@@ -78,6 +78,15 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
             ClassSession? classSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
             if (classSession is null) continue;
 
+            if (session.AttendancesWorkers.Any(c => c.TotalMinutes >= 60))
+                throw new ValidationException("It cannot be more than 60 minutes");
+
+            if (session.AttendancesWorkers.Any(c => c.TotalHours > classSession.TotalHours))
+                throw new ValidationException("The worker's time cannot be longer than the lesson's time");
+
+            if (session.Attendances.Any(c => c.TotalAttendanceHours > classSession.TotalHours))
+                throw new ValidationException("The student's time cannot be longer than the lesson's time");
+
             if (classSession.Status != ClassSessionStatus.Cancelled)
             {
                 ClassTimeSheet classTimeSheet = new()
