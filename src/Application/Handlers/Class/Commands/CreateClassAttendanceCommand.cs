@@ -5,7 +5,7 @@ public class CreateClassAttendanceCommand : IRequest
     public int ClassId { get; set; }
     public DateOnly Date { get; set; }
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
-    public ICollection<CreateAttendanceModuleRequestDto> HeldModules { get; set; } = null!;
+    public ICollection<CreateAttendanceModuleRequestDto>? HeldModules { get; set; }
 }
 internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClassAttendanceCommand>
 {
@@ -47,13 +47,16 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         DateOnly classLastDate = await _unitOfWork.ClassSessionService.GetLastDateAsync(@class.Id);
 
         //əgər yoxdursa o zaman error qaytar
-        List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
-        if (classSessions.Count != requestModuleIds.Count) throw new NotFoundException("Module not found");
+        if (request.HeldModules != null)
+        {
+            List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
+            if (classSessions.Count != requestModuleIds.Count) throw new NotFoundException("Module not found");
 
-        List<Module> module = await _spaceDbContext.Modules
-            .Where(m => requestModuleIds.Contains(m.Id))
-            .ToListAsync(cancellationToken: cancellationToken);
-        if (requestModuleIds.Count != module.Count) throw new NotFoundException("Modules not found");
+            List<Module> module = await _spaceDbContext.Modules
+                .Where(m => requestModuleIds.Contains(m.Id))
+                .ToListAsync(cancellationToken: cancellationToken);
+            if (requestModuleIds.Count != module.Count) throw new NotFoundException("Modules not found");
+        }
 
         List<int> studentIds = request.Sessions
                 .SelectMany(s => s.Attendances)
@@ -77,7 +80,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
 
             if (classSession.Status != ClassSessionStatus.Cancelled)
             {
-                addTimeSheets.Add(new ClassTimeSheet()
+                ClassTimeSheet classTimeSheet = new()
                 {
                     Attendances = session.Attendances.Select(c => new Attendance()
                     {
@@ -95,22 +98,25 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                         WorkerId = wa.WorkerId,
                         TotalHours = wa.TotalHours,
                         TotalMinutes = wa.TotalMinutes,
-                        AttendanceStatus = wa.AttendanceStatus,
                         RoleId = wa.RoleId,
+                        AttendanceStatus = wa.AttendanceStatus,
                     }).ToList(),
                     TotalHours = classSession.TotalHours,
                     Category = classSession.Category,
                     ClassId = classSession.ClassId,
                     EndTime = classSession.EndTime,
                     Date = classSession.Date,
-                    HeldModules = request.HeldModules.Select(hm => new HeldModule()
+
+                    StartTime = classSession.StartTime,
+                    Status = classSession.Status,
+                };
+                if (session.Category == ClassSessionCategory.Theoric && request.HeldModules != null)
+                    classTimeSheet.HeldModules = request.HeldModules.Select(hm => new HeldModule()
                     {
                         ModuleId = hm.ModuleId,
                         TotalHours = hm.TotalHours,
-                    }).ToList(),
-                    StartTime = classSession.StartTime,
-                    Status = classSession.Status,
-                });
+                    }).ToList();
+                addTimeSheets.Add(classTimeSheet);
             }
             else
             {

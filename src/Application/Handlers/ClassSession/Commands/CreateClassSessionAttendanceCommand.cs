@@ -4,7 +4,7 @@ public class CreateClassSessionAttendanceCommand : IRequest
 {
     public int ClassId { get; set; }
     public DateOnly Date { get; set; }
-    public ICollection<CreateAttendanceModuleRequestDto> HeldModules { get; set; } = null!;
+    public ICollection<CreateAttendanceModuleRequestDto>? HeldModules { get; set; } = null;
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
 }
 
@@ -42,17 +42,21 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
             .ToListAsync(cancellationToken: cancellationToken);
 
         //əgər yoxdursa o zaman error qaytar
-        List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
-        if (classSessions.Count != requestModuleIds.Count) throw new NotFoundException("Module not found");
+        if (request.HeldModules != null)
+        {
+
+            List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
+            if (classSessions.Count != requestModuleIds.Count) throw new NotFoundException("Module not found");
+            List<Module> module = await _spaceDbContext.Modules
+            .Where(m => requestModuleIds.Contains(m.Id))
+            .ToListAsync(cancellationToken: cancellationToken);
+            if (requestModuleIds.Count != module.Count) throw new NotFoundException("Modules not found");
+        }
 
         //ders cancelled olursa bu işləməlidi
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         DateOnly classLastDate = await _unitOfWork.ClassSessionService.GetLastDateAsync(@class.Id);
 
-        List<Module> module = await _spaceDbContext.Modules
-        .Where(m => requestModuleIds.Contains(m.Id))
-        .ToListAsync(cancellationToken: cancellationToken);
-        if (requestModuleIds.Count != module.Count) throw new NotFoundException("Modules not found");
 
         List<int> studentIds = request.Sessions
                 .SelectMany(s => s.Attendances)
@@ -105,7 +109,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
                     StartTime = classSession.StartTime,
                     Status = classSession.Status,
                 };
-                if (session.Category == ClassSessionCategory.Theoric)
+                if (session.Category == ClassSessionCategory.Theoric && request.HeldModules != null)
                     classTimeSheet.HeldModules = request.HeldModules.Select(hm => new HeldModule()
                     {
                         ModuleId = hm.ModuleId,

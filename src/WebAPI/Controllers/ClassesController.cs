@@ -259,6 +259,7 @@ public class ClassesController : BaseApiController
             ClassId = id,
             Date = request.Date,
             Sessions = request.Sessions,
+            HeldModules = request.HeldModules,
         });
         return StatusCode(StatusCodes.Status204NoContent);
     }
