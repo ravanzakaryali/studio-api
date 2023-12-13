@@ -145,6 +145,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
                 await _spaceDbContext.ClassSessions.AddRangeAsync(generateClassSessions, cancellationToken);
             }
         }
+        _spaceDbContext.ClassTimeSheets.AddRange(addTimeSheets);
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }
