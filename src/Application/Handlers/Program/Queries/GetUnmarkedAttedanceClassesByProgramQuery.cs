@@ -60,9 +60,5 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
         }).ToList());
         return response;
     }
-    private class AvarageClassDto
-    {
-        public double AverageHours { get; set; }
-        public int ClassId { get; set; }
-    }
+  
 }

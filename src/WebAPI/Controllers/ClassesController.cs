@@ -16,8 +16,28 @@ public class ClassesController : BaseApiController
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<GetClassModuleWorkers>))]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> GetAll([FromQuery] ClassStatus status = ClassStatus.Active)
-            => Ok(await Mediator.Send(new GetAllClassQuery(status)));
+    public async Task<IActionResult> GetAll(
+        [FromQuery] ClassStatus status = ClassStatus.Active,
+        [FromQuery] int? programId = null,
+        [FromQuery] int? studyCount = null,
+        [FromQuery] StudyCountStatus? studyCountStatus = null,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null,
+        [FromQuery] int? teacherId = null,
+        [FromQuery] int? mentorId = null,
+        [FromQuery] int? startAttendancePercentage = null,
+        [FromQuery] int? endAttendancePercentage = null)
+            => Ok(await Mediator.Send(new GetAllClassQuery(
+                status,
+                programId,
+                studyCount,
+                studyCountStatus,
+                startDate,
+                endDate,
+                teacherId,
+                mentorId,
+                startAttendancePercentage,
+                endAttendancePercentage)));
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}")]
@@ -138,17 +158,6 @@ public class ClassesController : BaseApiController
         return NoContent();
     }
 
-    /// <summary>
-    /// Retrieves detailed information about students related to a specific class based on its unique identifier.
-    /// </summary>
-    /// <param name="id">The unique identifier of the class for which to retrieve student details.</param>
-    /// <returns>
-    /// An HTTP response containing detailed information about students related to the specified class upon successful retrieval.
-    /// </returns>
-    /// <remarks>
-    /// This endpoint allows users with roles "admin," "mentor," "ta," and "muellim" to retrieve detailed information
-    /// about students associated with a class based on the class's unique identifier.
-    /// </remarks>
     [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet("{id}/students-details")]
     public async Task<IActionResult> GetStudentsDetailsByClass([FromRoute] int id)

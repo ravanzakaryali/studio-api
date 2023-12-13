@@ -8,6 +8,7 @@ public class GetClassModuleWorkersResponse
     public int ProgramId { get; set; }
     public string SessionName { get; set; } = null!;
     public int TotalModules { get; set; }
+    public int StudyCount { get; set; }
     public int TotalHour { get; set; }
     public int CurrentHour { get; set; }
     public DateOnly StartDate { get; set; }
@@ -23,6 +24,7 @@ public class GetClassModuleWorkers
     public int ProgramId { get; set; }
     public string SessionName { get; set; } = null!;
     public int TotalModules { get; set; }
+    public int StudyCount { get; set; }
     public int TotalHour { get; set; }
     public int CurrentHour { get; set; }
     public DateOnly StartDate { get; set; }
