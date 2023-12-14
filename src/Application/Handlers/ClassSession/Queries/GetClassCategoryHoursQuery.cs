@@ -30,7 +30,7 @@ internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCateg
 
         List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.Date == requestDate && c.ClassId == @class.Id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
         IEnumerable<GetClassSessionCategoryHoursResponseDto> response = classSessions
             .Select(c => new GetClassSessionCategoryHoursResponseDto()

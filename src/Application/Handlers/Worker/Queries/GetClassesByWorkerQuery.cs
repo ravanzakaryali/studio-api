@@ -27,7 +27,7 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
 
         IEnumerable<ClassModulesWorker> classModuleWorker = worker.ClassModulesWorkers
-            .Where(q => q.StartDate >= dateNow && q.EndDate <= dateNow)
+            .Where(q => q.StartDate <= dateNow && q.EndDate >= dateNow)
             .DistinctBy(cmw => cmw.ClassId);
 
         IEnumerable<int> classIds = classModuleWorker.Select(cm => cm.ClassId);
