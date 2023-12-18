@@ -27,7 +27,6 @@ internal class GetAllStudentsDetailsByClassQueryHandler : IRequestHandler<GetAll
         return @class.Studies.Where(c => c.StudyType != StudyType.Completion).Select(study =>
         {
             double? attendancesHour = @class.ClassTimeSheets
-            .Where(c => c.Category != ClassSessionCategory.Lab)
             .Select(c => c.Attendances
                 .Where(a => a.StudyId == study.Id)
                 .Sum(c => c.TotalAttendanceHours))
