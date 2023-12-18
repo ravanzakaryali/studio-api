@@ -43,8 +43,6 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
             .Select(c =>
             {
                 List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(c => c.Date == requestDate).ToList();
-                //int? totalHours = 0;
-                //int? totalMinutes = 0;
                 GetWorkersByClassResponseDto workersClass = new()
                 {
                     TotalLessonHours = @class.ClassTimeSheets

@@ -159,7 +159,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                             {
                                 response[i].SubModules![j].EndDate = classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[j].Id).First().EndDate;
                             }
-                            if (j > 0) response[i].SubModules![j].EndDate = response[i].SubModules![j - 1].EndDate;
+                            if (j > 0) response[i].SubModules![j].StartDate = response[i].SubModules![j - 1].EndDate;
                             subModuleSum = 0;
                             break;
                         }
