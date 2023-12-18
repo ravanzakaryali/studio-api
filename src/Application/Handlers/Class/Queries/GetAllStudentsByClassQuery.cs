@@ -71,8 +71,8 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                 Sessions = classTimeSheets.Select(c => new GetAllStudentCategoryDto()
                 {
                     ClassSessionCategory = c.Category,
-                    Hour = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours ?? 0,
-                    Note = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note ?? null
+                    Hour = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours,
+                    Note = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note
                 })
             };
             return studentResponse;

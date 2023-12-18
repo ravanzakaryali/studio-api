@@ -17,6 +17,6 @@ public class GetAllStudentByClassResponseDto
 public class GetAllStudentCategoryDto
 {
     public ClassSessionCategory? ClassSessionCategory { get; set; }
-    public int Hour { get; set; }
+    public int? Hour { get; set; }
     public string? Note { get; set; }
 }
