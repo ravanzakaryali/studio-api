@@ -115,45 +115,63 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         {
             item.SubModules = item.SubModules?.OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
         }
-        //Todo: Code review
+
         response.First().StartDate = @class.StartDate;
         response.Last().EndDate = classDateTimes.Last().DateTime;
 
-        if (response.Any(c => c.StartDate == null) || response.Any(c => c.EndDate == null))
+        for (int i = 0; i < response.Count; i++)
         {
-            for (int i = 0; i < response.Count; i++)
+            if (response[i].SubModules != null)
             {
-                if (response[i].SubModules != null)
+                for (int j = 0; j < response[i].SubModules!.Count; j++)
                 {
-                    for (int j = 0; j < response[i].SubModules!.Count; j++)
+                    int subModuleSum = 0;
+                    double totalSubModuleHour = response[i].SubModules![j].Hours;
+                    if (classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[0].Id).FirstOrDefault() == null)
                     {
-                        int subModuleSum = 0;
-                        double totalSubModuleHour = response[i].SubModules![j].Hours;
                         response[i].SubModules![0].StartDate = response[i].StartDate;
-                        if (j == response[i].SubModules!.Count - 1)
+                    }
+                    else
+                    {
+                        response[i].SubModules![0].StartDate = classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[0].Id).First().StartDate;
+                    }
+                    if (j == response[i].SubModules!.Count - 1)
+                    {
+                        if (classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[j].Id).FirstOrDefault() == null)
                         {
                             response[i].SubModules![j].EndDate = response[i].EndDate;
                         }
-                        foreach (var item in classDateTimes.Where(c => j > 0 ? c.DateTime > response[i].SubModules![j - 1].EndDate : true))
+                        else
                         {
-                            subModuleSum += item.Hour;
-                            if (subModuleSum >= response[i].SubModules![j].Hours)
+                            response[i].SubModules![j].EndDate = classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[j].Id).First().EndDate;
+                        }
+                    }
+                    foreach (var item in classDateTimes.Where(c => j > 0 ? c.DateTime > response[i].SubModules![j - 1].EndDate : true))
+                    {
+                        subModuleSum += item.Hour;
+                        if (subModuleSum >= response[i].SubModules![j].Hours)
+                        {
+                            if (classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[j].Id).FirstOrDefault() == null)
                             {
                                 response[i].SubModules![j].EndDate = item.DateTime;
-                                if (j > 0) response[i].SubModules![j].StartDate = response[i].SubModules![j - 1].EndDate;
-                                subModuleSum = 0;
-                                break;
                             }
+                            else
+                            {
+                                response[i].SubModules![j].EndDate = classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[j].Id).First().EndDate;
+                            }
+                            if (j > 0) response[i].SubModules![j].StartDate = response[i].SubModules![j - 1].EndDate;
+                            subModuleSum = 0;
+                            break;
                         }
                     }
                 }
             }
+        }
 
-            foreach (GetClassModuleResponseDto moduleItem in response)
-            {
-                moduleItem.StartDate = moduleItem.SubModules?.Min(c => c.StartDate);
-                moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
-            }
+        foreach (GetClassModuleResponseDto moduleItem in response)
+        {
+            moduleItem.StartDate = moduleItem.SubModules?.Min(c => c.StartDate);
+            moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
         }
 
         return response;
