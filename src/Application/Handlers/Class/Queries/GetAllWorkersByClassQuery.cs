@@ -61,6 +61,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                         workersClass.AttendanceStatus = attendance.AttendanceStatus;
                         workersClass.Name = attendance.Worker.Name;
                         workersClass.RoleName = attendance.Role?.Name;
+                        workersClass.RoleId = attendance.RoleId;
                         workersClass.Surname = attendance.Worker.Surname;
                         workersClass.TotalLessonHours = attendance.TotalHours;
                         workersClass.TotalHours = attendance.TotalHours;
