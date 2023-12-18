@@ -46,6 +46,12 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             End = classSessions.Where(c => c.ClassId == cmw.ClassId).Any() ?
                     classSessions.Select(c => c.StartTime).Max() :
                     null,
+            AttendanceHours = classSessions
+                            .Where(c => c.ClassTimeSheetId != null && c.Status != ClassSessionStatus.Cancelled)
+                            .Sum(c => c.TotalHours),
+            TotalHours = classSessions
+                            .Where(c => c.Status != ClassSessionStatus.Cancelled)
+                            .Sum(c => c.TotalHours),
             Name = cmw.Class.Name
         });
     }
