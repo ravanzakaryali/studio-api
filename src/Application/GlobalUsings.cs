@@ -24,7 +24,7 @@ global using Space.Domain.Entities;
 global using E = Space.Domain.Entities;
 global using IO = System.IO;
 global using Space.Application.DTOs.Enums;
-global using Space.Application.Helper.Compares;
+global using Space.Application.Compares;
 
 global using Space.Domain.Enums;
 global using Space.Application.Mappers;
@@ -35,11 +35,6 @@ global using Space.Application.Exceptions;
 global using Space.Application.Handlers;
 global using Space.Application.Common;
 global using Microsoft.AspNetCore.Identity;
-
-
-
-
-
 
 
 

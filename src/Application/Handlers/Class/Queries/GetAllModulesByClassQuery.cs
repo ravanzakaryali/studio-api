@@ -47,9 +47,6 @@ internal class GetAllModulesByClassQueryHandler : IRequestHandler<GetAllModulesB
         int totalHour = timeSheets
             .Sum(c => c.TotalHours);
 
-        //2023-12-12
-        //2023-12-14
-        //2023-12-24
         ClassModulesWorker? currentModuleWorker = @class.ClassModulesWorkers
             .FirstOrDefault(c => c.StartDate <= requestDate && c.EndDate >= requestDate)
                 ?? throw new NotFoundException(nameof(ClassModulesWorker), requestDate);
