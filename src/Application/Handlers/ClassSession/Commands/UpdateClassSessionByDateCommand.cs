@@ -27,13 +27,17 @@ internal class UpdateClassSessionByDateCommandHandler : IRequestHandler<UpdateCl
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
         List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+                                                                .Include(c => c.ClassTimeSheet)
                                                                 .Where(c => c.ClassId == request.ClassId &&
                                                                             c.Date >= request.StartDate &&
                                                                             c.Date <= request.EndDate)
                                                                 .ToListAsync(cancellationToken: cancellationToken);
 
         //Todo: Code review
-        if (classSessions.Any(c => c.Status != null)) throw new Exception("Seçilən tarix daxilində qeyd olunmuş sessiya var!");
+        if (classSessions.Any(c =>
+                c.ClassTimeSheet?.Status == ClassSessionStatus.Offline &&
+                c.ClassTimeSheet?.Status == ClassSessionStatus.Online))
+            throw new Exception("Seçilən tarix daxilində qeyd olunmuş sessiya var!");
 
         if (@class.RoomId is null) throw new NotFoundException("Bu qrup hər hansı bir dərs otağına əlavə olunmayıb");
 

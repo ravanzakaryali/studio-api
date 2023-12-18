@@ -127,6 +127,13 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
                                                                                        @class.RoomId.Value);
 
         @class.EndDate = classSessions.Max(c => c.Date);
+
+        DateOnly maxModuleDate = request.CreateClassModuleSessionDto.Modules.Max(c => c.EndDate);
+        DateOnly minModuleDate = request.CreateClassModuleSessionDto.Modules.Min(c => c.StartDate);
+
+        @class.StartDate = minModuleDate;
+        @class.EndDate = maxModuleDate;
+
         await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions, cancellationToken);
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
