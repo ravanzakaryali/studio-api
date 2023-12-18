@@ -121,19 +121,6 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
 
         for (int i = 0; i < response.Count; i++)
         {
-            double totalModuleHour = response[i].Hours;
-            int sum = 0;
-            foreach (var item in classDateTimes.Where(c => i > 0 ? c.DateTime > response[i - 1].EndDate : true))
-            {
-                sum += item.Hour;
-                if (i > 0) response[i].StartDate = response[i - 1].EndDate;
-                if (sum >= response[i].Hours)
-                {
-                    response[i].EndDate = item.DateTime;
-                    sum = 0;
-                    break;
-                }
-            }
             if (response[i].SubModules != null)
             {
                 for (int j = 0; j < response[i].SubModules!.Count; j++)
@@ -160,6 +147,11 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             }
         }
 
+        foreach (GetClassModuleResponseDto moduleItem in response)
+        {
+            moduleItem.StartDate = moduleItem.SubModules?.Min(c => c.StartDate);
+            moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
+        }
 
         return response;
     }
