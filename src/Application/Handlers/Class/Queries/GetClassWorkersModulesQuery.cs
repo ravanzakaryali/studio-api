@@ -49,7 +49,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
 
         //if (@class.Program.Modules.Any()) throw new NotFoundException("The class has no modules");
 
-        List<GetClassModuleResponseDto> response = modules.Select(m => new GetClassModuleResponseDto()
+        List<GetClassModuleResponseDto> modulesReponse = modules.Select(m => new GetClassModuleResponseDto()
         {
             Id = m.Id,
             Name = m.Name,
@@ -110,56 +110,56 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
 
         classDateTimes = classDateTimes.OrderBy(c => c.DateTime).ToList();
 
-        response = response.OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).OrderBy(c => c.Version).ToList();
-        foreach (var item in response)
+        modulesReponse = modulesReponse
+                         .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
+
+        foreach (var item in modulesReponse)
         {
-            item.SubModules = item.SubModules?.OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
+            item.SubModules = item.SubModules?
+               .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
         }
 
-        response.First().StartDate = @class.StartDate;
-        response.Last().EndDate = classDateTimes.Last().DateTime;
+        modulesReponse.First().StartDate = @class.StartDate;
+        modulesReponse.Last().EndDate = classDateTimes.Last().DateTime;
 
-        for (int i = 0; i < response.Count; i++)
+
+        //modulların sayı qədər dövr etsin
+        for (int i = 0; i < modulesReponse.Count; i++)
         {
-            if (response[i].SubModules != null)
+            //modullun sub modullu varsa daxil olsun
+            if (modulesReponse[i].SubModules != null)
             {
-                for (int j = 0; j < response[i].SubModules!.Count; j++)
+                //modulların sub modulda dövr etsin
+                for (int j = 0; j < modulesReponse[i].SubModules!.Count; j++)
                 {
                     int subModuleSum = 0;
-                    double totalSubModuleHour = response[i].SubModules![j].Hours;
-                    if (classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[0].Id).FirstOrDefault() == null)
+
+                    //moddulun ilk submodulu onun start ilə bərabər olsun. 
+
+                    if (i == 0)
                     {
-                        response[i].SubModules![0].StartDate = response[i].StartDate;
+                        // ilk dÖvrdə ilk modulun start date olduğu üçün onu götürsün.
+                        modulesReponse[i].SubModules![0].StartDate = modulesReponse[0].StartDate;
                     }
                     else
                     {
-                        response[i].SubModules![0].StartDate = classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[0].Id).First().StartDate;
+                        //digər dövlərdə bir əvvəli modulun ən sonuncusnun end date götürsün
+                        modulesReponse[i].SubModules![j].StartDate = modulesReponse[i - 1].SubModules![^1].EndDate;
                     }
-                    if (j == response[i].SubModules!.Count - 1)
+
+                    //bu classın sessionlarında sub moduldan böyül tarxilərə qədər dövr etsin
+                    foreach (ClassDateHourDto? classDateHour in
+                                    classDateTimes.Where(c => j > 0 ? c.DateTime > modulesReponse[i].SubModules![j - 1].EndDate : true))
                     {
-                        if (classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[j].Id).FirstOrDefault() == null)
+                        //classın sessionlarının saatlarını hesablasın
+                        subModuleSum += classDateHour.Hour;
+
+                        //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
+                        if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
                         {
-                            response[i].SubModules![j].EndDate = response[i].EndDate;
-                        }
-                        else
-                        {
-                            response[i].SubModules![j].EndDate = classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[j].Id).First().EndDate;
-                        }
-                    }
-                    foreach (var item in classDateTimes.Where(c => j > 0 ? c.DateTime > response[i].SubModules![j - 1].EndDate : true))
-                    {
-                        subModuleSum += item.Hour;
-                        if (subModuleSum >= response[i].SubModules![j].Hours)
-                        {
-                            if (classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[j].Id).FirstOrDefault() == null)
-                            {
-                                response[i].SubModules![j].EndDate = item.DateTime;
-                            }
-                            else
-                            {
-                                response[i].SubModules![j].EndDate = classModulesWorkers.Where(c => c.ModuleId == response[i].SubModules?[j].Id).First().EndDate;
-                            }
-                            if (j > 0) response[i].SubModules![j].StartDate = response[i].SubModules![j - 1].EndDate;
+
+                            modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
+                            if (j > 0) modulesReponse[i].SubModules![j].StartDate = modulesReponse[i].SubModules![j - 1].EndDate;
                             subModuleSum = 0;
                             break;
                         }
@@ -168,13 +168,13 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             }
         }
 
-        foreach (GetClassModuleResponseDto moduleItem in response)
+        foreach (GetClassModuleResponseDto moduleItem in modulesReponse)
         {
             moduleItem.StartDate = moduleItem.SubModules?.Min(c => c.StartDate);
             moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
         }
 
-        return response;
+        return modulesReponse;
     }
 }
 

@@ -42,9 +42,14 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
             .Distinct(new GetWorkerForClassDtoComparer())
             .Select(c =>
             {
-                List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(c => c.Date == requestDate).ToList();
+                List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(cts => cts.Date == requestDate).ToList();
                 GetWorkersByClassResponseDto workersClass = new()
                 {
+                    Name = c.Worker.Name!,
+                    Surname = c.Worker.Surname!,
+                    RoleId = c.RoleId,
+                    RoleName = c.Role!.Name,
+                    WorkerId = c.WorkerId,
                     TotalLessonHours = @class.ClassTimeSheets
                         .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
                         .SelectMany(c => c.AttendancesWorkers)
@@ -53,8 +58,8 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                 };
                 foreach (ClassTimeSheet classTimeSheet in classTimeSheets)
                 {
-
-                    AttendanceWorker? attendance = classTimeSheet.AttendancesWorkers.FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
+                    AttendanceWorker? attendance = classTimeSheet.AttendancesWorkers
+                                    .FirstOrDefault(attendance => attendance.WorkerId == c.WorkerId);
                     if (attendance != null)
                     {
                         workersClass.WorkerId = attendance.WorkerId;
@@ -66,18 +71,6 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                         workersClass.TotalLessonHours = attendance.TotalHours;
                         workersClass.TotalHours = attendance.TotalHours;
                         workersClass.TotalMinutes = attendance.TotalMinutes;
-                    }
-                    else
-                    {
-                        workersClass = new GetWorkersByClassResponseDto()
-                        {
-                            Name = c.Worker.Name!,
-                            Surname = c.Worker.Surname!,
-                            RoleId = c.RoleId,
-                            RoleName = c.Role!.Name,
-                            WorkerId = c.WorkerId,
-                            TotalLessonHours = @class.ClassTimeSheets.Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online).SelectMany(c => c.AttendancesWorkers).Where(attendance => attendance.WorkerId == c.WorkerId).Sum(c => c.TotalHours)
-                        };
                     }
                 }
                 return workersClass;

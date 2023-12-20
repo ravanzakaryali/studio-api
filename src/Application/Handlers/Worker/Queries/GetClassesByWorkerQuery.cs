@@ -43,6 +43,7 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             Start = classSessions.Where(c => c.ClassId == cmw.ClassId).Any() ?
                     classSessions.Select(c => c.StartTime).Min() :
                     null,
+            ProgramId = cmw.Class.ProgramId,
             End = classSessions.Where(c => c.ClassId == cmw.ClassId).Any() ?
                     classSessions.Select(c => c.StartTime).Max() :
                     null,

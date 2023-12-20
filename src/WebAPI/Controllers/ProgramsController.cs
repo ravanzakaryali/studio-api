@@ -50,6 +50,15 @@ public class ProgramsController : BaseApiController
             Id = id
         }));
 
+
+    [Authorize(Roles = "admin,mentor,ta,muellim")]
+    [HttpGet("{id}/modules")]
+    public async Task<IActionResult> GetModules([FromRoute] int id)
+        => Ok(await Mediator.Send(new GetModulesByProgramQuery()
+        {
+            Id = id
+        }));
+
     [Authorize(Roles = "admin")]
     [HttpPost("{id}/modules")]
     [ProducesResponseType(StatusCodes.Status201Created)]

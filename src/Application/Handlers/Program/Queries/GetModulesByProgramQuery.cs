@@ -1,24 +1,25 @@
-﻿namespace Space.Application.Handlers.Queries;
+﻿
+namespace Space.Application.Handlers;
 
-public class GetAllModuleQuery : IRequest<IEnumerable<GetModuleDto>>
+public class GetModulesByProgramQuery : IRequest<IEnumerable<GetModuleDto>>
 {
+    public int Id { get; set; }
 }
-internal class GetAllModuleQueryHandler : IRequestHandler<GetAllModuleQuery, IEnumerable<GetModuleDto>>
+internal class GetModulesByProgramHandler : IRequestHandler<GetModulesByProgramQuery, IEnumerable<GetModuleDto>>
 {
     readonly ISpaceDbContext _spaceDbContext;
 
-    public GetAllModuleQueryHandler(
+    public GetModulesByProgramHandler(
         ISpaceDbContext spaceDbContext)
     {
         _spaceDbContext = spaceDbContext;
     }
-
-    public async Task<IEnumerable<GetModuleDto>> Handle(GetAllModuleQuery request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<GetModuleDto>> Handle(GetModulesByProgramQuery request, CancellationToken cancellationToken)
     {
         List<Module> modules = await _spaceDbContext.Modules
-            .Where(m => m.TopModuleId == null)
-            .Include(m => m.SubModules)
-            .ToListAsync();
+           .Where(m => m.TopModuleId == null && m.ProgramId == request.Id)
+           .Include(m => m.SubModules)
+           .ToListAsync();
 
         modules = modules.OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
 

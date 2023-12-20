@@ -5,6 +5,6 @@ public class GetModuleDto
     public int Id { get; set; }
     public string Name { get; set; } = null!;
     public double Hours { get; set; }
-    public string Version { get; set; } = null!;
+    public string? Version { get; set; }
     public IEnumerable<SubModuleDto>? SubModules { get; set; } 
 }

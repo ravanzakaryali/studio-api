@@ -2,19 +2,20 @@
 
 namespace Space.WebAPI.Controllers;
 
-[Authorize(Roles = "admin")]
 public class ModulesController : BaseApiController
 {
 
+    [Authorize(Roles = "admin")]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
     public async Task<IActionResult> Create([FromBody] CreateModuleRequestDto module)
-        => StatusCode(201, await Mediator.Send(new CreateModuleCommand()
-        {
-            Module = module
-        }));
+            => StatusCode(201, await Mediator.Send(new CreateModuleCommand()
+            {
+                Module = module
+            }));
 
+    [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -24,6 +25,7 @@ public class ModulesController : BaseApiController
         return StatusCode(204);
     }
 
+    [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
         => Ok(await Mediator.Send(new GetAllModuleQuery()));
