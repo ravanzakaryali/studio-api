@@ -19,9 +19,9 @@ internal class GetModulesByProgramHandler : IRequestHandler<GetModulesByProgramQ
         List<Module> modules = await _spaceDbContext.Modules
            .Where(m => m.TopModuleId == null && m.ProgramId == request.Id)
            .Include(m => m.SubModules)
-           .ToListAsync();
+           .ToListAsync(cancellationToken: cancellationToken);
 
-        modules = modules.OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
+        modules = modules.OrderBy(m => int.Parse(m.Version!)).ToList();
 
         foreach (Module module in modules)
         {
