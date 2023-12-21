@@ -30,10 +30,12 @@ internal class GetHeldModulesByClassHandler : IRequestHandler<GetHeldModulesByCl
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(ClassTimeSheet), request.Id);
 
-        return classTimeSheet.HeldModules.Select(c => new GetHeldModulesDto()
+        return classTimeSheet.HeldModules.OrderBy(m => Version.TryParse(m.Module.Version, out var parsedVersion) ? parsedVersion : null).Select(c => new GetHeldModulesDto()
         {
             TotalHours = c.TotalHours,
-            ModuleName = c.Module.Name,
+            Name = c.Module.Name,
+            Id = c.ModuleId,
+            Version = c.Module.Version,
         });
     }
 }
