@@ -46,7 +46,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
         //əgər yoxdursa o zaman error qaytar
         if (request.HeldModules != null)
         {
-            List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
+            List<int> requestModuleIds = request.HeldModules.Select(c => c.Id).ToList();
             if (classSessions.Count != requestModuleIds.Count) throw new NotFoundException("Module not found");
             List<Module> module = await _spaceDbContext.Modules
             .Where(m => requestModuleIds.Contains(m.Id))
@@ -123,7 +123,7 @@ internal class UpdateClassSessionAttendanceCommandHandler : IRequestHandler<Crea
                 if (session.Category == ClassSessionCategory.Theoric && request.HeldModules != null)
                     classTimeSheet.HeldModules = request.HeldModules.Select(hm => new HeldModule()
                     {
-                        ModuleId = hm.ModuleId,
+                        ModuleId = hm.Id,
                         TotalHours = hm.TotalHours,
                     }).ToList();
                 addTimeSheets.Add(classTimeSheet);
