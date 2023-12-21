@@ -33,18 +33,18 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
         IEnumerable<int> classIds = classModuleWorker.Select(cm => cm.ClassId);
 
         List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
-            .Where(c => classIds.Contains(c.ClassId) && c.Date == dateNow)
+            .Where(c => classIds.Contains(c.ClassId))
             .ToListAsync(cancellationToken: cancellationToken);
 
 
         return classModuleWorker.Select(cmw => new GetAllClassDto()
         {
             Id = cmw.ClassId,
-            Start = classSessions.Where(c => c.ClassId == cmw.ClassId).Any() ?
+            Start = classSessions.Where(c => c.ClassId == cmw.ClassId && c.Date == dateNow).Any() ?
                     classSessions.Select(c => c.StartTime).Min() :
                     null,
             ProgramId = cmw.Class.ProgramId,
-            End = classSessions.Where(c => c.ClassId == cmw.ClassId).Any() ?
+            End = classSessions.Where(c => c.ClassId == cmw.ClassId && c.Date == dateNow).Any() ?
                     classSessions.Select(c => c.StartTime).Max() :
                     null,
             AttendanceHours = classSessions
