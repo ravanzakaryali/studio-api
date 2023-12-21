@@ -28,13 +28,12 @@ internal class GetHeldModulesByClassHandler : IRequestHandler<GetHeldModulesByCl
             .ThenInclude(c => c.Module)
             .Where(cs => cs.Id == @class.Id && cs.Date == dateNow && cs.Category == ClassSessionCategory.Theoric)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
-                throw new NotFoundException(nameof(Class), request.Id);
+                throw new NotFoundException(nameof(ClassTimeSheet), request.Id);
 
         return classTimeSheet.HeldModules.Select(c => new GetHeldModulesDto()
         {
             TotalHours = c.TotalHours,
             ModuleName = c.Module.Name,
-
         });
     }
 }
