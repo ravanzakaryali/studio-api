@@ -58,6 +58,25 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                 .Where(c => (c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online) && c.Category != ClassSessionCategory.Lab)
                 .Sum(s => s.TotalHours);
 
+
+            IEnumerable<GetAllStudentCategoryDto> studentSessions = @class.ClassSessions
+            .Where(c => c.Date == requestDate)
+            .Select(c => new GetAllStudentCategoryDto()
+            {
+                ClassSessionCategory = c.Category,
+                Hour = 0,
+                Note = null
+            });
+            if (classTimeSheets.Any())
+            {
+                studentSessions = classTimeSheets.Select(c => new GetAllStudentCategoryDto()
+                {
+                    ClassSessionCategory = c.Category,
+                    Hour = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours,
+                    Note = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note
+                });
+            }
+
             GetAllStudentByClassResponseDto studentResponse = new()
             {
                 Name = study.Student?.Contact?.Name,
@@ -68,12 +87,7 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                 Id = study.Student!.Id,
                 StudentId = study.Id,
                 Attendance = (totalHour != 0 ? attendancesHour / totalHour * 100 : 0) ?? 0,
-                Sessions = classTimeSheets.Select(c => new GetAllStudentCategoryDto()
-                {
-                    ClassSessionCategory = c.Category,
-                    Hour = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours,
-                    Note = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note
-                })
+                Sessions = studentSessions,
             };
             return studentResponse;
         }).ToList();
