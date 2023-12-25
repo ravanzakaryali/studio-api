@@ -22,15 +22,16 @@ internal class GetHeldModulesByClassHandler : IRequestHandler<GetHeldModulesByCl
                 throw new NotFoundException(nameof(Class), request.Id);
 
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
-
         ClassTimeSheet classTimeSheet = await _spaceDbContext.ClassTimeSheets
             .Include(c => c.HeldModules)
             .ThenInclude(c => c.Module)
-            .Where(cs => cs.Id == @class.Id && cs.Date == dateNow && cs.Category == ClassSessionCategory.Theoric)
+            .Where(cs => cs.ClassId == @class.Id && cs.Date == dateNow && cs.Category == ClassSessionCategory.Theoric)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(ClassTimeSheet), request.Id);
 
-        return classTimeSheet.HeldModules.OrderBy(m => Version.TryParse(m.Module.Version, out var parsedVersion) ? parsedVersion : null).Select(c => new GetHeldModulesDto()
+        return classTimeSheet.HeldModules
+        .OrderBy(m => Version.TryParse(m.Module.Version, out var parsedVersion) ? parsedVersion : null)
+        .Select(c => new GetHeldModulesDto()
         {
             TotalHours = c.TotalHours,
             Name = c.Module.Name,
