@@ -59,7 +59,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
                 .Modules
                 .Where(m => requestModuleIds.Contains(m.Id))
                 .ToListAsync(cancellationToken: cancellationToken);
-                
+
             if (requestModuleIds.Count != module.Count)
                 throw new NotFoundException("Modules not found");
         }
