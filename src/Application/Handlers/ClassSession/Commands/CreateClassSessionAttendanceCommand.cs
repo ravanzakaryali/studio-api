@@ -52,7 +52,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
         //əgər yoxdursa o zaman error qaytar
         if (request.HeldModules != null)
         {
-            List<int> requestModuleIds = request.HeldModules.Select(c => c.Id).ToList();
+            List<int> requestModuleIds = request.HeldModules.Select(c => c.ModeuleId).ToList();
             // if (classSessions.Count != requestModuleIds.Count)
             //     throw new NotFoundException("Module not found");
             List<Module> module = await _spaceDbContext
@@ -156,7 +156,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
                     classTimeSheet.HeldModules = request
                         .HeldModules
                         .Select(
-                            hm => new HeldModule() { ModuleId = hm.Id, TotalHours = hm.TotalHours, }
+                            hm => new HeldModule() { ModuleId = hm.ModeuleId, TotalHours = hm.TotalHours, }
                         )
                         .ToList();
                 addTimeSheets.Add(classTimeSheet);

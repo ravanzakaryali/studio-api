@@ -2,6 +2,6 @@
 
 public class CreateAttendanceModuleRequestDto
 {
-    public int Id { get; set; }
+    public int ModeuleId { get; set; }
     public int TotalHours { get; set; }
 }
