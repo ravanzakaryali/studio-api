@@ -50,7 +50,6 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         if (request.HeldModules != null)
         {
             List<int> requestModuleIds = request.HeldModules.Select(c => c.Id).ToList();
-            if (classSessions.Count != requestModuleIds.Count) throw new NotFoundException("Module not found");
 
             List<Module> module = await _spaceDbContext.Modules
                 .Where(m => requestModuleIds.Contains(m.Id))
