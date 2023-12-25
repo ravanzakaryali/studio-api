@@ -49,7 +49,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         //əgər yoxdursa o zaman error qaytar
         if (request.HeldModules != null)
         {
-            List<int> requestModuleIds = request.HeldModules.Select(c => c.ModeuleId).ToList();
+            List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
 
             List<Module> module = await _spaceDbContext.Modules
                 .Where(m => requestModuleIds.Contains(m.Id))
@@ -121,7 +121,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                 if (session.Category == ClassSessionCategory.Theoric && request.HeldModules != null)
                     classTimeSheet.HeldModules = request.HeldModules.Select(hm => new HeldModule()
                     {
-                        ModuleId = hm.ModeuleId,
+                        ModuleId = hm.ModuleId,
                         TotalHours = hm.TotalHours,
                     }).ToList();
                 addTimeSheets.Add(classTimeSheet);

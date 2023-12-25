@@ -49,10 +49,12 @@ internal class UpdateClassSessionAttendanceCommandHandler
             .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
             .ToListAsync(cancellationToken: cancellationToken);
 
+        if (!classSessions.Any()) throw new NotFoundException("Class session not found");
+
         //əgər yoxdursa o zaman error qaytar
         if (request.HeldModules != null)
         {
-            List<int> requestModuleIds = request.HeldModules.Select(c => c.ModeuleId).ToList();
+            List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
             // if (classSessions.Count != requestModuleIds.Count)
             //     throw new NotFoundException("Module not found");
             List<Module> module = await _spaceDbContext
@@ -153,12 +155,15 @@ internal class UpdateClassSessionAttendanceCommandHandler
                         Status = classSession.Status,
                     };
                 if (session.Category == ClassSessionCategory.Theoric && request.HeldModules != null)
+                {
                     classTimeSheet.HeldModules = request
-                        .HeldModules
-                        .Select(
-                            hm => new HeldModule() { ModuleId = hm.ModeuleId, TotalHours = hm.TotalHours, }
-                        )
-                        .ToList();
+                                            .HeldModules
+                                            .Select(
+                                                hm => new HeldModule() { ModuleId = hm.ModuleId, TotalHours = hm.TotalHours, }
+                                            )
+                                            .ToList();
+                }
+
                 addTimeSheets.Add(classTimeSheet);
             }
             else
