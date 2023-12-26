@@ -12,6 +12,7 @@ public interface ISpaceDbContext
     DbSet<Session> Sessions { get; }
     DbSet<SessionDetail> SessionDetails { get; }
     DbSet<ClassModulesWorker> ClassModulesWorkers { get; }
+    DbSet<ClassExtraModulesWorkers> ClassExtraModulesWorkers { get; }
     DbSet<AttendanceWorker> AttendancesWorkers { get; }
     DbSet<HeldModule> HeldModules { get; }
     #endregion
@@ -26,6 +27,7 @@ public interface ISpaceDbContext
     #region Program
     DbSet<Module> Modules { get; }
     DbSet<Program> Programs { get; }
+    DbSet<ExtraModule> ExtraModules { get; }
     #endregion
     #region User
     DbSet<Worker> Workers { get; }

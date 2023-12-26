@@ -25,6 +25,7 @@ public class SpaceDbContext :
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<SessionDetail> SessionDetails => Set<SessionDetail>();
     public DbSet<ClassModulesWorker> ClassModulesWorkers => Set<ClassModulesWorker>();
+    public DbSet<ClassExtraModulesWorkers> ClassExtraModulesWorkers => Set<ClassExtraModulesWorkers>();
     public DbSet<ClassTimeSheet> ClassTimeSheets => Set<ClassTimeSheet>();
     public DbSet<Attendance> Attendances => Set<Attendance>();
     public DbSet<AttendanceWorker> AttendancesWorkers => Set<AttendanceWorker>();
@@ -40,6 +41,7 @@ public class SpaceDbContext :
     #endregion
     #region Program
     public DbSet<Module> Modules => Set<Module>();
+    public DbSet<ExtraModule> ExtraModules => Set<ExtraModule>();
     public DbSet<Program> Programs => Set<Program>();
     #endregion
     #region Student

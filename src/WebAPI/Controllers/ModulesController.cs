@@ -5,15 +5,16 @@ namespace Space.WebAPI.Controllers;
 public class ModulesController : BaseApiController
 {
 
-    [Authorize(Roles = "admin")]
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> Create([FromBody] CreateModuleRequestDto module)
-            => StatusCode(201, await Mediator.Send(new CreateModuleCommand()
-            {
-                Module = module
-            }));
+    //todo: added modules
+    // [Authorize(Roles = "admin")]
+    // [HttpPost]
+    // [ProducesResponseType(StatusCodes.Status201Created)]
+    // [ProducesDefaultResponseType]
+    // public async Task<IActionResult> Create([FromBody] CreateModuleRequestDto module)
+    //         => StatusCode(201, await Mediator.Send(new CreateModuleCommand()
+    //         {
+    //             Module = module
+    //         }));
 
     [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
@@ -30,8 +31,9 @@ public class ModulesController : BaseApiController
     public async Task<IActionResult> GetAll()
         => Ok(await Mediator.Send(new GetAllModuleQuery()));
 
-    [Authorize(Roles = "admin")]
-    [HttpGet("non-program")]
-    public async Task<IActionResult> GetNonProgramModules()
-        => Ok(await Mediator.Send(new GetNonProgramModulesQuery()));
+    //todo: delete endpoint
+    // [Authorize(Roles = "admin")]
+    // [HttpGet("non-program")]
+    // public async Task<IActionResult> GetNonProgramModules()
+    //     => Ok(await Mediator.Send(new GetNonProgramModulesQuery()));
 }

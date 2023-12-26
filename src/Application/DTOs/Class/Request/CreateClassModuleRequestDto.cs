@@ -8,3 +8,12 @@ public class CreateClassModuleRequestDto
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
 }
+
+public class CreateClassExtraModuleRequestDto
+{
+    public int ExtraModuleId { get; set; }
+    public int WorkerId { get; set; }
+    public int RoleId { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly EndDate { get; set; }
+}
