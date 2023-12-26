@@ -29,4 +29,9 @@ public class ModulesController : BaseApiController
     [HttpGet]
     public async Task<IActionResult> GetAll()
         => Ok(await Mediator.Send(new GetAllModuleQuery()));
+
+    [Authorize(Roles = "admin")]
+    [HttpGet("non-program")]
+    public async Task<IActionResult> GetNonProgramModules()
+        => Ok(await Mediator.Send(new GetNonProgramModulesQuery()));
 }

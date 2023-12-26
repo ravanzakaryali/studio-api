@@ -334,6 +334,6 @@ public class ClassesController : BaseApiController
     [HttpGet("export/excel")]
     public async Task ClassesExcelExport()
     {
-
+        _ = await Mediator.Send(new StudentsOfClassesExcelExportCommand());
     }
 }
