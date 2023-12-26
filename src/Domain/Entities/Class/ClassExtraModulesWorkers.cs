@@ -9,7 +9,7 @@ public class ClassExtraModulesWorkers
     public Role? Role { get; set; }
     public Class Class { get; set; } = null!;
     public Worker Worker { get; set; } = null!;
-    public ExtraModules ExtraModule { get; set; } = null!;
+    public ExtraModule ExtraModule { get; set; } = null!;
     public DateOnly? StartDate { get; set; }
     public DateOnly? EndDate { get; set; }
 }

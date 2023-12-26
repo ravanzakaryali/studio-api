@@ -40,12 +40,12 @@ internal class GetHeldModulesByClassHandler : IRequestHandler<GetHeldModulesByCl
                 throw new NotFoundException(nameof(ClassTimeSheet), request.Id);
 
         return classTimeSheet.HeldModules
-        .OrderBy(m => Version.TryParse(m.Module.Version, out var parsedVersion) ? parsedVersion : null)
+        .OrderBy(m => Version.TryParse(m.Module!.Version, out var parsedVersion) ? parsedVersion : null)
         .Select(c => new GetHeldModulesDto()
         {
             TotalHours = c.TotalHours,
-            Name = c.Module.Name,
-            Id = c.ModuleId,
+            Name = c.Module!.Name,
+            Id = c.Id,
             Version = c.Module.Version,
         });
     }
