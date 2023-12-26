@@ -11,7 +11,6 @@ public class AttendancesController : BaseApiController
         await Mediator.Send(new CreateClassSessionAttendanceCommand()
         {
             ClassId = request.ClassId,
-            Date = request.Date,
             HeldModules = request.HeldModules,
             Sessions = request.Sessions
         });

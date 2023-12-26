@@ -23,5 +23,9 @@ public class ClassSessionConfiguration : IEntityTypeConfiguration<ClassSession>
         builder.Property(e => e.Date)
              .HasConversion(new DateOnlyDbConverter());
 
+        builder
+                .HasOne(s => s.ClassTimeSheet)
+                .WithOne(c => c.ClassSession)
+                .HasForeignKey<ClassSession>(c => c.ClassTimeSheetId);
     }
 }

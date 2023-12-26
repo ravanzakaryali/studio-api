@@ -4,9 +4,9 @@ public class UpdateClassSessionAtttendanceCommandValidation : AbstractValidator<
 {
     public UpdateClassSessionAtttendanceCommandValidation()
     {
-        RuleFor(c => c.Date)
-            .NotNull().WithMessage(Constants.ValidationRequiredMessage)
-            .NotEmpty().WithMessage(Constants.ValidationRequiredMessage);
+        // RuleFor(c => c.)
+            // .NotNull().WithMessage(Constants.ValidationRequiredMessage)
+            // .NotEmpty().WithMessage(Constants.ValidationRequiredMessage);
         
         RuleFor(c => c.ClassId)
              .NotNull().WithMessage(Constants.ValidationRequiredMessage)

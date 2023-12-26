@@ -17,6 +17,7 @@ public class ClassTimeSheet : BaseAuditableEntity, ICloneable
     public ClassSessionCategory Category { get; set; }
     public int ClassId { get; set; }
     public Class Class { get; set; } = null!;
+    public ClassSession ClassSession { get; set; } = null!;
     public ICollection<HeldModule> HeldModules { get; set; }
     public List<AttendanceWorker> AttendancesWorkers { get; set; }
     public ICollection<Attendance> Attendances { get; set; }

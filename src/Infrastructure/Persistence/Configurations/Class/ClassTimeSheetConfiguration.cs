@@ -25,5 +25,6 @@ public class ClassTimeSheetConfiguration : IEntityTypeConfiguration<ClassTimeShe
 
         builder.Property(e => e.Date)
                .HasConversion(new DateOnlyDbConverter());
+
     }
 }

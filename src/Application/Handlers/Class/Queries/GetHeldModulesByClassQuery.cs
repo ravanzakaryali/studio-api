@@ -4,6 +4,7 @@ namespace Space.Application.Handlers;
 public class GetHeldModulesByClassQuery : IRequest<IEnumerable<GetHeldModulesDto>>
 {
     public int Id { get; set; }
+    public DateTime? Date { get; set; }
 }
 internal class GetHeldModulesByClassHandler : IRequestHandler<GetHeldModulesByClassQuery, IEnumerable<GetHeldModulesDto>>
 {
@@ -21,11 +22,20 @@ internal class GetHeldModulesByClassHandler : IRequestHandler<GetHeldModulesByCl
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
-        DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
+        DateOnly requestDate;
+        if (request.Date == null)
+        {
+            requestDate = DateOnly.FromDateTime(DateTime.Now);
+        }
+        else
+        {
+            requestDate = DateOnly.FromDateTime(request.Date.Value);
+
+        }
         ClassTimeSheet classTimeSheet = await _spaceDbContext.ClassTimeSheets
             .Include(c => c.HeldModules)
             .ThenInclude(c => c.Module)
-            .Where(cs => cs.ClassId == @class.Id && cs.Date == dateNow && cs.Category == ClassSessionCategory.Theoric)
+            .Where(cs => cs.ClassId == @class.Id && cs.Date == requestDate && cs.Category == ClassSessionCategory.Theoric)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(ClassTimeSheet), request.Id);
 

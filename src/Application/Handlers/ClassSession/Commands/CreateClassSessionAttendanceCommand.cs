@@ -3,7 +3,6 @@
 public class CreateClassSessionAttendanceCommand : IRequest
 {
     public int ClassId { get; set; }
-    public DateOnly Date { get; set; }
     public ICollection<CreateAttendanceModuleRequestDto>? HeldModules { get; set; } = null;
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
 }
@@ -43,10 +42,12 @@ internal class UpdateClassSessionAttendanceCommandHandler
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken)
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
+
+        DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
         //həmin günün class sessiona bax
         List<ClassSession> classSessions = await _spaceDbContext
             .ClassSessions
-            .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
+            .Where(c => c.Date == dateNow && c.ClassId == request.ClassId)
             .ToListAsync(cancellationToken: cancellationToken);
 
         if (!classSessions.Any()) throw new NotFoundException("Class session not found");
@@ -81,7 +82,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
 
         List<ClassTimeSheet> classTimeSheets = await _spaceDbContext
             .ClassTimeSheets
-            .Where(c => c.Date == request.Date && c.ClassId == request.ClassId)
+            .Where(c => c.Date == dateNow && c.ClassId == request.ClassId)
             .ToListAsync(cancellationToken: cancellationToken);
 
         if (classTimeSheets.Any())

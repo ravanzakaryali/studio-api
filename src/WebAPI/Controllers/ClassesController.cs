@@ -119,6 +119,15 @@ public class ClassesController : BaseApiController
         }));
 
     [Authorize(Roles = "admin")]
+    [HttpGet("{id}/held-modules/admin")]
+    public async Task<IActionResult> GetHeldModulesByClass([FromRoute] int id, [FromQuery] DateTime date)
+        => Ok(await Mediator.Send(new GetHeldModulesByClassQuery()
+        {
+            Id = id,
+            Date = date
+        }));
+
+    [Authorize(Roles = "admin")]
     [HttpGet("{id}/modules-workers")]
     public async Task<IActionResult> GetClassModulesWorkers([FromRoute] int id, [FromQuery] int sessionId)
     {
