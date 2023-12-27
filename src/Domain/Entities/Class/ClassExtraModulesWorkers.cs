@@ -1,6 +1,6 @@
 namespace Space.Domain.Entities;
 
-public class ClassExtraModulesWorkers
+public class ClassExtraModulesWorkers : BaseAuditableEntity
 {
     public int ClassId { get; set; }
     public int WorkerId { get; set; }

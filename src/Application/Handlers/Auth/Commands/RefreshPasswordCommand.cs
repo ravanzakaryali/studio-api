@@ -24,7 +24,7 @@ internal class RefreshPasswordCommandHandler : IRequestHandler<RefreshPasswordCo
             throw new NotFoundException(nameof(Worker), request.Email);
 
         if (worker.LastPasswordUpdateDate != null
-            && (worker.LastPasswordUpdateDate.Value <= DateTime.UtcNow && worker.LastPasswordUpdateDate.Value.AddMinutes(15) >= DateTime.UtcNow))
+            && worker.LastPasswordUpdateDate.Value <= DateTime.UtcNow && worker.LastPasswordUpdateDate.Value.AddMinutes(15) >= DateTime.UtcNow)
             throw new DateTimeException($"Check after {worker.LastPasswordUpdateDate.Value.AddMinutes(15) - DateTime.UtcNow} minutes", worker.LastPasswordUpdateDate.Value.AddMinutes(15) - DateTime.UtcNow);
 
         worker.Key = Guid.NewGuid();

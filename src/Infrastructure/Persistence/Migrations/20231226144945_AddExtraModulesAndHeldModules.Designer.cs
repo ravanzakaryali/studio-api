@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Space.Infrastructure.Persistence;
 
@@ -11,9 +12,10 @@ using Space.Infrastructure.Persistence;
 namespace Space.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SpaceDbContext))]
-    partial class SpaceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231226144945_AddExtraModulesAndHeldModules")]
+    partial class AddExtraModulesAndHeldModules
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,7 +124,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("WorkersId");
 
-                    b.ToTable("ReservationWorker", (string)null);
+                    b.ToTable("ReservationWorker");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Attendance", b =>
@@ -179,7 +181,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("StudyId");
 
-                    b.ToTable("Attendances", (string)null);
+                    b.ToTable("Attendances");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.AttendanceWorker", b =>
@@ -244,7 +246,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("WorkerId");
 
-                    b.ToTable("AttendancesWorkers", (string)null);
+                    b.ToTable("AttendancesWorkers");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Class", b =>
@@ -314,7 +316,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.ToTable("Classes", (string)null);
+                    b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassExtraModulesWorkers", b =>
@@ -377,7 +379,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("WorkerId");
 
-                    b.ToTable("ClassExtraModulesWorkers", (string)null);
+                    b.ToTable("ClassExtraModulesWorkers");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassModulesWorker", b =>
@@ -440,7 +442,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("WorkerId");
 
-                    b.ToTable("ClassModulesWorkers", (string)null);
+                    b.ToTable("ClassModulesWorkers");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassSession", b =>
@@ -519,7 +521,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("ClassSessions", (string)null);
+                    b.ToTable("ClassSessions");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassTimeSheet", b =>
@@ -584,7 +586,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.ToTable("ClassTimeSheets", (string)null);
+                    b.ToTable("ClassTimeSheets");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Contact", b =>
@@ -641,7 +643,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contacts", (string)null);
+                    b.ToTable("Contacts");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ExtraModule", b =>
@@ -694,7 +696,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProgramId");
 
-                    b.ToTable("ExtraModules", (string)null);
+                    b.ToTable("ExtraModules");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.File", b =>
@@ -734,7 +736,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Files", (string)null);
+                    b.ToTable("Files");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("File");
                 });
@@ -792,7 +794,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("HeldModules", (string)null);
+                    b.ToTable("HeldModules");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Holiday", b =>
@@ -833,7 +835,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.ToTable("Holidays", (string)null);
+                    b.ToTable("Holidays");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Module", b =>
@@ -890,7 +892,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TopModuleId");
 
-                    b.ToTable("Modules", (string)null);
+                    b.ToTable("Modules");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Program", b =>
@@ -941,7 +943,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Programs", (string)null);
+                    b.ToTable("Programs");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Reservation", b =>
@@ -979,7 +981,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Reservations", (string)null);
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Role", b =>
@@ -1070,7 +1072,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Rooms", (string)null);
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.RoomSchedule", b =>
@@ -1139,7 +1141,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("RoomSchedules", (string)null);
+                    b.ToTable("RoomSchedules");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Session", b =>
@@ -1183,7 +1185,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sessions", (string)null);
+                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.SessionDetail", b =>
@@ -1246,7 +1248,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.ToTable("SessionDetails", (string)null);
+                    b.ToTable("SessionDetails");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Student", b =>
@@ -1296,7 +1298,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasFilter("[ContactId] IS NOT NULL");
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Study", b =>
@@ -1353,7 +1355,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Studies", (string)null);
+                    b.ToTable("Studies");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Support", b =>
@@ -1402,7 +1404,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Supports", (string)null);
+                    b.ToTable("Supports");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.University", b =>
@@ -1432,7 +1434,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Universities", (string)null);
+                    b.ToTable("Universities");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.User", b =>
