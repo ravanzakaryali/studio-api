@@ -2,7 +2,7 @@
 
 public enum RoleEnum
 {
-    Muellim = 0,
-    Mentor = 1,
-    Admin = 2
+    muellim = 0,
+    mentor = 1,
+    admin = 2
 }

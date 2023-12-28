@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Space.Application.DTOs.Worker;
+using Space.Domain.Entities;
+using Space.Domain.Enums;
 
 namespace Space.WebAPI.Controllers;
 
@@ -20,8 +22,8 @@ public class WorkersController : BaseApiController
 
     [Authorize(Roles = "admin")]
     [HttpGet]
-    public async Task<IActionResult> GetAll()
-           => StatusCode(200, await Mediator.Send(new GetAllWorkerQuery()));
+    public async Task<IActionResult> GetAll([FromQuery] RoleEnum? role)
+           => StatusCode(200, await Mediator.Send(new GetAllWorkerQuery(role)));
 
 
     [Authorize(Roles = "admin")]
