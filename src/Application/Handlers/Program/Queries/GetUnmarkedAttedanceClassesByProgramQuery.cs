@@ -27,16 +27,17 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
         List<ClassSession> classSessions = await _spaceDbContext
             .ClassSessions
             .Include(c => c.ClassTimeSheet)
-            .ThenInclude(c => c.Attendances)
+            .ThenInclude(c => c!.Attendances)
             .Include(c => c.Class)
             .ThenInclude(c => c.Studies)
-            .Where(c => c.Class.ProgramId == program.Id)
+            .Where(c => c.Class.ProgramId == program.Id && c.Date <= dateNow)
             .ToListAsync(cancellationToken: cancellationToken);
 
 
         List<GetUnmarkedAttedanceClassesByProgramResponseDto> response = new();
         List<AvarageClassDto> list = new();
 
+        DateOnly dateOnly = DateOnly.FromDateTime(DateTime.Now);
 
         foreach (ClassSession? item in classSessions.Where(c => c.ClassTimeSheet?.Attendances.Count > 0))
         {
@@ -50,7 +51,6 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
         }
 
         response.AddRange(classSessions
-            .Where(c => c.Date <= dateNow)
             .DistinctBy(c => c.ClassId)
             .Select(c => new GetUnmarkedAttedanceClassesByProgramResponseDto()
             {
@@ -58,7 +58,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                 AttendancePercentage = Math.Round(list.Where(l => l.ClassId == c.ClassId).Any() ?
                                    list.Where(l => l.ClassId == c.ClassId).Average(a => a.AverageHours) :
                                    0, 2),
-                UnMarkDays = classSessions.Where(cs => cs.ClassId == c.ClassId).Count(),
+                UnMarkDays = classSessions.Where(cs => cs.ClassId == c.ClassId && cs.ClassTimeSheetId is null).Count(),
                 Class = new GetClassDto()
                 {
                     Id = c.ClassId,
