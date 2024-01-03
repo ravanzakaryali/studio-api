@@ -125,11 +125,11 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         });
         if (request.TeacherId != null)
         {
-            classesResponse = classesResponse.Where(c => c.Workers.Any(c => c.Id == request.TeacherId && c.Role == "muellim"));
+            classesResponse = classesResponse.Where(c => c.Workers.Any(c => c.Id == request.TeacherId && c.Role == RoleEnum.muellim.ToString()));
         }
         if (request.MentorId != null)
         {
-            classesResponse = classesResponse.Where(c => c.Workers.Any(c => c.Id == request.TeacherId && c.Role == "mentor"));
+            classesResponse = classesResponse.Where(c => c.Workers.Any(c => c.Id == request.TeacherId && c.Role == RoleEnum.mentor.ToString()));
         }
         if (request.StartAttendancePercentage != null)
         {
