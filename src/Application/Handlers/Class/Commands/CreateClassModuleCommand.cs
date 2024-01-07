@@ -4,7 +4,6 @@ public class CreateClassModuleCommand : IRequest
 {
     public int ClassId { get; set; }
     public IEnumerable<CreateClassModuleRequestDto> CreateClassModule { get; set; } = null!;
-    public IEnumerable<CreateClassExtraModuleRequestDto> CreateClassExtraModule { get; set; } = null!;
 }
 
 internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModuleCommand>
@@ -22,7 +21,6 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
 
     public async Task Handle(CreateClassModuleCommand request, CancellationToken cancellationToken)
     {
-
         Class? @class = await _spaceDbContext.Classes
             .Include(c => c.Program)
             .ThenInclude(c => c.Modules)
@@ -30,7 +28,6 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
             .Where(c => c.Id == request.ClassId)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken)
                 ?? throw new NotFoundException(nameof(Class), request.ClassId);
-
 
         IEnumerable<int> moduleIds = request.CreateClassModule.Select(c => c.ModuleId);
         IEnumerable<Module> modules = await _spaceDbContext.Modules
@@ -83,31 +80,6 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
             StartDate = c.StartDate,
             EndDate = c.EndDate,
             ModuleId = c.ModuleId,
-            RoleId = c.RoleId,
-            ClassId = @class.Id
-        }), cancellationToken);
-
-        IEnumerable<int> extraModuleIds = request.CreateClassExtraModule.Select(c => c.ExtraModuleId);
-        IEnumerable<ExtraModule> extraModules = await _spaceDbContext.ExtraModules
-            .Where(c => extraModuleIds.Contains(c.Id))
-            .ToListAsync(cancellationToken: cancellationToken);
-        IEnumerable<int> existingExtraModuleIds = extraModules.Select(m => m.Id);
-        IEnumerable<int> nonExistingExtraModuleIds = extraModuleIds.Except(existingExtraModuleIds);
-        if (nonExistingExtraModuleIds.Any())
-            throw new NotFoundException(nameof(ExtraModule), $"{string.Join(",", nonExistingExtraModuleIds)}");
-
-        IEnumerable<ClassExtraModulesWorkers> classExtraModulesWorkers = await _spaceDbContext.ClassExtraModulesWorkers
-            .Where(c => c.ClassId == request.ClassId)
-            .ToListAsync(cancellationToken: cancellationToken);
-
-        _spaceDbContext.ClassExtraModulesWorkers.RemoveRange(classExtraModulesWorkers);
-
-        await _spaceDbContext.ClassExtraModulesWorkers.AddRangeAsync(request.CreateClassExtraModule.Select(c => new ClassExtraModulesWorkers()
-        {
-            WorkerId = c.WorkerId,
-            StartDate = c.StartDate,
-            EndDate = c.EndDate,
-            ExtraModuleId = c.ExtraModuleId,
             RoleId = c.RoleId,
             ClassId = @class.Id
         }), cancellationToken);

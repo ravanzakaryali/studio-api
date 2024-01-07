@@ -133,9 +133,25 @@ public class ClassesController : BaseApiController
     {
         return Ok(await Mediator.Send(new GetClassWorkersModulesQuery(id, sessionId)));
     }
-
     [Authorize(Roles = "admin")]
     [HttpPut("{id}/modules-workers")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> UpdateClassModulesWorkers([FromRoute] int id, [FromBody] UpdateClassModuleRequestDto request)
+    {
+        await Mediator.Send(new UpdateClassModuleCommand()
+        {
+            Id = id,
+            Modules = request.Modules,
+            ExtraModules = request.ExtraModules,
+            NewExtraModules = request.NewExtraModules
+        });
+        return NoContent();
+    }
+
+
+    [Authorize(Roles = "admin")]
+    [HttpPost("{id}/modules-workers")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
     public async Task<IActionResult> UpdateClassModulesWorkers([FromRoute] int id, IEnumerable<CreateClassModuleRequestDto> modules)
@@ -143,7 +159,7 @@ public class ClassesController : BaseApiController
         await Mediator.Send(new CreateClassModuleCommand()
         {
             ClassId = id,
-            CreateClassModule = modules
+            CreateClassModule = modules,
         });
         return NoContent();
     }
