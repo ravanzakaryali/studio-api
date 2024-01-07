@@ -1,8 +1,8 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetClassWorkersModulesQuery(int Id, int SessionId) : IRequest<IEnumerable<GetClassModuleResponseDto>>;
+public record GetClassWorkersModulesQuery(int Id, int SessionId) : IRequest<GetAllClassModuleDto>;
 
-internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWorkersModulesQuery, IEnumerable<GetClassModuleResponseDto>>
+internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWorkersModulesQuery, GetAllClassModuleDto>
 {
     readonly IMapper _mapper;
     readonly IUnitOfWork _unitOfWork;
@@ -21,7 +21,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<IEnumerable<GetClassModuleResponseDto>> Handle(GetClassWorkersModulesQuery request, CancellationToken cancellationToken)
+    public async Task<GetAllClassModuleDto> Handle(GetClassWorkersModulesQuery request, CancellationToken cancellationToken)
     {
         Class? @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
@@ -35,23 +35,39 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
             throw new NotFoundException(nameof(Session), request.SessionId);
 
+        //modules
         List<Module> modules = await _spaceDbContext.Modules
             .Include(c => c.SubModules)
             .Where(c => c.ProgramId == @class.ProgramId && c.TopModuleId == null)
             .AsNoTracking()
             .ToListAsync(cancellationToken: cancellationToken);
 
+        //class modules workers
         List<ClassModulesWorker> classModulesWorkers = await _spaceDbContext.ClassModulesWorkers
             .Where(c => c.ClassId == @class.Id)
             .Include(c => c.Role)
             .Include(c => c.Worker)
             .ToListAsync(cancellationToken: cancellationToken);
 
+
+        //Extra modules 
+        List<ExtraModule> extraModules = await _spaceDbContext.ExtraModules
+            .Where(c => c.ProgramId == @class.ProgramId)
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        //class extra modules workers
+        List<ClassExtraModulesWorkers> classExtraModulesWorkers = await _spaceDbContext.ClassExtraModulesWorkers
+            .Where(c => c.ClassId == @class.Id)
+            .Include(c => c.Role)
+            .Include(c => c.Worker)
+            .ToListAsync(cancellationToken: cancellationToken);
+
+
         //if (@class.Program.Modules.Any()) throw new NotFoundException("The class has no modules");
 
         List<GetClassModuleResponseDto> modulesReponse = modules.Select(m => new GetClassModuleResponseDto()
         {
-            Id = m.Id,
+            ModuleId = m.Id,
             Name = m.Name,
             Hours = m.Hours,
             Version = m.Version,
@@ -190,7 +206,11 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
         }
 
-        return modulesReponse;
+        return new GetAllClassModuleDto()
+        {
+            Modules = modulesReponse,
+            // ExtraModules = 
+        };
     }
 }
 
