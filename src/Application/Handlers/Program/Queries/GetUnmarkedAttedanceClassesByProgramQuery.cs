@@ -45,7 +45,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
             double totalAttendance = item.ClassTimeSheet?.Attendances.Average(c => c.TotalAttendanceHours) ?? 0;
             list.Add(new AvarageClassDto()
             {
-                AverageHours = (totalAttendance * 100) / total,
+                AverageHours = totalAttendance * 100 / total,
                 ClassId = item.ClassId,
             });
         }
@@ -64,7 +64,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                     Id = c.ClassId,
                     Name = c.Class.Name
                 },
-            }).ToList());
+            }).Where(c=>c.UnMarkDays != 0).ToList());
         return response;
     }
 

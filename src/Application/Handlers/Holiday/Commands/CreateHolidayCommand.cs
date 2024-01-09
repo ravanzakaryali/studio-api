@@ -54,7 +54,7 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
 
         List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => holidayDates.Contains(c.Date))
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
         List<ClassSession> allClassSessions = await _spaceDbContext.ClassSessions
             .Where(c => classSessions
@@ -63,18 +63,18 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
                         .ToList().Select(cl => cl.ClassId).Contains(c.ClassId))
             .ToListAsync(cancellationToken: cancellationToken);
 
-        foreach (var @class in classSessions
-                        .GroupBy(c => c.ClassId)
-                        .Select(group => new { ClassId = group.Key, Sessions = group })
-                        .ToList())
-        {
-            foreach (ClassSession? session in @class.Sessions)
-            {
-                IEnumerable<DayOfWeek> dayOfWeeks = classSessions.Where(s => s.ClassId == @class.ClassId).DistinctBy(c => c.Date.DayOfWeek).Select(c => c.Date.DayOfWeek);
-                DateOnly maxDate = allClassSessions.Where(s => s.ClassId == @class.ClassId).Max(c => c.Date);
-                session.Date = GetAddDate(maxDate, allHolidayDates, holidayDates, dayOfWeeks);
-            }
-        }
+        // foreach (var @class in classSessions
+        //                 .GroupBy(c => c.ClassId)
+        //                 .Select(group => new { ClassId = group.Key, Sessions = group })
+        //                 .ToList())
+        // {
+        //     foreach (ClassSession? session in @class.Sessions)
+        //     {
+        //         IEnumerable<DayOfWeek> dayOfWeeks = classSessions.Where(s => s.ClassId == @class.ClassId).DistinctBy(c => c.Date.DayOfWeek).Select(c => c.Date.DayOfWeek);
+        //         DateOnly maxDate = allClassSessions.Where(s => s.ClassId == @class.ClassId).Max(c => c.Date);
+        //         session.Date = GetAddDate(maxDate, allHolidayDates, holidayDates, dayOfWeeks);
+        //     }
+        // }
 
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
 
@@ -87,6 +87,7 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
             Id = holidayEntry.Entity.Id
         };
     }
+
     //Todo: Service method
     private DateOnly GetAddDate(
        DateOnly maxDate,
