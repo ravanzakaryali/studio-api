@@ -13,7 +13,7 @@ public class GetClassModuleResponseDto
 {
     public DateOnly? StartDate { get; set; }
     public DateOnly? EndDate { get; set; }
-    public int ModuleId { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; } = null!;
     public double Hours { get; set; }
     public string? Version { get; set; }

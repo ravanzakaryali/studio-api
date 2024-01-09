@@ -67,7 +67,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
 
         List<GetClassModuleResponseDto> modulesReponse = modules.Select(m => new GetClassModuleResponseDto()
         {
-            ModuleId = m.Id,
+            Id = m.Id,
             Name = m.Name,
             Hours = m.Hours,
             Version = m.Version,
