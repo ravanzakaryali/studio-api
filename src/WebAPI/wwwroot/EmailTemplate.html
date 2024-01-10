@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      /* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+      html,
+      body,
+      div,
+      span,
+      applet,
+      object,
+      iframe,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p,
+      blockquote,
+      pre,
+      a,
+      abbr,
+      acronym,
+      address,
+      big,
+      cite,
+      code,
+      del,
+      dfn,
+      em,
+      img,
+      ins,
+      kbd,
+      q,
+      s,
+      samp,
+      small,
+      strike,
+      strong,
+      sub,
+      sup,
+      tt,
+      var,
+      b,
+      u,
+      i,
+      center,
+      dl,
+      dt,
+      dd,
+      ol,
+      ul,
+      li,
+      fieldset,
+      form,
+      label,
+      legend,
+      table,
+      caption,
+      tbody,
+      tfoot,
+      thead,
+      tr,
+      th,
+      td,
+      article,
+      aside,
+      canvas,
+      details,
+      embed,
+      figure,
+      figcaption,
+      footer,
+      header,
+      hgroup,
+      menu,
+      nav,
+      output,
+      ruby,
+      section,
+      summary,
+      time,
+      mark,
+      audio,
+      video {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+      }
+
+      /* HTML5 display-role reset for older browsers */
+      article,
+      aside,
+      details,
+      figcaption,
+      figure,
+      footer,
+      header,
+      hgroup,
+      menu,
+      nav,
+      section {
+        display: block;
+      }
+
+      body {
+        line-height: 1;
+      }
+
+      ol,
+      ul {
+        list-style: none;
+      }
+
+      blockquote,
+      q {
+        quotes: none;
+      }
+
+      blockquote:before,
+      blockquote:after,
+      q:before,
+      q:after {
+        content: "";
+        content: none;
+      }
+
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        color: #000000;
+        font-size: 16px;
+        line-height: 24px;
+      }
+
+      .header {
+        background: linear-gradient(
+          86.94deg,
+          #009764 1.12%,
+          #1c68b4 17.86%,
+          #8e3b8d 34.2%,
+          #c62b4d 57.79%,
+          #ef4f25 82.48%,
+          #f6ae24 101.34%
+        );
+        height: 80px;
+        position: relative;
+      }
+
+      .header--logo {
+        padding: 32px 64px;
+        position: absolute;
+        left: 64px;
+        top: 40px;
+      }
+
+      .main {
+        padding: 32px 64px;
+      }
+
+      .main--title {
+        font-size: 34px;
+        font-weight: 700;
+      }
+
+      .main--link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .main--link--anchor {
+        background: #854693;
+        border-radius: 12px;
+        color: #ffffff !important;
+        padding: 8px 24px;
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      .footer {
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+      }
+
+      .footer span {
+        font-weight: 700;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="header">
+        <div class="header--logo">
+          <img src="https://studio.code.az/api/images/Group_1.png" />
+        </div>
+      </div>
+    </header>
+
+    <section class="main">
+      <h1 class="main--title">Salamlar</h1>
+      <p style="margin-top: 32px">
+        Siz öz şifrənizi aşağıdakı linkə keçid edərək yeniləyə bilərsiniz
+      </p>
+      <div class="main--link" style="margin-top: 32px">
+        <a class="main--link--anchor" style="margin: 0 auto" href="{{link}}">
+          Şifrəni yenilə
+        </a>
+      </div>
+      <p style="margin-top: 32px">
+        Əgər siz şifrəni yeniləmək üçün müraciət etməmisinizsə bu maili
+        görməzdən gələ bilərsiz.
+        <br />
+        <br />
+        <br />
+        Hörmətlə,
+        <br />
+        CodeAcademy
+      </p>
+      <p style="margin-top: 32px">
+        Əgər siz “Şifrəni yenilə” düyməsi ilə problem yaşayırsınızsa, aşağıdakı
+        linkdən də keçid edə bilərsiz.
+      </p>
+    </section>
+
+    <footer>
+      <div class="footer" style="width: 100%; text-align: center">
+        <span>from</span>
+        <img
+          src="https://studio.code.az/api/images/Group_2.png"
+          alt="Logo"
+          title="Logo"
+        />
+      </div>
+    </footer>
+  </body>
+</html>
