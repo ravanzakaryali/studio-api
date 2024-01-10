@@ -50,17 +50,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             .ToListAsync(cancellationToken: cancellationToken);
 
 
-        //Extra modules 
-        List<ExtraModule> extraModules = await _spaceDbContext.ExtraModules
-            .Where(c => c.ProgramId == @class.ProgramId)
-            .ToListAsync(cancellationToken: cancellationToken);
-
-        //class extra modules workers
-        List<ClassExtraModulesWorkers> classExtraModulesWorkers = await _spaceDbContext.ClassExtraModulesWorkers
-            .Where(c => c.ClassId == @class.Id)
-            .Include(c => c.Role)
-            .Include(c => c.Worker)
-            .ToListAsync(cancellationToken: cancellationToken);
+        
 
 
         //if (@class.Program.Modules.Any()) throw new NotFoundException("The class has no modules");
@@ -206,10 +196,37 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
         }
 
+        //Extra modules 
+        List<ExtraModule> extraModules = await _spaceDbContext.ExtraModules
+            .Where(c => c.ProgramId == @class.ProgramId)
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        //class extra modules workers
+        List<ClassExtraModulesWorkers> classExtraModulesWorkers = await _spaceDbContext.ClassExtraModulesWorkers
+            .Where(c => c.ClassId == @class.Id)
+            .Include(c => c.Role)
+            .Include(c => c.Worker)
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        List<GetClassExtraModuleResponseDto> extraModulesResponse = extraModules.Select(m => new GetClassExtraModuleResponseDto()
+        {
+            ExtraModuleId = m.Id,
+            Name = m.Name,
+            Hours = m.Hours,
+            Version = m.Version,
+            Workers = _mapper.Map<ICollection<GetWorkerForClassDto>>(classExtraModulesWorkers.Where(cmw => cmw.ExtraModuleId == m.Id))
+        }).ToList();
+        
+        foreach (GetClassModuleResponseDto moduleItem in modulesReponse)
+        {
+            moduleItem.StartDate = moduleItem.SubModules?.Min(c => c.StartDate);
+            moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
+        }
+
         return new GetAllClassModuleDto()
         {
             Modules = modulesReponse,
-            // ExtraModules = 
+            ExtraModules = extraModulesResponse,
         };
     }
 }
