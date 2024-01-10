@@ -48,10 +48,10 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
                     classSessions.Select(c => c.StartTime).Max() :
                     null,
             AttendanceHours = classSessions
-                            .Where(c => c.ClassTimeSheetId != null && c.Status != ClassSessionStatus.Cancelled)
+                            .Where(c => c.ClassTimeSheetId != null && c.Status != ClassSessionStatus.Cancelled && c.ClassId == cmw.ClassId)
                             .Sum(c => c.TotalHours),
             TotalHours = classSessions
-                            .Where(c => c.Status != ClassSessionStatus.Cancelled)
+                            .Where(c => c.Status != ClassSessionStatus.Cancelled && c.ClassId == cmw.ClassId)
                             .Sum(c => c.TotalHours),
             Name = cmw.Class.Name
         });

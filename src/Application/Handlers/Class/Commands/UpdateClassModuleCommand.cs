@@ -5,8 +5,8 @@ public class UpdateClassModuleCommand : IRequest
 {
     public int Id { get; set; }
     public IEnumerable<CreateClassModuleRequestDto> Modules { get; set; } = null!;
-    public IEnumerable<CreateClassExtraModuleRequestDto> ExtraModules { get; set; } = null!;
-    public IEnumerable<CreateClassNewExtraModuleRequestDto> NewExtraModules { get; set; } = null!;
+    public IEnumerable<CreateClassExtraModuleRequestDto>? ExtraModules { get; set; }
+    public IEnumerable<CreateClassNewExtraModuleRequestDto>? NewExtraModules { get; set; } = null!;
 }
 internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleCommand>
 {
@@ -61,25 +61,30 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             .Where(c => c.ClassId == request.Id)
             .ToListAsync(cancellationToken: cancellationToken);
         _spaceDbContext.ClassExtraModulesWorkers.RemoveRange(classExtraModulesWorkers);
-        await _spaceDbContext.ClassExtraModulesWorkers.AddRangeAsync(request.ExtraModules.Select(c => new ClassExtraModulesWorkers()
+        if (request.ExtraModules != null)
         {
-            WorkerId = c.WorkerId,
-            StartDate = c.StartDate,
-            EndDate = c.EndDate,
-            ExtraModuleId = c.ExtraModuleId,
-            RoleId = c.RoleId,
-            ClassId = @class.Id
-        }), cancellationToken);
+            await _spaceDbContext.ClassExtraModulesWorkers.AddRangeAsync(request.ExtraModules.Select(c => new ClassExtraModulesWorkers()
+            {
+                WorkerId = c.WorkerId,
+                StartDate = c.StartDate,
+                EndDate = c.EndDate,
+                ExtraModuleId = c.ExtraModuleId,
+                RoleId = c.RoleId,
+                ClassId = @class.Id
+            }), cancellationToken);
+        }
 
-        //--New Extra Modules
-        IEnumerable<ExtraModule> newExtraModules = request.NewExtraModules.Select(c => new ExtraModule()
+
+        if (request.NewExtraModules != null)
         {
-            Name = c.ExtraModuleName,
-            ProgramId = @class.ProgramId,
-            Hours = c.Hours,
-            //Todo: Must be the biggest modules version
-            Version = "1.0",
-            ClassExtraModulesWorkers = new List<ClassExtraModulesWorkers>()
+            IEnumerable<ExtraModule> newExtraModules = request.NewExtraModules.Select(c => new ExtraModule()
+            {
+                Name = c.ExtraModuleName,
+                ProgramId = @class.ProgramId,
+                Hours = c.Hours,
+                //Todo: Must be the biggest modules version
+                Version = "1.0",
+                ClassExtraModulesWorkers = new List<ClassExtraModulesWorkers>()
             {
                 new()
                 {
@@ -90,9 +95,12 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
                     ClassId = @class.Id
                 }
             }
-        });
+            });
 
-        await _spaceDbContext.ExtraModules.AddRangeAsync(newExtraModules, cancellationToken);
+            await _spaceDbContext.ExtraModules.AddRangeAsync(newExtraModules, cancellationToken);
+        }
+
+
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }
