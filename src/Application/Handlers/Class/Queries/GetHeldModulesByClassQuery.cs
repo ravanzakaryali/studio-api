@@ -45,7 +45,7 @@ internal class GetHeldModulesByClassHandler : IRequestHandler<GetHeldModulesByCl
         {
             TotalHours = c.TotalHours,
             Name = c.Module!.Name,
-            Id = c.Id,
+            Id = c.ModuleId ,
             Version = c.Module.Version,
         });
     }
