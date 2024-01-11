@@ -135,79 +135,108 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         }
 
         //modulların sayı qədər dövr etsin
-        for (int i = 0; i < modulesReponse.Count; i++)
+
+
+        if (classModulesWorkers.All(c => c.StartDate == null || c.EndDate == null))
         {
-            //modullun sub modullu varsa daxil olsun
-            if (modulesReponse[i].SubModules != null)
+            for (int i = 0; i < modulesReponse.Count; i++)
             {
-                //modulların sub modulda dövr etsin
-                for (int j = 0; j < modulesReponse[i].SubModules!.Count; j++)
+                //modullun sub modullu varsa daxil olsun
+                if (modulesReponse[i].SubModules != null)
                 {
-                    int subModuleSum = 0;
-
-                    //moddulun ilk submodulu onun start ilə bərabər olsun. 
-
-                    if (i == 0)
+                    //modulların sub modulda dövr etsin
+                    for (int j = 0; j < modulesReponse[i].SubModules!.Count; j++)
                     {
-                        // ilk dÖvrdə ilk modulun start date olduğu üçün onu götürsün.
-                        if (modulesReponse[i].SubModules![0].StartDate == null)
-                        {
-                            modulesReponse[i].SubModules![0].StartDate = modulesReponse[0].StartDate;
-                        }
-                    }
-                    else
-                    {
-                        //digər dövlərdə bir əvvəli modulun ən sonuncusnun end date götürsün
-                        if (modulesReponse[i].SubModules![j].StartDate == null)
-                        {
-                            modulesReponse[i].SubModules![j].StartDate = modulesReponse[i - 1].SubModules![^1].EndDate;
-                        }
-                    }
-                    if (j != 0)
-                    {
+                        int subModuleSum = 0;
 
-                        foreach (ClassDateHourDto? classDateHour in
-                                                      classDateTimes.Where(c => c.DateTime > modulesReponse[i].SubModules![j - 1].StartDate))
-                        {
-                            //classın sessionlarının saatlarını hesablasın
-                            subModuleSum += classDateHour.Hour;
+                        //moddulun ilk submodulu onun start ilə bərabər olsun. 
 
-                            //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
-                            if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
+                        if (i == 0)
+                        {
+                            // ilk dÖvrdə ilk modulun start date olduğu üçün onu götürsün.
+                            if (modulesReponse[i].SubModules![0].StartDate == null)
                             {
-                                if (modulesReponse[i].SubModules![j].EndDate == null)
-                                {
-                                    modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
-                                }
-                                if (j > 0) modulesReponse[i].SubModules![j].StartDate = modulesReponse[i].SubModules![j - 1].EndDate;
-                                subModuleSum = 0;
-                                break;
+                                modulesReponse[i].SubModules![0].StartDate = modulesReponse[0].StartDate;
                             }
                         }
-                    }
-                    else
-                    {
-                        foreach (ClassDateHourDto? classDateHour in
-                                                    classDateTimes.Where(c => c.DateTime > modulesReponse[i].SubModules![j].StartDate))
+                        else
                         {
-                            //classın sessionlarının saatlarını hesablasın
-                            subModuleSum += classDateHour.Hour;
-
-                            //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
-                            if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
+                            //digər dövlərdə bir əvvəli modulun ən sonuncusnun end date götürsün
+                            if (modulesReponse[i].SubModules![j].StartDate == null)
                             {
-                                if (modulesReponse[i].SubModules![j].EndDate == null)
+                                modulesReponse[i].SubModules![j].StartDate = modulesReponse[i - 1].SubModules![^1].EndDate;
+                            }
+                        }
+                        if (j != 0)
+                        {
+
+                            foreach (ClassDateHourDto? classDateHour in
+                                                          classDateTimes.Where(c => c.DateTime > modulesReponse[i].SubModules![j - 1].StartDate))
+                            {
+                                //classın sessionlarının saatlarını hesablasın
+                                subModuleSum += classDateHour.Hour;
+
+                                //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
+                                if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
                                 {
-                                    modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
+                                    if (modulesReponse[i].SubModules![j].EndDate == null)
+                                    {
+                                        modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
+                                    }
+                                    if (j > 0)
+                                    {
+                                        modulesReponse[i].SubModules![j].StartDate = modulesReponse[i].SubModules![j - 1].EndDate;
+                                    }
+                                    subModuleSum = 0;
+                                    break;
                                 }
-                                subModuleSum = 0;
-                                break;
+                            }
+                        }
+                        else
+                        {
+                            foreach (ClassDateHourDto? classDateHour in
+                                                        classDateTimes.Where(c => c.DateTime > modulesReponse[i].SubModules![j].StartDate))
+                            {
+                                //classın sessionlarının saatlarını  hesablasın
+                                subModuleSum += classDateHour.Hour;
+
+                                //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
+                                if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
+                                {
+                                    if (modulesReponse[i].SubModules![j].EndDate == null)
+                                    {
+                                        modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
+                                    }
+                                    subModuleSum = 0;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
         }
+        else
+        {
+            foreach (GetClassModuleResponseDto item in modulesReponse)
+            {
+                item.StartDate = classModulesWorkers.Where(c => c.ModuleId == item.Id).First().StartDate;
+                item.EndDate = classModulesWorkers.Where(c => c.ModuleId == item.Id).First().EndDate;
+                if (item.SubModules != null)
+                {
+                    foreach (SubModuleDtoWithWorker subModules in item.SubModules)
+                    {
+                        subModules.StartDate = classModulesWorkers.Where(c => c.ModuleId == subModules.Id).First().StartDate;
+                        subModules.EndDate = classModulesWorkers.Where(c => c.ModuleId == subModules.Id).First().EndDate;
+                    }
+                }
+
+            }
+        }
+
+
+
+
 
         foreach (GetClassModuleResponseDto moduleItem in modulesReponse)
         {
