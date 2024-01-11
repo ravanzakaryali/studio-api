@@ -112,6 +112,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                     TotalHours = classSession.TotalHours,
                     Category = classSession.Category,
                     ClassId = classSession.ClassId,
+                    ClassSession = classSession,
                     EndTime = classSession.EndTime,
                     Date = classSession.Date,
 

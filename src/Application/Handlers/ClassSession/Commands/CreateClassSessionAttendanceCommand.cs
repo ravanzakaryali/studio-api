@@ -150,6 +150,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
                         TotalHours = classSession.TotalHours,
                         Category = classSession.Category,
                         ClassId = classSession.ClassId,
+                        ClassSession = classSession,
                         EndTime = classSession.EndTime,
                         Date = classSession.Date,
                         StartTime = classSession.StartTime,
