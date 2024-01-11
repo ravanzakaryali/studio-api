@@ -50,6 +50,8 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
             workers.AddRange(@class.ClassModulesWorkers
                         .Where(c => c.StartDate <= requestDate && c.EndDate >= requestDate && c.Module.TopModuleId != null)
                         .Distinct(new GetWorkerForClassDtoComparer())
+                        .OrderBy(c=>c.StartDate)
+                        .Take(2)
                         .Select(c =>
                         {
                             List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(cts => cts.Date == requestDate).ToList();
@@ -66,7 +68,6 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                                     .Where(attendance => attendance.WorkerId == c.WorkerId)
                                     .Sum(c => c.TotalHours)
                             };
-                            Console.WriteLine(c.StartDate + "   " + c.EndDate + " "  + c.ModuleId + "  " +  c.Module.Name + "  " + c.Worker.Name);
                             
                             return workersClass;
                         }));
