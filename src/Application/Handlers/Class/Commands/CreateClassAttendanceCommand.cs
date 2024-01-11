@@ -115,9 +115,8 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                     ClassSession = classSession,
                     EndTime = classSession.EndTime,
                     Date = classSession.Date,
-
                     StartTime = classSession.StartTime,
-                    Status = classSession.Status,
+                    Status = session.Status,
                 };
                 if (session.Category == ClassSessionCategory.Theoric && request.HeldModules != null)
                     classTimeSheet.HeldModules = request.HeldModules.Select(hm => new HeldModule()

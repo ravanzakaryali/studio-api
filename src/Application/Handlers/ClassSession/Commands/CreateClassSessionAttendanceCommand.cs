@@ -154,7 +154,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
                         EndTime = classSession.EndTime,
                         Date = classSession.Date,
                         StartTime = classSession.StartTime,
-                        Status = classSession.Status,
+                        Status = session.Status,
                     };
                 if (session.Category == ClassSessionCategory.Theoric && request.HeldModules != null)
                 {
