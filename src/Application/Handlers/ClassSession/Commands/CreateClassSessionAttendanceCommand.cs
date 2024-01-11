@@ -99,7 +99,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
             if (classSession is null)
                 continue;
 
-            if(classSession.RoomId == null) @classSession.RoomId = @class.RoomId;
+            @classSession.RoomId ??= @class.RoomId;
 
             classSession.Status = session.Status;
             if (session.AttendancesWorkers.Any(c => c.TotalMinutes >= 60))

@@ -38,7 +38,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                 ?? throw new NotFoundException(nameof(ClassTimeSheet), request.Id);
 
         return @class.ClassModulesWorkers
-            .Where(c => c.StartDate >= requestDate && c.EndDate <= requestDate)
+            .Where(c => c.StartDate <= requestDate && c.EndDate >= requestDate)
             .Distinct(new GetWorkerForClassDtoComparer())
             .Select(c =>
             {
