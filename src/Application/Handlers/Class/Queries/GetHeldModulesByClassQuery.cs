@@ -25,7 +25,7 @@ internal class GetHeldModulesByClassHandler : IRequestHandler<GetHeldModulesByCl
         DateOnly requestDate;
         if (request.Date == null)
         {
-            requestDate = DateOnly.FromDateTime(DateTime.Now);
+            requestDate = DateOnly.FromDateTime(DateTime.Now.AddHours(4));
         }
         else
         {
