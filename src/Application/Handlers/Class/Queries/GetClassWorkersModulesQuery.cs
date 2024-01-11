@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetClassWorkersModulesQuery(int Id, int SessionId) : IRequest<GetAllClassModuleDto>;
+public record GetClassWorkersModulesQuery(int Id, int? SessionId) : IRequest<GetAllClassModuleDto>;
 
 internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWorkersModulesQuery, GetAllClassModuleDto>
 {
@@ -29,11 +29,12 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
+        int sessionId = request.SessionId ?? @class.SessionId;
         Session? session = await _spaceDbContext.Sessions
-            .Where(c => c.Id == request.SessionId)
+            .Where(c => c.Id == sessionId)
             .Include(c => c.Details)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
-            throw new NotFoundException(nameof(Session), request.SessionId);
+            throw new NotFoundException(nameof(Session), sessionId);
 
         //modules
         List<Module> modules = await _spaceDbContext.Modules

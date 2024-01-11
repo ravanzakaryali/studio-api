@@ -129,7 +129,7 @@ public class ClassesController : BaseApiController
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/modules-workers")]
-    public async Task<IActionResult> GetClassModulesWorkers([FromRoute] int id, [FromQuery] int sessionId)
+    public async Task<IActionResult> GetClassModulesWorkers([FromRoute] int id, [FromQuery] int? sessionId)
     {
         return Ok(await Mediator.Send(new GetClassWorkersModulesQuery(id, sessionId)));
     }

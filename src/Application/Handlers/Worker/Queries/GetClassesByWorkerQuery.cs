@@ -20,6 +20,8 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
         Worker? worker = await _spaceDbContext.Workers
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Class)
+            .Include(c=>c.ClassModulesWorkers)
+            .ThenInclude(c=>c.Module)
             .Where(c => c.Id == request.Id)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Worker), request.Id);
@@ -37,7 +39,6 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             .ToListAsync(cancellationToken: cancellationToken);
 
         return classModuleWorker
-        .Where(c => c.StartDate <= dateNow && c.EndDate >= dateNow && c.Module.TopModuleId != null)
         .Select(cmw => new GetAllClassDto()
         {
             Id = cmw.ClassId,
