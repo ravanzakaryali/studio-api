@@ -45,7 +45,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
 
-        DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
+        DateOnly dateNow = DateOnly.FromDateTime(DateTime.UtcNow);
         //həmin günün class sessiona bax
         List<ClassSession> classSessions = await _spaceDbContext
             .ClassSessions
