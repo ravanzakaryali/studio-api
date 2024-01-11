@@ -139,7 +139,7 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         {
             classesResponse = classesResponse.Where(c => c.TotalHour <= request.StartAttendancePercentage);
         }
-        return classesResponse;
+        return classesResponse.OrderByDescending(c=>c.CurrentHour);
     }
 }
 
