@@ -34,6 +34,8 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
             .ThenInclude(c => c.Worker)
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Role)
+            .Include(c => c.Session)
+            .ThenInclude(c => c.Details)
             .Where(c => c.Id == request.ClassId)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.ClassId);
@@ -78,6 +80,8 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
 
             if (classSession is null) continue;
             classSession.Status = session.Status;
+            @classSession.RoomId ??= @class.RoomId;
+
 
             if (session.AttendancesWorkers.Any(c => c.TotalMinutes >= 60))
                 throw new ValidationException("It cannot be more than 60 minutes");

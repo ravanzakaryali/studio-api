@@ -38,6 +38,8 @@ internal class UpdateClassSessionAttendanceCommandHandler
                 .ThenInclude(c => c.Worker)
                 .Include(c => c.ClassModulesWorkers)
                 .ThenInclude(c => c.Role)
+                .Include(c=>c.Session)
+                .ThenInclude(c=>c.Details)
                 .Where(c => c.Id == request.ClassId)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken)
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
@@ -96,6 +98,8 @@ internal class UpdateClassSessionAttendanceCommandHandler
                 .FirstOrDefault();
             if (classSession is null)
                 continue;
+
+            if(classSession.RoomId == null) @classSession.RoomId = @class.RoomId;
 
             classSession.Status = session.Status;
             if (session.AttendancesWorkers.Any(c => c.TotalMinutes >= 60))
