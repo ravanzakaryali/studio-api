@@ -81,6 +81,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                         TotalHours = attendance.TotalHours,
                         TotalMinutes = attendance.TotalMinutes,
                         WorkerId = attendance.WorkerId,
+                        AttendanceStatus = attendance.AttendanceStatus,
                         TotalLessonHours = @class.ClassTimeSheets
                             .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
                             .SelectMany(c => c.AttendancesWorkers)
