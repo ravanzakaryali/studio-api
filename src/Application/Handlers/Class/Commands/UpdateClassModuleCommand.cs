@@ -84,17 +84,13 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
                 Hours = c.Hours,
                 //Todo: Must be the biggest modules version
                 Version = "1.0",
-                ClassExtraModulesWorkers = new List<ClassExtraModulesWorkers>()
-            {
-                new()
+                ClassExtraModulesWorkers = c.Workers.Select(w => new ClassExtraModulesWorkers()
                 {
-                    WorkerId = c.WorkerId,
+                    WorkerId = w.WorkerId,
+                    RoleId = w.RoleId,
                     StartDate = c.StartDate,
-                    EndDate = c.EndDate,
-                    RoleId = c.RoleId,
-                    ClassId = @class.Id
-                }
-            }
+                    EndDate = c.EndDate
+                }).ToList()
             });
 
             await _spaceDbContext.ExtraModules.AddRangeAsync(newExtraModules, cancellationToken);
