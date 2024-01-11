@@ -20,7 +20,21 @@ internal class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayComman
         Holiday holiday = await _spaceDbContext.Holidays.FindAsync(request.Id)
             ?? throw new NotFoundException(nameof(Holiday), request.Id);
 
-        holiday.IsDeleted = true;
+        #region Holiday Date
+        List<DateOnly> holidayDates = new();
+        for (DateOnly date = holiday.StartDate; date <= holiday.EndDate; date = date.AddDays(1))
+        {
+            holidayDates.Add(date);
+        }
+        #endregion
+
+        //all classsessions isHoliday false
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+             .Where(cs => cs.Date >= holiday.StartDate && cs.Date <= holiday.EndDate)
+             .ToListAsync(cancellationToken);
+
+        classSessions.ForEach(cs => cs.IsHoliday = false);
+
         await _spaceDbContext.SaveChangesAsync();
         return _mapper.Map<HolidayResponseDto>(holiday);
     }

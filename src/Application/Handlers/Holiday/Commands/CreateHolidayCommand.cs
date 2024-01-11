@@ -7,14 +7,11 @@ public record CreateHolidayCommand(string Description, DateOnly StartDate, DateO
 
 internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayCommand, HolidayResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly ISpaceDbContext _spaceDbContext;
 
     public CreateHolidayCommandHandler(
-        IUnitOfWork unitOfWork,
         ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _spaceDbContext = spaceDbContext;
     }
 
@@ -38,10 +35,6 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
                 EndDate = request.EndDate,
                 Description = request.Description,
             }, cancellationToken);
-
-        #region All Holiday Date
-        List<DateOnly> allHolidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
-        #endregion
 
         #region Create Holiday Date
         List<DateOnly> holidayDates = new();
