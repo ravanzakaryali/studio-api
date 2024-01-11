@@ -24,7 +24,7 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Worker), request.Id);
 
-        DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
+        DateOnly dateNow = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(4));
 
         IEnumerable<ClassModulesWorker> classModuleWorker = worker.ClassModulesWorkers
             .Where(q => q.StartDate <= dateNow && q.EndDate >= dateNow)
@@ -36,8 +36,9 @@ internal class GetClassesByWorkerQueryHandler : IRequestHandler<GetClassesByWork
             .Where(c => classIds.Contains(c.ClassId))
             .ToListAsync(cancellationToken: cancellationToken);
 
-
-        return classModuleWorker.Select(cmw => new GetAllClassDto()
+        return classModuleWorker
+        .Where(c => c.StartDate <= dateNow && c.EndDate >= dateNow && c.Module.TopModuleId != null)
+        .Select(cmw => new GetAllClassDto()
         {
             Id = cmw.ClassId,
             Start = classSessions.Where(c => c.ClassId == cmw.ClassId && c.Date == dateNow).Any() ?
