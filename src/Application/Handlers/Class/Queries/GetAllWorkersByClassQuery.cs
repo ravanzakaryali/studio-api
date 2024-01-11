@@ -66,7 +66,8 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                                     .Where(attendance => attendance.WorkerId == c.WorkerId)
                                     .Sum(c => c.TotalHours)
                             };
-                            Console.WriteLine(c.ModuleId);
+                            Console.WriteLine(c.StartDate + "   " + c.EndDate + " "  + c.ModuleId + "  " +  c.Module.Name + "  " + c.Worker.Name);
+                            
                             return workersClass;
                         }));
         }
