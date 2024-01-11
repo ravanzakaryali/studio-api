@@ -97,6 +97,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
             if (classSession is null)
                 continue;
 
+            classSession.Status = session.Status;
             if (session.AttendancesWorkers.Any(c => c.TotalMinutes >= 60))
                 throw new ValidationException("It cannot be more than 60 minutes");
 
