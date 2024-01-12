@@ -80,14 +80,10 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         List<GetClassModuleWorkers> classes = await query.Select(cd => new GetClassModuleWorkers()
         {
             Id = cd.Id,
-            TotalHour = cd.ClassSessions
-                            .Where(c =>
-                            c.Status != ClassSessionStatus.Cancelled &&
-                            c.Category != ClassSessionCategory.Lab)
-                        .Sum(c => c.TotalHours),
+            TotalHour = cd.Program.TotalHours,
             CurrentHour = cd.ClassTimeSheets
                             .Where(c => c.Status != ClassSessionStatus.Cancelled &&
-                                        c.Category != ClassSessionCategory.Lab)
+                                        c.Category != ClassSessionCategory.Lab && c.Category != ClassSessionCategory.Practice)
                             .Sum(c => c.TotalHours),
             ClassName = cd.Name,
             EndDate = cd.EndDate,

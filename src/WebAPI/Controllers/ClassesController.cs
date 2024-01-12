@@ -177,7 +177,7 @@ public class ClassesController : BaseApiController
     {
         await Mediator.Send(new CreateStudentComand()
         {
-            ClassId = id,
+            ClassId = id, 
             Students = students
         });
         return NoContent();

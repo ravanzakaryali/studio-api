@@ -31,6 +31,11 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
             .Include(c => c.Attendances)
             .ToListAsync();
 
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+            .Include(c => c.ClassTimeSheet)
+            .Where(c => c.ClassId == @class.Id && c.Status != ClassSessionStatus.Cancelled && c.Category != ClassSessionCategory.Practice)
+            .ToListAsync();
+
         List<double> list = new();
         foreach (ClassTimeSheet? item in classTimeSheets.Where(c => c.Attendances.Count > 0))
         {
@@ -69,7 +74,7 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
                 Id = @class.Program.Id,
                 Name = @class.Program.Name,
             },
-            CurrentHours = classTimeSheets.Sum(c=>c.TotalHours),
+            CurrentHours = classTimeSheets.Where(c=>c.ClassSession != null && c.Category != ClassSessionCategory.Practice).Sum(c=>c.TotalHours),
             TotalHours = @class.Program.TotalHours,
             Name = @class.Name,
             AttendanceRate = Math.Round(list.Count > 0 ? list.Average() : 0, 2),
