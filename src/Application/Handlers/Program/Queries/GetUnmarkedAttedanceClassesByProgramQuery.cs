@@ -64,7 +64,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                     Id = c.ClassId,
                     Name = c.Class.Name
                 },
-            }).Where(c=>c.UnMarkDays != 0).ToList());
+            }).Where(c => c.UnMarkDays != 0).OrderByDescending(c => c.UnMarkDays).ToList());
         return response;
     }
 
