@@ -1,10 +1,13 @@
 ﻿
 
+using Space.Application.Enums;
+
 namespace Space.Application.Handlers;
 
 public class GetUnMarkedAttendancesByProgramsQuery : IRequest<IEnumerable<GetUnMarkedAttendancesByProgramsDto>>
 {
-
+    public MonthOfYear Month { get; set; }
+    public int Year { get; set; }
 }
 internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMarkedAttendancesByProgramsQuery, IEnumerable<GetUnMarkedAttendancesByProgramsDto>>
 {
@@ -25,6 +28,11 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
             .Include(c => c.Class)
             .Where(c => c.Date <= dateNow)
             .ToListAsync(cancellationToken: cancellationToken);
+
+
+        classSessions = classSessions
+                                .Where(c => c.Date.Month == (int)request.Month && c.Date.Year == request.Year)
+                                .ToList();
 
 
         return programs.Select(program =>

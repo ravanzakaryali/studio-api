@@ -1,5 +1,6 @@
 ﻿using Space.Application.DTOs.Program.Request;
 using Microsoft.AspNetCore.Http;
+using Space.Application.Enums;
 
 namespace Space.WebAPI.Controllers;
 
@@ -39,8 +40,12 @@ public class ProgramsController : BaseApiController
     }
     [Authorize(Roles = "admin")]
     [HttpGet("unmarked-attendances")]
-    public async Task<IActionResult> GetUnMarkedAttendancesByPrograms()
-        => Ok(await Mediator.Send(new GetUnMarkedAttendancesByProgramsQuery()));
+    public async Task<IActionResult> GetUnMarkedAttendancesByPrograms([FromQuery] MonthOfYear? month, [FromQuery] int? year)
+        => Ok(await Mediator.Send(new GetUnMarkedAttendancesByProgramsQuery()
+        {
+            Month = month ?? (MonthOfYear)DateTime.Now.Month,
+            Year = year ?? DateTime.Now.Year
+        }));
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/unmarked-attendances-classes")]
