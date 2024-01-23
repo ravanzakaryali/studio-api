@@ -1,4 +1,5 @@
 ﻿
+using Space.Application.Enums;
 using Space.Domain.Entities;
 
 namespace Space.Application.Handlers;
@@ -6,6 +7,8 @@ namespace Space.Application.Handlers;
 public class GetUnmarkedAttedanceClassesByProgramQuery : IRequest<IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
     public int Id { get; set; }
+    public MonthOfYear Month { get; set; }
+    public int Year { get; set; }
 }
 internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<GetUnmarkedAttedanceClassesByProgramQuery, IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
@@ -58,7 +61,10 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                 AttendancePercentage = Math.Round(list.Where(l => l.ClassId == c.ClassId).Any() ?
                                    list.Where(l => l.ClassId == c.ClassId).Average(a => a.AverageHours) :
                                    0, 2),
-                UnMarkDays = classSessions.Where(cs => cs.ClassId == c.ClassId && cs.ClassTimeSheetId is null).Count(),
+                UnMarkDays = classSessions.Where(cs => cs.ClassId == c.ClassId &&
+                                                cs.ClassTimeSheetId is null &&
+                                                c.Date.Year == request.Year &&
+                                                c.Date.Month == (int)request.Month).Count(),
                 Class = new GetClassDto()
                 {
                     Id = c.ClassId,
