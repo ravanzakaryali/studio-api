@@ -6,5 +6,5 @@ public class GetUnmarkedAttedanceClassesByProgramResponseDto
     public int StudentsCount { get; set; }
     public double AttendancePercentage { get; set; }
     public int UnMarkDays { get; set; }
-    public DateOnly LastDate { get; set; }
+    public DateOnly? LastDate { get; set; }
 }

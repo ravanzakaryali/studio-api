@@ -54,7 +54,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
         }
 
         response.AddRange(classSessions
-            .DistinctBy(c => c.ClassId)
+
             .Select(c => new GetUnmarkedAttedanceClassesByProgramResponseDto()
             {
                 StudentsCount = c.Class.Studies.Count,
@@ -70,7 +70,18 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                     Id = c.ClassId,
                     Name = c.Class.Name
                 },
-            }).Where(c => c.UnMarkDays != 0).OrderByDescending(c => c.UnMarkDays).ToList());
+                LastDate = classSessions
+                                        .Where(cs => cs.ClassId == c.ClassId &&
+                                                cs.ClassTimeSheetId is null &&
+                                                c.Date.Year == request.Year &&
+                                                c.Date.Month == (int)request.Month)
+                                        .OrderByDescending(cs => cs.Date)
+                                        .FirstOrDefault()?.Date
+            })
+            .Where(c => c.UnMarkDays != 0)
+            .DistinctBy(c => c.Class.Id)
+            .OrderByDescending(c => c.UnMarkDays)
+            .ToList());
         return response;
     }
 

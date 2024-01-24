@@ -30,18 +30,16 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
             .ToListAsync(cancellationToken: cancellationToken);
 
 
-        classSessions = classSessions
-                                .Where(c => c.Date.Month == (int)request.Month && c.Date.Year == request.Year)
-                                .ToList();
-
-
         return programs.Select(program =>
         {
+            var filterClassSession = classSessions
+                        .Where(cs => cs.Class.ProgramId == program.Id && cs.Date.Month == (int)request.Month && cs.Date.Year == request.Year).ToList();
+
             double totalAttendace = 0;
             if (classSessions.Where(classSession => classSession.Class.ProgramId == program.Id).Any())
             {
-                totalAttendace = (double)classSessions.Where(classSession => classSession.Class.ProgramId == program.Id && classSession.ClassTimeSheetId != null).Count() /
-                                classSessions.Where(classSession => classSession.Class.ProgramId == program.Id).Count() * 100;
+                totalAttendace = (double)filterClassSession.Where(c => c.ClassTimeSheetId == null).Count() /
+                                filterClassSession.Count * 100;
             }
             return new GetUnMarkedAttendancesByProgramsDto()
             {
@@ -50,8 +48,8 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
                     Id = program.Id,
                     Name = program.Name,
                 },
-                UnMarkedAttendancesCount = classSessions.Where(cs => cs.Class.ProgramId == program.Id && cs.ClassTimeSheetId == null).DistinctBy(cs => cs.ClassId).Count(),
-                TotalUnMarkedAttendancesCount = classSessions.Where(cs => cs.Class.ProgramId == program.Id && cs.ClassTimeSheetId == null).Count(),
+                UnMarkedAttendancesCount = filterClassSession.Where(c => c.ClassTimeSheetId == null).DistinctBy(cs => cs.ClassId).Count(),
+                TotalUnMarkedAttendancesCount = filterClassSession.Where(c => c.ClassTimeSheetId == null).Count(),
                 TotalAttendancePercentage = Math.Round(totalAttendace, MidpointRounding.AwayFromZero)
             };
         });
