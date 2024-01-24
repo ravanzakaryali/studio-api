@@ -9,7 +9,7 @@ public class GetClassSessionByClassResponseDto
     public int TotalHours { get; set; }
 }
 
-public class GetClassSessionByClassByDayResponseDto
+public class GetClassSessionClassByDayResponseDto
 {
     public string ClassName { get; set; } = null!;
     public ClassSessionCategory? Category { get; set; }
