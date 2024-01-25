@@ -4,7 +4,7 @@ namespace Space.Application.Handlers.Commands;
 public class UpdateClassModuleCommand : IRequest
 {
     public int Id { get; set; }
-    public IEnumerable<CreateClassModuleRequestDto> Modules { get; set; } = null!;
+    public IEnumerable<UpdateClassModuleDto> Modules { get; set; } = null!;
     public IEnumerable<CreateClassExtraModuleRequestDto>? ExtraModules { get; set; }
     public IEnumerable<CreateClassNewExtraModuleRequestDto>? NewExtraModules { get; set; } = null!;
 }
@@ -26,7 +26,19 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             throw new NotFoundException(nameof(Class), request.Id);
 
         //Existing modules and extra modules
+        IEnumerable<Module> modulesDb = await _spaceDbContext.Modules
+                   .ToListAsync(cancellationToken: cancellationToken);
 
+        foreach (UpdateClassModuleDto item in request.Modules)
+        {
+            Module? module = modulesDb.FirstOrDefault(c => c.Id == item.ModuleId) ??
+                throw new NotFoundException(nameof(Module), item.ModuleId);
+
+            if (module.TopModuleId == null)
+            {
+                request.Modules.ToList().Remove(request.Modules.First(rm => rm.ModuleId == module.Id));
+            }
+        }
         IEnumerable<int> moduleIds = request.Modules.Select(c => c.ModuleId);
         IEnumerable<Module> modules = await _spaceDbContext.Modules
             .Where(c => moduleIds.Contains(c.Id))
@@ -46,32 +58,39 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             .ToListAsync(cancellationToken: cancellationToken);
         _spaceDbContext.ClassModulesWorkers.RemoveRange(classModulesWorker);
 
-        await _spaceDbContext.ClassModulesWorkers.AddRangeAsync(request.Modules.Select(c => new ClassModulesWorker()
-        {
-            WorkerId = c.WorkerId,
-            StartDate = c.StartDate,
-            EndDate = c.EndDate,
-            ModuleId = c.ModuleId,
-            RoleId = c.RoleId,
-            ClassId = @class.Id
-        }), cancellationToken);
 
+        foreach (UpdateClassModuleDto item in request.Modules)
+        {
+            await _spaceDbContext.ClassModulesWorkers.AddRangeAsync(item.Workers.Select(c => new ClassModulesWorker()
+            {
+                WorkerId = c.WorkerId,
+                StartDate = item.StartDate,
+                EndDate = item.EndDate,
+                ModuleId = item.ModuleId,
+                RoleId = c.RoleId,
+                ClassId = @class.Id
+            }), cancellationToken);
+        }
         //--Extra Modules
+
         IEnumerable<ClassExtraModulesWorkers> classExtraModulesWorkers = await _spaceDbContext.ClassExtraModulesWorkers
             .Where(c => c.ClassId == request.Id)
             .ToListAsync(cancellationToken: cancellationToken);
         _spaceDbContext.ClassExtraModulesWorkers.RemoveRange(classExtraModulesWorkers);
         if (request.ExtraModules != null)
         {
-            await _spaceDbContext.ClassExtraModulesWorkers.AddRangeAsync(request.ExtraModules.Select(c => new ClassExtraModulesWorkers()
+            foreach (CreateClassExtraModuleRequestDto item in request.ExtraModules)
             {
-                WorkerId = c.WorkerId,
-                StartDate = c.StartDate,
-                EndDate = c.EndDate,
-                ExtraModuleId = c.ExtraModuleId,
-                RoleId = c.RoleId,
-                ClassId = @class.Id
-            }), cancellationToken);
+                await _spaceDbContext.ClassExtraModulesWorkers.AddRangeAsync(item.Workers.Select(c => new ClassExtraModulesWorkers()
+                {
+                    WorkerId = c.WorkerId,
+                    StartDate = item.StartDate,
+                    EndDate = item.EndDate,
+                    ExtraModuleId = item.ExtraModuleId,
+                    RoleId = c.RoleId,
+                    ClassId = @class.Id
+                }), cancellationToken);
+            }
         }
 
 
