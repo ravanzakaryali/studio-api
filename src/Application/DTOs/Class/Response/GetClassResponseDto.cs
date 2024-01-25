@@ -25,6 +25,8 @@ public class GetClassExtraModuleResponseDto
     public int ExtraModuleId { get; set; }
     public string Name { get; set; } = null!;
     public double Hours { get; set; }
+    public DateOnly? StartDate { get; set; }
+    public DateOnly? EndDate { get; set; }
     public string? Version { get; set; }
     public ICollection<GetWorkerForClassDto>? Workers { get; set; }
 }

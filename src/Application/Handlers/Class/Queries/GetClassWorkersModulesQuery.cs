@@ -257,13 +257,23 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             .Include(c => c.Worker)
             .ToListAsync(cancellationToken: cancellationToken);
 
-        List<GetClassExtraModuleResponseDto> extraModulesResponse = extraModules.Select(m => new GetClassExtraModuleResponseDto()
+        List<GetClassExtraModuleResponseDto> extraModulesResponse = classExtraModulesWorkers.Select(m => new GetClassExtraModuleResponseDto()
         {
             ExtraModuleId = m.Id,
-            Name = m.Name,
-            Hours = m.Hours,
-            Version = m.Version,
-            Workers = _mapper.Map<ICollection<GetWorkerForClassDto>>(classExtraModulesWorkers.Where(cmw => cmw.ExtraModuleId == m.Id))
+            Name = m.ExtraModule.Name,
+            Hours = m.ExtraModule.Hours,
+            Version = m.ExtraModule.Version,
+            StartDate = m.StartDate,
+            EndDate = m.EndDate,
+            Workers = classExtraModulesWorkers.Where(ex => ex.ExtraModuleId == m.Id).Select(ex => new GetWorkerForClassDto()
+            {
+                Id = ex.WorkerId,
+                Name = ex.Worker.Name,
+                Surname = ex.Worker.Surname,
+                Role = ex.Role.Name,
+                Email = ex.Worker.Email,
+                RoleId = ex.RoleId,
+            }).ToList(),
         }).ToList();
 
         foreach (GetClassModuleResponseDto moduleItem in modulesReponse)
