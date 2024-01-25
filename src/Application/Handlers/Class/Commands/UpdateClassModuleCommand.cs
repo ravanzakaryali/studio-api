@@ -106,6 +106,7 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
                 ClassExtraModulesWorkers = c.Workers.Select(w => new ClassExtraModulesWorkers()
                 {
                     WorkerId = w.WorkerId,
+                    ClassId = @class.Id,
                     RoleId = w.RoleId,
                     StartDate = c.StartDate,
                     EndDate = c.EndDate
