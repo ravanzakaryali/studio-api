@@ -96,6 +96,7 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
 
         if (request.NewExtraModules != null)
         {
+
             IEnumerable<ExtraModule> newExtraModules = request.NewExtraModules.Select(c => new ExtraModule()
             {
                 Name = c.ExtraModuleName,
@@ -109,7 +110,7 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
                     ClassId = @class.Id,
                     RoleId = w.RoleId,
                     StartDate = c.StartDate,
-                    EndDate = c.EndDate
+                    EndDate = c.EndDate,
                 }).ToList()
             });
 

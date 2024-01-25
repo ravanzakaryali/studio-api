@@ -255,26 +255,29 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             .Where(c => c.ClassId == @class.Id)
             .Include(c => c.Role)
             .Include(c => c.Worker)
+            .Include(c => c.ExtraModule)
             .ToListAsync(cancellationToken: cancellationToken);
 
-        List<GetClassExtraModuleResponseDto> extraModulesResponse = classExtraModulesWorkers.Select(m => new GetClassExtraModuleResponseDto()
-        {
-            ExtraModuleId = m.Id,
-            Name = m.ExtraModule.Name,
-            Hours = m.ExtraModule.Hours,
-            Version = m.ExtraModule.Version,
-            StartDate = m.StartDate,
-            EndDate = m.EndDate,
-            Workers = classExtraModulesWorkers.Where(ex => ex.ExtraModuleId == m.Id).Select(ex => new GetWorkerForClassDto()
+        List<GetClassExtraModuleResponseDto> extraModulesResponse = classExtraModulesWorkers
+            .DistinctBy(c => c.ExtraModuleId)
+            .Select(m => new GetClassExtraModuleResponseDto()
             {
-                Id = ex.WorkerId,
-                Name = ex.Worker.Name,
-                Surname = ex.Worker.Surname,
-                Role = ex.Role.Name,
-                Email = ex.Worker.Email,
-                RoleId = ex.RoleId,
-            }).ToList(),
-        }).ToList();
+                ExtraModuleId = m.ExtraModuleId,
+                Name = m.ExtraModule.Name,
+                Hours = m.ExtraModule.Hours,
+                Version = m.ExtraModule.Version,
+                StartDate = m.StartDate,
+                EndDate = m.EndDate,
+                Workers = classExtraModulesWorkers.Where(c => c.ExtraModuleId == m.ExtraModuleId && c.ClassId == m.ClassId).Select(ex => new GetWorkerForClassDto()
+                {
+                    Id = ex.WorkerId,
+                    Name = ex.Worker.Name,
+                    Surname = ex.Worker.Surname,
+                    Role = ex.Role.Name,
+                    Email = ex.Worker.Email,
+                    RoleId = ex.RoleId,
+                }).ToList(),
+            }).ToList();
 
         foreach (GetClassModuleResponseDto moduleItem in modulesReponse)
         {
