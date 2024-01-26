@@ -73,8 +73,8 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                 LastDate = classSessions
                                         .Where(cs => cs.ClassId == c.ClassId &&
                                                 cs.ClassTimeSheetId is null &&
-                                                c.Date.Year == request.Year &&
-                                                c.Date.Month == (int)request.Month)
+                                                cs.Date.Year == request.Year &&
+                                                cs.Date.Month == (int)request.Month)
                                         .OrderByDescending(cs => cs.Date)
                                         .FirstOrDefault()?.Date
             })
