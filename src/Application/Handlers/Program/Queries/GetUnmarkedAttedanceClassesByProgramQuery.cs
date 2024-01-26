@@ -63,8 +63,8 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                                    0, 2),
                 UnMarkDays = classSessions.Where(cs => cs.ClassId == c.ClassId &&
                                                 cs.ClassTimeSheetId is null &&
-                                                c.Date.Year == request.Year &&
-                                                c.Date.Month == (int)request.Month).Count(),
+                                                cs.Date.Year == request.Year &&
+                                                cs.Date.Month == (int)request.Month).Count(),
                 Class = new GetClassDto()
                 {
                     Id = c.ClassId,

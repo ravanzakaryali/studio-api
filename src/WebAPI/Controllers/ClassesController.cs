@@ -177,7 +177,7 @@ public class ClassesController : BaseApiController
     {
         await Mediator.Send(new CreateStudentComand()
         {
-            ClassId = id, 
+            ClassId = id,
             Students = students
         });
         return NoContent();
@@ -348,8 +348,20 @@ public class ClassesController : BaseApiController
     }
     [Authorize(Roles = "admin")]
     [HttpGet("export/excel")]
-    public async Task ClassesExcelExport()
+    public async Task ClassesExcelExport(
+        [FromQuery] ClassStatus status, 
+    [FromQuery] List<int>? ClassIds, 
+    [FromQuery] List<int>? ProgramIds, 
+    [FromQuery] DateTime? StartDate,
+    [FromQuery] DateTime? EndDate)
     {
-        _ = await Mediator.Send(new StudentsOfClassesExcelExportCommand());
+        _ = await Mediator.Send(new StudentsOfClassesExcelExportCommand()
+        {
+            ClassStatus = status,
+            ClassIds = ClassIds,
+            ProgramIds = ProgramIds,
+            StartDate = StartDate,
+            EndDate = EndDate
+        });
     }
 }
