@@ -11,24 +11,24 @@ public class UpdateClassModuleCommand : IRequest
 internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleCommand>
 {
     readonly ISpaceDbContext _spaceDbContext;
-    readonly IClassSessionService _classSessionService;
-    readonly IHolidayService _holidayService;
+    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
     public UpdateClassModuleHandler(
         IMapper mapper,
         ISpaceDbContext spaceDbContext,
-        IClassSessionService classSessionService,
-        IHolidayService holidayService)
+        IUnitOfWork unitOfWork)
     {
         _mapper = mapper;
         _spaceDbContext = spaceDbContext;
-        _classSessionService = classSessionService;
-        _holidayService = holidayService;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task Handle(UpdateClassModuleCommand request, CancellationToken cancellationToken)
     {
-        Class @class = _spaceDbContext.Classes.Find(request.Id) ??
+        Class @class = await _spaceDbContext.Classes
+            .Include(c => c.Session)
+            .ThenInclude(c => c.Details)
+            .FirstOrDefaultAsync(c => c.Id == request.Id) ??
             throw new NotFoundException(nameof(Class), request.Id);
 
         //Existing modules and extra modules
@@ -101,9 +101,8 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
         }
 
 
-        if (request.NewExtraModules != null)
+        if (request.NewExtraModules != null && request.NewExtraModules.Any())
         {
-
             IEnumerable<ExtraModule> newExtraModules = request.NewExtraModules.Select(c => new ExtraModule()
             {
                 Name = c.ExtraModuleName,
@@ -124,7 +123,7 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             await _spaceDbContext.ExtraModules.AddRangeAsync(newExtraModules, cancellationToken);
 
             DateOnly startDate = request.NewExtraModules.OrderBy(c => c.StartDate).First().StartDate;
-            int totalHours = request.NewExtraModules.Sum(c => c.Hours);
+            DateOnly endDate = request.NewExtraModules.OrderByDescending(c => c.EndDate).First().EndDate;
 
             List<CreateClassSessionDto> sessions = @class.Session.Details.Select(c => new CreateClassSessionDto()
             {
@@ -134,11 +133,11 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
                 Start = c.StartTime,
             }).ToList();
 
-            List<DateOnly> holidays = await _holidayService.GetDatesAsync();
+            List<DateOnly> holidays = await _unitOfWork.HolidayService.GetDatesAsync();
             int roomId = @class.RoomId ?? throw new NotFoundException(nameof(Room));
-            List<ClassSession> newClassSessions = _classSessionService.GenerateSessions(totalHours, sessions, startDate, holidays, @class.Id, roomId);
+            List<ClassSession> newClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(startDate, sessions, endDate, holidays, @class.Id, roomId);
             _spaceDbContext.ClassSessions.AddRange(newClassSessions);
-            @class.EndDate = newClassSessions.OrderByDescending(c => c.EndTime).First().Date;
+            @class.EndDate = newClassSessions.OrderByDescending(c => c.Date).First().Date;
 
         }
 

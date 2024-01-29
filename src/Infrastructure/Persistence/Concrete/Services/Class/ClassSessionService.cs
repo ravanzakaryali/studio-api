@@ -76,7 +76,7 @@ public class ClassSessionService : IClassSessionService
         List<ClassSession> returnClassSessions = new();
         DayOfWeek startDayOfWeek = startDate.DayOfWeek;
         int count = 0;
-        while (returnClassSessions.Any(c => c.Date == endDate))
+        while (!returnClassSessions.Any(c => c.Date >= endDate))
         {
             foreach (var session in sessions.OrderBy(c => c.DayOfWeek))
             {
