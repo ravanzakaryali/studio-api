@@ -6,17 +6,21 @@ public class CreateClassModuleCommand : IRequest
     public IEnumerable<CreateClassModuleRequestDto> CreateClassModule { get; set; } = null!;
 }
 
+
 internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModuleCommand>
 {
     readonly IUnitOfWork _unitOfWork;
     readonly ISpaceDbContext _spaceDbContext;
+    readonly IMediator _mediator;
 
     public CreateClassModuleCommandHandler(
         IUnitOfWork unitOfWork,
-        ISpaceDbContext spaceDbContext)
+        ISpaceDbContext spaceDbContext,
+        IMediator mediator)
     {
         _unitOfWork = unitOfWork;
         _spaceDbContext = spaceDbContext;
+        _mediator = mediator;
     }
 
     public async Task Handle(CreateClassModuleCommand request, CancellationToken cancellationToken)
@@ -57,6 +61,7 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
         IEnumerable<Worker> workers = await _spaceDbContext.Workers
             .Where(c => workerIds.Contains(c.Id))
             .ToListAsync();
+
         IEnumerable<int> existingWorkerIds = workers.Select(w => w.Id);
         IEnumerable<int> nonExistingWorkerIds = workerIds.Except(existingWorkerIds);
         if (nonExistingWorkerIds.Any())
@@ -83,6 +88,13 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
             RoleId = c.RoleId,
             ClassId = @class.Id
         }), cancellationToken);
+
+        await _mediator.Send(new CreateClassSessionCommand()
+        {
+            ClassId = request.ClassId,
+            SessionId = @class.SessionId
+        }, cancellationToken);
+
 
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
