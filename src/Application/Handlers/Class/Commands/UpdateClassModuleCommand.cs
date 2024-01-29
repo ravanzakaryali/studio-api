@@ -11,13 +11,19 @@ public class UpdateClassModuleCommand : IRequest
 internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleCommand>
 {
     readonly ISpaceDbContext _spaceDbContext;
+    readonly IClassSessionService _classSessionService;
+    readonly IHolidayService _holidayService;
     readonly IMapper _mapper;
     public UpdateClassModuleHandler(
         IMapper mapper,
-        ISpaceDbContext spaceDbContext)
+        ISpaceDbContext spaceDbContext,
+        IClassSessionService classSessionService,
+        IHolidayService holidayService)
     {
         _mapper = mapper;
         _spaceDbContext = spaceDbContext;
+        _classSessionService = classSessionService;
+        _holidayService = holidayService;
     }
 
     public async Task Handle(UpdateClassModuleCommand request, CancellationToken cancellationToken)
@@ -116,6 +122,24 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             });
 
             await _spaceDbContext.ExtraModules.AddRangeAsync(newExtraModules, cancellationToken);
+
+            DateOnly startDate = request.NewExtraModules.OrderBy(c => c.StartDate).First().StartDate;
+            int totalHours = request.NewExtraModules.Sum(c => c.Hours);
+
+            List<CreateClassSessionDto> sessions = @class.Session.Details.Select(c => new CreateClassSessionDto()
+            {
+                Category = c.Category,
+                DayOfWeek = c.DayOfWeek,
+                End = c.EndTime,
+                Start = c.StartTime,
+            }).ToList();
+
+            List<DateOnly> holidays = await _holidayService.GetDatesAsync();
+            int roomId = @class.RoomId ?? throw new NotFoundException(nameof(Room));
+            List<ClassSession> newClassSessions = _classSessionService.GenerateSessions(totalHours, sessions, startDate, holidays, @class.Id, roomId);
+            _spaceDbContext.ClassSessions.AddRange(newClassSessions);
+            @class.EndDate = newClassSessions.OrderByDescending(c => c.EndTime).First().Date;
+
         }
 
 
