@@ -19,13 +19,13 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
     {
         Class? @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
-            .Include(c=>c.ClassSessions)
+            .Include(c => c.ClassSessions)
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Worker)
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Role)
-            .Include(c=>c.ClassModulesWorkers)
-            .ThenInclude(c=>c.Module)
+            .Include(c => c.ClassModulesWorkers)
+            .ThenInclude(c => c.Module)
             .Include(c => c.ClassTimeSheets)
             .ThenInclude(c => c.AttendancesWorkers)
             .ThenInclude(c => c.Worker)
@@ -44,13 +44,13 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
         List<GetWorkersByClassResponseDto> workers = new();
 
 
-        if (@class.ClassSessions.Any(c =>c.Date == requestDate && c.ClassTimeSheetId == null))
+        if (@class.ClassSessions.Any(c => c.Date == requestDate && c.ClassTimeSheetId == null))
         {
-            
+
             workers.AddRange(@class.ClassModulesWorkers
                         .Where(c => c.StartDate <= requestDate && c.EndDate >= requestDate && c.Module.TopModuleId != null)
                         .Distinct(new GetWorkerForClassDtoComparer())
-                        .OrderBy(c=>c.StartDate)
+                        .OrderBy(c => c.StartDate)
                         .Take(2)
                         .Select(c =>
                         {
@@ -68,7 +68,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                                     .Where(attendance => attendance.WorkerId == c.WorkerId)
                                     .Sum(c => c.TotalHours)
                             };
-                            
+
                             return workersClass;
                         }));
         }
