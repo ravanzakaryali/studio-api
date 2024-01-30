@@ -2,11 +2,11 @@
 
 public class UpdateClassSessionByDateRequestDto
 {
-    public Guid ClassId { get; set; }
-    public DateOnly OldDate { get; set; }
-    public DateOnly NewDate { get; set; }
-    public IEnumerable<UpdateClassSessionDto> Sessions { get; set; } = null!;
+    public DateOnly StartDate { get; set; }
+    public DateOnly EndDate { get; set; }
+    public IEnumerable<CreateClassSessionDto> Sessions { get; set; } = null!;
 }
+
 
 public class UpdateClassSessionDto
 {

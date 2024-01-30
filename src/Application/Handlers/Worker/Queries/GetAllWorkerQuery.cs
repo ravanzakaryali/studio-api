@@ -1,22 +1,45 @@
-﻿namespace Space.Application.Handlers;
+﻿using Microsoft.EntityFrameworkCore.Query;
 
-public record GetAllWorkerQuery : IRequest<IEnumerable<GetWorkerDto>>;
+namespace Space.Application.Handlers;
+
+public record GetAllWorkerQuery(RoleEnum? Role) : IRequest<IEnumerable<GetWorkerDto>>;
 
 
 internal class GetAllWorkerQueryHandler : IRequestHandler<GetAllWorkerQuery, IEnumerable<GetWorkerDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IMapper _mapper;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetAllWorkerQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetAllWorkerQueryHandler(ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetWorkerDto>> Handle(GetAllWorkerQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<GetWorkerDto> workers = _mapper.Map<IEnumerable<GetWorkerDto>>(await _unitOfWork.WorkerRepository.GetAllAsync(predicate: null, tracking: false, "UserRoles.Role"));
-        return workers.ToList().OrderBy(w => w.Name);
+        IQueryable<Worker> query = _spaceDbContext.Workers
+            .Include(c => c.UserRoles)
+            .ThenInclude(c => c.Role)
+            .OrderBy(c => c.Name)
+            .AsQueryable();
+
+
+        if (request.Role != null)
+        {
+            query = query.Where(c => c.UserRoles.Any(c => c.Role.Name == request.Role.ToString()));
+        }
+
+        return await query.Select(w => new GetWorkerDto()
+        {
+            Id = w.Id,
+            Name = w.Name!,
+            Surname = w.Surname,
+            Email = w.Email,
+            LastPasswordUpdateDate = w.LastPasswordUpdateDate,
+            Roles = w.UserRoles.Select(c => new GetRoleDto()
+            {
+                Id = c.Role.Id,
+                Name = c.Role.Name
+            })
+        }).ToListAsync(cancellationToken: cancellationToken);
     }
 }

@@ -36,10 +36,9 @@ public class TokenAutheticationMiddlewares
     /// Handles the authentication token in the request by checking for a token cookie, validating and refreshing the token if necessary, and adding it to the request headers.
     /// </summary>
     /// <param name="httpContext">The HTTP context for the current request.</param>
-    /// <param name="tokenService">The service responsible for token operations.</param>
-    /// <param name="unitOfWork">The unit of work for database access.</param>
-    public async Task InvokeAsync(HttpContext httpContext, ITokenService tokenService, IUnitOfWork unitOfWork)
+    public async Task InvokeAsync(HttpContext httpContext)
     {
+
         if (httpContext.Request.Cookies.TryGetValue("token", out string? token))
         {
             httpContext.Request.Headers.Add("Authorization", "Bearer " + token);
@@ -51,15 +50,29 @@ public class TokenAutheticationMiddlewares
 
 }
 
+/// <summary>
+/// 
+/// </summary>
 public class ChangeTokenAutheticationMiddlewares
 {
     private readonly RequestDelegate _next;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="next"></param>
     public ChangeTokenAutheticationMiddlewares(RequestDelegate next)
     {
         _next = next;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="httpContext"></param>
+    /// <param name="tokenService"></param>
+    /// <param name="unitOfWork"></param>
+    /// <returns></returns>
     public async Task InvokeAsync(HttpContext httpContext, ITokenService tokenService, IUnitOfWork unitOfWork)
     {
         if (httpContext.Request.Cookies.TryGetValue("token", out string? token))
@@ -78,7 +91,19 @@ public class ChangeTokenAutheticationMiddlewares
                     string? loginUserId = claimsPrincipal.GetLoginUserId();
                     if (expiration <= DateTime.UtcNow && loginUserId != null)
                     {
-                        User? user = await unitOfWork.UserService.FindById(new Guid(loginUserId));
+                        if (!int.TryParse(loginUserId, out int result))
+                        {
+                            httpContext.Response.Cookies.Append("token", "delete", new CookieOptions
+                            {
+                                Expires = DateTime.Now.AddDays(-1),
+                                HttpOnly = false,
+                                SameSite = SameSiteMode.None,
+                                Secure = true,
+                            });
+                            await _next(httpContext);
+                            return;
+                        }
+                        User? user = await unitOfWork.UserService.FindById(int.Parse(loginUserId));
                         IList<string> roles = await unitOfWork.RoleService.GetRolesByUser(user);
 
                         Token newAccessToken = tokenService.GenerateToken(user, TimeSpan.FromSeconds(10), roles);
@@ -86,7 +111,7 @@ public class ChangeTokenAutheticationMiddlewares
                         httpContext.Response.Cookies.Append("token", newAccessToken.AccessToken, new CookieOptions
                         {
                             Expires = newAccessToken.Expires.AddDays(7),
-                            HttpOnly = true,
+                            HttpOnly = false,
                             SameSite = SameSiteMode.None,
                             Secure = true,
                         });
@@ -128,6 +153,11 @@ public static class TokenAutheticationMiddelwareExtensions
     {
         return builder.UseMiddleware<TokenAutheticationMiddlewares>();
     }
+    /// <summary>
+    /// Change token Authetication
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
     public static IApplicationBuilder UseChangeTokenAuthetication(this IApplicationBuilder builder)
     {
         return builder.UseMiddleware<ChangeTokenAutheticationMiddlewares>();

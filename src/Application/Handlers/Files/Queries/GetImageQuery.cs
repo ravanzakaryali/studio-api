@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.StaticFiles;
+﻿using Microsoft.AspNetCore.StaticFiles;
 using System.Net.Mime;
 
 namespace Space.Application.Handlers;
@@ -7,18 +6,16 @@ public record GetImageQuery(string ImageName) : IRequest<FileContentResponseDto>
 
 internal class GetImageQueryHandler : IRequestHandler<GetImageQuery, FileContentResponseDto>
 {
-    readonly IWebHostEnvironment _webHostEnvironment;
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetImageQueryHandler(IWebHostEnvironment webHostEnvironment, IUnitOfWork unitOfWork)
+    public GetImageQueryHandler(ISpaceDbContext spaceDbContext)
     {
-        _webHostEnvironment = webHostEnvironment;
-        _unitOfWork = unitOfWork;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<FileContentResponseDto> Handle(GetImageQuery request, CancellationToken cancellationToken)
     {
-        E.File file = await _unitOfWork.FileRepository.GetAsync(f => f.FileName == request.ImageName)
+        E.File file = await _spaceDbContext.Files.Where(f => f.FileName == request.ImageName).FirstOrDefaultAsync()
             ?? throw new NotFoundException("Image not found");
         if (!IO.File.Exists(file.Path)) throw new NotFoundException("File not found");
         FileExtensionContentTypeProvider provider = new();

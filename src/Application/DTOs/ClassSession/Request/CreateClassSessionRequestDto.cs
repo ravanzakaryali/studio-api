@@ -2,7 +2,6 @@
 
 public class CreateClassSessionRequestDto
 {
-    public Guid ClassId { get; set; }
     public IEnumerable<CreateClassSessionDto> Sessions { get; set; } = null!;
 }
 public class CreateClassSessionDto

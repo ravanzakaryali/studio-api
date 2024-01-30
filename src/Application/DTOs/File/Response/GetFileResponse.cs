@@ -2,6 +2,6 @@
 
 public class GetFileResponse
 {
-    public Guid Id { get; set; }
-    public string Path { get; set; }
+    public int Id { get; set; }
+    public string? Path { get; set; } 
 }

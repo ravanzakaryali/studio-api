@@ -4,90 +4,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Space.WebAPI.Controllers;
 
-/// <summary>
-/// Class sessions controller
-/// </summary>
 [Authorize(Roles = "admin")]
 public class ClassSessionsController : BaseApiController
 {
-    /// <summary>
-    /// Creates a class session based on the provided details.
-    /// </summary>
-    /// <param name="request">A JSON object containing details for creating the class session.</param>
-    /// <returns>
-    /// An HTTP response with a status code 204 (No Content) upon successful creation of the class session.
-    /// </returns>
-    /// <remarks>
-    /// This endpoint allows authorized users to create a class session by providing a JSON object with details
-    /// for the class session. It is typically used to create a new session for a class, and it returns a 204
-    /// status code upon successful creation.
-    /// </remarks>
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> Create([FromBody] CreateClassSessionRequestDto request)
-    {
-        await Mediator.Send(new CreateClassSessionCommand()
-        {
-            ClassId = request.ClassId,
-            Sessions = request.Sessions,
-        });
-        return NoContent();
-    }
 
-    /// <summary>
-    /// Updates a class session's date and attendance based on the provided details.
-    /// </summary>
-    /// <param name="request">A JSON object containing details for updating the class session.</param>
-    /// <returns>
-    /// An HTTP response with a status code 204 (No Content) upon successful update of the class session.
-    /// </returns>
-    /// <remarks>
-    /// This endpoint allows authorized users to update a class session's date and attendance by providing a JSON object
-    /// with the necessary details. It is typically used to update the date and attendance of an existing class session,
-    /// and it returns a 204 status code upon successful update.
-    /// </remarks>
-    [HttpPut("/api/class-sessions")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateClassSessionAttendance([FromBody] UpdateClassSessionByDateRequestDto request)
-    {
-        await Mediator.Send(new UpdateClassSessionByDateCommand(request.ClassId, request.OldDate, request.NewDate, request.Sessions));
-        return NoContent();
-    }
-
-    /// <summary>
-    /// Retrieves details of a specific class session based on its unique identifier and date.
-    /// </summary>
-    /// <param name="id">The unique identifier of the class session to retrieve details for.</param>
-    /// <param name="date">The date of the class session to retrieve details for.</param>
-    /// <returns>
-    /// An HTTP response with a status code 200 (OK) containing details of the specified class session upon successful retrieval.
-    /// </returns>
-    /// <remarks>
-    /// This endpoint allows authorized users to retrieve details of a specific class session based on its unique identifier
-    /// and date. It returns a 200 status code along with the requested class session details upon successful retrieval.
-    /// </remarks>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
     [HttpGet("/api/class-sessions/{id}")]
-    public async Task<IActionResult> GetClassSessionDetail([FromRoute] Guid id, [FromQuery] DateTime date)
+    public async Task<IActionResult> GetClassSessionDetail([FromRoute] int id, [FromQuery] DateOnly date)
     {
         return Ok(await Mediator.Send(new GetClassSessionsByDateQuery(id, date)));
     }
 
-    /// <summary>
-    /// Extends a class session by a specified number of hours and updates session details.
-    /// </summary>
-    /// <param name="request">A JSON object containing details for extending the class session.</param>
-    /// <returns>
-    /// An HTTP response with a status code 204 (No Content) upon successful extension of the class session.
-    /// </returns>
-    /// <remarks>
-    /// This endpoint allows authorized users to extend a class session by a specified number of hours and update
-    /// session details by providing a JSON object with the necessary details. It returns a 204 status code upon
-    /// successful extension of the class session.
-    /// </remarks>
     [HttpPost("/api/session-extensions")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -97,4 +25,29 @@ public class ClassSessionsController : BaseApiController
         return NoContent();
     }
 
+    //[HttpPost("bulk-import")]
+    //public async Task<IActionResult> Create(IEnumerable<ClassSessionImport> import)
+    //{
+    //    var classSessions = await SpaceDbContext.ClassSessions.Include(c => c.AttendancesWorkers).Where(c => c.Category == Domain.Enums.ClassSessionCategory.Theoric).ToListAsync();
+    //    foreach (ClassSessionImport item in import)
+    //    {
+    //        var session = classSessions.FirstOrDefault(c => c.Date == item.Date && c.ClassId == item.ClassId);
+    //        session?.AttendancesWorkers.Add(new Domain.Entities.AttendanceWorker()
+    //        {
+    //            ClassSessionId = session.Id,
+    //            TotalAttendanceHours = session.TotalHour,
+    //            RoleId = new int("39489493-d615-49e2-a0ce-507eaf38f234"),
+    //            WorkerId = item.WorkerId
+    //        });
+    //    }
+    //    await SpaceDbContext.SaveChangesAsync();
+    //    return Ok();
+    //}
+    //public class ClassSessionImport
+    //{
+    //    public DateTime Date { get; set; }
+    //    public int ClassId { get; set; }
+    //    public int WorkerId { get; set; }
+    //    public int TotalHour { get; set; }
+    //}
 }

@@ -1,25 +1,30 @@
 ﻿namespace Space.Application.Handlers;
 
-public record CreateSessionDetailCommand(Guid Id, CreateSessionDetailRequestDto Details) : IRequest<GetSessionWithDetailsResponseDto>;
+public record CreateSessionDetailCommand(int Id, CreateSessionDetailRequestDto Details) : IRequest<GetSessionWithDetailsResponseDto>;
 internal class CreateSessionDetailCommandHandler : IRequestHandler<CreateSessionDetailCommand, GetSessionWithDetailsResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public CreateSessionDetailCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateSessionDetailCommandHandler(
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetSessionWithDetailsResponseDto> Handle(CreateSessionDetailCommand request, CancellationToken cancellationToken)
     {
-        Session? session = await _unitOfWork.SessionRepository.GetAsync(a=>a.Id == request.Id,includeProperties: "Details") ?? 
-                throw new NotFoundException(nameof(Session),request.Id);
+        Session? session = await _spaceDbContext.Sessions
+            .Include(c => c.Details)
+            .Where(c => c.Id == request.Id)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Session), request.Id);
         SessionDetail newSessionDetail = _mapper.Map<SessionDetail>(request.Details);
         newSessionDetail.SessionId = session.Id;
-        await _unitOfWork.SessionDetailRepository.AddAsync(newSessionDetail);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _spaceDbContext.SessionDetails.AddAsync(newSessionDetail, cancellationToken);
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
         return _mapper.Map<GetSessionWithDetailsResponseDto>(session);
     }
 }

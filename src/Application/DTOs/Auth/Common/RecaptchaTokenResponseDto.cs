@@ -4,7 +4,7 @@ namespace Space.Application.DTOs;
 
 public class RecaptchaTokenResponseDto
 {
-    public bool success { get; set; }
-    public DateTime challenge_ts { get; set; }
-    public string hostname { get; set; }
+    public bool Success { get; set; }
+    public DateTime Challenge_ts { get; set; }
+    public string Hostname { get; set; } = null!;
 }

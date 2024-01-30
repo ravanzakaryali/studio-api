@@ -1,73 +1,69 @@
-﻿using System;
+﻿namespace Space.Application.Handlers;
 
-namespace Space.Application.Handlers
+public record GetAllWorkersWithDetailsQuery : IRequest<IEnumerable<GetAllWorkersWithDetailsResponseDto>>;
+
+internal class GetAllWorkersWithDetailsQueryHandler : IRequestHandler<GetAllWorkersWithDetailsQuery, IEnumerable<GetAllWorkersWithDetailsResponseDto>>
 {
-    public record GetAllWorkersWithDetailsQuery : IRequest<IEnumerable<GetAllWorkersWithDetailsResponseDto>>;
 
+    readonly ISpaceDbContext _spaceDbContext;
 
-    internal class GetAllWorkersWithDetailsQueryHandler : IRequestHandler<GetAllWorkersWithDetailsQuery, IEnumerable<GetAllWorkersWithDetailsResponseDto>>
+    public GetAllWorkersWithDetailsQueryHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        readonly IUnitOfWork _unitOfWork;
+        _spaceDbContext = spaceDbContext;
+    }
 
+    public async Task<IEnumerable<GetAllWorkersWithDetailsResponseDto>> Handle(GetAllWorkersWithDetailsQuery request, CancellationToken cancellationToken)
+    {
 
-        public GetAllWorkersWithDetailsQueryHandler(IUnitOfWork unitOfWork)
+        List<Worker> workers = await _spaceDbContext.Workers.Include(c => c.UserRoles).ToListAsync();
+        List<ClassModulesWorker> workersClasses = await _spaceDbContext.ClassModulesWorkers.Include(c => c.Class).ToListAsync();
+
+        var response = new List<GetAllWorkersWithDetailsResponseDto>();
+
+        foreach (var item in workers)
         {
-            _unitOfWork = unitOfWork;
- 
-        }
-
-        public async Task<IEnumerable<GetAllWorkersWithDetailsResponseDto>> Handle(GetAllWorkersWithDetailsQuery request, CancellationToken cancellationToken)
-        {
-
-            var workers = await _unitOfWork.WorkerRepository.GetAllAsync(predicate: null, tracking: false, "UserRoles");
-            var workersClasses = await _unitOfWork.ClassModulesWorkerRepository.GetAllAsync(predicate: null, tracking: false, "Class");
-
-            var response = new List<GetAllWorkersWithDetailsResponseDto>();
-
-            foreach (var item in workers)
+            if (item == null) break;
+            var model = new GetAllWorkersWithDetailsResponseDto
             {
-                var model = new GetAllWorkersWithDetailsResponseDto();
+                EMail = item.Email,
+                Name = item.Name,
+                Surname = item.Surname,
+                Id = item.Id
+            };
+            //model.Roles = item.UserRoles;
 
-                model.EMail = item.Email;
-                model.Name = item.Name;
-                model.Surname = item.Surname;
-                model.Id = item.Id;
-                //model.Roles = item.UserRoles;
+            IEnumerable<ClassModulesWorker> data = workersClasses.Where(q => q.WorkerId == item.Id);
+            List<WorkersClassesDto> workersClassesDtos = new();
 
-                var data = workersClasses.Where(q => q.WorkerId == item.Id);
+            foreach (ClassModulesWorker workerClass in data)
+            {
+                //aynı class var mı kontrol? code review yapılmalı
 
-                var workersClassesDtos = new List<WorkersClassesDto>();
-
-                foreach (var workerClass in data)
+                if (!workersClassesDtos.Any(q => q.ClassId == workerClass.Class.Id))
                 {
-                    //aynı class var mı kontrol? code review yapılmalı
-
-                    if(!workersClassesDtos.Any(q => q.ClassId == workerClass.Class.Id))
+                    WorkersClassesDto workersClassesDto = new()
                     {
-                        var workersClassesDto = new WorkersClassesDto();
-                        workersClassesDto.ClassId = workerClass.Class.Id;
-                        workersClassesDto.ClassName = workerClass.Class.Name;
-                        workersClassesDto.IsOpen = workerClass.Class.EndDate > DateTime.Now ? true : false;
-                        workersClassesDto.StartDate = workerClass.Class.StartDate;
-                        workersClassesDto.EndDate = workerClass.Class.EndDate;
+                        ClassId = workerClass.Class.Id,
+                        ClassName = workerClass.Class.Name,
+                        IsOpen = workerClass.Class.EndDate > DateOnly.FromDateTime(DateTime.Now),
+                        StartDate = workerClass.Class.StartDate,
+                        EndDate = workerClass.Class.EndDate
+                    };
 
-
-
-                        workersClassesDtos.Add(workersClassesDto);
-                    }
-                 
+                    workersClassesDtos.Add(workersClassesDto);
                 }
-
-                model.WorkerClasses = workersClassesDtos;
-
-                response.Add(model);
 
             }
 
+            model.WorkerClasses = workersClassesDtos;
 
-            return response;
+            response.Add(model);
+
         }
-    }
 
+
+        return response;
+    }
 }
 

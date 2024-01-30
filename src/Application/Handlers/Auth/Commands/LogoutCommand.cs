@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Space.Application.DTOs;
-
-namespace Space.Application.Handlers.Auth;
+﻿namespace Space.Application.Handlers;
 
 public record LogoutCommand : IRequest { }
 
@@ -11,7 +8,10 @@ internal class LogoutCommandHandler : IRequestHandler<LogoutCommand>
     readonly ICurrentUserService _currentUserService;
     readonly UserManager<User> _userManager;
 
-    public LogoutCommandHandler(IHttpContextAccessor contextAccessor, ICurrentUserService currentUserService, UserManager<User> userManager)
+    public LogoutCommandHandler(
+        IHttpContextAccessor contextAccessor,
+        ICurrentUserService currentUserService,
+        UserManager<User> userManager)
     {
         _contextAccessor = contextAccessor;
         _currentUserService = currentUserService;
@@ -22,7 +22,7 @@ internal class LogoutCommandHandler : IRequestHandler<LogoutCommand>
     {
         string? userId = _currentUserService.UserId
             ?? throw new Exception("User not login");
-        User? user = await _userManager.FindByIdAsync(userId.ToString())
+        _ = await _userManager.FindByIdAsync(userId.ToString())
             ?? throw new UnauthorizedAccessException();
         _contextAccessor.HttpContext?.Response.Cookies.Delete("token", new CookieOptions()
         {

@@ -3,36 +3,33 @@
 namespace Space.Application.Handlers;
 
 
-public record GetWorkerGeneralReportQuery(Guid Id) : IRequest<GetWorkerGeneralReportResponseDto>;
+public record GetWorkerGeneralReportQuery(int Id) : IRequest<GetWorkerGeneralReportResponseDto>;
 
 
 internal class GetWorkerGeneralReportQueryHandler : IRequestHandler<GetWorkerGeneralReportQuery, GetWorkerGeneralReportResponseDto>
 {
+    readonly ISpaceDbContext _spaceDbContext;
 
-    readonly IUnitOfWork _unitOfWork;
-
-    public GetWorkerGeneralReportQueryHandler(IUnitOfWork unitOfWork)
+    public GetWorkerGeneralReportQueryHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetWorkerGeneralReportResponseDto> Handle(GetWorkerGeneralReportQuery request, CancellationToken cancellationToken)
     {
-        var worker = await _unitOfWork.WorkerRepository.GetAsync(q => q.Id == request.Id);
-
-        if (worker == null)
+        Worker worker = await _spaceDbContext.Workers.FindAsync(request.Id) ??
             throw new NotFoundException(nameof(Worker), request.Id);
 
-        //var classSessions = await _unitOfWork.ClassSessionRepository.GetAllAsync(q => q.WorkerId == request.Id, tracking: false, "Class");
 
-
-        var response = new GetWorkerGeneralReportResponseDto();
-        response.EMail = worker.Email;
-        response.Name = worker.Name;
-        response.Surname = worker.Surname;
-        response.CompletedClasses = new List<GetWorkerClassesForGeneralReportDto>();
-        response.UnCompletedClasses = new List<GetWorkerClassesForGeneralReportDto>();
+        GetWorkerGeneralReportResponseDto response = new()
+        {
+            EMail = worker.Email,
+            Name = worker.Name,
+            Surname = worker.Surname,
+            CompletedClasses = new List<GetWorkerClassesForGeneralReportDto>(),
+            UnCompletedClasses = new List<GetWorkerClassesForGeneralReportDto>()
+        };
 
 
 

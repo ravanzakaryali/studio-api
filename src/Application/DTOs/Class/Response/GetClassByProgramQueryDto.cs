@@ -1,10 +1,8 @@
-﻿using System;
-namespace Space.Application.DTOs.Class.Response
+﻿namespace Space.Application.DTOs;
+
+public class GetClassByProgramQueryDto
 {
-    public class GetClassByProgramQueryDto
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-    }
+    public int Id { get; set; }
+    public string Name { get; set; } = null!;
 }
 

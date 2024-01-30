@@ -10,7 +10,6 @@
 		<UserSecretsId>16abf8bc-449f-46d1-8d44-0289bd621720</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileContext>..\..</DockerfileContext>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(RunConfiguration)' == 'WebAPI' " />

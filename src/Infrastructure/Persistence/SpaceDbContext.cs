@@ -5,7 +5,9 @@ using Space.Domain.Entities;
 
 namespace Space.Infrastructure.Persistence;
 
-public class SpaceDbContext : IdentityDbContext<User, Role, Guid, IdentityUserClaim<Guid>, UserRole, IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>, ISpaceDbContext
+public class SpaceDbContext :
+    IdentityDbContext<User, Role, int, IdentityUserClaim<int>, UserRole, IdentityUserLogin<int>, IdentityRoleClaim<int>, IdentityUserToken<int>>,
+    ISpaceDbContext
 {
     private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
     public SpaceDbContext(
@@ -17,11 +19,14 @@ public class SpaceDbContext : IdentityDbContext<User, Role, Guid, IdentityUserCl
     }
     #region Class
     public DbSet<Class> Classes => Set<Class>();
+    public DbSet<ClassSession> ClassSessions => Set<ClassSession>();
     public DbSet<Room> Rooms => Set<Room>();
+    public DbSet<HeldModule> HeldModules => Set<HeldModule>();
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<SessionDetail> SessionDetails => Set<SessionDetail>();
     public DbSet<ClassModulesWorker> ClassModulesWorkers => Set<ClassModulesWorker>();
-    public DbSet<ClassSession> ClassSessions => Set<ClassSession>();
+    public DbSet<ClassExtraModulesWorkers> ClassExtraModulesWorkers => Set<ClassExtraModulesWorkers>();
+    public DbSet<ClassTimeSheet> ClassTimeSheets => Set<ClassTimeSheet>();
     public DbSet<Attendance> Attendances => Set<Attendance>();
     public DbSet<AttendanceWorker> AttendancesWorkers => Set<AttendanceWorker>();
     #endregion
@@ -36,6 +41,7 @@ public class SpaceDbContext : IdentityDbContext<User, Role, Guid, IdentityUserCl
     #endregion
     #region Program
     public DbSet<Module> Modules => Set<Module>();
+    public DbSet<ExtraModule> ExtraModules => Set<ExtraModule>();
     public DbSet<Program> Programs => Set<Program>();
     #endregion
     #region Student

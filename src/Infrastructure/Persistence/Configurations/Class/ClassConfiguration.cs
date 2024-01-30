@@ -10,5 +10,11 @@ internal class ClassConfiguration : IEntityTypeConfiguration<Class>
             .HasOne(c => c.Program)
             .WithMany(p => p.Classes)
             .HasForeignKey(c => c.ProgramId);
+
+        builder.Property(e => e.EndDate)
+             .HasConversion(new DateOnlyDbConverter());
+
+        builder.Property(e => e.StartDate)
+             .HasConversion(new DateOnlyDbConverter());
     }
 }

@@ -1,36 +1,71 @@
 ﻿namespace Space.Application.Handlers;
 
-public record UpdateHolidayCommand(Guid Id, UpdateHolidayRequestDto UpdateHoliday) : IRequest<HolidayResponseDto>;
+public record UpdateHolidayCommand(int Id, UpdateHolidayRequestDto UpdateHoliday) : IRequest<HolidayResponseDto>;
 
 internal class UpdateHolidayCommandHandler : IRequestHandler<UpdateHolidayCommand, HolidayResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
 
-    public UpdateHolidayCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public UpdateHolidayCommandHandler(
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<HolidayResponseDto> Handle(UpdateHolidayCommand request, CancellationToken cancellationToken)
     {
-        Holiday holiday = await _unitOfWork.HolidayRepository.GetAsync(request.Id, tracking: false)
-            ?? throw new NotFoundException(nameof(Holiday), request.Id);
-        Holiday updateHoliday = _mapper.Map<Holiday>(request.UpdateHoliday);
+        Holiday holiday = await _spaceDbContext.Holidays.FindAsync(request.Id)
+           ?? throw new NotFoundException(nameof(Holiday), request.Id);
+
+         #region Update Holiday Date
+        List<DateOnly> holidayDates = new();
+        for (DateOnly date = holiday.StartDate; date <= holiday.EndDate; date = date.AddDays(1))
+        {
+            holidayDates.Add(date);
+        }
+        #endregion
 
 
-        //#region Update Holiday Date
-        //List<DateTime> updateHolidayDates = new();
-        //for (DateOnly date = holiday.StartDate; date <= holiday.EndDate; date = date.AddDays(1))
-        //{
-        //    updateHolidayDates.Add(date.ToDateTime(new TimeOnly(0, 0)));
-        //}
-        //#endregion
+        //all classsessions isHoliday false
+        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
+             .Where(cs => cs.Date >= holiday.StartDate && cs.Date <= holiday.EndDate)
+             .ToListAsync(cancellationToken);
 
-        updateHoliday.Id = holiday.Id;
-        _unitOfWork.HolidayRepository.Update(updateHoliday);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return _mapper.Map<HolidayResponseDto>(updateHoliday);
+        classSessions.ForEach(cs => cs.IsHoliday = false);
+
+        Holiday updateHoliday = new(){
+            Id = holiday.Id,
+            StartDate = request.UpdateHoliday.StartDate,
+            EndDate = request.UpdateHoliday.EndDate,
+            Description = request.UpdateHoliday.Description,
+        };
+
+
+         #region New Holiday Date
+        List<DateOnly> newHolidayDates = new();
+        for (DateOnly date = updateHoliday.StartDate; date <= updateHoliday.EndDate; date = date.AddDays(1))
+        {
+            holidayDates.Add(date);
+        }
+        #endregion
+
+         List<ClassSession> newHolidayClassSessions = await _spaceDbContext.ClassSessions
+             .Where(cs => cs.Date >= holiday.StartDate && cs.Date <= holiday.EndDate)
+             .ToListAsync(cancellationToken);
+
+        newHolidayClassSessions.ForEach(cs => cs.IsHoliday = true);
+
+        _spaceDbContext.Holidays.Update(updateHoliday);
+        await _spaceDbContext.SaveChangesAsync();
+        return new HolidayResponseDto(){
+            Description = updateHoliday.Description,
+            ClassId = updateHoliday.ClassId,
+            EndDate = updateHoliday.EndDate,
+            StartDate = updateHoliday.StartDate,
+            Id = updateHoliday.Id
+        };
     }
 }

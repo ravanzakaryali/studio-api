@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-
-namespace Space.WebAPI.Controllers;
+﻿namespace Space.WebAPI.Controllers;
 
 /// <summary>
 /// Support controller
@@ -64,7 +62,7 @@ public class SupportsController : BaseApiController
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
+    public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         await Mediator.Send(new DeleteSupportCommand(id));
         return NoContent();
@@ -85,6 +83,6 @@ public class SupportsController : BaseApiController
     /// </remarks>
     [Authorize(Roles = "admin")]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetAsync([FromRoute] Guid id)
+    public async Task<IActionResult> GetAsync([FromRoute] int id)
         => Ok(await Mediator.Send(new GetSupportQuery(id)));
 }

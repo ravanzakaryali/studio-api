@@ -14,7 +14,7 @@ public class UserService : IUserService
         _userManager = userManager;
     }
 
-    public async Task<User> FindById(Guid id)
+    public async Task<User> FindById(int id)
          => await _userManager.FindByIdAsync(id.ToString()) ??
             throw new NotFoundException("User", id);
     public async Task<User> FindByEmailAsync(string email)
@@ -24,10 +24,11 @@ public class UserService : IUserService
        => await _userManager.FindByNameAsync(username) ??
            throw new NotFoundException("User", username);
 
-    public async Task PasswordAssignAsync(Guid id, string password)
+    public async Task PasswordAssignAsync(int id, string password)
     {
         User user = await _userManager.FindByIdAsync(id.ToString());
-        IdentityResult results = new();
+        _ = new IdentityResult();
+        IdentityResult results;
         if (!await _userManager.HasPasswordAsync(user))
         {
             results = await _userManager.AddPasswordAsync(user, password);
@@ -46,7 +47,8 @@ public class UserService : IUserService
     }
     public async Task UpdateRefreshToken(string refreshToken, Token token, int addMinute = 15)
     {
-        User? user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+        User? user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken)
+            ?? throw new NotFoundException(nameof(User));
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpires = token.Expires.AddMinutes(addMinute);
     }

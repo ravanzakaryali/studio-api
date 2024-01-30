@@ -116,16 +116,16 @@ public class SchedulesController : BaseApiController
     }
 
     /// <summary>
-/// Retrieves schedules of workers.
-/// </summary>
-/// <returns>
-/// An HTTP response with a status code 200 (OK) upon successful retrieval of schedules of workers.
-/// </returns>
-/// <remarks>
-/// This endpoint allows users to retrieve schedules of workers. It sends a query to the mediator to fetch
-/// schedules of workers. Upon successful retrieval, it returns an HTTP response with a status code 200 (OK)
-/// to indicate the success of the operation.
-/// </remarks>
+    /// Retrieves schedules of workers.
+    /// </summary>
+    /// <returns>
+    /// An HTTP response with a status code 200 (OK) upon successful retrieval of schedules of workers.
+    /// </returns>
+    /// <remarks>
+    /// This endpoint allows users to retrieve schedules of workers. It sends a query to the mediator to fetch
+    /// schedules of workers. Upon successful retrieval, it returns an HTTP response with a status code 200 (OK)
+    /// to indicate the success of the operation.
+    /// </remarks>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
     [HttpGet("schedule-of-workers")]

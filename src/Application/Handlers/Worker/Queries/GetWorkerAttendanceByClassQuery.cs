@@ -2,24 +2,28 @@
 
 namespace Space.Application.Handlers
 {
-    public record GetWorkerAttendanceByClassQuery(Guid Id) : IRequest<IEnumerable<GetWorkerAttendanceByClassDto>>;
+    public record GetWorkerAttendanceByClassQuery(int Id) : IRequest<IEnumerable<GetWorkerAttendanceByClassDto>>;
 
 
     internal class GetWorkerAttendanceByClassQueryHandler : IRequestHandler<GetWorkerAttendanceByClassQuery, IEnumerable<GetWorkerAttendanceByClassDto>>
     {
 
-        readonly IUnitOfWork _unitOfWork;
-
-        public GetWorkerAttendanceByClassQueryHandler(IUnitOfWork unitOfWork)
+        readonly ISpaceDbContext _spaceDbContext;
+        public GetWorkerAttendanceByClassQueryHandler(
+            ISpaceDbContext spaceDbContext)
         {
-            _unitOfWork = unitOfWork;
+            _spaceDbContext = spaceDbContext;
         }
 
+        //Todo: İstifadə olunmur
         public async Task<IEnumerable<GetWorkerAttendanceByClassDto>> Handle(GetWorkerAttendanceByClassQuery request, CancellationToken cancellationToken)
         {
-            var data = await _unitOfWork.ClassSessionRepository.GetAllAsync(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline));
 
-            var response = new List<GetWorkerAttendanceByClassDto>();
+            //List<ClassTimeSheet> data = await _spaceDbContext.ClassSessions
+            //    .Where(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline))
+            //    .ToListAsync();
+
+            List<GetWorkerAttendanceByClassDto> response = new();
 
             //var data2 = data.GroupBy(q => q.WorkerId).Select(q => new
             //{
@@ -28,7 +32,7 @@ namespace Space.Application.Handlers
             //});
 
 
-           
+
             //foreach (var item in data2)
             //{
             //    GetWorkerAttendanceByClassDto model = new GetWorkerAttendanceByClassDto();
@@ -50,7 +54,7 @@ namespace Space.Application.Handlers
             //            }
             //        }
             //    }
-                
+
 
             //    model.Role = roles;
 

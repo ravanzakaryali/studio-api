@@ -4,7 +4,7 @@ namespace Space.Application.DTOs
 	public class GetWorkersSchedulesResponseDto
 	{
 		public string WorkerName { get; set; } = null!;
-		public List<GetWorkerClassSchedulesResponseDto> ClassSchedules { get; set; }
+		public List<GetWorkerClassSchedulesResponseDto> ClassSchedules { get; set; } = null!;
 	}
 
     public class GetWorkerClassSchedulesResponseDto

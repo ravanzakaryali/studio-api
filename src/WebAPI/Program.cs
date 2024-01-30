@@ -1,28 +1,23 @@
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.Context;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 using Space.Application.Helper;
 using Space.WebAPI.Filters;
-using Space.WebAPI.Middlewares;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Reflection;
 using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-var columnOpts = new ColumnOptions();
+ColumnOptions columnOpts = new ColumnOptions();
 columnOpts.Store.Remove(StandardColumn.Properties);
 columnOpts.Store.Add(StandardColumn.LogEvent);
 columnOpts.PrimaryKey = columnOpts.TimeStamp;
 columnOpts.TimeStamp.NonClusteredIndex = true;
 
 Serilog.Core.Logger log = new LoggerConfiguration()
-    //.WriteTo.Console()
+    .WriteTo.Console()
     .AuditTo.MSSqlServer(builder.Configuration.GetConnectionString("SqlServer"), new MSSqlServerSinkOptions()
     {
         TableName = "Logs",
@@ -89,7 +84,7 @@ builder.Services.Configure<ClientRateLimitOptions>(options =>
             {
                 Endpoint = "*",
                 Period = "1s",
-                Limit = 3
+                Limit = 10
             },
             new RateLimitRule
             {
@@ -101,7 +96,7 @@ builder.Services.Configure<ClientRateLimitOptions>(options =>
             {
                 Endpoint = "*",
                 Period = "1h",
-                Limit = 300
+                Limit = 600
             },
             new RateLimitRule
             {
@@ -133,9 +128,9 @@ builder.Services.Configure<ClientRateLimitOptions>(options =>
 
 var app = builder.Build();
 
+app.UseCors();
 app.UseTokenAuthetication();
 app.UseChangeTokenAuthetication();
-
 app.UseRateLimit();
 
 app.UseSerilogRequestLogging();
@@ -151,7 +146,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 
-app.UseCors();
 app.UseExceptionMiddleware();
 
 app.Run();

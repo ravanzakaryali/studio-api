@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Serilog;
-using Space.Domain.Entities;
-using System.Security.Claims;
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public record LoginCommand : IRequest
 {
@@ -16,8 +11,6 @@ internal class LoginCommandHandler : IRequestHandler<LoginCommand>
     readonly IUnitOfWork _unitOfWork;
     readonly IHttpContextAccessor _contextAccessor;
     readonly UserManager<User> _userManager;
-
-
 
     public LoginCommandHandler(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor, UserManager<User> userManager)
     {
@@ -34,6 +27,8 @@ internal class LoginCommandHandler : IRequestHandler<LoginCommand>
         //}
         User user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken: cancellationToken) ??
              throw new NotFoundException(nameof(User), request.Email);
+
+
         LoginResponseDto response = await _unitOfWork.IdentityService.LoginAsync(user, request.Password);
         Token token = _unitOfWork.TokenService.GenerateToken(response.User, TimeSpan.FromSeconds(10), response.Roles);
         string refreshToken = _unitOfWork.TokenService.GenerateRefreshToken();
@@ -43,7 +38,7 @@ internal class LoginCommandHandler : IRequestHandler<LoginCommand>
         _contextAccessor.HttpContext?.Response.Cookies.Append("token", token.AccessToken, new CookieOptions
         {
             Expires = token.Expires.AddDays(7),
-            HttpOnly = true,
+            HttpOnly = false,
             SameSite = SameSiteMode.None,
             Secure = true,
         });

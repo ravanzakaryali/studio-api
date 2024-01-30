@@ -10,7 +10,6 @@
 //using System.Text.RegularExpressions;
 
 //namespace Space.WebAPI.Controllers;
-
 //public class DataImportController : BaseApiController
 //{
 //    private readonly SpaceDbContext _dbContext;
@@ -61,7 +60,7 @@
 //        {
 //            Module module = new()
 //            {
-//                Id = Guid.NewGuid(),
+//                Id = int.Newint(),
 //                Hours = c.Hour,
 //                Name = c.Name,
 //                Version = c.Version.ToString(),
@@ -250,7 +249,7 @@
 
 
 //    //        connection.Open();
-//    //        DataTable sheetsTable = connection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+//    //        DataTable sheetsTable = connection.GetOleDbSchemaTable(OleDbSchemaint.Tables, null);
 
 //    //        List<string> sheetNames = new List<string>();
 

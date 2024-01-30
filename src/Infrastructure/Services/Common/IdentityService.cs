@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Space.Application.DTOs.Auth.Request;
 using Space.Application.Exceptions;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Space.Infrastructure.Services;
 
@@ -32,11 +29,11 @@ public class IdentityService : IIdentityService
     {
         string googleRecaptchaVerifyApi = _configuration["ReCaptcha:VefiyAPIAddress"];
         string googleSecretKey = _configuration["ReCaptcha:SecretKey"];
-        decimal scoreThreshold = decimal.Parse(_configuration["ReCaptcha:ScoreThreshold"]);
+        //decimal scoreThreshold = decimal.Parse(_configuration["ReCaptcha:ScoreThreshold"]);
         using var client = new HttpClient();
         var response = await client.GetStringAsync($"{googleRecaptchaVerifyApi}?secret={googleSecretKey}&response={token}");
         var tokenResponse = JsonSerializer.Deserialize<RecaptchaTokenResponseDto>(response)!;
-        if (!tokenResponse.success)
+        if (!tokenResponse.Success)
         {
             return false;
         }

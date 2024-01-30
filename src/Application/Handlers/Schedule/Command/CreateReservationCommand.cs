@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 
 public class CreateReservationCommand : IRequest<CreateReservationResponseDto>
@@ -13,7 +11,7 @@ public class CreateReservationCommand : IRequest<CreateReservationResponseDto>
     public string? Description { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public Guid RoomId { get; set; }
+    public int RoomId { get; set; }
     public ICollection<string> WorkersId { get; set; }
 }
 
@@ -21,13 +19,13 @@ public class CreateReservationCommand : IRequest<CreateReservationResponseDto>
 
 internal class CreateReservationCommandHandler : IRequestHandler<CreateReservationCommand, CreateReservationResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public CreateReservationCommandHandler(IUnitOfWork unitOfWork)
+    public CreateReservationCommandHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
+        _spaceDbContext = spaceDbContext;
     }
-
     public async Task<CreateReservationResponseDto> Handle(CreateReservationCommand request, CancellationToken cancellationToken)
     {
         Reservation reservation = new()
@@ -36,13 +34,12 @@ internal class CreateReservationCommandHandler : IRequestHandler<CreateReservati
             Description = request.Description,
         };
 
-        await _unitOfWork.ReservationRepository.AddAsync(reservation);
+        await _spaceDbContext.Reservations.AddAsync(reservation);
 
         if (request.StartDate.DayOfYear != request.EndDate.DayOfYear)
         {
 
         }
-
 
         RoomSchedule roomSchedule = new()
         {
@@ -55,8 +52,6 @@ internal class CreateReservationCommandHandler : IRequestHandler<CreateReservati
             DayOfWeek = Convert.ToInt32(request.StartDate.DayOfWeek),
             Year = request.EndDate.Year,
         };
-
-
 
         throw new NotImplementedException();
     }

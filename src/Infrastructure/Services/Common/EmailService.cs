@@ -23,7 +23,7 @@ public class EmailService : IEmailService
         _webHostEnvironment = webHostEnvironment;
     }
 
-    public async Task SendMessageAsync(string message, string email, string subject = "Confirm Code")
+    public async Task SendMessageAsync(string message, string email, string emailTemplate = "EmailTemplate.html", string subject = "Confirm Code")
     {
         string fromMail = _configuration["SMTP:Email"];
         MailMessage mailMessage = new(fromMail, email, subject, message)
@@ -31,7 +31,7 @@ public class EmailService : IEmailService
             IsBodyHtml = true,
             BodyEncoding = Encoding.UTF8,
         };
-        string htmlTemplate = IO.File.ReadAllText(Path.Combine(_webHostEnvironment.WebRootPath, "EmailTemplate.html"));
+        string htmlTemplate = IO.File.ReadAllText(Path.Combine(_webHostEnvironment.WebRootPath, emailTemplate));
         string emailContent = htmlTemplate.Replace("{{link}}", message);
         mailMessage.Body = emailContent;
         await _smtpClient.SendMailAsync(mailMessage);

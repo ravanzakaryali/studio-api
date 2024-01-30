@@ -2,6 +2,9 @@
 
 namespace Space.WebAPI.Controllers;
 
+/// <summary>
+/// Class Module Workers
+/// </summary>
 [Authorize]
 public class ClassModulesWorkerController : BaseApiController
 {
@@ -13,7 +16,7 @@ public class ClassModulesWorkerController : BaseApiController
     ///// <param name="WorkerId">The ID of the Worker.</param>
     ///// <returns>The Worker of the class.</returns>
     //[HttpGet("/classes/{classId}/Worker/{WorkerId}")]
-    //public async Task<IActionResult> Get([FromRoute] Guid classId, [FromRoute] Guid WorkerId)
+    //public async Task<IActionResult> Get([FromRoute] int classId, [FromRoute] int WorkerId)
     //        => StatusCode(200, await Mediator.Send(new GetClassModulesWorkerQuery(classId, WorkerId)));
 
 
@@ -37,14 +40,12 @@ public class ClassModulesWorkerController : BaseApiController
     //public async Task<IActionResult> Create([FromBody] CreateClassModulesWorkerRequestDto request)
     //            => StatusCode(201, await Mediator.Send(new CreateClassModulesWorkerCommand(request.ClassId, request.WorkerId)));
 
-
     ///// <summary>
     ///// Updates the class Worker with the given classId and WorkerId.
     ///// </summary>
     //[HttpPut]
     //public async Task<IActionResult> Update([FromBody] UpdateClassModulesWorkerRequestDto request)
     //                => StatusCode(200, await Mediator.Send(new UpdateClassModulesWorkerCommand(request.ClassId, request.WorkerId)));
-
     ///// <summary>
     ///// Deletes an Worker from a class.
     ///// </summary>
@@ -52,6 +53,6 @@ public class ClassModulesWorkerController : BaseApiController
     ///// <param name="WorkerId">The ID of the Worker.</param>
     ///// <returns>The status code of the operation.</returns>
     //[HttpDelete("/classes/{classId}/Worker/{WorkerId}")]
-    //public async Task<IActionResult> Delete([FromRoute] Guid classId, [FromRoute] Guid WorkerId)
+    //public async Task<IActionResult> Delete([FromRoute] int classId, [FromRoute] int WorkerId)
     //          => StatusCode(200, await Mediator.Send(new DeleteClassModulesWorkerCommand(classId, WorkerId)));
 }

@@ -37,6 +37,7 @@ public class ExceptionHandlingMiddleware
     {
         _unitOfWork = unitOfWork;
         _currentUserService = currentUserService;
+       
         try
         {
 
@@ -44,10 +45,11 @@ public class ExceptionHandlingMiddleware
         }
         catch (DateTimeException ex)
         {
+
             httpContext.Response.ContentType = "application/json";
             httpContext.Response.StatusCode = (int)ex.HttpStatusCode;
 
-            TimeErrorResponse response = new TimeErrorResponse()
+            TimeErrorResponse response = new()
             {
                 Message = ex.Message,
                 Time = ex.Time,
@@ -57,14 +59,16 @@ public class ExceptionHandlingMiddleware
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
 
-            Serilog.Log.Error(ex, "Request {RequestMethod}: {RequestPath} failed Error: {ResponseTitle}, Ip Address: {IpAdress}, Login user {UserName}", httpContext.Request?.Method, httpContext.Request?.Path.Value, response.Message, httpContext.Connection.RemoteIpAddress, httpContext.User?.Identity?.IsAuthenticated != null || true ? httpContext.User?.Identity?.Name : null);
+            Serilog.Log.Error(ex, "Request {RequestMethod}: {RequestPath} failed Error: {ResponseTitle}, Ip Address: {IpAdress}, Login user {UserName}",
+                                   httpContext.Request?.Method, httpContext.Request?.Path.Value, response.Message, httpContext.Connection.LocalIpAddress,
+                                   httpContext.User?.Identity?.IsAuthenticated != null || true ? httpContext.User?.Identity?.Name : null);
 
             string? email = _currentUserService.Email;
             string sendMessage =
                 $"StatusCode: {httpContext.Response.StatusCode},\n\n " +
                 $"Message: '{response.Message}',\n\n " +
                 $"Login User: {email}, \n\n" +
-                $"Endpoint {httpContext.Request.Method}: {httpContext.Request.Path} \n\n";
+                $"Endpoint {httpContext.Request?.Method}: {httpContext.Request?.Path} \n\n";
             _unitOfWork!.TelegramService.SendMessage(sendMessage);
 
 
@@ -111,7 +115,7 @@ public class ExceptionHandlingMiddleware
                 $"StatusCode: {httpContext.Response.StatusCode},\n\n " +
                 $"Message: '{response.Title}',\n\n " +
                 $"Login User: {email}, \n\n" +
-                $"Endpoint {httpContext.Request.Method}: {httpContext.Request.Path} \n\n";
+                $"Endpoint {httpContext.Request?.Method}: {httpContext.Request?.Path} \n\n";
 
             _unitOfWork!.TelegramService.SendMessage(sendMessage);
 

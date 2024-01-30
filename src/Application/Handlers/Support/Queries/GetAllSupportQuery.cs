@@ -4,17 +4,17 @@ public record GetAllSupportQuery : IRequest<IEnumerable<GetSupportResponseDto>>;
 
 internal class GetAllSupportQueryHandler : IRequestHandler<GetAllSupportQuery, IEnumerable<GetSupportResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IStorageService _storage;
+    readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
 
-    public GetAllSupportQueryHandler(IUnitOfWork unitOfWork, IStorageService storage, IMapper mapper)
+    public GetAllSupportQueryHandler(
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _storage = storage;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetSupportResponseDto>> Handle(GetAllSupportQuery request, CancellationToken cancellationToken)
-        => _mapper.Map<IEnumerable<GetSupportResponseDto>>(await _unitOfWork.SupportRepository.GetAllAsync(predicate: null, tracking: false, "SupportImages", "User"));
+        => _mapper.Map<IEnumerable<GetSupportResponseDto>>(await _spaceDbContext.Supports.Include(c => c.SupportImages).Include(c => c.User).ToListAsync());
 }

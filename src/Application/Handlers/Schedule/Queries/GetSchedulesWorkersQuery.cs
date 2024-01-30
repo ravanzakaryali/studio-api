@@ -1,23 +1,26 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public record GetSchedulesWorkersQuery : IRequest<IEnumerable<GetSchedulesWorkersResponseDto>>;
 
 internal class GetSchedulesWorkersQueryHandler : IRequestHandler<GetSchedulesWorkersQuery, IEnumerable<GetSchedulesWorkersResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetSchedulesWorkersQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetSchedulesWorkersQueryHandler(
+        IMapper mapper,
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetSchedulesWorkersResponseDto>> Handle(GetSchedulesWorkersQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Worker> workers = await _unitOfWork.WorkerRepository.GetAllAsync(predicate: null, tracking: false, "ClassModulesWorkers.Class");
+        IEnumerable<Worker> workers = await _spaceDbContext.Workers
+            .Include(c => c.ClassModulesWorkers)
+            .ThenInclude(c => c.Class)
+            .ToListAsync();
 
         List<GetSchedulesWorkersResponseDto> response = new();
         foreach (Worker worker in workers)
@@ -30,13 +33,13 @@ internal class GetSchedulesWorkersQueryHandler : IRequestHandler<GetSchedulesWor
             List<Class> workerClass = worker.ClassModulesWorkers.DistinctBy(c => c.ClassId).Select(c => c.Class).ToList();
             foreach (Class @class in workerClass)
             {
-                DateTime startDate = @class.StartDate ?? DateTime.Now;
-                DateTime endDate = @class.EndDate ?? DateTime.Now;
+                DateOnly startDate = @class.StartDate;
+                DateOnly endDate = @class.EndDate ?? DateOnly.FromDateTime(DateTime.Now);
                 scheduleWorker.Schedules.Add(new GetSchedulesClassDto()
                 {
                     Class = _mapper.Map<GetAllClassDto>(@class),
-                    EndDate = endDate,
-                    StartDate = startDate
+                    //EndDate = endDate,
+                    //StartDate = startDate
                 });
             }
             response.Add(scheduleWorker);

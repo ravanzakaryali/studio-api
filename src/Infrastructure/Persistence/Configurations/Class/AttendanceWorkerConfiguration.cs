@@ -5,5 +5,9 @@ public class AttendanceWorkerConfiguration : IEntityTypeConfiguration<Attendance
     public void Configure(EntityTypeBuilder<AttendanceWorker> builder)
     {
         builder.ConfigureBaseAuditableEntity();
+
+        builder
+            .Property(r => r.AttendanceStatus)
+            .HasConversion(new EnumToStringConverter<AttendanceStatus>());
     }
 }

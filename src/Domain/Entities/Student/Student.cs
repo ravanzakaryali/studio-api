@@ -8,7 +8,7 @@ public class Student : BaseAuditableEntity, IKometa
     }
     public int? KometaId { get; set; }
     public string? Email { get; set; }
-    public Guid? ContactId { get; set; }
+    public int? ContactId { get; set; }
     public Contact? Contact { get; set; }
     public ICollection<Study> Studies { get; set; }
 }

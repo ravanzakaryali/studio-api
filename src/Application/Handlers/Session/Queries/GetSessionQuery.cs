@@ -1,22 +1,25 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetSessionQuery(Guid Id) : IRequest<GetSessionWithDetailsResponseDto>;
+public record GetSessionQuery(int Id) : IRequest<GetSessionWithDetailsResponseDto>;
 
 internal class GetSessionQueryHandler : IRequestHandler<GetSessionQuery, GetSessionWithDetailsResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
     readonly IMapper _mapper;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetSessionQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetSessionQueryHandler(
+        IMapper mapper, ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetSessionWithDetailsResponseDto> Handle(GetSessionQuery request, CancellationToken cancellationToken)
     {
-        Session? session = await _unitOfWork.SessionRepository.GetAsync(s=>s.Id == request.Id,includeProperties: "Details") ?? 
-            throw new NotFoundException(nameof(Session),request.Id);
+        Session? session = await _spaceDbContext.Sessions
+            .Include(c => c.Details)
+            .Where(c => c.Id == request.Id).FirstOrDefaultAsync() ??
+                throw new NotFoundException(nameof(Session), request.Id);
         return _mapper.Map<GetSessionWithDetailsResponseDto>(session);
     }
 }

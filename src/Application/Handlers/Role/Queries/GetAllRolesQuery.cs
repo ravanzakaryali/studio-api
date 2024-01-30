@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 public class GetAllRolesQuery : IRequest<IEnumerable<GetRoleDto>>
 {

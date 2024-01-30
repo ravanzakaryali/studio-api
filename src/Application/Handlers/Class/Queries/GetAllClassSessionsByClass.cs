@@ -1,32 +1,35 @@
 ﻿namespace Space.Application.Handlers;
-
-public record GetAllClassSessionsByClassQuery(Guid Id) : IRequest<IEnumerable<GetAllClassSessionByClassResponseDto>>;
-
+public record GetAllClassSessionsByClassQuery(int Id) : IRequest<IEnumerable<GetAllClassSessionByClassResponseDto>>;
 
 public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClassSessionsByClassQuery, IEnumerable<GetAllClassSessionByClassResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IMapper _mapper;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetAllClassSessionsByClassQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetAllClassSessionsByClassQueryHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetAllClassSessionByClassResponseDto>> Handle(GetAllClassSessionsByClassQuery request, CancellationToken cancellationToken)
     {
+        Class @class = await _spaceDbContext.Classes
+            .Where(c => c.Id == request.Id)
+            .Include(c => c.ClassSessions)
+            .FirstOrDefaultAsync() ??
+                throw new NotFoundException();
 
-        Class @class = await _unitOfWork.ClassRepository.GetAsync(request.Id, false, "ClassSessions") ?? throw new NotFoundException();
-
-
-        var response = @class.ClassSessions.OrderByDescending(q => q.Date).DistinctBy(q => q.Date).Select(q => new GetAllClassSessionByClassResponseDto()
-        {
-            ClassName = q.Class.Name,
-            ClassSessionDate = q.Date,
-            ClassId = q.ClassId,
-            ClassSessionStatus = q.Status
-        });
+        //Todo: review
+        IEnumerable<GetAllClassSessionByClassResponseDto> response = @class.ClassSessions
+        .Where(c => c.IsHoliday == false)
+            .OrderByDescending(q => q.Date).DistinctBy(q => q.Date)
+            .Select(q => new GetAllClassSessionByClassResponseDto()
+            {
+                ClassName = q.Class.Name,
+                ClassSessionDate = q.Date,
+                ClassId = q.ClassId,
+                ClassSessionStatus = q.Status
+            });
 
         return response;
 

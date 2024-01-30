@@ -2,5 +2,5 @@
 
 public interface IEmailService
 {
-    Task SendMessageAsync(string Message, string email, string subject = "Confirm Code");
+    Task SendMessageAsync(string Message, string email, string emailTemplatepath = "EmailTemplate.html", string subject = "Confirm Code");
 }

@@ -6,24 +6,27 @@ public class Class : BaseAuditableEntity, IKometa
     {
         ClassModulesWorkers = new HashSet<ClassModulesWorker>();
         Studies = new HashSet<Study>();
-        ClassSessions = new List<ClassSession>();
+        ClassTimeSheets = new HashSet<ClassTimeSheet>();
+        ClassSessions = new HashSet<ClassSession>();
         RoomSchedules = new HashSet<RoomSchedule>();
+        ClassExtraModulesWorkers = new HashSet<ClassExtraModulesWorkers>();
     }
     public string Name { get; set; } = null!;
     public bool IsNew { get; set; } = false;
-    public Guid ProgramId { get; set; }
+    public int ProgramId { get; set; }
     public Program Program { get; set; } = null!;
-    public Guid SessionId { get; set; }
+    public int SessionId { get; set; }
     public Session Session { get; set; } = null!;
-    public Guid? RoomId { get; set; }
+    public int? RoomId { get; set; }
     public Room? Room { get; set; }
     public int? KometaId { get; set; }
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
-    public DateTime? VitrinDate { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly? EndDate { get; set; }
     public ICollection<Study> Studies { get; set; }
     public ICollection<ClassModulesWorker> ClassModulesWorkers { get; set; }
-    public List<ClassSession> ClassSessions { get; set; }
+    public ICollection<ClassTimeSheet> ClassTimeSheets { get; set; }
+    public ICollection<ClassSession> ClassSessions { get; set; }
     public ICollection<RoomSchedule> RoomSchedules { get; set; }
+    public ICollection<ClassExtraModulesWorkers> ClassExtraModulesWorkers { get; set; }
 
 }

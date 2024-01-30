@@ -16,8 +16,8 @@ namespace Space.Application.DTOs
 
     public class GetRoomScheduleSessionsByWeekDto
     {
-        public string SessionName { get; set; } = null!;
-        public string ClassName { get; set; } = null!;
+        public string? SessionName { get; set; } = null!;
+        public string? ClassName { get; set; } = null!;
     }
 }
 

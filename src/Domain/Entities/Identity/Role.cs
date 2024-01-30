@@ -1,6 +1,6 @@
 ﻿namespace Space.Domain.Entities;
 
-public class Role : IdentityRole<Guid>, IBaseEntity
+public class Role : IdentityRole<int>, IBaseEntity
 {
     public Role()
     {

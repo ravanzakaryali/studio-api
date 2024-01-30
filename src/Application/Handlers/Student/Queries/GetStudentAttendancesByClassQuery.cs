@@ -1,59 +1,63 @@
-﻿using System;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 
 
-public record GetStudentAttendancesByClassQuery(Guid Id, Guid classId) : IRequest<GetStudentAttendancesByClassResponseDto>;
+public record GetStudentAttendancesByClassQuery(int Id, int ClassId) : IRequest<GetStudentAttendancesByClassResponseDto>;
 
 
 internal class GetStudentAttendancesByClassQueryHandler : IRequestHandler<GetStudentAttendancesByClassQuery, GetStudentAttendancesByClassResponseDto>
 {
 
-    readonly IUnitOfWork _unitOfWork;
+    readonly ISpaceDbContext _spaceDbContext;
 
-    public GetStudentAttendancesByClassQueryHandler(IUnitOfWork unitOfWork)
+    public GetStudentAttendancesByClassQueryHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<GetStudentAttendancesByClassResponseDto> Handle(GetStudentAttendancesByClassQuery request, CancellationToken cancellationToken)
     {
-        GetStudentAttendancesByClassResponseDto response = new();
+        //Todo: Class session
+        Study study = await _spaceDbContext.Studies
+            .Where(q => q.StudentId == request.Id && q.ClassId == request.ClassId)
+            .Include(c => c.Class)
+            .ThenInclude(c => c!.ClassSessions)
+            .Include(c => c.Student)
+            .ThenInclude(c => c!.Contact)
+            .Include(c => c.Attendances)
+            .ThenInclude(c => c.ClassTimeSheets)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
+                throw new NotFoundException();
 
-        Study study = await _unitOfWork.StudyRepository.GetAsync(q => q.StudentId == request.Id && q.ClassId == request.classId, false, "Class.ClassSessions", "Student.Contact", "Attendances.ClassSession") ?? throw new NotFoundException();
-
-        response.EMail = study.Student?.Email;
-        response.Phone = study.Student.Contact?.Phone;
-        response.Name = study.Student.Contact?.Name;
-        response.FatherName = study.Student.Contact?.FatherName;
-        response.Surname = study.Student.Contact?.Surname;
-        response.Id = study.Student.Id;
-
-
-        var attendanceList = new List<AttendancesDto>();
-
-
-        foreach (var item in study.Attendances)
+        GetStudentAttendancesByClassResponseDto response = new()
         {
-            var attendanceDto = new AttendancesDto()
+            Email = study.Student?.Email,
+            Phone = study.Student?.Contact?.Phone,
+            Name = study.Student?.Contact?.Name,
+            FatherName = study.Student?.Contact?.FatherName,
+            Surname = study.Student?.Contact?.Surname,
+            Id = study.StudentId
+        };
+
+        List<AttendancesDto> attendanceList = new();
+        foreach (Attendance item in study.Attendances)
+        {
+            AttendancesDto attendanceDto = new()
             {
                 AttendanceHours = item.TotalAttendanceHours,
-                Date = item.ClassSession.Date,
-                LessonHours = item.ClassSession.TotalHour,
-                Category = item.ClassSession.Category,
+                Date = item.ClassTimeSheets.Date,
+                LessonHours = item.ClassTimeSheets.TotalHours,
+                Category = item.ClassTimeSheets.Category,
                 Note = item.Note
 
             };
-
             attendanceList.Add(attendanceDto);
         }
-        double? totalHour = (study.Class!.ClassSessions.Where(c => c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online).Sum(c => c.TotalHour));
-        double attendancesHour = study.Attendances.Where(c => c.ClassSession.Category != ClassSessionCategory.Lab).Sum(c => c.TotalAttendanceHours);
+        //Todo: Study class null
+        double? totalHour = (study.Class!.ClassTimeSheets.Where(c => c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online).Sum(c => c.TotalHours));
+        double? attendancesHour = study.Attendances.Where(c => c.ClassTimeSheets.Category != ClassSessionCategory.Lab).Sum(c => c.TotalAttendanceHours);
         response.AttendancePercent = (totalHour != 0 ? attendancesHour / totalHour * 100 : 0) ?? 0;
-
         response.Attendances = attendanceList.OrderByDescending(q => q.Date).ToList();
-
-
         return response;
     }
 }

@@ -1,13 +1,13 @@
 ﻿namespace Space.Domain.Entities;
 
-public class User : IdentityUser<Guid>, IBaseEntity
+public class User : IdentityUser<int>, IBaseEntity
 {
     public User()
     {
         UserRoles = new HashSet<UserRole>();
         Supports = new HashSet<Support>();
     }
-    public override Guid Id { get; set; }
+    public override int Id { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsActive { get; set; }
     public string? Name { get; set; }

@@ -1,26 +1,26 @@
-﻿using System;
-using Space.Domain.Entities;
-
-namespace Space.Application.Handlers;
+﻿namespace Space.Application.Handlers;
 public record GetRoomScheduleSessionsQuery() : IRequest<IEnumerable<GetRoomScheduleSessionsResponseDto>>;
 
 
 internal class GetRoomScheduleSessionsQueryHandler : IRequestHandler<GetRoomScheduleSessionsQuery, IEnumerable<GetRoomScheduleSessionsResponseDto>>
 {
-    readonly IUnitOfWork _unitOfWork;
-
-    public GetRoomScheduleSessionsQueryHandler(IUnitOfWork unitOfWork)
+    readonly ISpaceDbContext _spaceDbContext;
+    public GetRoomScheduleSessionsQueryHandler(
+        ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
+        _spaceDbContext = spaceDbContext;
     }
 
     public async Task<IEnumerable<GetRoomScheduleSessionsResponseDto>> Handle(GetRoomScheduleSessionsQuery request, CancellationToken cancellationToken)
     {
+        //Todo: Session nullable
+        IEnumerable<RoomSchedule> roomScheduleQuery = await _spaceDbContext.RoomSchedules
+            .Include(c => c.Class)
+            .ThenInclude(c => c!.Session)
+            .Where(q => q.Year == 2023)
+            .ToListAsync();
 
-        IEnumerable<RoomSchedule> roomScheduleQuery = await _unitOfWork.RoomScheduleRepository
-                  .GetAllAsync(q => q.Year == 2023, tracking: false, "Class.Session");
-
-        IEnumerable<Room> rooms = await _unitOfWork.RoomRepository.GetAllAsync(tracking: false);
+        IEnumerable<Room> rooms = await _spaceDbContext.Rooms.ToListAsync();
 
 
         List<GetRoomScheduleSessionsResponseDto> response = new();

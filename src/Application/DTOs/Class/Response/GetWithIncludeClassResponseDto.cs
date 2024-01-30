@@ -2,7 +2,7 @@
 
 public class GetWithIncludeClassResponseDto
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; } = null!;
     public GetProgramResponseDto Program { get; set; } = null!;
     public GetRoomResponseDto? Room { get; set; }
