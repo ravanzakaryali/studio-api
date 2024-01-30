@@ -37,7 +37,7 @@ public class ExceptionHandlingMiddleware
     {
         _unitOfWork = unitOfWork;
         _currentUserService = currentUserService;
-       
+
         try
         {
 
