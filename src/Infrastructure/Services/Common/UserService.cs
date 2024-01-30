@@ -15,8 +15,10 @@ public class UserService : IUserService
     }
 
     public async Task<User> FindById(int id)
-         => await _userManager.FindByIdAsync(id.ToString()) ??
-            throw new NotFoundException("User", id);
+    {
+        return await _userManager.FindByIdAsync(id.ToString()) ??
+                     throw new NotFoundException("User", id);
+    }
     public async Task<User> FindByEmailAsync(string email)
         => await _userManager.FindByEmailAsync(email) ??
             throw new NotFoundException("User", email);

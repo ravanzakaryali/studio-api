@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Space.Application.Abstraction.Common;
 using Space.Infrastructure.Persistence.Concrete.Services;
@@ -17,14 +18,14 @@ internal class UnitOfWork : IUnitOfWork
     readonly IMapper _mapper;
     readonly IWebHostEnvironment _webHostEnvironment;
 
-
     public UnitOfWork(
         ISpaceDbContext dbContext,
         IConfiguration configuration,
         UserManager<User> userManager,
         RoleManager<Role> roleManager,
         IMapper mapper,
-        IWebHostEnvironment webHostEnvironment)
+        IWebHostEnvironment webHostEnvironment,
+        IHttpContextAccessor httpContextAccessor)
     {
         _dbContext = dbContext;
         _configuration = configuration;

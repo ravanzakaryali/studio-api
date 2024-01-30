@@ -79,7 +79,20 @@ public class ChangeTokenAutheticationMiddlewares
         {
             if (token != null)
             {
+
                 ClaimsPrincipal claimsPrincipal = tokenService.GetPrincipalFromExpiredToken(token);
+
+                string? loginUserId = claimsPrincipal.GetLoginUserId();
+                if (!int.TryParse(loginUserId, out int res))
+                {
+                    httpContext.Response.Cookies.Append("token", "delete", new CookieOptions
+                    {
+                        Expires = DateTime.Now.AddDays(-1),
+                        HttpOnly = false,
+                        SameSite = SameSiteMode.None,
+                        Secure = true,
+                    });
+                }
 
                 string? tokenExpiration = claimsPrincipal.Claims
                     .FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp)?.Value;
@@ -88,7 +101,7 @@ public class ChangeTokenAutheticationMiddlewares
                 {
                     DateTime expiration = DateTimeOffset.FromUnixTimeSeconds(long.Parse(tokenExpiration)).UtcDateTime;
 
-                    string? loginUserId = claimsPrincipal.GetLoginUserId();
+
                     if (expiration <= DateTime.UtcNow && loginUserId != null)
                     {
                         if (!int.TryParse(loginUserId, out int result))
