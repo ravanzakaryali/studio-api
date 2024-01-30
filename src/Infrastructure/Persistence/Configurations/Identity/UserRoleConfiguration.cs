@@ -5,7 +5,7 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
     public void Configure(EntityTypeBuilder<UserRole> builder)
     {
 
-        builder.ToTable("AspNetUserRoles");
+        builder.ToTable("UserRoles");
         builder.HasOne(d => d.Role)
             .WithMany(p => p.UserRoles)
             .HasForeignKey(d => d.RoleId)
