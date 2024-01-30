@@ -20,7 +20,7 @@ public class WorkersController : BaseApiController
     public async Task<IActionResult> Get([FromRoute] int id)
             => StatusCode(200, await Mediator.Send(new GetWorkerQuery(id)));
 
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] RoleEnum? role)
            => StatusCode(200, await Mediator.Send(new GetAllWorkerQuery(role)));
