@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Space.Infrastructure.Persistence.Migrations
 {
-    public partial class Change_primary_key : Migration
+    public partial class Change_RoleProblem : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -209,6 +209,34 @@ namespace Space.Infrastructure.Persistence.Migrations
                         column: x => x.ContactId,
                         principalTable: "Contacts",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExtraModules",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Hours = table.Column<double>(type: "float", nullable: false),
+                    ProgramId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Version = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "Getutcdate()"),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExtraModules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExtraModules_Programs_ProgramId",
+                        column: x => x.ProgramId,
+                        principalTable: "Programs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -486,7 +514,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ClassId = table.Column<int>(type: "int", nullable: false),
-                    ClassSessionId = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "Getutcdate()"),
@@ -628,6 +655,52 @@ namespace Space.Infrastructure.Persistence.Migrations
                         name: "FK_Files_Supports_SupportId",
                         column: x => x.SupportId,
                         principalTable: "Supports",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClassExtraModulesWorkers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ClassId = table.Column<int>(type: "int", nullable: false),
+                    WorkerId = table.Column<int>(type: "int", nullable: false),
+                    ExtraModuleId = table.Column<int>(type: "int", nullable: false),
+                    RoleId = table.Column<int>(type: "int", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "Getutcdate()"),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClassExtraModulesWorkers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClassExtraModulesWorkers_Classes_ClassId",
+                        column: x => x.ClassId,
+                        principalTable: "Classes",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ClassExtraModulesWorkers_ExtraModules_ExtraModuleId",
+                        column: x => x.ExtraModuleId,
+                        principalTable: "ExtraModules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClassExtraModulesWorkers_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ClassExtraModulesWorkers_Workers_WorkerId",
+                        column: x => x.WorkerId,
+                        principalTable: "Workers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -795,7 +868,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ModuleId = table.Column<int>(type: "int", nullable: false),
+                    ModuleId = table.Column<int>(type: "int", nullable: true),
+                    ExtraModuleId = table.Column<int>(type: "int", nullable: true),
                     ClassTimeSheetId = table.Column<int>(type: "int", nullable: false),
                     TotalHours = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
@@ -815,11 +889,15 @@ namespace Space.Infrastructure.Persistence.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_HeldModules_ExtraModules_ExtraModuleId",
+                        column: x => x.ExtraModuleId,
+                        principalTable: "ExtraModules",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_HeldModules_Modules_ModuleId",
                         column: x => x.ModuleId,
                         principalTable: "Modules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -913,6 +991,26 @@ namespace Space.Infrastructure.Persistence.Migrations
                 column: "SessionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ClassExtraModulesWorkers_ClassId",
+                table: "ClassExtraModulesWorkers",
+                column: "ClassId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClassExtraModulesWorkers_ExtraModuleId",
+                table: "ClassExtraModulesWorkers",
+                column: "ExtraModuleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClassExtraModulesWorkers_RoleId",
+                table: "ClassExtraModulesWorkers",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClassExtraModulesWorkers_WorkerId",
+                table: "ClassExtraModulesWorkers",
+                column: "WorkerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ClassModulesWorkers_ClassId",
                 table: "ClassModulesWorkers",
                 column: "ClassId");
@@ -955,6 +1053,11 @@ namespace Space.Infrastructure.Persistence.Migrations
                 column: "ClassId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ExtraModules_ProgramId",
+                table: "ExtraModules",
+                column: "ProgramId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Files_SupportId",
                 table: "Files",
                 column: "SupportId");
@@ -963,6 +1066,11 @@ namespace Space.Infrastructure.Persistence.Migrations
                 name: "IX_HeldModules_ClassTimeSheetId",
                 table: "HeldModules",
                 column: "ClassTimeSheetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HeldModules_ExtraModuleId",
+                table: "HeldModules",
+                column: "ExtraModuleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HeldModules_ModuleId",
@@ -1082,6 +1190,9 @@ namespace Space.Infrastructure.Persistence.Migrations
                 name: "AttendancesWorkers");
 
             migrationBuilder.DropTable(
+                name: "ClassExtraModulesWorkers");
+
+            migrationBuilder.DropTable(
                 name: "ClassModulesWorkers");
 
             migrationBuilder.DropTable(
@@ -1119,6 +1230,9 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "ClassTimeSheets");
+
+            migrationBuilder.DropTable(
+                name: "ExtraModules");
 
             migrationBuilder.DropTable(
                 name: "Modules");

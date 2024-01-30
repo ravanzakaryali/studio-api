@@ -6,6 +6,9 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
     {
 
         builder.ToTable("UserRoles");
+
+        builder.HasKey(ur => ur.Id);
+
         builder.HasOne(d => d.Role)
             .WithMany(p => p.UserRoles)
             .HasForeignKey(d => d.RoleId)
