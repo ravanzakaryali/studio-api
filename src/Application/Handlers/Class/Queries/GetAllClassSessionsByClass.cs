@@ -16,6 +16,7 @@ public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClas
         Class @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
             .Include(c => c.ClassSessions)
+            .ThenInclude(c => c.ClassTimeSheet)
             .FirstOrDefaultAsync() ??
                 throw new NotFoundException();
 
@@ -28,7 +29,7 @@ public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClas
                 ClassName = q.Class.Name,
                 ClassSessionDate = q.Date,
                 ClassId = q.ClassId,
-                ClassSessionStatus = q.Status
+                ClassSessionStatus = q.ClassTimeSheetId != null ? q.ClassTimeSheet!.Status : null,
             });
 
         return response;
