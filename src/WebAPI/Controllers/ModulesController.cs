@@ -17,6 +17,13 @@ public class ModulesController : BaseApiController
     //         }));
 
     [Authorize(Roles = "admin")]
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> CreateModules([FromBody] CreateModuleWithProgramRequestDto modules)
+        => StatusCode(201, await Mediator.Send(new CreateModuleWithProgramCommand(modules.ProgramId, modules.Modules)));
+
+    [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
