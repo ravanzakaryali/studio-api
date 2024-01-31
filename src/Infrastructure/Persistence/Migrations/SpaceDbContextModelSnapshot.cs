@@ -122,7 +122,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("WorkersId");
 
-                    b.ToTable("ReservationWorker");
+                    b.ToTable("ReservationWorker", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Attendance", b =>
@@ -179,7 +179,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("StudyId");
 
-                    b.ToTable("Attendances");
+                    b.ToTable("Attendances", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.AttendanceWorker", b =>
@@ -244,7 +244,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("WorkerId");
 
-                    b.ToTable("AttendancesWorkers");
+                    b.ToTable("AttendancesWorkers", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Class", b =>
@@ -314,7 +314,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.ToTable("Classes");
+                    b.ToTable("Classes", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassExtraModulesWorkers", b =>
@@ -377,7 +377,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("WorkerId");
 
-                    b.ToTable("ClassExtraModulesWorkers");
+                    b.ToTable("ClassExtraModulesWorkers", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassModulesWorker", b =>
@@ -440,7 +440,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("WorkerId");
 
-                    b.ToTable("ClassModulesWorkers");
+                    b.ToTable("ClassModulesWorkers", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassSession", b =>
@@ -519,7 +519,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("ClassSessions");
+                    b.ToTable("ClassSessions", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassTimeSheet", b =>
@@ -584,7 +584,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.ToTable("ClassTimeSheets");
+                    b.ToTable("ClassTimeSheets", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Contact", b =>
@@ -641,7 +641,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contacts");
+                    b.ToTable("Contacts", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ExtraModule", b =>
@@ -694,7 +694,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProgramId");
 
-                    b.ToTable("ExtraModules");
+                    b.ToTable("ExtraModules", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.File", b =>
@@ -734,7 +734,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Files");
+                    b.ToTable("Files", (string)null);
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("File");
                 });
@@ -791,7 +791,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("HeldModules");
+                    b.ToTable("HeldModules", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Holiday", b =>
@@ -832,7 +832,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.ToTable("Holidays");
+                    b.ToTable("Holidays", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Module", b =>
@@ -889,7 +889,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TopModuleId");
 
-                    b.ToTable("Modules");
+                    b.ToTable("Modules", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Program", b =>
@@ -940,7 +940,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Programs");
+                    b.ToTable("Programs", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Reservation", b =>
@@ -978,7 +978,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Reservations");
+                    b.ToTable("Reservations", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Role", b =>
@@ -1069,7 +1069,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Rooms");
+                    b.ToTable("Rooms", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.RoomSchedule", b =>
@@ -1138,7 +1138,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("RoomSchedules");
+                    b.ToTable("RoomSchedules", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Session", b =>
@@ -1182,7 +1182,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Sessions", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.SessionDetail", b =>
@@ -1245,7 +1245,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.ToTable("SessionDetails");
+                    b.ToTable("SessionDetails", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Student", b =>
@@ -1295,7 +1295,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasFilter("[ContactId] IS NOT NULL");
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Study", b =>
@@ -1352,7 +1352,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Studies");
+                    b.ToTable("Studies", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Support", b =>
@@ -1401,7 +1401,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Supports");
+                    b.ToTable("Supports", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.University", b =>
@@ -1431,7 +1431,7 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Universities");
+                    b.ToTable("Universities", (string)null);
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.User", b =>
@@ -1535,15 +1535,23 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Space.Domain.Entities.UserRole", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
-                    b.HasKey("UserId", "RoleId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserRoles", (string)null);
                 });
