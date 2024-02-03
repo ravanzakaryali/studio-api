@@ -26,6 +26,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         Class? @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
             .Include(c => c.Program)
+            .Include(c => c.ClassTimeSheets)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
@@ -77,43 +78,54 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         List<ClassDateHourDto> classDateTimes = new();
         DateOnly startDateTime = @class.StartDate;
 
+
+
         int count = 0;
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         int totalHour = @class.Program.TotalHours;
 
-        while (totalHour > 0)
+        if (@class.ClassTimeSheets == null || @class.ClassSessions.Any())
         {
-            foreach (SessionDetail? sessionItem in session.Details.OrderBy(c => c.DayOfWeek))
+            while (totalHour > 0)
             {
-                var daysToAdd = ((int)sessionItem.DayOfWeek - (int)startDateTime.DayOfWeek + 7) % 7;
-                int numSelectedDays = session.Details.Count;
-
-                int hour = (sessionItem.EndTime - sessionItem.StartTime).Hours;
-
-
-                DateOnly dateTime = startDateTime.AddDays(count * 7 + daysToAdd);
-
-                if (holidayDates.Contains(dateTime))
+                foreach (SessionDetail? sessionItem in session.Details.OrderBy(c => c.DayOfWeek))
                 {
-                    continue;
-                }
+                    var daysToAdd = ((int)sessionItem.DayOfWeek - (int)startDateTime.DayOfWeek + 7) % 7;
+                    int numSelectedDays = session.Details.Count;
 
-                if (hour != 0)
-                {
-                    classDateTimes.Add(new ClassDateHourDto()
+                    int hour = (sessionItem.EndTime - sessionItem.StartTime).Hours;
+
+
+                    DateOnly dateTime = startDateTime.AddDays(count * 7 + daysToAdd);
+
+                    if (holidayDates.Contains(dateTime))
                     {
-                        DateTime = dateTime,
-                        Hour = hour,
-                    });
-                    if (sessionItem.Category != ClassSessionCategory.Lab)
-                        totalHour -= hour;
-                    if (totalHour <= 0)
-                        break;
+                        continue;
+                    }
 
+                    if (hour != 0)
+                    {
+                        classDateTimes.Add(new ClassDateHourDto()
+                        {
+                            DateTime = dateTime,
+                            Hour = hour,
+                        });
+                        if (sessionItem.Category != ClassSessionCategory.Lab)
+                            totalHour -= hour;
+                        if (totalHour <= 0)
+                            break;
+
+                    }
                 }
+                count++;
             }
-            count++;
         }
+        else
+        {
+
+        }
+
+
 
         classDateTimes = classDateTimes.OrderBy(c => c.DateTime).ToList();
 
@@ -237,7 +249,14 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
 
 
 
-
+        if (modulesReponse[0].StartDate == null)
+        {
+            modulesReponse[0].StartDate = classDateTimes.First().DateTime;
+        }
+        if (modulesReponse.Last().EndDate == null)
+        {
+            modulesReponse.Last().EndDate = classDateTimes.Last().DateTime;
+        }
 
         foreach (GetClassModuleResponseDto moduleItem in modulesReponse)
         {
