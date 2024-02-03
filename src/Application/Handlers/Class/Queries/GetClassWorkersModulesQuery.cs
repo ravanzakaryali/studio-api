@@ -122,6 +122,11 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         }
         else
         {
+            classDateTimes = @class.ClassTimeSheets.Select(c => new ClassDateHourDto()
+            {
+                DateTime = c.Date,
+                Hour = c.TotalHours,
+            }).ToList();
 
         }
 

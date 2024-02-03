@@ -5,6 +5,7 @@ using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 using Space.Application.Helper;
 using Space.WebAPI.Filters;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 
@@ -119,12 +120,11 @@ builder.Services.Configure<ClientRateLimitOptions>(options =>
         };
 });
 
-// builder.Services.AddSwaggerGen(config =>
-// {
-//     config.OperationFilter<AuthenticationRequirementOperationFilter>();
-//     config.IncludeXmlComments(Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".xml"));
-//     config.UseInlineDefinitionsForEnums();
-// });
+builder.Services.AddSwaggerGen(config =>
+{
+    config.OperationFilter<AuthenticationRequirementOperationFilter>();
+    config.UseInlineDefinitionsForEnums();
+});
 
 var app = builder.Build();
 
@@ -138,8 +138,8 @@ app.UseSerilogRequestLogging();
 app.UseHttpLogging();
 
 app.UseStaticFiles();
-// app.UseSwagger();
-// app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
