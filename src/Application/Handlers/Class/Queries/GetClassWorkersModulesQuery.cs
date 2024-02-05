@@ -27,6 +27,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             .Where(c => c.Id == request.Id)
             .Include(c => c.Program)
             .Include(c => c.ClassTimeSheets)
+            .Include(c => c.ClassSessions)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
 
@@ -189,7 +190,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                         {
 
                             foreach (ClassDateHourDto? classDateHour in
-                                                          classDateTimes.Where(c => c.DateTime > modulesReponse[i].SubModules![j - 1].StartDate))
+                                                          classDateTimes.Where(c => c.DateTime > modulesReponse[i].SubModules![j].StartDate))
                             {
                                 //classın sessionlarının saatlarını hesablasın
                                 subModuleSum += classDateHour.Hour;
