@@ -80,7 +80,10 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         List<GetClassModuleWorkers> classes = await query.Select(cd => new GetClassModuleWorkers()
         {
             Id = cd.Id,
-            TotalHour = cd.Program.TotalHours,
+            TotalHour = cd.ClassSessions
+                            .Where(c => c.Status != ClassSessionStatus.Cancelled &&
+                                        c.Category != ClassSessionCategory.Lab)
+                            .Sum(c => c.TotalHours),
             CurrentHour = cd.ClassTimeSheets
                             .Where(c => c.Status != ClassSessionStatus.Cancelled &&
                                         c.Category != ClassSessionCategory.Lab && c.Category != ClassSessionCategory.Practice)
@@ -135,7 +138,7 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         {
             classesResponse = classesResponse.Where(c => c.TotalHour <= request.StartAttendancePercentage);
         }
-        return classesResponse.OrderByDescending(c=>c.CurrentHour);
+        return classesResponse.OrderByDescending(c => c.CurrentHour);
     }
 }
 
