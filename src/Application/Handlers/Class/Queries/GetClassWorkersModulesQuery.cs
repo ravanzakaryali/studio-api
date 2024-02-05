@@ -84,7 +84,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         int totalHour = @class.Program.TotalHours;
 
-        if (@class.ClassTimeSheets == null || @class.ClassSessions.Any())
+        if (@class.ClassSessions == null || !@class.ClassSessions.Any())
         {
             while (totalHour > 0)
             {
