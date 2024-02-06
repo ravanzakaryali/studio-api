@@ -46,11 +46,11 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         }
         else if (request.Status == ClassStatus.Active)
         {
-            query = query.Where(c => now >= c.StartDate && now <= c.EndDate && c.ClassSessions.Count > 0);
+            query = query.Where(c => now > c.StartDate && now < c.EndDate);
         }
         else
         {
-            query = query.Where(c => now < c.StartDate || c.ClassSessions.Count == 0);
+            query = query.Where(c => now < c.StartDate);
         }
         if (request.StartDate is not null)
         {
@@ -80,11 +80,7 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         List<GetClassModuleWorkers> classes = await query.Select(cd => new GetClassModuleWorkers()
         {
             Id = cd.Id,
-            TotalHour = cd.ClassSessions
-                                .Where(c => c.Status != ClassSessionStatus.Cancelled &&
-                                        c.Category != ClassSessionCategory.Lab)
-                                .Sum(c => c.TotalHours)
-            ,
+            TotalHour = cd.Program.TotalHours,
             CurrentHour = cd.ClassTimeSheets
                             .Where(c => c.Status != ClassSessionStatus.Cancelled &&
                                         c.Category != ClassSessionCategory.Lab && c.Category != ClassSessionCategory.Practice)
