@@ -197,7 +197,11 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                             //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
                             if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
                             {
-                                if (modulesReponse[i].SubModules![j].EndDate == null)
+                                //classın sessionlarının saatlarını hesablasın
+                                subModuleSum += (int)modulesReponse[i].SubModules![j].Hours;
+
+                                //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
+                                if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
                                 {
                                     modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
                                 }
