@@ -5,9 +5,9 @@ name: .NET
 
 on:
   push:
-    branches: ["test"]
+    branches: ["main"]
   pull_request:
-    branches: ["test"]
+    branches: ["main"]
 
 jobs:
   build:
@@ -44,7 +44,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/studioapi:dev
+          tags: ${{ secrets.DOCKER_USERNAME }}/studioapi:main
   SSH-Connection-and-create-container:
     runs-on: ubuntu-latest
     needs: docker-build
