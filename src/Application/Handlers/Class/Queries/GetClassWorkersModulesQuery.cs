@@ -143,6 +143,29 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
         }
 
+
+        // foreach (GetClassModuleResponseDto item in modulesReponse)
+        // {
+        //     if (classModulesWorkers.Where(c => c.ModuleId == item.Id).FirstOrDefault() != null)
+        //     {
+        //         item.StartDate = classModulesWorkers.Where(c => c.ModuleId == item.Id).First().StartDate;
+        //         item.EndDate = classModulesWorkers.Where(c => c.ModuleId == item.Id).First().EndDate;
+
+        //     }
+        //     if (item.SubModules != null)
+        //     {
+        //         foreach (SubModuleDtoWithWorker subModules in item.SubModules)
+        //         {
+        //             if (classModulesWorkers.Where(c => c.ModuleId == subModules.Id).FirstOrDefault() != null)
+        //             {
+
+        //                 subModules.StartDate = classModulesWorkers.Where(c => c.ModuleId == subModules.Id).First().StartDate;
+        //                 subModules.EndDate = classModulesWorkers.Where(c => c.ModuleId == subModules.Id).First().EndDate;
+        //             }
+        //         }
+        //     }
+
+        // }
         if (modulesReponse[0].StartDate == null)
         {
 
@@ -154,6 +177,8 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         }
 
         //modulların sayı qədər dövr etsin
+
+
 
 
 
@@ -172,24 +197,24 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                     if (i == 0)
                     {
                         // ilk dÖvrdə ilk modulun start date olduğu üçün onu götürsün.
-                        if (modulesReponse[i].SubModules![0].StartDate == null)
-                        {
-                            modulesReponse[i].SubModules![0].StartDate = modulesReponse[0].StartDate;
-                        }
+                        // if (modulesReponse[i].SubModules![0].StartDate == null)
+                        // {
+                        modulesReponse[i].SubModules![0].StartDate = modulesReponse[0].StartDate;
+                        // }
                     }
                     else
                     {
                         //digər dövlərdə bir əvvəli modulun ən sonuncusnun end date götürsün
-                        if (modulesReponse[i].SubModules![j].StartDate == null)
-                        {
-                            modulesReponse[i].SubModules![j].StartDate = modulesReponse[i - 1].SubModules![^1].EndDate;
-                        }
+                        // if (modulesReponse[i].SubModules![j].StartDate == null)
+                        // {
+                        modulesReponse[i].SubModules![j].StartDate = modulesReponse[i - 1].SubModules![^1].EndDate;
+                        // }
                     }
                     if (j != 0)
                     {
 
                         foreach (ClassDateHourDto? classDateHour in
-                                                      classDateTimes.Where(c => c.DateTime > modulesReponse[i].SubModules![j].StartDate))
+                                                      classDateTimes.Where(c => c.DateTime > modulesReponse[i].SubModules![j - 1].StartDate))
                         {
                             //classın sessionlarının saatlarını hesablasın
                             subModuleSum += classDateHour.Hour;
@@ -197,14 +222,10 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                             //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
                             if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
                             {
-                                //classın sessionlarının saatlarını hesablasın
-                                subModuleSum += (int)modulesReponse[i].SubModules![j].Hours;
-
-                                //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
-                                if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
-                                {
-                                    modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
-                                }
+                                // if (modulesReponse[i].SubModules![j].EndDate == null)
+                                // {
+                                modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
+                                // }
                                 if (j > 0)
                                 {
                                     modulesReponse[i].SubModules![j].StartDate = modulesReponse[i].SubModules![j - 1].EndDate;
@@ -225,10 +246,10 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                             //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
                             if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
                             {
-                                if (modulesReponse[i].SubModules![j].EndDate == null)
-                                {
+                                // if (modulesReponse[i].SubModules![j].EndDate == null)
+                                // {
                                     modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
-                                }
+                                // }
                                 subModuleSum = 0;
                                 break;
                             }
@@ -237,6 +258,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                 }
             }
         }
+
 
 
         if (modulesReponse[0].StartDate == null)
