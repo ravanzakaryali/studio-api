@@ -123,7 +123,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         }
         else
         {
-            classDateTimes = @class.ClassTimeSheets.Select(c => new ClassDateHourDto()
+            classDateTimes = @class.ClassSessions.Select(c => new ClassDateHourDto()
             {
                 DateTime = c.Date,
                 Hour = c.TotalHours,
@@ -248,7 +248,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                             {
                                 // if (modulesReponse[i].SubModules![j].EndDate == null)
                                 // {
-                                    modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
+                                modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
                                 // }
                                 subModuleSum = 0;
                                 break;
