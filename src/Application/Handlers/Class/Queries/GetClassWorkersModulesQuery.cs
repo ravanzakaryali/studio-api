@@ -217,7 +217,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                                                       classDateTimes.Where(c => c.DateTime > modulesReponse[i].SubModules![j - 1].StartDate))
                         {
                             //classın sessionlarının saatlarını hesablasın
-                            subModuleSum += classDateHour.Hour;
+                            subModuleSum += (int)modulesReponse[i].SubModules![j].Hours;
 
                             //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
                             if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
@@ -228,7 +228,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                                 // }
                                 if (j > 0)
                                 {
-                                    modulesReponse[i].SubModules![j].StartDate = modulesReponse[i].SubModules![j - 1].EndDate;
+                                    modulesReponse[i].SubModules![j].StartDate = modulesReponse[i].SubModules![j].EndDate;
                                 }
                                 subModuleSum = 0;
                                 break;
@@ -241,7 +241,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                                                     classDateTimes.Where(c => c.DateTime > modulesReponse[i].SubModules![j].StartDate))
                         {
                             //classın sessionlarının saatlarını  hesablasın
-                            subModuleSum += classDateHour.Hour;
+                            subModuleSum += (int)modulesReponse[i].SubModules![j].Hours;
 
                             //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
                             if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
