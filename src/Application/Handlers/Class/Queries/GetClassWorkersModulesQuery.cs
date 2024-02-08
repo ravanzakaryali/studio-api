@@ -276,7 +276,10 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         modulesReponse.Last().EndDate = classDateTimes.Last().DateTime;
         if (modulesReponse.Last().SubModules != null)
         {
-           modulesReponse.Last().SubModules.Last().EndDate = classDateTimes.Last().DateTime;
+            if (modulesReponse.Last().SubModules.Last().EndDate == null)
+            {
+                modulesReponse.Last().SubModules.Last().EndDate = classDateTimes.Last().DateTime;
+            }
         }
 
 
