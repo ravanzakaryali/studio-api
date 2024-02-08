@@ -238,7 +238,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                     else
                     {
                         foreach (ClassDateHourDto? classDateHour in
-                                                    classDateTimes.Where(c => c.DateTime > modulesReponse[i].SubModules![j].StartDate))
+                                                    classDateTimes.Where(c => c.DateTime >= modulesReponse[i].SubModules![j].StartDate))
                         {
                             //classın sessionlarının saatlarını  hesablasın
                             subModuleSum += classDateHour.Hour;
@@ -265,16 +265,20 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         {
             modulesReponse[0].StartDate = classDateTimes.First().DateTime;
         }
-        if (modulesReponse.Last().EndDate == null)
-        {
-            modulesReponse.Last().EndDate = classDateTimes.Last().DateTime;
-        }
+
 
         foreach (GetClassModuleResponseDto moduleItem in modulesReponse)
         {
             moduleItem.StartDate = moduleItem.SubModules?.Min(c => c.StartDate);
             moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
         }
+
+        modulesReponse.Last().EndDate = classDateTimes.Last().DateTime;
+        if (modulesReponse.Last().SubModules != null)
+        {
+           modulesReponse.Last().SubModules.Last().EndDate = classDateTimes.Last().DateTime;
+        }
+
 
         //Extra modules 
         List<ExtraModule> extraModules = await _spaceDbContext.ExtraModules
