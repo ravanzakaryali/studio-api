@@ -82,7 +82,7 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
         _spaceDbContext.ClassModulesWorkers.RemoveRange(classModulesWorker);
 
         await _spaceDbContext.ClassModulesWorkers.AddRangeAsync(request.CreateClassModule
-        .Where(c => c.WorkerId != null || c.RoleId != null || c.WorkerId == 0 || c.RoleId == 0)
+        .Where(c => c.WorkerId != 0)
         .Select(c =>
         {
             return new ClassModulesWorker()
