@@ -47,6 +47,7 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
         DateOnly startDate = @class.StartDate;
         DateOnly? endDate = @class.EndDate;
 
+        int totalHours = @class.ClassSessions.Sum(c => c.TotalHours);
         if (request.SessionId != null)
         {
             Session session = await _spaceDbContext.Sessions
@@ -60,6 +61,7 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
             (DateOnly StartDate, DateOnly EndDate) responseDate = _unitOfWork.ClassService.CalculateStartAndEndDate(session, @class, holidayDates);
             startDate = responseDate.StartDate;
             endDate = responseDate.EndDate;
+            totalHours = @class.Program.TotalHours;
         }
 
         return new GetClassDetailResponse()
