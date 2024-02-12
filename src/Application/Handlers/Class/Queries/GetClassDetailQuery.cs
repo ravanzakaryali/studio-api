@@ -79,8 +79,7 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
             CurrentHours = classTimeSheets
                 .Where(c => c.ClassSession != null && c.Category != ClassSessionCategory.Practice && c.Category != ClassSessionCategory.Lab)
                 .Sum(c => c.TotalHours),
-            TotalHours = @class.ClassSessions
-                            .Sum(c => c.TotalHours),
+            TotalHours = totalHours,
             Name = @class.Name,
             AttendanceRate = Math.Round(list.Count > 0 ? list.Average() : 0, 2),
             EndDate = endDate,
