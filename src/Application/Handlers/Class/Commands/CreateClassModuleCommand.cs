@@ -99,7 +99,7 @@ internal class CreateClassModuleCommandHandler : IRequestHandler<CreateClassModu
         await _mediator.Send(new CreateClassSessionCommand()
         {
             ClassId = request.ClassId,
-            SessionId = @class.SessionId
+            SessionId = @class.SessionId,
         }, cancellationToken);
 
 
