@@ -61,7 +61,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         }
 
 
-        IEnumerable<int> workerIds = request.CreateClassModuleSessionDto.Modules.Select(c => c.WorkerId);
+        IEnumerable<int> workerIds = request.CreateClassModuleSessionDto.Modules.Where(c => c.WorkerId != null).Select(c => c.WorkerId!.Value);
         //if (@class.Program.Modules.Any(c => moduleIds.Contains(c.Id))) throw new NotFoundException("Modules not found in modules of class program");
         IEnumerable<Worker> workers = await _spaceDbContext.Workers
             .Where(c => workerIds.Contains(c.Id))
@@ -71,7 +71,7 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
         if (nonExistingWorkerIds.Any())
             throw new NotFoundException(nameof(Worker), $"{string.Join(",", nonExistingWorkerIds)}");
 
-        IEnumerable<int> roleIds = request.CreateClassModuleSessionDto.Modules.Select(c => c.RoleId);
+        IEnumerable<int> roleIds = request.CreateClassModuleSessionDto.Modules.Where(c => c.RoleId != null).Select(c => c.RoleId!.Value);
         IEnumerable<Role> roles = await _spaceDbContext.Roles.Where(c => roleIds.Contains(c.Id)).ToListAsync(cancellationToken: cancellationToken);
         IEnumerable<int> nonExistingRoleIds = roles.Select(w => w.Id);
         if (!nonExistingRoleIds.Any())
@@ -82,9 +82,9 @@ internal class CreateClassModuleSessionHandler : IRequestHandler<CreateClassModu
             .ToListAsync(cancellationToken: cancellationToken);
         _spaceDbContext.ClassModulesWorkers.RemoveRange(classModulesWorker);
 
-        IEnumerable<ClassModulesWorker> classModuleWorkers = request.CreateClassModuleSessionDto.Modules.Select(c => new ClassModulesWorker()
+        IEnumerable<ClassModulesWorker> classModuleWorkers = request.CreateClassModuleSessionDto.Modules.Where(c => c.WorkerId != null).Select(c => new ClassModulesWorker()
         {
-            WorkerId = c.WorkerId,
+            WorkerId = c.WorkerId!.Value,
             StartDate = c.StartDate,
             EndDate = c.EndDate,
             ModuleId = c.ModuleId,
