@@ -46,7 +46,7 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         }
         else if (request.Status == ClassStatus.Active)
         {
-            query = query.Where(c => now > c.StartDate && now < c.EndDate && c.ClassSessions.Count > 0);
+            query = query.Where(c => now >= c.StartDate && now <= c.EndDate && c.ClassSessions.Count > 0);
         }
         else
         {

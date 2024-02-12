@@ -47,6 +47,7 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
         DateOnly startDate = @class.StartDate;
         DateOnly? endDate = @class.EndDate;
 
+        int totalHours = @class.ClassSessions.Sum(c => c.TotalHours);
         if (request.SessionId != null)
         {
             Session session = await _spaceDbContext.Sessions
@@ -60,6 +61,7 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
             (DateOnly StartDate, DateOnly EndDate) responseDate = _unitOfWork.ClassService.CalculateStartAndEndDate(session, @class, holidayDates);
             startDate = responseDate.StartDate;
             endDate = responseDate.EndDate;
+            totalHours = @class.Program.TotalHours;
         }
 
         return new GetClassDetailResponse()
@@ -77,8 +79,7 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
             CurrentHours = classTimeSheets
                 .Where(c => c.ClassSession != null && c.Category != ClassSessionCategory.Practice && c.Category != ClassSessionCategory.Lab)
                 .Sum(c => c.TotalHours),
-            TotalHours = @class.ClassSessions
-                            .Sum(c => c.TotalHours),
+            TotalHours = totalHours,
             Name = @class.Name,
             AttendanceRate = Math.Round(list.Count > 0 ? list.Average() : 0, 2),
             EndDate = endDate,
