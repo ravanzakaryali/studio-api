@@ -7,6 +7,14 @@ public class UpdateClassSessionByDateRequestDto
     public IEnumerable<CreateClassSessionDto> Sessions { get; set; } = null!;
 }
 
+public class UpdateClassSessionOneDayRequestDto
+{
+    public int ClassId { get; set; }
+    public DateOnly OldDate { get; set; }
+    public DateOnly NewDate { get; set; }
+    public IEnumerable<UpdateClassSessionDto> Sessions { get; set; } = null!;
+}
+
 
 public class UpdateClassSessionDto
 {

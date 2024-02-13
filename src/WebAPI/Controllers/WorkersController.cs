@@ -8,7 +8,7 @@ namespace Space.WebAPI.Controllers;
 public class WorkersController : BaseApiController
 {
 
-    [Authorize(Roles = "admin,mentor,ta,muellim")]
+    [Authorize(Roles = "admin")]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]

@@ -25,14 +25,14 @@ public class ClassSessionsController : BaseApiController
         return NoContent();
     }
 
-    // [HttpPut("/api/class-sessions")]
-    // [ProducesResponseType(StatusCodes.Status204NoContent)]
-    // [ProducesDefaultResponseType]
-    // public async Task<IActionResult> CreateClassSessionAttendance([FromBody] UpdateClassSessionByDateRequestDto request)
-    // {
-    //     await Mediator.Send(new UpdateClassSessionByDateCommand(request.ClassId, request.OldDate, request.NewDate, request.Sessions));
-    //     return NoContent();
-    // }
+    [HttpPut("/api/class-sessions")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> CreateClassSessionAttendance([FromBody] UpdateClassSessionOneDayRequestDto request)
+    {
+        await Mediator.Send(new UpdateClassSessionOneDayCommand(request.ClassId, request.OldDate, request.NewDate, request.Sessions));
+        return NoContent();
+    }
 
 
     //[HttpPost("bulk-import")]
