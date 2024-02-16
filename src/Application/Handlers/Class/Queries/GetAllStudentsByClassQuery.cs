@@ -59,23 +59,21 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                 .Sum(s => s.TotalHours);
 
 
-            IEnumerable<GetAllStudentCategoryDto> studentSessions = @class.ClassSessions
-            .Where(c => c.Date == requestDate)
-            .Select(c => new GetAllStudentCategoryDto()
+            List<GetAllStudentCategoryDto> studentSessions = @class.ClassSessions
+                    .Where(c => c.Date == requestDate)
+                    .Select(c => new GetAllStudentCategoryDto()
+                    {
+                        ClassSessionCategory = c.Category,
+                        Hour = 0,
+                        Note = null
+                    }).ToList();
+            
+            foreach (GetAllStudentCategoryDto item in studentSessions)
             {
-                ClassSessionCategory = c.Category,
-                Hour = 0,
-                Note = null
-            });
-            if (classTimeSheets.Any())
-            {
-                studentSessions = classTimeSheets.Select(c => new GetAllStudentCategoryDto()
-                {
-                    ClassSessionCategory = c.Category,
-                    Hour = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours,
-                    Note = c.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note
-                });
+                item.Hour = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory)?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours;
+                item.Note = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory)?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note;
             }
+
 
             GetAllStudentByClassResponseDto studentResponse = new()
             {
