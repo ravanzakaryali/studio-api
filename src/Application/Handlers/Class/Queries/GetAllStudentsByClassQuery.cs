@@ -70,7 +70,8 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
             
             foreach (GetAllStudentCategoryDto item in studentSessions)
             {
-                item.Hour = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory)?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours;
+                int? hour = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory)?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours;
+                item.Hour = hour ?? 0;
                 item.Note = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory)?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note;
             }
 
