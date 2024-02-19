@@ -33,7 +33,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
             .ThenInclude(c => c!.Attendances)
             .Include(c => c.Class)
             .ThenInclude(c => c.Studies)
-            .Where(c => c.Class.ProgramId == program.Id && c.Date <= dateNow)
+            .Where(c => c.Class.ProgramId == program.Id && c.Date < dateNow)
             .ToListAsync(cancellationToken: cancellationToken);
 
 
