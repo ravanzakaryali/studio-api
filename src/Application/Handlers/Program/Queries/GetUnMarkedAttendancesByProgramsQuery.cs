@@ -26,7 +26,7 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
 
         List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Include(c => c.Class)
-            .Where(c => c.Date <= dateNow)
+            .Where(c => c.Date < dateNow)
             .ToListAsync(cancellationToken: cancellationToken);
 
 
