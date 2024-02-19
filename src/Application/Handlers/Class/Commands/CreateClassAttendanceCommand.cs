@@ -89,25 +89,8 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                 throw new ValidationException("It cannot be more than 60 minutes");
 
 
-            if (request.Sessions.Any(c => c.Category == ClassSessionCategory.Theoric && request.Sessions.Any(c => c.Category == ClassSessionCategory.Lab)))
-            {
-                if (classSession.Category == ClassSessionCategory.Theoric)
-                {
-                    int teacherId = @class.ClassModulesWorkers.Where(c => c.RoleId == roles.FirstOrDefault(r => r.Name == "muellim")!.Id).Select(c => c.WorkerId).FirstOrDefault();
-                    int totalHours = session.AttendancesWorkers.Where(c => c.RoleId == teacherId).Sum(c => c.TotalHours);
-                }
-                else if (classSession.Category == ClassSessionCategory.Lab)
-                {
-                    int mentorId = @class.ClassModulesWorkers.Where(c => c.RoleId == roles.FirstOrDefault(r => r.Name == "mentor")!.Id).Select(c => c.WorkerId).FirstOrDefault();
-                    int totalHours = session.AttendancesWorkers.Where(c => c.RoleId == mentorId).Sum(c => c.TotalHours);
-                }
-            }
-            else
-            {
-                if (session.AttendancesWorkers.Any(c => c.TotalHours > classSession.TotalHours))
-                    throw new ValidationException("The worker's time cannot be longer than the lesson's time");
-
-            }
+            if (session.AttendancesWorkers.Any(c => c.TotalHours > classSession.TotalHours))
+                throw new ValidationException("The worker's time cannot be longer than the lesson's time");
 
             if (session.Attendances.Any(c => c.TotalAttendanceHours > classSession.TotalHours))
                 throw new ValidationException("The student's time cannot be longer than the lesson's time");

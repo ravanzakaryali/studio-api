@@ -36,7 +36,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
         DateOnly requestDate = DateOnly.FromDateTime(request.Date);
 
         List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
-            .Where(c => c.ClassId == @class.Id && c.Category != ClassSessionCategory.Lab && requestDate >= c.Date)
+            .Where(c => c.ClassId == @class.Id && requestDate >= c.Date)
             .ToListAsync(cancellationToken: cancellationToken)
                 ?? throw new NotFoundException(nameof(ClassTimeSheet), request.Id);
 
@@ -46,7 +46,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
 
         foreach (ClassTimeSheet classTimeSheet in classTimeSheets.Where(cts => cts.Date == requestDate))
         {
-            if (@class.ClassSessions.Where(c => c.Date == requestDate).Any(c => c.Category == ClassSessionCategory.Lab))
+            if (@class.ClassSessions.Where(c => c.Date == requestDate).All(c => c.Category == ClassSessionCategory.Lab))
             {
                 foreach (AttendanceWorker attendance in classTimeSheet.AttendancesWorkers.Where(c => c.Role?.Name == "mentor"))
                 {
@@ -94,41 +94,12 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
         }
         if (!workers.Any())
         {
-            if (@class.ClassSessions.Where(c => c.Date == requestDate).Any(c => c.Category == ClassSessionCategory.Theoric))
+            if (@class.ClassSessions.Where(c => c.Date == requestDate).All(c => c.Category == ClassSessionCategory.Lab))
             {
                 workers.AddRange(@class.ClassModulesWorkers
                                         .Where(c => c.StartDate <= requestDate && c.EndDate >= requestDate && c.Module.TopModuleId != null)
                                         .Distinct(new GetWorkerForClassDtoComparer())
                                         .OrderBy(c => c.StartDate)
-                                        .DistinctBy(c => c.RoleId)
-                                        .Take(2)
-                                        .Select(c =>
-                                        {
-                                            List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(cts => cts.Date == requestDate).ToList();
-                                            GetWorkersByClassResponseDto workersClass = new()
-                                            {
-                                                Name = c.Worker.Name!,
-                                                Surname = c.Worker.Surname!,
-                                                RoleId = c.RoleId,
-                                                RoleName = c.Role!.Name,
-                                                WorkerId = c.WorkerId,
-                                                TotalLessonHours = @class.ClassTimeSheets
-                                                    .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
-                                                    .SelectMany(c => c.AttendancesWorkers)
-                                                    .Where(attendance => attendance.WorkerId == c.WorkerId)
-                                                    .Sum(c => c.TotalHours)
-                                            };
-
-                                            return workersClass;
-                                        }));
-            }
-            else if (@class.ClassSessions.Where(c => c.Date == requestDate).Any(c => c.Category == ClassSessionCategory.Lab))
-            {
-                workers.AddRange(@class.ClassModulesWorkers
-                                        .Where(c => c.StartDate <= requestDate && c.EndDate >= requestDate && c.Module.TopModuleId != null)
-                                        .Distinct(new GetWorkerForClassDtoComparer())
-                                        .OrderBy(c => c.StartDate)
-                                        .DistinctBy(c => c.RoleId)
                                         .Where(c => c.Role?.Name == "mentor")
                                         .Take(2)
                                         .Select(c =>
@@ -151,13 +122,12 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                                             return workersClass;
                                         }));
             }
-            else if (@class.ClassSessions.Where(c => c.Date == requestDate).Any(c => c.Category == ClassSessionCategory.Lab && c.Category == ClassSessionCategory.Theoric))
+            else
             {
                 workers.AddRange(@class.ClassModulesWorkers
                                         .Where(c => c.StartDate <= requestDate && c.EndDate >= requestDate && c.Module.TopModuleId != null)
                                         .Distinct(new GetWorkerForClassDtoComparer())
                                         .OrderBy(c => c.StartDate)
-                                        .DistinctBy(c => c.RoleId)
                                         .Take(2)
                                         .Select(c =>
                                         {
