@@ -1,4 +1,5 @@
-﻿using Space.Domain.Entities;
+﻿using System.Globalization;
+using Space.Domain.Entities;
 
 namespace Space.Application.Handlers;
 
@@ -67,7 +68,7 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                         Hour = 0,
                         Note = null
                     }).ToList();
-            
+
             foreach (GetAllStudentCategoryDto item in studentSessions)
             {
                 int? hour = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory)?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours;
@@ -89,7 +90,10 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                 Sessions = studentSessions,
             };
             return studentResponse;
-        }).ToList();
+        })
+        .OrderBy(c => c.Name, StringComparer.Create(new CultureInfo("az-AZ"), false))
+        .OrderBy(c => c.Surname, StringComparer.Create(new CultureInfo("az-AZ"), false))
+        .ToList();
 
         return studentResponses;
     }
