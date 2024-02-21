@@ -1,4 +1,6 @@
-﻿namespace Space.Application.Handlers;
+﻿using System.Globalization;
+
+namespace Space.Application.Handlers;
 
 public record GetAllStudentsDetailsByClassQuery(int Id) : IRequest<IEnumerable<GetStudentsDetailsByClassResponseDto>>;
 
@@ -49,7 +51,8 @@ internal class GetAllStudentsDetailsByClassQueryHandler : IRequestHandler<GetAll
                 AbsentHours = totalHour - attendancesHour ?? 0,
                 Attendance = (totalHour != 0 ? attendancesHour / totalHour * 100 : 0) ?? 0
             };
+
             return studentResponse;
-        });
+        }).OrderBy(c => c.Name, StringComparer.Create(new CultureInfo("az-AZ"), false));
     }
 }

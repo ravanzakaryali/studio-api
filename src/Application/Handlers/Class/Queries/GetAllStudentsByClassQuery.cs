@@ -91,10 +91,10 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
             };
             return studentResponse;
         })
-        .OrderBy(c => c.Name, StringComparer.Create(new CultureInfo("az-AZ"), false))
-        .OrderBy(c => c.Surname, StringComparer.Create(new CultureInfo("az-AZ"), false))
+
         .ToList();
 
-        return studentResponses;
+        return studentResponses
+                .OrderBy(c => c.Name, StringComparer.Create(new CultureInfo("az-AZ"), false));
     }
 }
