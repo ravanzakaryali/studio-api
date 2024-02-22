@@ -14,7 +14,7 @@ internal class GetClassesCountQueryHandler : IRequestHandler<GetClassesCountQuer
 
     public async Task<IEnumerable<GetClassCountResponse>> Handle(GetClassesCountQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<Class> query = _spaceDbContext.Classes.Include(c=>c.ClassSessions).AsQueryable();
+        IQueryable<Class> query = _spaceDbContext.Classes.Include(c => c.ClassSessions).AsQueryable();
 
         DateOnly now = DateOnly.FromDateTime(DateTime.Now);
 
@@ -27,7 +27,7 @@ internal class GetClassesCountQueryHandler : IRequestHandler<GetClassesCountQuer
             .CountAsync(cancellationToken: cancellationToken);
 
         int countNew = await query
-            .Where(c => now < c.EndDate && c.ClassSessions.Count == 0)
+            .Where(c => now < c.StartDate)
             .CountAsync(cancellationToken: cancellationToken);
         return new List<GetClassCountResponse>()
         {
