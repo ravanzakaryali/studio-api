@@ -49,7 +49,7 @@ public class ClassesController : BaseApiController
         }));
 
     [Authorize(Roles = "admin,mentor,ta,muellim")]
-    [HttpPost("{id}/attendance-cancelled")]
+    [HttpPost("{id}/session-cancel")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
     public async Task<IActionResult> CancelledAttendance([FromRoute] int id, [FromQuery] DateTime date)
