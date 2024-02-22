@@ -48,6 +48,16 @@ public class ClassesController : BaseApiController
             SessionId = sessionId
         }));
 
+    [Authorize(Roles = "admin,mentor,ta,muellim")]
+    [HttpPost("{id}/attendance-cancelled")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> CancelledAttendance([FromRoute] int id, [FromQuery] DateTime date)
+    {
+        await Mediator.Send(new CancelledAttendanceCommand(id, date));
+        return NoContent();
+    }
+
     [Authorize(Roles = "admin")]
     [HttpGet("count")]
     public async Task<IActionResult> GetClassesCount()
@@ -349,9 +359,9 @@ public class ClassesController : BaseApiController
     [Authorize(Roles = "admin")]
     [HttpGet("export/excel")]
     public async Task ClassesExcelExport(
-        [FromQuery] ClassStatus status, 
-    [FromQuery] List<int>? ClassIds, 
-    [FromQuery] List<int>? ProgramIds, 
+        [FromQuery] ClassStatus status,
+    [FromQuery] List<int>? ClassIds,
+    [FromQuery] List<int>? ProgramIds,
     [FromQuery] DateTime? StartDate,
     [FromQuery] DateTime? EndDate)
     {
