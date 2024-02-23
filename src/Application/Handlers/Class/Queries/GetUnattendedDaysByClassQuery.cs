@@ -24,7 +24,7 @@ internal class GetUnattendedDaysByClassHandler : IRequestHandler<GetUnattendedDa
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
 
         List<DateOnly> classSessionDates = await _spaceDbContext.ClassSessions
-            .Where(c => c.ClassId == @class.Id && c.Date < dateNow && c.ClassTimeSheetId == null && c.IsHoliday == false)
+            .Where(c => c.ClassId == @class.Id && c.Date < dateNow && c.ClassTimeSheetId == null && c.IsHoliday == false && c.Status != ClassSessionStatus.Cancelled)
             .Select(c => c.Date)
             .ToListAsync(cancellationToken: cancellationToken);
 
