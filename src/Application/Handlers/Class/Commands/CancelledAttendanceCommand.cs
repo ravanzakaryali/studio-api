@@ -80,7 +80,8 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
                                 classSession.RoomId!.Value
                             );
             await _spaceDbContext.ClassSessions.AddRangeAsync(generateClassSessions, cancellationToken);
-            @class.EndDate = date2;
+            if (generateClassSessions.Any())
+                @class.EndDate = generateClassSessions.OrderByDescending(c => c.Date).FirstOrDefault()?.Date;
         }
 
 
