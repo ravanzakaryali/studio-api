@@ -5,6 +5,7 @@ public class ClassSession : BaseAuditableEntity
     public int ClassId { get; set; }
     public Class Class { get; set; } = null!;
     public DateOnly Date { get; set; }
+    public DateOnly? CancelledDate { get; set; }
     public TimeOnly StartTime { get; set; }
     public TimeOnly EndTime { get; set; }
     public int TotalHours { get; set; }

@@ -29,6 +29,13 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
 
         DateOnly date = DateOnly.FromDateTime(request.Date);
 
+        //əgər class session ləğv olunarsa buradan ləğv olunur 
+        //əgər yenidən həmin gün dərs olarsa yenidən yaradılır
+        //amma sonda bir gün əlavə etmək məsələsinə gəldikdə isə
+        //cancelledDate deyə bir session sağlayacam
+        //davamiyyət daxil olunanda əgər ki cancelled date class session içərisində varsa onu silsin.
+        //əgər ki yoxdursa onda davamiyyətə əlavə etsin
+
         IEnumerable<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Where(c => c.ClassId == request.ClassId && c.Date == date)
             .ToListAsync(cancellationToken: cancellationToken);
