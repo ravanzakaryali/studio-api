@@ -7,17 +7,16 @@ public record CancelledAttendanceCommand(
 internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceCommand>
 {
     readonly ISpaceDbContext _spaceDbContext;
-    readonly IHolidayService _holidayService;
-    readonly IClassSessionService _classSessionService;
+    readonly IUnitOfWork _unitOfWork;
+
+
 
     public CancelledAttendanceHandler(
         ISpaceDbContext spaceDbContext,
-        IHolidayService holidayService,
-        IClassSessionService classSessionService)
+        IUnitOfWork unitOfWork)
     {
         _spaceDbContext = spaceDbContext;
-        _holidayService = holidayService;
-        _classSessionService = classSessionService;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task Handle(CancelledAttendanceCommand request, CancellationToken cancellationToken)
@@ -42,8 +41,8 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
             .Where(c => c.ClassId == request.ClassId && c.Date == date)
             .ToListAsync(cancellationToken: cancellationToken);
 
-        List<DateOnly> holidayDates = await _holidayService.GetDatesAsync();
-        DateOnly classLastDate = await _classSessionService.GetLastDateAsync(@class.Id);
+        List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
+        DateOnly classLastDate = await _unitOfWork.ClassSessionService.GetLastDateAsync(@class.Id);
 
 
 
@@ -60,7 +59,7 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
                 date2 = date2.AddDays(1);
                 startDateDayOfWeek = date2.DayOfWeek;
             }
-            List<ClassSession> generateClassSessions = _classSessionService
+            List<ClassSession> generateClassSessions = _unitOfWork.ClassSessionService
                             .GenerateSessions(
                                 classSession.TotalHours,
                                 classSessions
