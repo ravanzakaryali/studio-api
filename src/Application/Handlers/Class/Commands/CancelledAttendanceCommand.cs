@@ -38,10 +38,6 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
         {
             throw new NotFoundException(nameof(ClassSession), request.ClassId);
         }
-        foreach (ClassSession classSession in classSessions)
-        {
-            classSession.Status = ClassSessionStatus.Cancelled;
-        }
         IEnumerable<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.ClassId == request.ClassId && c.Date == date)
             .ToListAsync(cancellationToken: cancellationToken);
@@ -54,6 +50,7 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
 
         foreach (ClassSession classSession in classSessions)
         {
+            classSession.Status = ClassSessionStatus.Cancelled;
             DateOnly date2 = classLastDate.AddDays(1);
             DayOfWeek startDateDayOfWeek = date2.DayOfWeek;
             while (
@@ -84,7 +81,10 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
                                 classSession.RoomId!.Value
                             );
             await _spaceDbContext.ClassSessions.AddRangeAsync(generateClassSessions, cancellationToken);
+            @class.EndDate = date2;
         }
+
+
 
         _spaceDbContext.ClassTimeSheets.RemoveRange(classTimeSheets);
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
