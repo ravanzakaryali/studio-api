@@ -30,7 +30,7 @@ internal class RefreshPasswordCommandHandler : IRequestHandler<RefreshPasswordCo
         worker.Key = Guid.NewGuid();
         worker.KeyExpirerDate = DateTime.UtcNow.AddMinutes(15);
         worker.LastPasswordUpdateDate = DateTime.UtcNow;
-        string messaje = $"https://dev-studio.code.az/admin/auth/confirmpassword/{worker.Key}";
+        string messaje = $"https://studio.code.az/admin/auth/confirmpassword/{worker.Key}";
         await _unitOfWork.EmailService.SendMessageAsync(messaje, worker.Email, "EmailTemplate.html", "Şifrənizi dəyiştirin (no-reply)");
         await _spaceDbContext.SaveChangesAsync();
     }
