@@ -7,6 +7,7 @@ public class Worker : User, IKometa, IKey, IUserSecurity
         ClassModulesWorkers = new HashSet<ClassModulesWorker>();
         Reservations = new HashSet<Reservation>();
         AttendancesWorkers = new HashSet<AttendanceWorker>();
+        PermissionGroups = new HashSet<PermissionGroup>();
     }
     public ICollection<ClassModulesWorker> ClassModulesWorkers { get; set; }
     public int? KometaId { get; set; }
@@ -15,4 +16,5 @@ public class Worker : User, IKometa, IKey, IUserSecurity
     public DateTime? LastPasswordUpdateDate { get; set; }
     public ICollection<AttendanceWorker> AttendancesWorkers { get; set; }
     public ICollection<Reservation> Reservations { get; set; }
+    public ICollection<PermissionGroup> PermissionGroups { get; set; }
 }

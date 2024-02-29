@@ -1,4 +1,4 @@
-namespace Domain.Entities.Permission;
+namespace Space.Domain.Entities;
 public class PermissionAccess : BaseAuditableEntity
 {
     public PermissionAccess()
