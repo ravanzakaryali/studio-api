@@ -5,20 +5,17 @@ namespace Space.Application.Handlers;
 
 public class CreateClassSessionExtensionCommand : IRequest
 {
-    public CreateClassSessionExtensionCommand(double hours, int classId, int roomId, IEnumerable<CreateClassSessionDto> sessions, DateOnly? startDate)
+    public CreateClassSessionExtensionCommand(double hours, int classId, DateOnly? startDate)
     {
         Hours = hours;
         ClassId = classId;
-        RoomId = roomId;
-        Sessions = sessions;
         StartDate = startDate;
     }
 
     public DateOnly? StartDate { get; set; }
     public double Hours { get; set; }
     public int ClassId { get; set; }
-    public int RoomId { get; set; }
-    public IEnumerable<CreateClassSessionDto> Sessions { get; set; } = null!;
+
 }
 public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateClassSessionExtensionCommand>
 {
@@ -37,10 +34,10 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
         Class? @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.ClassId)
             .Include(c => c.ClassSessions)
+            .Include(c => c.Session)
+            .ThenInclude(c => c.Details)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.ClassId);
-        Room? room = await _spaceDbContext.Rooms.FindAsync(request.RoomId) ??
-            throw new NotFoundException(nameof(Room), request.RoomId);
 
 
 
@@ -56,12 +53,12 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
         //Todo: Code Review
         while (totalHour > 0)
         {
-            foreach (var session in request.Sessions.OrderBy(c => c.DayOfWeek))
+            foreach (var session in @class.Session.Details.OrderBy(c => c.DayOfWeek))
             {
                 var daysToAdd = ((int)session.DayOfWeek - (int)startDayOfWeek + 7) % 7;
-                int numSelectedDays = request.Sessions.Count();
+                int numSelectedDays = @class.Session.Details.Count();
 
-                int hour = (session.End - session.Start).Hours;
+                int hour = (session.EndTime - session.StartTime).Hours;
                 DateOnly dateTime = startDate.AddDays(count * 7 + daysToAdd);
                 Console.WriteLine(dateTime);
 
@@ -76,11 +73,11 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
                     {
                         Category = session.Category,
                         ClassId = @class.Id,
-                        StartTime = session.Start,
-                        EndTime = session.End,
+                        StartTime = session.StartTime,
+                        EndTime = session.EndTime,
                         RoomId = @class.RoomId,
                         TotalHours = hour,
-                        Date = dateTime
+                        Date = dateTime,
                     });
                     if (session.Category != ClassSessionCategory.Lab)
                         totalHour -= hour;
@@ -89,6 +86,7 @@ public class CreateClassSessionExtensionCommandHandler : IRequestHandler<CreateC
             }
             count++;
         }
+        @class.EndDate = classSessions.MaxBy(c => c.Date)?.Date;
 
         await _spaceDbContext.ClassSessions.AddRangeAsync(classSessions, cancellationToken);
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
