@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "name": "C#: Studio Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/src/WebAPI/WebAPI.csproj"
+        }
+    ]
+}
