@@ -8,4 +8,5 @@ public enum AttendanceStatus
     Late = 2,
     Early = 3,
     Absent = 4,
+    Approved = 5,
 }
