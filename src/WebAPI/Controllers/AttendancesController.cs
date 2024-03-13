@@ -1,4 +1,4 @@
-﻿namespace Space.WebAPI.Controllers;
+namespace Space.WebAPI.Controllers;
 
 public class AttendancesController : BaseApiController
 {
@@ -16,5 +16,4 @@ public class AttendancesController : BaseApiController
         });
         return NoContent();
     }
-
 }
