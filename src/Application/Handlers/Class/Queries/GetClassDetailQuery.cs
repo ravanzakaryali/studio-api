@@ -3,7 +3,6 @@
 public class GetClassDetailQuery : IRequest<GetClassDetailResponse>
 {
     public int Id { get; set; }
-    public int? SessionId { get; set; }
 }
 
 internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery, GetClassDetailResponse>
@@ -41,28 +40,13 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
         {
             var total = item.TotalHours;
             var totalAttendance = item.Attendances.Average(c => c.TotalAttendanceHours);
-            list.Add((totalAttendance * 100) / total);
+            list.Add(totalAttendance * 100 / total);
         }
 
         DateOnly startDate = @class.StartDate;
         DateOnly? endDate = @class.EndDate;
 
         int totalHours = @class.ClassSessions.Sum(c => c.TotalHours);
-        if (request.SessionId != null)
-        {
-            Session session = await _spaceDbContext.Sessions
-                .Where(c => c.Id == request.SessionId)
-                .Include(c => c.Details)
-                .FirstOrDefaultAsync() ??
-                    throw new NotFoundException(nameof(Session), request.SessionId);
-
-            List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
-
-            (DateOnly StartDate, DateOnly EndDate) responseDate = _unitOfWork.ClassService.CalculateStartAndEndDate(session, @class, holidayDates);
-            startDate = responseDate.StartDate;
-            endDate = responseDate.EndDate;
-            totalHours = @class.Program.TotalHours;
-        }
 
         return new GetClassDetailResponse()
         {
@@ -77,8 +61,8 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
                 Name = @class.Program.Name,
             },
             CurrentHours = classTimeSheets
-                .Where(c => c.ClassSession != null && c.Category != ClassSessionCategory.Practice && c.Category != ClassSessionCategory.Lab)
-                .Sum(c => c.TotalHours),
+            .Where(c => c.ClassSession != null && c.Category != ClassSessionCategory.Practice && c.Category != ClassSessionCategory.Lab)
+            .Sum(c => c.TotalHours),
             TotalHours = totalHours,
             Name = @class.Name,
             AttendanceRate = Math.Round(list.Count > 0 ? list.Average() : 0, 2),

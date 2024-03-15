@@ -42,15 +42,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
 
 
         List<GetWorkersByClassResponseDto> workers = new();
-
-
-        // if (@class.ClassSessions.Any(c => c.Date == requestDate && c.ClassTimeSheetId == null))
-        // {
-
-
-        // }
-        // else
-        // {
+      
         foreach (ClassTimeSheet classTimeSheet in classTimeSheets.Where(cts => cts.Date == requestDate))
         {
             foreach (AttendanceWorker attendance in classTimeSheet.AttendancesWorkers)

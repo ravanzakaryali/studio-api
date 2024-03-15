@@ -17,6 +17,7 @@ global using FluentValidation;
 global using Space.Application;
 global using Microsoft.AspNetCore.Authorization;
 global using Space.Application.DTOs;
+global using Space.Application.Enums;
 global using Space.Application.Exceptions;
 global using Space.Application.Abstractions;
 global using Space.Application.Handlers.Commands;

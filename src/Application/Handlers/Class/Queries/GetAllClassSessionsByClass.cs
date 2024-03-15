@@ -17,7 +17,7 @@ public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClas
             .Where(c => c.Id == request.Id)
             .Include(c => c.ClassSessions)
             .ThenInclude(c => c.ClassTimeSheet)
-            .FirstOrDefaultAsync() ??
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException();
 
         //Todo: review
@@ -33,6 +33,5 @@ public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClas
             });
 
         return response;
-
     }
 }
