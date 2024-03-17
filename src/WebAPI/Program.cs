@@ -130,8 +130,11 @@ builder.Services.AddSwaggerGen(config =>
 var app = builder.Build();
 
 app.UseCors();
+
 app.UseTokenAuthetication();
+
 app.UseChangeTokenAuthetication();
+app.UseEndpointScanner();
 app.UseRateLimit();
 
 app.UseSerilogRequestLogging();

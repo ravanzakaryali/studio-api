@@ -16,4 +16,13 @@ public class AttendancesController : BaseApiController
         });
         return NoContent();
     }
+
+     //GET: api/attendance/{classId}/held-modules
+    [Authorize]
+    [HttpGet("{classId}/held-modules")]
+    public async Task<IActionResult> GetHeldModules([FromRoute] int classId)
+       => Ok(await Mediator.Send(new GetHeldModulesByClassQuery()
+       {
+           Id = classId
+       }));
 }
