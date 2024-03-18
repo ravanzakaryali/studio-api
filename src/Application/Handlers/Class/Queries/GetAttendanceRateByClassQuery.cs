@@ -31,13 +31,13 @@ internal class GetAttendanceRateByClassHandler : IRequestHandler<GetAttendanceRa
         IEnumerable<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Include(c => c.ClassTimeSheet)
             .ThenInclude(c => c!.Attendances)
-            .Where(c => c.ClassId == @class.Id && c.Date <= dateNow && c.IsHoliday == false && c.Status != ClassSessionStatus.Cancelled)
+            .Where(c => c.ClassId == @class.Id)
             .ToListAsync(cancellationToken: cancellationToken);
 
 
         return classSessions.Where(c => c.Date.Month == month).Select(c => new GetAttendanceRateByClassDto()
         {
-            Status = c.ClassTimeSheet?.Status,
+            Status = c.ClassTimeSheet == null ? null : c.ClassTimeSheet.Status,
             TotalStudentsCount = c.ClassTimeSheet?.Attendances.Count,
             AttendingStudentsCount = c.ClassTimeSheet?.Attendances.Where(c => c.TotalAttendanceHours != 0).Count(),
             Date = c.Date,
