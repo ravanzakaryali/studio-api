@@ -37,7 +37,7 @@ internal class GetAttendanceRateByClassHandler : IRequestHandler<GetAttendanceRa
 
         return classSessions.Where(c => c.Date.Month == month).Select(c => new GetAttendanceRateByClassDto()
         {
-            Status = c.ClassTimeSheet?.Status,
+            Status = c.ClassTimeSheet == null ? c.Status : c.ClassTimeSheet.Status,
             TotalStudentsCount = c.ClassTimeSheet?.Attendances.Count,
             AttendingStudentsCount = c.ClassTimeSheet?.Attendances.Where(c => c.TotalAttendanceHours != 0).Count(),
             Date = c.Date,
