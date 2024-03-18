@@ -1,6 +1,20 @@
 ﻿namespace Space.Application.Handlers;
 
-public record GetAllWorkersByClassQuery(int Id, DateTime Date) : IRequest<IEnumerable<GetWorkersByClassResponseDto>>;
+public class GetAllWorkersByClassQuery : IRequest<IEnumerable<GetWorkersByClassResponseDto>>
+{
+    public GetAllWorkersByClassQuery(int id)
+    {
+        Id = id;
+        Date = DateTime.Now.Date;
+    }
+    public GetAllWorkersByClassQuery(int id, DateTime date)
+    {
+        Id = id;
+        Date = date;
+    }
+    public int Id { get; set; }
+    public DateTime Date { get; set; }
+}
 
 internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersByClassQuery, IEnumerable<GetWorkersByClassResponseDto>>
 {
@@ -42,7 +56,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
 
 
         List<GetWorkersByClassResponseDto> workers = new();
-      
+
         foreach (ClassTimeSheet classTimeSheet in classTimeSheets.Where(cts => cts.Date == requestDate))
         {
             foreach (AttendanceWorker attendance in classTimeSheet.AttendancesWorkers)

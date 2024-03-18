@@ -3,6 +3,17 @@
 public interface ISpaceDbContext
 {
 
+    #region Application
+    DbSet<ApplicationModule> Applications { get; }
+    DbSet<E.Endpoint> Endpoints { get; }
+    #endregion
+
+    #region Permission
+    DbSet<PermissionAccess> PermissionAccesses { get; }
+    DbSet<PermissionLevel> PermissionLevels { get; }
+    DbSet<PermissionGroup> PermissionGroups { get; }
+
+    #endregion
     #region Class
     DbSet<Class> Classes { get; }
     DbSet<ClassTimeSheet> ClassTimeSheets { get; }

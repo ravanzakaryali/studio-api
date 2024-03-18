@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.EntityFrameworkCore;
+using Space.Domain.Enums;
 
 namespace Space.WebAPI.Middlewares;
 public class EndpointScannerMiddleware
@@ -12,21 +13,42 @@ public class EndpointScannerMiddleware
     {
         _next = next;
     }
-    public async Task InvokeAsync(HttpContext httpContext, IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider)
+    public async Task InvokeAsync(HttpContext httpContext, IActionDescriptorCollectionProvider actionDescriptorCollectionProvider, ISpaceDbContext spaceDbContext)
     {
-        IReadOnlyList<ActionDescriptor> endpoints = _actionDescriptorCollectionProvider.ActionDescriptors.Items;
-
+        IReadOnlyList<ActionDescriptor> endpoints = actionDescriptorCollectionProvider.ActionDescriptors.Items;
+        List<E.Endpoint> endpointsDb = await spaceDbContext.Endpoints.ToListAsync();
         foreach (var endpoint in endpoints)
         {
             if (endpoint is ControllerActionDescriptor controllerActionDescriptor)
             {
-                string controllerName = controllerActionDescriptor.ControllerName;
-                string methodName = controllerActionDescriptor.ActionName;
                 string? endpointPath = controllerActionDescriptor.AttributeRouteInfo?.Template;
                 string httpMethod = controllerActionDescriptor.ActionConstraints?.OfType<HttpMethodActionConstraint>().FirstOrDefault()?.HttpMethods.FirstOrDefault() ?? "GET";
-                
+
+                if (endpointPath != null)
+                {
+                    E.Endpoint endpointEntity = new()
+                    {
+                        Path = endpointPath,
+                        HttpMethod = httpMethod switch
+                        {
+                            "GET" => HttpMethodEnum.GET,
+                            "POST" => HttpMethodEnum.POST,
+                            "PUT" => HttpMethodEnum.PUT,
+                            "DELETE" => HttpMethodEnum.DELETE,
+                            _ => throw new Exception("Invalid HTTP Method")
+                        }
+                    };
+                    bool isExsist = endpointsDb.Any(ep => ep.Path == endpointPath && ep.HttpMethod == endpointEntity.HttpMethod);
+                    if (isExsist)
+                    {
+                        continue;
+                    }
+                    await spaceDbContext.Endpoints.AddAsync(endpointEntity);
+                }
+
             }
         }
+        await spaceDbContext.SaveChangesAsync();
         await _next(httpContext);
     }
 }

@@ -7,7 +7,6 @@ namespace Space.WebAPI.Controllers;
 [Authorize(Roles = "admin")]
 public class ClassSessionsController : BaseApiController
 {
-
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
     [HttpGet("/api/class-sessions/{id}")]

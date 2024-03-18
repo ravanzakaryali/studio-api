@@ -26,6 +26,8 @@ global using Space.Application.Handlers;
 
 global using Space.Application.Handlers.Queries;
 
+global using E = Space.Domain.Entities;
+
 global using Space.Infrastructure;
 
 
