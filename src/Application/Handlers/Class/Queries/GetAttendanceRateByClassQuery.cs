@@ -31,7 +31,7 @@ internal class GetAttendanceRateByClassHandler : IRequestHandler<GetAttendanceRa
         IEnumerable<ClassSession> classSessions = await _spaceDbContext.ClassSessions
             .Include(c => c.ClassTimeSheet)
             .ThenInclude(c => c!.Attendances)
-            .Where(c => c.ClassId == @class.Id && c.Date <= dateNow && c.IsHoliday == false && c.Status != ClassSessionStatus.Cancelled)
+            .Where(c => c.ClassId == @class.Id)
             .ToListAsync(cancellationToken: cancellationToken);
 
 

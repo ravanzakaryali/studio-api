@@ -62,6 +62,8 @@ internal class UpdateClassSessionOneDayCommandHandlder : IRequestHandler<UpdateC
                         Date = firstClassSession.Date,
                         EndTime = requestSession.EndTime,
                         ClassTimeSheet = null,
+                        ClassTimeSheetId = null,
+                        Status = ClassSessionStatus.Offline,
                         StartTime = requestSession.StartTime,
                         TotalHours = (requestSession.EndTime - requestSession.StartTime).Hours,
                     });
@@ -116,6 +118,8 @@ internal class UpdateClassSessionOneDayCommandHandlder : IRequestHandler<UpdateC
                         CreatedBy = firstClassSession.CreatedBy,
                         Date = request.NewDate,
                         ClassTimeSheet = null,
+                        ClassTimeSheetId = null,
+                        Status = ClassSessionStatus.Offline,
                         EndTime = requestSession.EndTime,
                         StartTime = requestSession.StartTime,
                         TotalHours = (requestSession.EndTime - requestSession.StartTime).Hours,
