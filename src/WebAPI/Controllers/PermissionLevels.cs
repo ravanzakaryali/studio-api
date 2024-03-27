@@ -10,6 +10,10 @@ public class PermissionLevelsController : BaseApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> CreatePermissionAccess(CreatePermissionAccessDto request)
-        => Ok(await Mediator.Send());
+    public async Task<IActionResult> CreatePermissionLevel(CreatePermissionLevelDto request)
+        => Ok(await Mediator.Send(new CreatePermissionLevelCommand()
+        {
+            Name = request.Name,
+            Accesses = request.Accesses
+        }));
 }

@@ -6,7 +6,5 @@ public class PermissionLevel : BaseAuditableEntity
         PermissionAccesses = new HashSet<PermissionAccess>();
     }
     public string Name { get; set; } = null!;
-   
-
     public ICollection<PermissionAccess> PermissionAccesses { get; set; }
 }
