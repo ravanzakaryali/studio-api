@@ -29,7 +29,7 @@ public class GetAllClassSessionsByClassQueryHandler : IRequestHandler<GetAllClas
                 ClassName = q.Class.Name,
                 ClassSessionDate = q.Date,
                 ClassId = q.ClassId,
-                ClassSessionStatus = q.ClassTimeSheetId != null ? q.ClassTimeSheet!.Status : null,
+                ClassSessionStatus = q.ClassTimeSheetId != null && q.Status != ClassSessionStatus.Cancelled ? q.ClassTimeSheet!.Status : q.Status == ClassSessionStatus.Cancelled ? ClassSessionStatus.Cancelled : null,
             });
 
         return response;
