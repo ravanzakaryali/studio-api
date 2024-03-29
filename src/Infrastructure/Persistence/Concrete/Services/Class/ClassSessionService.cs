@@ -52,8 +52,7 @@ public class ClassSessionService : IClassSessionService
                 if (hour != 0)
                 {
                     returnClassSessions.Add(classSession);
-                    if (session.Category != ClassSessionCategory.Lab)
-                        totalHours -= hour;
+                    totalHours -= hour;
                     if (totalHours <= 0)
                         break;
 
