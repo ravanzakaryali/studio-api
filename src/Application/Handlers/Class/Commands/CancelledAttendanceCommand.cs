@@ -9,8 +9,6 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
     readonly ISpaceDbContext _spaceDbContext;
     readonly IUnitOfWork _unitOfWork;
 
-
-
     public CancelledAttendanceHandler(
         ISpaceDbContext spaceDbContext,
         IUnitOfWork unitOfWork)
