@@ -1,7 +1,7 @@
 namespace Space.Application.DTOs;
 
-public class CreatePermissionLevelDto
+public class UpdatePermissionLevelDto
 {
-    public string Name { get; set; } = null!;
+    public int Id { get; set; }
     public ICollection<PermissionAccessLevelDto> Accesses { get; set; } = null!;
 }
