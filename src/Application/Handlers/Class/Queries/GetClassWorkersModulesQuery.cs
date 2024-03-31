@@ -144,28 +144,28 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         }
 
 
-        // foreach (GetClassModuleResponseDto item in modulesReponse)
-        // {
-        //     if (classModulesWorkers.Where(c => c.ModuleId == item.Id).FirstOrDefault() != null)
-        //     {
-        //         item.StartDate = classModulesWorkers.Where(c => c.ModuleId == item.Id).First().StartDate;
-        //         item.EndDate = classModulesWorkers.Where(c => c.ModuleId == item.Id).First().EndDate;
+        foreach (GetClassModuleResponseDto item in modulesReponse)
+        {
+            if (classModulesWorkers.Where(c => c.ModuleId == item.Id).FirstOrDefault() != null)
+            {
+                item.StartDate = classModulesWorkers.Where(c => c.ModuleId == item.Id).First().StartDate;
+                item.EndDate = classModulesWorkers.Where(c => c.ModuleId == item.Id).First().EndDate;
 
-        //     }
-        //     if (item.SubModules != null)
-        //     {
-        //         foreach (SubModuleDtoWithWorker subModules in item.SubModules)
-        //         {
-        //             if (classModulesWorkers.Where(c => c.ModuleId == subModules.Id).FirstOrDefault() != null)
-        //             {
+            }
+            if (item.SubModules != null)
+            {
+                foreach (SubModuleDtoWithWorker subModules in item.SubModules)
+                {
+                    if (classModulesWorkers.Where(c => c.ModuleId == subModules.Id).FirstOrDefault() != null)
+                    {
 
-        //                 subModules.StartDate = classModulesWorkers.Where(c => c.ModuleId == subModules.Id).First().StartDate;
-        //                 subModules.EndDate = classModulesWorkers.Where(c => c.ModuleId == subModules.Id).First().EndDate;
-        //             }
-        //         }
-        //     }
+                        subModules.StartDate = classModulesWorkers.Where(c => c.ModuleId == subModules.Id).First().StartDate;
+                        subModules.EndDate = classModulesWorkers.Where(c => c.ModuleId == subModules.Id).First().EndDate;
+                    }
+                }
+            }
 
-        // }
+        }
         if (modulesReponse[0].StartDate == null)
         {
 
@@ -273,11 +273,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
         }
 
-        modulesReponse.Last().EndDate = classDateTimes.Last().DateTime;
-        if (modulesReponse.Last().SubModules != null)
-        {
-           modulesReponse.Last().SubModules.Last().EndDate = classDateTimes.Last().DateTime;
-        }
+
 
 
         //Extra modules 
@@ -313,6 +309,21 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                     RoleId = ex.RoleId,
                 }).ToList(),
             }).ToList();
+
+        if (extraModulesResponse.Count == 0)
+        {
+            modulesReponse.Last().EndDate = classDateTimes.Last().DateTime;
+            if (modulesReponse.Last().SubModules != null)
+            {
+                modulesReponse.Last().SubModules.Last().EndDate = classDateTimes.Last().DateTime;
+            }
+        }
+        else
+        {
+            extraModulesResponse.OrderByDescending(c => c.EndDate).First().EndDate = classDateTimes.Last().DateTime;
+        }
+
+
 
         foreach (GetClassModuleResponseDto moduleItem in modulesReponse)
         {
