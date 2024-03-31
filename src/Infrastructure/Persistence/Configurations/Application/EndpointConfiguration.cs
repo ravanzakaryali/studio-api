@@ -8,7 +8,6 @@ public class EndpointConfiguration : IEntityTypeConfiguration<E.Endpoint>
         builder.ConfigureBaseEntity();
         builder
             .Property(r => r.HttpMethod)
-            .HasConversion(new EnumToStringConverter<HttpMethodEnum>())
             .HasDefaultValue(HttpMethodEnum.GET);
 
     }

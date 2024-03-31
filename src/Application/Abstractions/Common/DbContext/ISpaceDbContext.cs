@@ -4,8 +4,9 @@ public interface ISpaceDbContext
 {
 
     #region Application
-    DbSet<ApplicationModule> Applications { get; }
+    DbSet<ApplicationModule> ApplicationModules { get; }
     DbSet<E.Endpoint> Endpoints { get; }
+    DbSet<EndpointDetail> EndpointDetails { get; }
     #endregion
 
     #region Permission

@@ -48,7 +48,10 @@ builder.Services.AddHttpLogging(logging =>
 });
 
 
-builder.Services.AddControllers().AddJsonOptions(options =>
+builder.Services.AddControllers(opt =>
+{
+    opt.Filters.Add<PermissionEndpointFilter>();
+}).AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new DateOnlyConverter());
     options.JsonSerializerOptions.Converters.Add(new TimeOnlyConverter());

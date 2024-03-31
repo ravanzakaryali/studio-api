@@ -29,14 +29,7 @@ public class EndpointScannerMiddleware
                     E.Endpoint endpointEntity = new()
                     {
                         Path = endpointPath,
-                        HttpMethod = httpMethod switch
-                        {
-                            "GET" => HttpMethodEnum.GET,
-                            "POST" => HttpMethodEnum.POST,
-                            "PUT" => HttpMethodEnum.PUT,
-                            "DELETE" => HttpMethodEnum.DELETE,
-                            _ => throw new Exception("Invalid HTTP Method")
-                        }
+                        HttpMethod = httpMethod
                     };
                     bool isExsist = endpointsDb.Any(ep => ep.Path == endpointPath && ep.HttpMethod == endpointEntity.HttpMethod);
                     if (isExsist)
