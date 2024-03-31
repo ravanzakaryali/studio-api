@@ -179,9 +179,6 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         //modulların sayı qədər dövr etsin
 
 
-
-
-
         for (int i = 0; i < modulesReponse.Count; i++)
         {
             //modullun sub modullu varsa daxil olsun
@@ -276,9 +273,9 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         modulesReponse.Last().EndDate = classDateTimes.Last().DateTime;
         if (modulesReponse.Last().SubModules != null)
         {
-            if (modulesReponse.Last().SubModules.Last().EndDate == null)
+            if (modulesReponse.Last().SubModules?.Last().EndDate == null)
             {
-                modulesReponse.Last().SubModules.Last().EndDate = classDateTimes.Last().DateTime;
+                modulesReponse.Last().SubModules!.Last().EndDate = classDateTimes.Last().DateTime;
             }
         }
 
@@ -311,7 +308,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                     Id = ex.WorkerId,
                     Name = ex.Worker.Name,
                     Surname = ex.Worker.Surname,
-                    Role = ex.Role.Name,
+                    Role = ex.Role?.Name,
                     Email = ex.Worker.Email,
                     RoleId = ex.RoleId,
                 }).ToList(),

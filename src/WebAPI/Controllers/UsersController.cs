@@ -1,14 +1,30 @@
-﻿namespace Space.WebAPI.Controllers;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Space.WebAPI.Controllers;
 using Microsoft.Extensions.Configuration;
 
 public class UsersController : BaseApiController
 {
-
-
     [HttpGet("login")]
     public async Task<IActionResult> GetUserLogin()
     {
         return Ok(await Mediator.Send(new UserLoginQuery()));
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserDto request)
+    {
+        await Mediator.Send(new CreateUserCommand
+        {
+            Name = request.Name,
+            Surname = request.Surname,
+            Email = request.Email,
+            Password = request.Password
+        });
+        return NoContent();
     }
 
     [Authorize(Roles = "admin")]

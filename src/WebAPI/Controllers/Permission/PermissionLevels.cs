@@ -5,7 +5,12 @@ public class PermissionLevelsController : BaseApiController
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetPermissionLevels()
-        => Ok(await Mediator.Send(new GetAllPermissionLevelQuery()));
+        => Ok(await Mediator.Send(new GetAllPermissionLevelsQuery()));
+
+    [Authorize]
+    [HttpGet("with-accesses")]
+    public async Task<IActionResult> GetPermissionLevelsWithAccess()
+        => Ok(await Mediator.Send(new GetAllPermissionLevelsWithAccessesQuery()));
 
     [Authorize]
     [HttpGet("permission-accesses")]
