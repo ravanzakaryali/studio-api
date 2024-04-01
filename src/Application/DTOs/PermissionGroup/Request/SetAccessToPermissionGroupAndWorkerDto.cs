@@ -1,10 +1,11 @@
 namespace Space.Application.DTOs;
-public class SetAccessToPermissionGroupDto
+public class SetAccessToPermissionGroupAndWorkerDto
 {
-    public SetAccessToPermissionGroupDto()
+    public SetAccessToPermissionGroupAndWorkerDto()
     {
         PermissionLevels = new List<PermissionGroupSetPermissionLevelDto>();
     }
+    public int AppModuleId { get; set; }
     public ICollection<PermissionGroupSetPermissionLevelDto> PermissionLevels { get; set; }
 }
 public class PermissionGroupSetPermissionLevelDto

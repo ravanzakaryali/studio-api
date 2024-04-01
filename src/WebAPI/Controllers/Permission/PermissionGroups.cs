@@ -32,17 +32,25 @@ public class PermissionGroupsController : BaseApiController
         });
         return Ok();
     }
-
-    [HttpPost("{id}/set-access")]
-    public async Task<IActionResult> SetAccessToPermissionGroup(int id, IEnumerable<SetAccessToPermissionGroupDto> request)
+    [HttpPost("{id}/remove-worker")]
+    public async Task<IActionResult> RemoveWorkerFromPermissionGroup(int id, RemoveWorkerFromPermissionGroupDto request)
     {
-        await Mediator.Send(new SetAccessToPermissionGroupCommand
+        await Mediator.Send(new RemoveWorkerFromPermissionGroupCommand
         {
             PermissionGroupId = id,
-            PermissionLevels = request
+            WorkerId = request.WorkerId
         });
         return Ok();
     }
 
-
+    [HttpPost("{id}/set-access")]
+    public async Task<IActionResult> SetAccessToPermissionGroup(int id, IEnumerable<SetAccessToPermissionGroupAndWorkerDto> request)
+    {
+        await Mediator.Send(new SetAccessToPermissionGroupCommand
+        {
+            PermissionGroupId = id,
+            AppModulesAccess = request
+        });
+        return Ok();
+    }
 }

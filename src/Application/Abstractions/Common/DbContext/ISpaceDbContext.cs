@@ -13,7 +13,8 @@ public interface ISpaceDbContext
     DbSet<PermissionAccess> PermissionAccesses { get; }
     DbSet<PermissionLevel> PermissionLevels { get; }
     DbSet<PermissionGroup> PermissionGroups { get; }
-
+    DbSet<PermissionGroupPermissionLevelAppModule> PermissionGroupPermissionLevelAppModules { get; }
+    DbSet<WorkerPermissionLevelAppModule> WorkerPermissionLevelAppModules { get; }
     #endregion
     #region Class
     DbSet<Class> Classes { get; }

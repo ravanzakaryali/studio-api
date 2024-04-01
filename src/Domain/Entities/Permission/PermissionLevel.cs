@@ -3,12 +3,12 @@ public class PermissionLevel : BaseAuditableEntity
 {
     public PermissionLevel()
     {
-        PermissionGroupAppModulePermissionLevels = new HashSet<PermissionGroupAppModulePermissionLevel>();
+        PermissionGroupPermissionLevelAppModules = new HashSet<PermissionGroupPermissionLevelAppModule>();
         PermissionAccesses = new HashSet<PermissionAccess>();
-        PermissionGroupWorkerPermissionLevels = new HashSet<PermissionGroupWorkerPermissionLevel>();
+        WorkerPermissionLevelAppModules = new HashSet<WorkerPermissionLevelAppModule>();
     }
     public string Name { get; set; } = null!;
     public ICollection<PermissionAccess> PermissionAccesses { get; set; }
-    public ICollection<PermissionGroupAppModulePermissionLevel> PermissionGroupAppModulePermissionLevels { get; set; }
-    public ICollection<PermissionGroupWorkerPermissionLevel> PermissionGroupWorkerPermissionLevels { get; set; }
+    public ICollection<PermissionGroupPermissionLevelAppModule> PermissionGroupPermissionLevelAppModules { get; set; }
+    public ICollection<WorkerPermissionLevelAppModule> WorkerPermissionLevelAppModules { get; set; }
 }

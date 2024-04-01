@@ -1,6 +1,6 @@
 namespace Space.Domain.Entities
 {
-    public class PermissionGroupAppModulePermissionLevel : BaseEntity
+    public class PermissionGroupPermissionLevelAppModule : BaseEntity
     {
         public int ApplicationModuleId { get; set; }
         public ApplicationModule ApplicationModule { get; set; } = null!;

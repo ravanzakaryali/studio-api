@@ -1,9 +1,9 @@
 namespace Space.Domain.Entities;
 
-public class PermissionGroupWorkerPermissionLevel : BaseEntity
+public class WorkerPermissionLevelAppModule : BaseEntity
 {
-    public int PermissionGroupId { get; set; }
-    public PermissionGroup PermissionGroup { get; set; } = null!;
+    public int ApplicationModuleId { get; set; }
+    public ApplicationModule ApplicationModule { get; set; } = null!;
     public int WorkerId { get; set; }
     public Worker Worker { get; set; } = null!;
     public int PermissionLevelId { get; set; }

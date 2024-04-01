@@ -22,51 +22,6 @@ namespace Space.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("ApplicationModulePermissionGroup", b =>
-                {
-                    b.Property<int>("ApplicationModulesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PermissionGroupsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ApplicationModulesId", "PermissionGroupsId");
-
-                    b.HasIndex("PermissionGroupsId");
-
-                    b.ToTable("ApplicationModulePermissionGroup");
-                });
-
-            modelBuilder.Entity("ApplicationModulePermissionLevel", b =>
-                {
-                    b.Property<int>("ApplicationModulesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PermissionLevelsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ApplicationModulesId", "PermissionLevelsId");
-
-                    b.HasIndex("PermissionLevelsId");
-
-                    b.ToTable("ApplicationModulePermissionLevel");
-                });
-
-            modelBuilder.Entity("ApplicationModuleWorker", b =>
-                {
-                    b.Property<int>("ApplicationModulesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WorkersId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ApplicationModulesId", "WorkersId");
-
-                    b.HasIndex("WorkersId");
-
-                    b.ToTable("ApplicationModuleWorker");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -1094,6 +1049,40 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.ToTable("PermissionGroups");
                 });
 
+            modelBuilder.Entity("Space.Domain.Entities.PermissionGroupPermissionLevelAppModule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ApplicationModuleId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PermissionGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PermissionLevelId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationModuleId");
+
+                    b.HasIndex("PermissionGroupId");
+
+                    b.HasIndex("PermissionLevelId");
+
+                    b.ToTable("PermissionGroupPermissionLevelAppModules");
+                });
+
             modelBuilder.Entity("Space.Domain.Entities.PermissionLevel", b =>
                 {
                     b.Property<int>("Id")
@@ -1785,6 +1774,40 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.ToTable("UserRoles", (string)null);
                 });
 
+            modelBuilder.Entity("Space.Domain.Entities.WorkerPermissionLevelAppModule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ApplicationModuleId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PermissionLevelId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorkerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationModuleId");
+
+                    b.HasIndex("PermissionLevelId");
+
+                    b.HasIndex("WorkerId");
+
+                    b.ToTable("WorkerPermissionLevelAppModules");
+                });
+
             modelBuilder.Entity("Space.Domain.Entities.EndpointDetail", b =>
                 {
                     b.HasBaseType("Space.Domain.Entities.Endpoint");
@@ -1834,51 +1857,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.ToTable("Workers", (string)null);
-                });
-
-            modelBuilder.Entity("ApplicationModulePermissionGroup", b =>
-                {
-                    b.HasOne("Space.Domain.Entities.ApplicationModule", null)
-                        .WithMany()
-                        .HasForeignKey("ApplicationModulesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Space.Domain.Entities.PermissionGroup", null)
-                        .WithMany()
-                        .HasForeignKey("PermissionGroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ApplicationModulePermissionLevel", b =>
-                {
-                    b.HasOne("Space.Domain.Entities.ApplicationModule", null)
-                        .WithMany()
-                        .HasForeignKey("ApplicationModulesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Space.Domain.Entities.PermissionLevel", null)
-                        .WithMany()
-                        .HasForeignKey("PermissionLevelsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ApplicationModuleWorker", b =>
-                {
-                    b.HasOne("Space.Domain.Entities.ApplicationModule", null)
-                        .WithMany()
-                        .HasForeignKey("ApplicationModulesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Space.Domain.Entities.Worker", null)
-                        .WithMany()
-                        .HasForeignKey("WorkersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -2200,6 +2178,33 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("TopModule");
                 });
 
+            modelBuilder.Entity("Space.Domain.Entities.PermissionGroupPermissionLevelAppModule", b =>
+                {
+                    b.HasOne("Space.Domain.Entities.ApplicationModule", "ApplicationModule")
+                        .WithMany("PermissionGroupPermissionLevelAppModules")
+                        .HasForeignKey("ApplicationModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Space.Domain.Entities.PermissionGroup", "PermissionGroup")
+                        .WithMany("PermissionGroupPermissionLevelAppModules")
+                        .HasForeignKey("PermissionGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Space.Domain.Entities.PermissionLevel", "PermissionLevel")
+                        .WithMany("PermissionGroupPermissionLevelAppModules")
+                        .HasForeignKey("PermissionLevelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationModule");
+
+                    b.Navigation("PermissionGroup");
+
+                    b.Navigation("PermissionLevel");
+                });
+
             modelBuilder.Entity("Space.Domain.Entities.RoomSchedule", b =>
                 {
                     b.HasOne("Space.Domain.Entities.Class", "Class")
@@ -2284,6 +2289,33 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Space.Domain.Entities.WorkerPermissionLevelAppModule", b =>
+                {
+                    b.HasOne("Space.Domain.Entities.ApplicationModule", "ApplicationModule")
+                        .WithMany("WorkerPermissionLevelAppModules")
+                        .HasForeignKey("ApplicationModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Space.Domain.Entities.PermissionLevel", "PermissionLevel")
+                        .WithMany("WorkerPermissionLevelAppModules")
+                        .HasForeignKey("PermissionLevelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Space.Domain.Entities.Worker", "Worker")
+                        .WithMany("WorkerPermissionLevelAppModules")
+                        .HasForeignKey("WorkerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationModule");
+
+                    b.Navigation("PermissionLevel");
+
+                    b.Navigation("Worker");
+                });
+
             modelBuilder.Entity("Space.Domain.Entities.EndpointDetail", b =>
                 {
                     b.HasOne("Space.Domain.Entities.ApplicationModule", "ApplicationModule")
@@ -2333,7 +2365,11 @@ namespace Space.Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("EndpointDetails");
 
+                    b.Navigation("PermissionGroupPermissionLevelAppModules");
+
                     b.Navigation("SubModules");
+
+                    b.Navigation("WorkerPermissionLevelAppModules");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Class", b =>
@@ -2385,6 +2421,18 @@ namespace Space.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Space.Domain.Entities.PermissionAccess", b =>
                 {
                     b.Navigation("EndpointDetails");
+                });
+
+            modelBuilder.Entity("Space.Domain.Entities.PermissionGroup", b =>
+                {
+                    b.Navigation("PermissionGroupPermissionLevelAppModules");
+                });
+
+            modelBuilder.Entity("Space.Domain.Entities.PermissionLevel", b =>
+                {
+                    b.Navigation("PermissionGroupPermissionLevelAppModules");
+
+                    b.Navigation("WorkerPermissionLevelAppModules");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.Program", b =>
@@ -2446,6 +2494,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("AttendancesWorkers");
 
                     b.Navigation("ClassModulesWorkers");
+
+                    b.Navigation("WorkerPermissionLevelAppModules");
                 });
 #pragma warning restore 612, 618
         }

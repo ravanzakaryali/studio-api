@@ -63,6 +63,8 @@ public class SpaceDbContext :
     public DbSet<PermissionAccess> PermissionAccesses => Set<PermissionAccess>();
     public DbSet<PermissionLevel> PermissionLevels => Set<PermissionLevel>();
     public DbSet<PermissionGroup> PermissionGroups => Set<PermissionGroup>();
+    public DbSet<PermissionGroupPermissionLevelAppModule> PermissionGroupPermissionLevelAppModules => Set<PermissionGroupPermissionLevelAppModule>();
+    public DbSet<WorkerPermissionLevelAppModule> WorkerPermissionLevelAppModules => Set<WorkerPermissionLevelAppModule>();
 
     #endregion
 
