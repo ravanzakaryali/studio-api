@@ -80,4 +80,20 @@ public class WorkersController : BaseApiController
         return NoContent();
     }
 
+    [HttpGet("{id}/permission-groups")]
+    public async Task<IActionResult> GetPermissionGroupsByWorker([FromRoute] int id)
+        => StatusCode(200, await Mediator.Send(new GetPermissionGroupsByWorkerQuery(id)));
+
+    [HttpPut("{id}/permission-groups")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> UpdatePermissionGroupsByWorker([FromRoute] int id, [FromBody] IEnumerable<PermissionGroupId> request)
+    {
+        await Mediator.Send(new UpdatePermissionGroupsByWorkerCommand()
+        {
+            WorkerId = id,
+            PermissionGroups = request
+        });
+        return NoContent();
+    }
 }
