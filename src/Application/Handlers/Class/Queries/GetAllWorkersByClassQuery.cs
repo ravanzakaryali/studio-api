@@ -52,50 +52,24 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
 
         foreach (ClassTimeSheet classTimeSheet in classTimeSheets.Where(cts => cts.Date == requestDate))
         {
-            if (@class.ClassSessions.Where(c => c.Date == requestDate).All(c => c.Category == ClassSessionCategory.Lab))
+            foreach (AttendanceWorker attendance in classTimeSheet.AttendancesWorkers)
             {
-                foreach (AttendanceWorker attendance in classTimeSheet.AttendancesWorkers.Where(c => c.Role?.Name == "mentor"))
+                workers.Add(new GetWorkersByClassResponseDto()
                 {
-                    workers.Add(new GetWorkersByClassResponseDto()
-                    {
-                        Name = attendance.Worker.Name!,
-                        Surname = attendance.Worker.Surname!,
-                        RoleId = attendance.RoleId,
-                        RoleName = attendance.Role!.Name,
-                        TotalHours = attendance.TotalHours,
-                        TotalMinutes = attendance.TotalMinutes,
-                        WorkerId = attendance.WorkerId,
-                        AttendanceStatus = attendance.AttendanceStatus,
-                        TotalLessonHours = @class.ClassTimeSheets
-                            .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
-                            .SelectMany(c => c.AttendancesWorkers)
-                            .Where(attendance => attendance.WorkerId == attendance.WorkerId)
-                            .Sum(c => c.TotalHours)
-                    });
-                }
-            }
-            else
-            {
-                foreach (AttendanceWorker attendance in classTimeSheet.AttendancesWorkers)
-                {
-
-                    workers.Add(new GetWorkersByClassResponseDto()
-                    {
-                        Name = attendance.Worker.Name!,
-                        Surname = attendance.Worker.Surname!,
-                        RoleId = attendance.RoleId,
-                        RoleName = attendance.Role!.Name,
-                        TotalHours = attendance.TotalHours,
-                        TotalMinutes = attendance.TotalMinutes,
-                        WorkerId = attendance.WorkerId,
-                        AttendanceStatus = attendance.AttendanceStatus,
-                        TotalLessonHours = @class.ClassTimeSheets
-                            .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
-                            .SelectMany(c => c.AttendancesWorkers)
-                            .Where(attendance => attendance.WorkerId == attendance.WorkerId)
-                            .Sum(c => c.TotalHours)
-                    });
-                }
+                    Name = attendance.Worker.Name!,
+                    Surname = attendance.Worker.Surname!,
+                    RoleId = attendance.RoleId,
+                    RoleName = attendance.Role!.Name,
+                    TotalHours = attendance.TotalHours,
+                    TotalMinutes = attendance.TotalMinutes,
+                    WorkerId = attendance.WorkerId,
+                    AttendanceStatus = attendance.AttendanceStatus,
+                    TotalLessonHours = @class.ClassTimeSheets
+                        .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
+                        .SelectMany(c => c.AttendancesWorkers)
+                        .Where(attendance => attendance.WorkerId == attendance.WorkerId)
+                        .Sum(c => c.TotalHours)
+                });
             }
         }
         if (!workers.Any())
