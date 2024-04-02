@@ -78,10 +78,25 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         List<ClassTimeSheet> addTimeSheets = new();
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
-            ClassSession? classSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
+            ClassSession? classSessionFirst = classSessions.FirstOrDefault() ?? throw new NotFoundException("Class session not found");
+            ClassSession? classSession = classSessions
+                .Where(cs => cs.Category == session.Category)
+                .FirstOrDefault() ?? new ClassSession()
+                {
+                    Category = session.Category,
+                    ClassId = @class.Id,
+                    Date = request.Date,
+                    TotalHours = classSessionFirst.TotalHours,
+                    EndTime = classSessionFirst.EndTime,
+                    StartTime = classSessionFirst.StartTime,
+                    CreatedBy = classSessionFirst.CreatedBy,
+                    CreatedDate = classSessionFirst.CreatedDate,
+                    RoomId = classSessionFirst.RoomId,
+                    Status = classSessionFirst.Status,
+                    LastModifiedBy = classSessionFirst.LastModifiedBy,
+                    LastModifiedDate = classSessionFirst.LastModifiedDate,
+                };
 
-            if (classSession is null) continue;
-            classSession.Status = session.Status;
             @classSession.RoomId ??= @class.RoomId;
 
 
