@@ -38,8 +38,8 @@ internal class UpdateClassSessionAttendanceCommandHandler
                 .ThenInclude(c => c.Worker)
                 .Include(c => c.ClassModulesWorkers)
                 .ThenInclude(c => c.Role)
-                .Include(c=>c.Session)
-                .ThenInclude(c=>c.Details)
+                .Include(c => c.Session)
+                .ThenInclude(c => c.Details)
                 .Where(c => c.Id == request.ClassId)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken)
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
@@ -93,12 +93,25 @@ internal class UpdateClassSessionAttendanceCommandHandler
         List<ClassTimeSheet> addTimeSheets = new();
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
+
+            ClassSession? classSessionFirst = classSessions.FirstOrDefault() ?? throw new NotFoundException("Class session not found");
             ClassSession? classSession = classSessions
                 .Where(cs => cs.Category == session.Category)
-                .FirstOrDefault();
-            if (classSession is null)
-                continue;
-
+                .FirstOrDefault() ?? new ClassSession()
+                {
+                    Category = session.Category,
+                    ClassId = @class.Id,
+                    Date = dateNow,
+                    TotalHours = classSessionFirst.TotalHours,
+                    EndTime = classSessionFirst.EndTime,
+                    StartTime = classSessionFirst.StartTime,
+                    CreatedBy = classSessionFirst.CreatedBy,
+                    CreatedDate = classSessionFirst.CreatedDate,
+                    RoomId = classSessionFirst.RoomId,
+                    Status = classSessionFirst.Status,
+                    LastModifiedBy = classSessionFirst.LastModifiedBy,
+                    LastModifiedDate = classSessionFirst.LastModifiedDate,
+                };
             @classSession.RoomId ??= @class.RoomId;
 
             classSession.Status = session.Status;
