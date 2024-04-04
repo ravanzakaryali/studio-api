@@ -55,7 +55,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
         if (!classSessions.Any()) throw new NotFoundException("Class session not found");
 
         //əgər yoxdursa o zaman error qaytar
-        if (request.HeldModules != null)
+        if (request.HeldModules != null || request.HeldModules!.Count != 0)
         {
             List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
             // if (classSessions.Count != requestModuleIds.Count)
