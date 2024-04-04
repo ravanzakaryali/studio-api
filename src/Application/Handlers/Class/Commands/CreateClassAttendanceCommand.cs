@@ -51,7 +51,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         DateOnly classLastDate = await _unitOfWork.ClassSessionService.GetLastDateAsync(@class.Id);
 
         //əgər yoxdursa o zaman error qaytar
-        if (request.HeldModules != null)
+        if (request.HeldModules != null && request.HeldModules.Count != 0)
         {
             List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
 

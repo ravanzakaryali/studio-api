@@ -54,12 +54,9 @@ internal class UpdateClassSessionAttendanceCommandHandler
 
         if (!classSessions.Any()) throw new NotFoundException("Class session not found");
 
-        //əgər yoxdursa o zaman error qaytar
-        if (request.HeldModules != null || request.HeldModules!.Count != 0)
+        if (request.HeldModules != null && request.HeldModules!.Count != 0)
         {
             List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
-            // if (classSessions.Count != requestModuleIds.Count)
-            //     throw new NotFoundException("Module not found");
             List<Module> module = await _spaceDbContext
                 .Modules
                 .Where(m => requestModuleIds.Contains(m.Id))
@@ -69,7 +66,6 @@ internal class UpdateClassSessionAttendanceCommandHandler
                 throw new NotFoundException("Modules not found");
         }
 
-        //ders cancelled olursa bu işləməlidi
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         DateOnly classLastDate = await _unitOfWork.ClassSessionService.GetLastDateAsync(@class.Id);
 
