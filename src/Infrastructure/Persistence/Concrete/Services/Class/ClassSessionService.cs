@@ -20,46 +20,58 @@ public class ClassSessionService : IClassSessionService
                                 int classId,
                                 int roomId)
     {
-
         List<ClassSession> returnClassSessions = new();
         DayOfWeek startDayOfWeek = startDate.DayOfWeek;
         int count = 0;
         while (totalHours > 0)
         {
-            foreach (var session in sessions.OrderBy(c => c.DayOfWeek))
+            int numSelectedDays = sessions.Count;
+            DateOnly dateTime = startDate.AddDays(count);
+            while (true)
             {
-                var daysToAdd = ((int)session.DayOfWeek - (int)startDayOfWeek + 7) % 7;
-                int numSelectedDays = sessions.Count;
+                if (sessions.Any(c => (int)c.DayOfWeek == (int)dateTime.DayOfWeek))
+                {
+                    if (dateTime <= startDate)
+                    {
+                        count++;
+                        dateTime = dateTime.AddDays(1);
+                        continue;
+                    }
+                    if (holidayDates.Contains(dateTime))
+                    {
+                        count++;
+                        dateTime = dateTime.AddDays(1);
+                        continue;
+                    }
+                    break;
+                }
+                count++;
+                dateTime = dateTime.AddDays(1);
+            }
 
-                int hour = (session.End - session.Start).Hours;
 
-                DateOnly dateTime = startDate.AddDays(count * 7 + daysToAdd);
-                ClassSession classSession = new()
+            CreateClassSessionDto session = sessions.First(c => (int)c.DayOfWeek == (int)dateTime.DayOfWeek);
+            int hour = (session.End - session.Start).Hours;
+
+
+
+            if (hour != 0)
+            {
+                returnClassSessions.Add(new ClassSession()
                 {
                     Category = session.Category,
                     ClassId = classId,
                     StartTime = session.Start,
                     EndTime = session.End,
+                    RoomId = roomId,
                     TotalHours = hour,
-                    Date = dateTime,
-                    IsHoliday = false
-                };
-                if (holidayDates.Contains(dateTime))
-                {
-                    classSession.IsHoliday = true;
-                }
-
-                if (hour != 0)
-                {
-                    returnClassSessions.Add(classSession);
-                    totalHours -= hour;
-                    if (totalHours <= 0)
-                        break;
-
-                }
+                    Date = dateTime
+                });
+                totalHours -= hour;
+                if (totalHours <= 0)
+                    break;
             }
             count++;
-
         }
         return returnClassSessions;
     }
@@ -77,39 +89,47 @@ public class ClassSessionService : IClassSessionService
         int count = 0;
         while (!returnClassSessions.Any(c => c.Date >= endDate))
         {
-            foreach (var session in sessions.OrderBy(c => c.DayOfWeek))
+            int numSelectedDays = sessions.Count;
+            DateOnly dateTime = startDate.AddDays(count);
+            while (true)
             {
-                var daysToAdd = ((int)session.DayOfWeek - (int)startDayOfWeek + 7) % 7;
-                int numSelectedDays = sessions.Count;
-
-                int hour = (session.End - session.Start).Hours;
-
-                DateOnly dateTime = startDate.AddDays(count * 7 + daysToAdd);
-
-                if (holidayDates.Contains(dateTime))
+                if (sessions.Any(c => (int)c.DayOfWeek == (int)dateTime.DayOfWeek))
                 {
-                    continue;
-                }
-
-                if (hour != 0)
-                {
-                    returnClassSessions.Add(new ClassSession()
+                    if (dateTime <= startDate)
                     {
-                        Category = session.Category,
-                        ClassId = classId,
-                        StartTime = session.Start,
-                        EndTime = session.End,
-                        RoomId = roomId,
-                        TotalHours = hour,
-                        Date = dateTime
-                    });
-                    if (dateTime == endDate)
-                        break;
-
+                        count++;
+                        dateTime = dateTime.AddDays(1);
+                        continue;
+                    }
+                    if (holidayDates.Contains(dateTime))
+                    {
+                        count++;
+                        dateTime = dateTime.AddDays(1);
+                        continue;
+                    }
+                    break;
                 }
+                count++;
+                dateTime = dateTime.AddDays(1);
+            }
+            CreateClassSessionDto session = sessions.First(c => (int)c.DayOfWeek == (int)dateTime.DayOfWeek);
+            int hour = (session.End - session.Start).Hours;
+            if (hour != 0)
+            {
+                returnClassSessions.Add(new ClassSession()
+                {
+                    Category = session.Category,
+                    ClassId = classId,
+                    StartTime = session.Start,
+                    EndTime = session.End,
+                    RoomId = roomId,
+                    TotalHours = hour,
+                    Date = dateTime
+                });
+                if (dateTime == endDate)
+                    break;
             }
             count++;
-
         }
         return returnClassSessions;
     }

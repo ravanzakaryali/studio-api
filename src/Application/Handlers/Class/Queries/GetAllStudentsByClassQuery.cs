@@ -55,8 +55,8 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                                     .Sum(c => c.TotalAttendanceHours))
                 .Sum();
 
-            double? totalHour = @class.ClassSessions
-                .Where(c => (c.Status == ClassSessionStatus.Offline || c.Status == ClassSessionStatus.Online) && c.Category != ClassSessionCategory.Lab)
+            double? totalHour = @class.ClassTimeSheets
+                .Where(c => c.Status != ClassSessionStatus.Cancelled)
                 .Sum(s => s.TotalHours);
 
 

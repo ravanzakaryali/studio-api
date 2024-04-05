@@ -31,14 +31,12 @@ internal class GetAllWorkersWithDetailsQueryHandler : IRequestHandler<GetAllWork
                 Surname = item.Surname,
                 Id = item.Id
             };
-            //model.Roles = item.UserRoles;
 
             IEnumerable<ClassModulesWorker> data = workersClasses.Where(q => q.WorkerId == item.Id);
             List<WorkersClassesDto> workersClassesDtos = new();
 
             foreach (ClassModulesWorker workerClass in data)
             {
-                //aynı class var mı kontrol? code review yapılmalı
 
                 if (!workersClassesDtos.Any(q => q.ClassId == workerClass.Class.Id))
                 {
@@ -50,6 +48,10 @@ internal class GetAllWorkersWithDetailsQueryHandler : IRequestHandler<GetAllWork
                         StartDate = workerClass.Class.StartDate,
                         EndDate = workerClass.Class.EndDate
                     };
+                    if (workerClass.Class.EndDate < DateOnly.FromDateTime(DateTime.Now))
+                    {
+                        continue;
+                    }
 
                     workersClassesDtos.Add(workersClassesDto);
                 }

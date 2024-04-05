@@ -38,8 +38,8 @@ internal class UpdateClassSessionAttendanceCommandHandler
                 .ThenInclude(c => c.Worker)
                 .Include(c => c.ClassModulesWorkers)
                 .ThenInclude(c => c.Role)
-                .Include(c=>c.Session)
-                .ThenInclude(c=>c.Details)
+                .Include(c => c.Session)
+                .ThenInclude(c => c.Details)
                 .Where(c => c.Id == request.ClassId)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken)
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
@@ -54,12 +54,9 @@ internal class UpdateClassSessionAttendanceCommandHandler
 
         if (!classSessions.Any()) throw new NotFoundException("Class session not found");
 
-        //əgər yoxdursa o zaman error qaytar
-        if (request.HeldModules != null)
+        if (request.HeldModules != null && request.HeldModules!.Count != 0)
         {
             List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
-            // if (classSessions.Count != requestModuleIds.Count)
-            //     throw new NotFoundException("Module not found");
             List<Module> module = await _spaceDbContext
                 .Modules
                 .Where(m => requestModuleIds.Contains(m.Id))
@@ -69,7 +66,6 @@ internal class UpdateClassSessionAttendanceCommandHandler
                 throw new NotFoundException("Modules not found");
         }
 
-        //ders cancelled olursa bu işləməlidi
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         DateOnly classLastDate = await _unitOfWork.ClassSessionService.GetLastDateAsync(@class.Id);
 
@@ -93,12 +89,17 @@ internal class UpdateClassSessionAttendanceCommandHandler
         List<ClassTimeSheet> addTimeSheets = new();
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
+
+            ClassSession? classSessionFirst = classSessions.FirstOrDefault() ?? throw new NotFoundException("Class session not found");
             ClassSession? classSession = classSessions
                 .Where(cs => cs.Category == session.Category)
                 .FirstOrDefault();
-            if (classSession is null)
-                continue;
 
+            if (classSession == null)
+            {
+                classSession = classSessionFirst;
+                classSession.Category = session.Category;
+            }
             @classSession.RoomId ??= @class.RoomId;
 
             classSession.Status = session.Status;

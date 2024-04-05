@@ -125,6 +125,12 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             DateOnly startDate = request.NewExtraModules.OrderBy(c => c.StartDate).First().StartDate;
             DateOnly endDate = request.NewExtraModules.OrderByDescending(c => c.EndDate).First().EndDate;
 
+
+            if (@class.EndDate >= startDate)
+            {
+                startDate = @class.EndDate.Value.AddDays(1);
+            }
+
             List<CreateClassSessionDto> sessions = @class.Session.Details.Select(c => new CreateClassSessionDto()
             {
                 Category = c.Category,

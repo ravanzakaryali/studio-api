@@ -51,7 +51,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         DateOnly classLastDate = await _unitOfWork.ClassSessionService.GetLastDateAsync(@class.Id);
 
         //əgər yoxdursa o zaman error qaytar
-        if (request.HeldModules != null)
+        if (request.HeldModules != null && request.HeldModules.Count != 0)
         {
             List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
 
@@ -78,10 +78,17 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
         List<ClassTimeSheet> addTimeSheets = new();
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
-            ClassSession? classSession = classSessions.Where(cs => cs.Category == session.Category).FirstOrDefault();
+            ClassSession? classSessionFirst = classSessions.FirstOrDefault() ?? throw new NotFoundException("Class session not found");
+            ClassSession? classSession = classSessions
+                .Where(cs => cs.Category == session.Category)
+                .FirstOrDefault();
 
-            if (classSession is null) continue;
-            classSession.Status = session.Status;
+            if (classSession == null)
+            {
+                classSession = classSessionFirst;
+                classSession.Category = session.Category;
+            }
+
             @classSession.RoomId ??= @class.RoomId;
 
 
