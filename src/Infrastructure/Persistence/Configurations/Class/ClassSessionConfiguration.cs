@@ -28,6 +28,6 @@ public class ClassSessionConfiguration : IEntityTypeConfiguration<ClassSession>
                 .WithOne(c => c.ClassSession)
                 .HasForeignKey<ClassSession>(c => c.ClassTimeSheetId);
 
-        builder.HasQueryFilter(b => b.IsHoliday == false);
+        builder.HasQueryFilter(b => b.IsHoliday == false && !b.IsDeleted && b.IsActive);
     }
 }
