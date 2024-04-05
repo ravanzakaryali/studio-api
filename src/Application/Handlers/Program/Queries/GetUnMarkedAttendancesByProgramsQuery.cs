@@ -34,7 +34,6 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
                                 .Where(c => c.Date.Month == (int)request.Month && c.Date.Year == request.Year)
                                 .ToList();
 
-
         return programs.Select(program =>
         {
             double totalAttendace = 0;

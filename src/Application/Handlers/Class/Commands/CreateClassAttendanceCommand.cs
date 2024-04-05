@@ -81,21 +81,13 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
             ClassSession? classSessionFirst = classSessions.FirstOrDefault() ?? throw new NotFoundException("Class session not found");
             ClassSession? classSession = classSessions
                 .Where(cs => cs.Category == session.Category)
-                .FirstOrDefault() ?? new ClassSession()
-                {
-                    Category = session.Category,
-                    ClassId = @class.Id,
-                    Date = request.Date,
-                    TotalHours = classSessionFirst.TotalHours,
-                    EndTime = classSessionFirst.EndTime,
-                    StartTime = classSessionFirst.StartTime,
-                    CreatedBy = classSessionFirst.CreatedBy,
-                    CreatedDate = classSessionFirst.CreatedDate,
-                    RoomId = classSessionFirst.RoomId,
-                    Status = classSessionFirst.Status,
-                    LastModifiedBy = classSessionFirst.LastModifiedBy,
-                    LastModifiedDate = classSessionFirst.LastModifiedDate,
-                };
+                .FirstOrDefault();
+
+            if (classSession == null)
+            {
+                classSession = classSessionFirst;
+                classSession.Category = session.Category;
+            }
 
             @classSession.RoomId ??= @class.RoomId;
 
