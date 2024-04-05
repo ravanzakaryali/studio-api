@@ -76,30 +76,47 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
         {
             if (@class.ClassModulesWorkers.Any(c => c.StartDate <= requestDate && c.EndDate >= requestDate))
             {
-                workers.AddRange(@class.ClassModulesWorkers
-                                   .Where(c => c.StartDate <= requestDate && c.EndDate >= requestDate && c.Module.TopModuleId != null)
-                                   .Distinct(new GetWorkerForClassDtoComparer())
-                                   .OrderBy(c => c.StartDate)
-                                   .Take(2)
-                                   .Select(c =>
-                                   {
-                                       List<ClassTimeSheet> classTimeSheets = @class.ClassTimeSheets.Where(cts => cts.Date == requestDate).ToList();
-                                       GetWorkersByClassResponseDto workersClass = new()
-                                       {
-                                           Name = c.Worker.Name!,
-                                           Surname = c.Worker.Surname!,
-                                           RoleId = c.RoleId,
-                                           RoleName = c.Role!.Name,
-                                           WorkerId = c.WorkerId,
-                                           TotalLessonHours = @class.ClassTimeSheets
-                                               .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
-                                               .SelectMany(c => c.AttendancesWorkers)
-                                               .Where(attendance => attendance.WorkerId == c.WorkerId)
-                                               .Sum(c => c.TotalHours)
-                                       };
+                var mentor = @class.ClassModulesWorkers
+                .FirstOrDefault(c => c.StartDate <= requestDate && c.EndDate >= requestDate && c.Module.TopModuleId != null &&
+                        c.Role.Name == "mentor");
 
-                                       return workersClass;
-                                   }));
+                if (mentor != null)
+                {
+                    workers.Add(new GetWorkersByClassResponseDto
+                    {
+                        Name = mentor.Worker.Name!,
+                        Surname = mentor.Worker.Surname!,
+                        RoleId = mentor.RoleId,
+                        RoleName = mentor.Role!.Name,
+                        WorkerId = mentor.WorkerId,
+                        TotalLessonHours = @class.ClassTimeSheets
+                            .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
+                            .SelectMany(c => c.AttendancesWorkers)
+                            .Where(attendance => attendance.WorkerId == mentor.WorkerId)
+                            .Sum(c => c.TotalHours)
+                    });
+                }
+
+                var muellim = @class.ClassModulesWorkers
+                    .FirstOrDefault(c => c.StartDate <= requestDate && c.EndDate >= requestDate && c.Module.TopModuleId != null &&
+                                c.Role.Name == "muellim");
+
+                if (muellim != null)
+                {
+                    workers.Add(new GetWorkersByClassResponseDto
+                    {
+                        Name = muellim.Worker.Name!,
+                        Surname = muellim.Worker.Surname!,
+                        RoleId = muellim.RoleId,
+                        RoleName = muellim.Role!.Name,
+                        WorkerId = muellim.WorkerId,
+                        TotalLessonHours = @class.ClassTimeSheets
+                            .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
+                            .SelectMany(c => c.AttendancesWorkers)
+                            .Where(attendance => attendance.WorkerId == muellim.WorkerId)
+                            .Sum(c => c.TotalHours)
+                    });
+                }
             }
             else
             {
