@@ -2,7 +2,7 @@
 
 namespace Space.Application.Abstractions;
 
-public interface IUnitOfWork
+public interface IUnitOfWork : IDisposable
 {
     #region Services
     public IEmailService EmailService { get; }
