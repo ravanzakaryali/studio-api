@@ -27,7 +27,7 @@ internal class GetClassesCountQueryHandler : IRequestHandler<GetClassesCountQuer
             .CountAsync(cancellationToken: cancellationToken);
 
         int countNew = await query
-            .Where(c => (now > c.StartDate && c.ClassSessions.Count == 0) || (now < c.EndDate && c.ClassSessions.Count == 0) || (now <= c.StartDate && c.ClassSessions.Count == 0))
+            .Where(c => (now > c.StartDate && c.ClassSessions.Count == 0) || (now < c.StartDate) || (now < c.EndDate && c.ClassSessions.Count == 0) || (now <= c.StartDate && c.ClassSessions.Count == 0))
             .CountAsync(cancellationToken: cancellationToken);
         return new List<GetClassCountResponse>()
         {
