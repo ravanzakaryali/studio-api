@@ -82,7 +82,7 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
                                 date2,
                                 holidayDates,
                                 @class.Id,
-                                classSession.RoomId!.Value
+                                classSession.RoomId ?? @class.RoomId!.Value
                             );
             await _spaceDbContext.ClassSessions.AddRangeAsync(generateClassSessions, cancellationToken);
             if (generateClassSessions.Any())

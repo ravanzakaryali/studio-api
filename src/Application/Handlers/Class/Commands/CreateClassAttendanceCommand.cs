@@ -125,6 +125,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                         RoleId = wa.RoleId,
                         AttendanceStatus = wa.AttendanceStatus,
                     }).ToList(),
+
                     TotalHours = classSession.TotalHours,
                     Category = classSession.Category,
                     ClassId = classSession.ClassId,
@@ -134,6 +135,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                     StartTime = classSession.StartTime,
                     Status = session.Status,
                 };
+                classSession.ClassTimeSheet = classTimeSheet;
                 if (session.Category == ClassSessionCategory.Theoric && request.HeldModules != null)
                     classTimeSheet.HeldModules = request.HeldModules.Select(hm => new HeldModule()
                     {
