@@ -33,6 +33,7 @@ builder.Host.UseSerilog(log);
 builder.Logging.AddSerilog(log);
 
 builder.Services.AddApplicationServices();
+builder.Services.AddHostedService<NotificationBackgroundService>();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 

@@ -1,6 +1,6 @@
 ﻿namespace Space.Application.Abstractions;
 
-public interface ISpaceDbContext
+public interface ISpaceDbContext : IDisposable
 {
 
     #region Class

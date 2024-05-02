@@ -58,5 +58,10 @@ internal class UnitOfWork : IUnitOfWork
     public IUserService UserService => _userService ??= new UserService(_userManager);
     public ITelegramService TelegramService => _telegramService ??= new TelegramService(_configuration);
 
+    public void Dispose()
+    {
+        _dbContext.Dispose();
+    }
+
     #endregion
 }
