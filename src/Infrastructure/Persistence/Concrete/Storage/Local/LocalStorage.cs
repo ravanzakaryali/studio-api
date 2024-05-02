@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Space.Application.Extensions;
 
@@ -61,5 +62,29 @@ public class LocalStorage : StorageHelper, ILocalStorage
         }
 
         return datas;
+    }
+
+    public async Task<FileUploadResponse> UploadAsync(IFormFile file, params string[] paths)
+    {
+        string currentUserEmail = _currentUserService.Email ?? "";
+        string path = Path.Combine(paths);
+        string uploadPath = Path.Combine(_webHostEnvironment.ContentRootPath, path);
+        if (!Directory.Exists(uploadPath))
+            Directory.CreateDirectory(uploadPath);
+
+        string fileNewName = FileRename(HasFile, file.FileName, currentUserEmail).CharacterRegulatory(int.MaxValue);
+        using (FileStream fileStream = IO.File.Create(Path.Combine(uploadPath, fileNewName)))
+        {
+            await file.CopyToAsync(fileStream);
+        }
+        return new FileUploadResponse()
+        {
+            FileName = fileNewName,
+            PathName = Path.Combine(uploadPath, fileNewName),
+            Size = file.Length,
+            Extension = Path.GetExtension(fileNewName),
+            ContentType = file.ContentType,
+        };
+
     }
 }

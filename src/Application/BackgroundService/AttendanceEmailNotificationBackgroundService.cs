@@ -30,8 +30,6 @@ public class NotificationBackgroundService : BackgroundService
                             .Where(c => c.EndTime.Hour == hour)
                             .ToList();
 
-
-
             foreach (ClassSession classSession in classSessionsEnd)
             {
                 if (classSession.Status == ClassSessionStatus.Cancelled)
@@ -61,11 +59,10 @@ public class NotificationBackgroundService : BackgroundService
                         continue;
                     }
 
-
                     ClassModulesWorker? classModulesWorkerMuellim = await dbContext.ClassModulesWorkers
                                                 .Include(c => c.Class)
                                                 .Include(c => c.Role)
-                                                .Where(c => c.ClassId == classSession.ClassId && c.StartDate <= dateNow && c.EndDate >= dateNow && c.Role!.Name == "Mentor")
+                                                .Where(c => c.ClassId == classSession.ClassId && c.StartDate <= dateNow && c.EndDate >= dateNow && c.Role!.Name == "Muellim")
                                                 .FirstOrDefaultAsync(stoppingToken);
 
                     if (classModulesWorkerMuellim == null)
@@ -73,16 +70,19 @@ public class NotificationBackgroundService : BackgroundService
                         continue;
                     }
                     Worker? workerMuellim = await dbContext.Workers
-                     .Where(c => c.Id == classModulesWorkerMuellim.WorkerId)
-                     .FirstOrDefaultAsync(stoppingToken);
+                            .Where(c => c.Id == classModulesWorkerMuellim.WorkerId)
+                            .FirstOrDefaultAsync(stoppingToken);
 
                     if (workerMuellim == null)
                     {
                         continue;
                     }
 
-                    await unitOfWorkService.EmailService.SendMessageAsync("Zəhmət olmasa davamiyyəti daxil edin", worker.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
-                    await unitOfWorkService.EmailService.SendMessageAsync("Zəhmət olmasa davamiyyəti daxil edin", worker.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
+                    Console.WriteLine("Email sent to " + worker.Email);
+                    Console.WriteLine("Email sent to " + workerMuellim.Email);
+
+                    await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", classModulesWorker.Class.Name, worker.Name ?? "", worker.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
+                    await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", classModulesWorkerMuellim.Class.Name, workerMuellim.Name ?? "", workerMuellim.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
 
                 }
             }

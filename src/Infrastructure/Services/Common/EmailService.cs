@@ -38,8 +38,7 @@ public class EmailService : IEmailService
         mailMessage.Body = emailContent;
         await _smtpClient.SendMailAsync(mailMessage);
     }
-
-    public Task SendMessageAsync(string message,string link, string name, string email, string emailTemplate = "EmailTemplate.html", string subject = "Confirm Code")
+    public async Task SendMessageAsync(string message, string className, string name, string email, string emailTemplate = "EmailTemplate.html", string subject = "Confirm Code")
     {
         string fromMail = _configuration["SMTP:Email"];
         MailMessage mailMessage = new(fromMail, email, subject, message)
@@ -48,7 +47,7 @@ public class EmailService : IEmailService
             BodyEncoding = Encoding.UTF8,
         };
         string htmlTemplate = IO.File.ReadAllText(Path.Combine(_webHostEnvironment.WebRootPath, emailTemplate));
-        string emailContent = htmlTemplate.Replace("{{link}}", link);
+        string emailContent = htmlTemplate.Replace("{{link}}", message).Replace("{{name}}", name).Replace("{{className}}", className);
         mailMessage.Body = emailContent;
         await _smtpClient.SendMailAsync(mailMessage);
     }
