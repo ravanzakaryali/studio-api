@@ -22,8 +22,8 @@ public class NotificationBackgroundService : BackgroundService
 
 
             DateOnly dateNow = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(4));
-            int hour = DateTime.Now.Hour;
-            int minute = DateTime.Now.Minute;
+            int hour = DateTime.UtcNow.AddHours(4).Hour; 
+            int minute = DateTime.UtcNow.AddHours(4).Minute;
 
             List<ClassSession> classSessions = await dbContext.ClassSessions
                             .Where(c => c.Date == dateNow)
@@ -84,12 +84,12 @@ public class NotificationBackgroundService : BackgroundService
                     unitOfWorkService.TelegramService.SendMessage($"Davamiyyət {DateTime.Now.ToString("dddd, dd MMMM yyyy")} : {classModulesWorker.Class.Name} \n Mentor: {worker.Name} {worker.Email}");
                     unitOfWorkService.TelegramService.SendMessage($"Davamiyyət {DateTime.Now.ToString("dddd, dd MMMM yyyy")}: {classModulesWorkerMuellim.Class.Name} \n Müellim: {workerMuellim.Name} {workerMuellim.Email}");
 
-                    await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", classModulesWorker.Class.Name, worker.Name ?? "", worker.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
-                    await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", classModulesWorkerMuellim.Class.Name, workerMuellim.Name ?? "", workerMuellim.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
+                    // await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", classModulesWorker.Class.Name, worker.Name ?? "", worker.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
+                    // await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", classModulesWorkerMuellim.Class.Name, workerMuellim.Name ?? "", workerMuellim.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
 
                 }
             }
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }
 }
