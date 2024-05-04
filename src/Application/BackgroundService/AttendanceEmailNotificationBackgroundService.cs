@@ -81,8 +81,8 @@ public class NotificationBackgroundService : BackgroundService
                         continue;
                     }
 
-                    unitOfWorkService.TelegramService.SendMessage($"Davamiyyət {DateTime.Now.ToString("dddd, dd MMMM yyyy")} : {classModulesWorker.Class.Name} \n Mentor: {worker.Name} {worker.Email}");
-                    unitOfWorkService.TelegramService.SendMessage($"Davamiyyət {DateTime.Now.ToString("dddd, dd MMMM yyyy")}: {classModulesWorkerMuellim.Class.Name} \n Müellim: {workerMuellim.Name} {workerMuellim.Email}");
+                    // unitOfWorkService.TelegramService.SendMessage($"Davamiyyət {DateTime.Now.ToString("dddd, dd MMMM yyyy")} : {classModulesWorker.Class.Name} \n Mentor: {worker.Name} {worker.Email}");
+                    // unitOfWorkService.TelegramService.SendMessage($"Davamiyyət {DateTime.Now.ToString("dddd, dd MMMM yyyy")}: {classModulesWorkerMuellim.Class.Name} \n Müellim: {workerMuellim.Name} {workerMuellim.Email}");
 
                     // await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", classModulesWorker.Class.Name, worker.Name ?? "", worker.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
                     // await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", classModulesWorkerMuellim.Class.Name, workerMuellim.Name ?? "", workerMuellim.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
