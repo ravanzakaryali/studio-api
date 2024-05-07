@@ -9,6 +9,7 @@ public class GetUnmarkedAttedanceClassesByProgramQuery : IRequest<IEnumerable<Ge
     public int Id { get; set; }
     public MonthOfYear Month { get; set; }
     public int Year { get; set; }
+    public int Day { get; set; }
 }
 internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<GetUnmarkedAttedanceClassesByProgramQuery, IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
@@ -65,6 +66,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                                                 cs.ClassTimeSheetId is null &&
                                                 cs.Date.Year == request.Year &&
                                                 cs.Date.Month == (int)request.Month &&
+                                                cs.Date.Day == request.Day &&
                                                 cs.Status != ClassSessionStatus.Cancelled).Count(),
                 Class = new GetClassDto()
                 {
@@ -76,6 +78,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                                                 cs.ClassTimeSheetId is null &&
                                                 cs.Date.Year == request.Year &&
                                                 cs.Date.Month == (int)request.Month &&
+                                                cs.Date.Day == request.Day &&
                                                 cs.Status != ClassSessionStatus.Cancelled)
                                         .OrderByDescending(cs => cs.Date)
                                         .FirstOrDefault()?.Date
@@ -84,7 +87,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
             .DistinctBy(c => c.Class.Id)
             .OrderByDescending(c => c.UnMarkDays)
             .ToList());
-        return response;
+        return response.OrderByDescending(c => c.UnMarkDays);
     }
 
 }
