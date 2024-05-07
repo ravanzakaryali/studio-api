@@ -2,7 +2,7 @@
 
 namespace Space.Application.Handlers;
 
-public record CreateSupportCommand(string Title, string? Description, int? ClassId, IFormFileCollection? Images) : IRequest
+public record CreateSupportCommand(string Title, string? Description, int? ClassId, int CategoryId, IFormFileCollection? Images) : IRequest
 {
 }
 internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportCommand>
@@ -32,18 +32,20 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
         User? user = await _unitOfWork.UserService.FindById(int.Parse(loginUserId))
             ?? throw new NotFoundException(nameof(User), "");
 
+        SupportCategory? supportCategory = await _spaceDbContext.SupportCategories.FindAsync(request.CategoryId)
+            ?? throw new NotFoundException(nameof(SupportCategory), request.CategoryId);
+
         Support newSupport = new()
         {
             UserId = user.Id,
             Title = request.Title,
             Description = request.Description,
+            SupportCategoryId = supportCategory.Id,
         };
-        
+
         if (request.ClassId != null)
         {
-            Class? supportClass = await _spaceDbContext.Classes.FindAsync(request.ClassId);
-            if (supportClass == null)
-                throw new NotFoundException(nameof(Class), request.ClassId);
+            Class? supportClass = await _spaceDbContext.Classes.FindAsync(request.ClassId) ?? throw new NotFoundException(nameof(Class), request.ClassId);
             newSupport.ClassId = supportClass.Id;
             newSupport.Class = supportClass;
         }
@@ -60,6 +62,7 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
                 Size = i.Size
             }).ToList();
         }
+
 
         await _spaceDbContext.Supports.AddAsync(newSupport);
         await _spaceDbContext.SaveChangesAsync();

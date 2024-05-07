@@ -4,6 +4,11 @@ public class SupportCategoryConfiguration : IEntityTypeConfiguration<SupportCate
 {
     public void Configure(EntityTypeBuilder<SupportCategory> builder)
     {
+
+        builder.Property(p => p.Redirect)
+             .HasConversion(new EnumToStringConverter<SupportRedirect>())
+            .HasDefaultValue(SupportStatus.Open);
+
         builder.ConfigureBaseEntity();
     }
 }
