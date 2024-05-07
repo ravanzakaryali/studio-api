@@ -7,7 +7,7 @@ public class SupportCategoryConfiguration : IEntityTypeConfiguration<SupportCate
 
         builder.Property(p => p.Redirect)
              .HasConversion(new EnumToStringConverter<SupportRedirect>())
-            .HasDefaultValue(SupportStatus.Open);
+             .IsRequired();
 
         builder.ConfigureBaseEntity();
     }
