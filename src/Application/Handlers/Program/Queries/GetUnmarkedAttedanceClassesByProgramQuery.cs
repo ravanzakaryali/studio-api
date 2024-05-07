@@ -9,7 +9,7 @@ public class GetUnmarkedAttedanceClassesByProgramQuery : IRequest<IEnumerable<Ge
     public int Id { get; set; }
     public MonthOfYear Month { get; set; }
     public int Year { get; set; }
-    public int Day { get; set; }
+    public int? Day { get; set; }
 }
 internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<GetUnmarkedAttedanceClassesByProgramQuery, IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
@@ -56,37 +56,42 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
 
         response.AddRange(classSessions
 
-            .Select(c => new GetUnmarkedAttedanceClassesByProgramResponseDto()
+            .Select(c =>
             {
-                StudentsCount = c.Class.Studies.Count,
-                AttendancePercentage = Math.Round(list.Where(l => l.ClassId == c.ClassId).Any() ?
-                                   list.Where(l => l.ClassId == c.ClassId).Average(a => a.AverageHours) :
-                                   0, 2),
-                UnMarkDays = classSessions.Where(cs => cs.ClassId == c.ClassId &&
-                                                cs.ClassTimeSheetId is null &&
-                                                cs.Date.Year == request.Year &&
-                                                cs.Date.Month == (int)request.Month &&
-                                                cs.Date.Day == request.Day &&
-                                                cs.Status != ClassSessionStatus.Cancelled).Count(),
-                Class = new GetClassDto()
+                IEnumerable<ClassSession> filterClassSession = classSessions
+                                         .Where(cs => cs.ClassId == c.ClassId &&
+                                                 cs.ClassTimeSheetId is null &&
+                                                 cs.Date.Year == request.Year &&
+                                                 cs.Date.Month == (int)request.Month &&
+                                                 cs.Status != ClassSessionStatus.Cancelled);
+
+                if (request.Day is not null)
                 {
-                    Id = c.ClassId,
-                    Name = c.Class.Name
-                },
-                LastDate = classSessions
-                                        .Where(cs => cs.ClassId == c.ClassId &&
-                                                cs.ClassTimeSheetId is null &&
-                                                cs.Date.Year == request.Year &&
-                                                cs.Date.Month == (int)request.Month &&
-                                                cs.Date.Day == request.Day &&
-                                                cs.Status != ClassSessionStatus.Cancelled)
-                                        .OrderByDescending(cs => cs.Date)
-                                        .FirstOrDefault()?.Date
+                    filterClassSession = filterClassSession.Where(cs => cs.Date.Day == request.Day);
+                }
+
+                return new GetUnmarkedAttedanceClassesByProgramResponseDto()
+                {
+                    StudentsCount = c.Class.Studies.Count,
+                    AttendancePercentage = Math.Round(list.Where(l => l.ClassId == c.ClassId).Any() ?
+                                    list.Where(l => l.ClassId == c.ClassId).Average(a => a.AverageHours) :
+                                    0, 2),
+                    UnMarkDays = filterClassSession.Count(),
+                    Class = new GetClassDto()
+                    {
+                        Id = c.ClassId,
+                        Name = c.Class.Name
+                    },
+                    LastDate = filterClassSession.OrderByDescending(cs => cs.Date)
+                                         .FirstOrDefault()?.Date
+
+                };
             })
             .Where(c => c.UnMarkDays != 0)
             .DistinctBy(c => c.Class.Id)
             .OrderByDescending(c => c.UnMarkDays)
             .ToList());
+
         return response.OrderByDescending(c => c.UnMarkDays);
     }
 

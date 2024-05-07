@@ -8,7 +8,7 @@ public class GetUnMarkedAttendancesByProgramsQuery : IRequest<IEnumerable<GetUnM
 {
     public MonthOfYear Month { get; set; }
     public int Year { get; set; }
-    public int Day { get; set; }
+    public int? Day { get; set; }
 }
 internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMarkedAttendancesByProgramsQuery, IEnumerable<GetUnMarkedAttendancesByProgramsDto>>
 {
@@ -32,8 +32,15 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
 
 
         classSessions = classSessions
-                                .Where(c => c.Date.Month == (int)request.Month && c.Date.Year == request.Year && c.Date.Day == request.Day)
+                                .Where(c => c.Date.Month == (int)request.Month && c.Date.Year == request.Year)
                                 .ToList();
+
+        if (request.Day != null)
+        {
+            classSessions = classSessions
+                                .Where(c => c.Date.Day == request.Day)
+                                .ToList();
+        }
 
         return programs.Select(program =>
         {

@@ -40,12 +40,12 @@ public class ProgramsController : BaseApiController
     }
     [Authorize(Roles = "admin")]
     [HttpGet("unmarked-attendances")]
-    public async Task<IActionResult> GetUnMarkedAttendancesByPrograms([FromQuery] MonthOfYear? month, [FromQuery] int? year,[FromQuery] int? day)
+    public async Task<IActionResult> GetUnMarkedAttendancesByPrograms([FromQuery] MonthOfYear? month, [FromQuery] int? year, [FromQuery] int? day)
         => Ok(await Mediator.Send(new GetUnMarkedAttendancesByProgramsQuery()
         {
             Month = month ?? (MonthOfYear)DateTime.Now.Month,
             Year = year ?? DateTime.Now.Year,
-            Day = day ?? DateTime.Now.Day
+            Day = day
         }));
 
     [Authorize(Roles = "admin")]
@@ -56,7 +56,7 @@ public class ProgramsController : BaseApiController
             Id = id,
             Month = month ?? (MonthOfYear)DateTime.Now.Month,
             Year = year ?? DateTime.Now.Year,
-            Day = day ?? DateTime.Now.Day
+            Day = day
         }));
 
 
