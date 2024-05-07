@@ -49,12 +49,13 @@ public class ProgramsController : BaseApiController
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/unmarked-attendances-classes")]
-    public async Task<IActionResult> GetUnmarkedAttedamceClasses([FromRoute] int id, [FromQuery] MonthOfYear? month, [FromQuery] int? year)
+    public async Task<IActionResult> GetUnmarkedAttedamceClasses([FromRoute] int id, [FromQuery] MonthOfYear? month, [FromQuery] int? year, [FromQuery] int? day)
         => Ok(await Mediator.Send(new GetUnmarkedAttedanceClassesByProgramQuery()
         {
             Id = id,
             Month = month ?? (MonthOfYear)DateTime.Now.Month,
-            Year = year ?? DateTime.Now.Year
+            Year = year ?? DateTime.Now.Year,
+            Day = day ?? DateTime.Now.Day
         }));
 
 
