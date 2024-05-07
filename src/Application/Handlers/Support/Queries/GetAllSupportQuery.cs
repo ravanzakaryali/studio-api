@@ -16,5 +16,14 @@ internal class GetAllSupportQueryHandler : IRequestHandler<GetAllSupportQuery, I
     }
 
     public async Task<IEnumerable<GetSupportResponseDto>> Handle(GetAllSupportQuery request, CancellationToken cancellationToken)
-        => _mapper.Map<IEnumerable<GetSupportResponseDto>>(await _spaceDbContext.Supports.Include(c => c.SupportImages).Include(c => c.User).ToListAsync());
+    {
+        List<Support> supports = await _spaceDbContext.Supports
+            .Include(c => c.SupportImages)
+            .Include(c => c.User)
+            .Include(c => c.Class)
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        return _mapper.Map<IEnumerable<GetSupportResponseDto>>(supports);
+    }
+
 }

@@ -8,5 +8,6 @@ public class CreateSupportRequestDto
     }
     public string Title { get; set; } = null!;
     public string? Description { get; set; }
+    public int? ClassId { get; set; }
     public IFormFileCollection? Images { get; set; }
 }

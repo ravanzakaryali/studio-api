@@ -2,7 +2,7 @@
 
 namespace Space.Application.Handlers;
 
-public record CreateSupportCommand(string Title, string? Description, IFormFileCollection? Images) : IRequest
+public record CreateSupportCommand(string Title, string? Description, int? ClassId, IFormFileCollection? Images) : IRequest
 {
 }
 internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportCommand>
@@ -38,6 +38,16 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
             Title = request.Title,
             Description = request.Description,
         };
+        
+        if (request.ClassId != null)
+        {
+            Class? supportClass = await _spaceDbContext.Classes.FindAsync(request.ClassId);
+            if (supportClass == null)
+                throw new NotFoundException(nameof(Class), request.ClassId);
+            newSupport.ClassId = supportClass.Id;
+            newSupport.Class = supportClass;
+        }
+
         if (request.Images != null)
         {
             List<FileUploadResponse> imageUpload = await _storageService.UploadAsync(request.Images, "Images");
