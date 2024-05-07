@@ -1,4 +1,6 @@
-﻿namespace Space.WebAPI.Controllers;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Space.WebAPI.Controllers;
 
 public class SupportsController : BaseApiController
 {
@@ -12,6 +14,22 @@ public class SupportsController : BaseApiController
         await Mediator.Send(new CreateSupportCommand(request.Title, request.Description, request.ClassId, request.CategoryId, request.Images));
         return StatusCode(StatusCodes.Status201Created);
     }
+
+    [Authorize(Roles = "admin")]
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] UpdateSupportRequestDto request)
+    {
+        await Mediator.Send(new UpdateSupportCommand()
+        {
+            Id = id,
+            Note = request.Note,
+            Status = request.Status
+        });
+        return NoContent();
+    }
+
 
 
     [Authorize(Roles = "admin")]

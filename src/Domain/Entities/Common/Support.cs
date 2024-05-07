@@ -15,5 +15,6 @@ public class Support : BaseAuditableEntity
     public SupportStatus Status { get; set; }
     public int? SupportCategoryId { get; set; }
     public SupportCategory? SupportCategory { get; set; }
+    public string? Note { get; set; }
     public ICollection<SupportImage> SupportImages { get; set; }
 }
