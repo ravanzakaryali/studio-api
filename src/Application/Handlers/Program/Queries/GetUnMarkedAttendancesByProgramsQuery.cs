@@ -1,14 +1,11 @@
-﻿
-
-using Space.Application.Enums;
+﻿using Space.Application.Enums;
 
 namespace Space.Application.Handlers;
 
 public class GetUnMarkedAttendancesByProgramsQuery : IRequest<IEnumerable<GetUnMarkedAttendancesByProgramsDto>>
 {
-    public MonthOfYear Month { get; set; }
-    public int Year { get; set; }
-    public int? Day { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 }
 internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMarkedAttendancesByProgramsQuery, IEnumerable<GetUnMarkedAttendancesByProgramsDto>>
 {
@@ -30,17 +27,12 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
             .Where(c => c.Date < dateNow && c.Status != ClassSessionStatus.Cancelled)
             .ToListAsync(cancellationToken: cancellationToken);
 
+        DateOnly startDate = DateOnly.FromDateTime(request.StartDate);
+        DateOnly endDate = DateOnly.FromDateTime(request.EndDate);
 
         classSessions = classSessions
-                                .Where(c => c.Date.Month == (int)request.Month && c.Date.Year == request.Year)
+                                .Where(c => c.Date >= startDate && c.Date <= endDate)
                                 .ToList();
-
-        if (request.Day != null)
-        {
-            classSessions = classSessions
-                                .Where(c => c.Date.Day == request.Day)
-                                .ToList();
-        }
 
         return programs.Select(program =>
         {
