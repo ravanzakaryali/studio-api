@@ -65,7 +65,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                                                 cs.ClassTimeSheetId is null &&
                                                 cs.Date.Year == request.Year &&
                                                 cs.Date.Month == (int)request.Month &&
-                                                cs.Status != ClassSessionStatus.Cancelled).Count(),
+                                                cs.Status != ClassSessionStatus.Cancelled).DistinctBy(cs => cs.Date).Count(),
                 Class = new GetClassDto()
                 {
                     Id = c.ClassId,
