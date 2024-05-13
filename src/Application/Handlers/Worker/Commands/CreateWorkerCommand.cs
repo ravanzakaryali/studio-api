@@ -31,6 +31,7 @@ public class CreateWorkerCommandHandler : IRequestHandler<CreateWorkerCommand, G
             Name = request.Name,
             Surname = request.Surname,
             Email = request.Email,
+            UserName = request.Email,
         };
         if (request.GroupsId != null)
         {
