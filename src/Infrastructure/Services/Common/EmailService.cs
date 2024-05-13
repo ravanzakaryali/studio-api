@@ -41,11 +41,14 @@ public class EmailService : IEmailService
     public async Task SendMessageAsync(string message, string className, string name, string email, string emailTemplate = "EmailTemplate.html", string subject = "Confirm Code")
     {
         string fromMail = _configuration["SMTP:Email"];
+
         MailMessage mailMessage = new(fromMail, email, subject, message)
         {
             IsBodyHtml = true,
             BodyEncoding = Encoding.UTF8,
         };
+        mailMessage.CC.Add("academic@code.edu.az");
+
         string htmlTemplate = IO.File.ReadAllText(Path.Combine(_webHostEnvironment.WebRootPath, emailTemplate));
         string emailContent = htmlTemplate.Replace("{{link}}", message).Replace("{{name}}", name).Replace("{{className}}", className);
         mailMessage.Body = emailContent;
