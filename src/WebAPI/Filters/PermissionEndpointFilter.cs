@@ -1,5 +1,6 @@
 
 
+using Azure;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -36,7 +37,9 @@ public class PermissionEndpointFilter : IAsyncActionFilter
         string? pattern = descriptor?.AttributeRouteInfo?.Template;
         string httpMethod = descriptor?.ActionConstraints?.OfType<HttpMethodActionConstraint>().FirstOrDefault()?.HttpMethods.FirstOrDefault() ?? "GET";
 
-        E.EndpointDetail? endpointDb = await _spaceDbContext.EndpointDetails
+        bool? isAuth = descriptor?.EndpointMetadata.Any(c => c is AuthorizeAttribute);
+
+        E.Endpoint? endpointDb = await _spaceDbContext.Endpoints
                                         .Where(c => c.Path == pattern && c.HttpMethod == httpMethod)
                                         .FirstOrDefaultAsync();
 
@@ -50,9 +53,19 @@ public class PermissionEndpointFilter : IAsyncActionFilter
 
         if (userId == null)
         {
-            context.HttpContext.Response.StatusCode = 401;
-            await context.HttpContext.Response.WriteAsync("Unauthorized");
-            return;
+            if (isAuth is not null and true)
+            {
+                context.HttpContext.Response.StatusCode = 401;
+                await context.HttpContext.Response.WriteAsync("Unauthorized");
+                return;
+            }
+            else
+            {
+                await next();
+                return;
+            }
+
+
         }
         E.Worker? worker = await _spaceDbContext.Workers
             .FirstOrDefaultAsync(c => c.Id == int.Parse(userId));
