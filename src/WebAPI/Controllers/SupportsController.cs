@@ -11,7 +11,7 @@ public class SupportsController : BaseApiController
     [ProducesDefaultResponseType]
     public async Task<IActionResult> CreateAsync([FromForm] CreateSupportRequestDto request)
     {
-        await Mediator.Send(new CreateSupportCommand(request.Title, request.Description, request.ClassId, request.CategoryId, request.Images));
+        await Mediator.Send(new CreateSupportCommand(request.Title, request.Description, request.ClassId, request.CategoryId, request.PhoneNumber, request.Images));
         return StatusCode(StatusCodes.Status201Created);
     }
 
@@ -41,7 +41,7 @@ public class SupportsController : BaseApiController
     [Authorize(Roles = "admin")]
     [HttpGet("categories")]
     public async Task<IActionResult> GetAllCategoryAsync()
-        => Ok(await Mediator.Send(new GetAllSupportQuery()));
+        => Ok(await Mediator.Send(new GetSupportCategoriesQuery()));
 
     [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]

@@ -2,7 +2,7 @@
 
 namespace Space.Application.Handlers;
 
-public record CreateSupportCommand(string Title, string? Description, int? ClassId, int CategoryId, IFormFileCollection? Images) : IRequest
+public record CreateSupportCommand(string Title, string? Description, int? ClassId, int CategoryId, string PhoneNumber, IFormFileCollection? Images) : IRequest
 {
 }
 internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportCommand>
@@ -31,6 +31,8 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
 
         User? user = await _unitOfWork.UserService.FindById(int.Parse(loginUserId))
             ?? throw new NotFoundException(nameof(User), "");
+
+        user.PhoneNumber = request.PhoneNumber;
 
         SupportCategory? supportCategory = await _spaceDbContext.SupportCategories.FindAsync(request.CategoryId)
             ?? throw new NotFoundException(nameof(SupportCategory), request.CategoryId);
