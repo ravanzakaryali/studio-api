@@ -31,8 +31,8 @@ internal class CreatePermissionLevelCommandHandler : IRequestHandler<CreatePermi
         };
         foreach (var access in request.Accesses)
         {
-            PermissionAccess? permissionAccess = permissionAccesses.Where(c => c.Id == access.PermissionLevelId).FirstOrDefault()
-                    ?? throw new NotFoundException(nameof(PermissionAccess), access.PermissionLevelId);
+            PermissionAccess? permissionAccess = permissionAccesses.Where(c => c.Id == access.Id).FirstOrDefault()
+                    ?? throw new NotFoundException(nameof(PermissionAccess), access.Id);
 
             if (access.IsAccess)
             {
