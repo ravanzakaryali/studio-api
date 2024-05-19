@@ -22,7 +22,7 @@ internal class GetAllPermissionLevelsWithAccessesQueryHandler : IRequestHandler<
                  Name = c.Name,
                  PermissionAccesses = c.PermissionAccesses.Select(p => new GetPermissionAccessDto
                  {
-                     PermissionLevelId = p.Id,
+                     Id = p.Id,
                      Name = p.Name,
                      IsAccess = false
                  }).ToList()
@@ -33,9 +33,9 @@ internal class GetAllPermissionLevelsWithAccessesQueryHandler : IRequestHandler<
         {
             permissionLevel.PermissionAccesses = permissionAccesses.Select(c => new GetPermissionAccessDto
             {
-                PermissionLevelId = c.Id,
+                Id = c.Id,
                 Name = c.Name,
-                IsAccess = permissionLevel.PermissionAccesses.Any(p => p.PermissionLevelId == c.Id)
+                IsAccess = permissionLevel.PermissionAccesses.Any(p => p.Id == c.Id)
             }).ToList();
         }
         return permissionLevels;
