@@ -2,8 +2,25 @@
 
 namespace Space.Application.Handlers;
 
-public record CreateSupportCommand(string Title, string? Description, int? ClassId, int CategoryId, string PhoneNumber, IFormFileCollection? Images) : IRequest
+public class CreateSupportCommand : IRequest
 {
+    public CreateSupportCommand(string title, string? description, int? classId, int categoryId, string phoneNumber, IFormFileCollection? images)
+    {
+        Title = title;
+        Description = description;
+        ClassId = classId;
+        CategoryId = categoryId;
+        PhoneNumber = phoneNumber;
+        Images = images;
+    }
+
+    public string Title { get; set; }
+    public string? Description { get; set; }
+    public int? ClassId { get; set; }
+    public int CategoryId { get; set; }
+    public string PhoneNumber { get; set; }
+    public IFormFileCollection? Images { get; set; }
+
 }
 internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportCommand>
 {
