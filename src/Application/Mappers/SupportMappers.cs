@@ -14,5 +14,6 @@ public class SupportMappers : Profile
         CreateMap<SupportCategory, GetSupportCategory>();
 
         CreateMap<User, GetSupportUser>();
+
     }
 }

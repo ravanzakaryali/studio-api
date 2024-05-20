@@ -8,6 +8,7 @@ public class ClassMappers : Profile
     {
         CreateMap<CreateClassCommand, Class>();
         CreateMap<Class, GetClassResponseDto>();
+        CreateMap<Class, GetClassDto>().ReverseMap();
         CreateMap<UpdateClassCommand, Class>();
         CreateMap<ClassModulesWorker, GetWorkerDto>()
            .ForMember(c => c.Id, opt => opt.MapFrom(cw => cw.WorkerId))

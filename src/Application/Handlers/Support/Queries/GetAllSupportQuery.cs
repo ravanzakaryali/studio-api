@@ -24,7 +24,7 @@ internal class GetAllSupportQueryHandler : IRequestHandler<GetAllSupportQuery, I
             .Include(c => c.SupportCategory)
             .ToListAsync(cancellationToken: cancellationToken);
 
-        return _mapper.Map<IEnumerable<GetSupportResponseDto>>(supports).OrderByDescending(c => c.CreatedDate);
+        return _mapper.Map<List<GetSupportResponseDto>>(supports).OrderByDescending(c => c.CreatedDate);
     }
 
 }
