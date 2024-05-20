@@ -23,14 +23,15 @@ internal class UpdatePermissionLevelCommandHandler : IRequestHandler<UpdatePermi
 
         foreach (UpdatePermissionLevelDto permissionAccess in request.PermissionAccesses)
         {
-            PermissionAccess permissionAccessDb = permissionAccesses.Where(c => c.Id == permissionAccess.Id).FirstOrDefault()
-                     ?? throw new NotFoundException(nameof(PermissionAccess), permissionAccess.Id);
+            PermissionLevel? permissionLevel = permissionLevels.Where(c => c.Id == permissionAccess.Id).FirstOrDefault()
+                        ?? throw new NotFoundException(nameof(PermissionLevel), permissionAccess.Id);
 
-            permissionAccessDb.PermissionLevels.Clear();
-            foreach (var access in permissionAccess.Accesses)
+
+            permissionLevel.PermissionAccesses.Clear();
+            foreach (PermissionAccessLevelDto access in permissionAccess.Accesses)
             {
-                PermissionLevel? permissionLevel = permissionLevels.Where(c => c.Id == access.Id).FirstOrDefault()
-                        ?? throw new NotFoundException(nameof(PermissionLevel), access.Id);
+                PermissionAccess permissionAccessDb = permissionAccesses.Where(c => c.Id == access.Id).FirstOrDefault()
+                     ?? throw new NotFoundException(nameof(PermissionAccess), permissionAccess.Id);
 
                 if (access.IsAccess)
                 {
