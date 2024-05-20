@@ -35,7 +35,7 @@ internal class UpdatePermissionLevelCommandHandler : IRequestHandler<UpdatePermi
 
                 if (access.IsAccess)
                 {
-                    permissionAccessDb.PermissionLevels.Add(permissionLevel);
+                    permissionLevel.PermissionAccesses.Add(permissionAccessDb);
                 }
             }
 
