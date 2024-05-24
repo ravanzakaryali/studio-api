@@ -12,6 +12,7 @@ public class Worker : User, IKometa, IKey, IUserSecurity
     }
     public int? KometaId { get; set; }
     public Guid? Key { get; set; }
+    public string? AvatarColor { get; set; }
     public DateTime? KeyExpirerDate { get; set; }
     public DateTime? LastPasswordUpdateDate { get; set; }
     public ICollection<ClassModulesWorker> ClassModulesWorkers { get; set; }

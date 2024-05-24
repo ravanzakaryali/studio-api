@@ -1,5 +1,6 @@
 ﻿namespace Space.Application.Handlers;
 
+
 public record CreateWorkerCommand(string Name, string Surname, string Email, IEnumerable<int>? GroupsId) : IRequest<GetWorkerResponseDto>;
 
 public class CreateWorkerCommandHandler : IRequestHandler<CreateWorkerCommand, GetWorkerResponseDto>
@@ -32,6 +33,7 @@ public class CreateWorkerCommandHandler : IRequestHandler<CreateWorkerCommand, G
             Surname = request.Surname,
             Email = request.Email,
             UserName = request.Email,
+            AvatarColor = Helper.Color.GenerateBackgroundColor(request.Name + request.Surname),
         };
         if (request.GroupsId != null)
         {
