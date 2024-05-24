@@ -11,6 +11,12 @@ public class UsersController : BaseApiController
         return Ok(await Mediator.Send(new UserLoginQuery()));
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetUsers()
+    {
+        return Ok(await Mediator.Send(new GetUsersQuery()));
+    }
+
     [Authorize]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
