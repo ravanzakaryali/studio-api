@@ -27,7 +27,8 @@ internal class GetPermissionGroupsQueryHandler : IRequestHandler<GetPermissionGr
                     Id = w.Id,
                     Name = w.Name!,
                     Surname = w.Surname!,
-                    Email = w.Email
+                    Email = w.Email,
+                    AvatarColor = w.AvatarColor,
                 }).ToList()
             }).ToListAsync(cancellationToken);
     }
