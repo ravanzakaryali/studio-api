@@ -53,4 +53,11 @@ public class PermissionGroupsController : BaseApiController
         });
         return Ok();
     }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeletePermissionGroup(int id)
+    {
+        await Mediator.Send(new DeletePermissionGroupCommand { Id = id });
+        return Ok();
+    }
 }
