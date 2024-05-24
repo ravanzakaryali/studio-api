@@ -9,23 +9,6 @@ namespace Space.WebAPI.Controllers;
 public class WorkersController : BaseApiController
 
 {
-
-    [HttpPost("color-generate")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> GenerateColor()
-    {
-
-        var workers = await SpaceDbContext.Workers.ToListAsync();
-        foreach (var worker in workers)
-        {
-            worker.AvatarColor = Space.Application.Helper.Color.GenerateBackgroundColor(worker.Name + worker.Surname);
-        }
-        await SpaceDbContext.SaveChangesAsync();
-        return NoContent();
-    }
-
-
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]

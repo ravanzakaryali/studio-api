@@ -10,6 +10,12 @@ public class PermissionGroupsController : BaseApiController
         return Ok(await Mediator.Send(new GetPermissionGroupsQuery()));
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetPermissionGroup(int id)
+    {
+        return Ok(await Mediator.Send(new GetPermissionGroupQuery { Id = id }));
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreatePermissionGroup(CreatePermissionGroupDto request)
     {
