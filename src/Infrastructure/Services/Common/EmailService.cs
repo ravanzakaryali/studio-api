@@ -73,7 +73,7 @@ public class EmailService : IEmailService
                                 .Replace("{{message}}", sendEmailSupportMessage.Message)
                                 .Replace("{{name}}", sendEmailSupportMessage.User.Name)
                                 .Replace("{{title}}", sendEmailSupportMessage.Title)
-                                .Replace("{{link}}", $"{_configuration["App:ClientUrl"]}/admin/app/supports/{supportId}")
+                                .Replace("{{link}}", $"{_configuration["App:ClientUrl"]}/admin/app/supports?supportId={supportId}")
                                 .Replace("{{surname}}", sendEmailSupportMessage.User.Surname)
                                 .Replace("{{email}}", sendEmailSupportMessage.User.Email);
 
