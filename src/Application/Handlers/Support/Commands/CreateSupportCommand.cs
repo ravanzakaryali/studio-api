@@ -82,8 +82,21 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
             }).ToList();
         }
 
+        if (supportCategory.Redirect == SupportRedirect.Academic)
+        {
+            //Akademika mail gedəcək 
+            // await _unitOfWork.EmailService.SendMessageAsync(request.Description, "farhadip@code.edu.az", "EmailSupportTemplate.html", "Studio Dəstək");
+        }
+        else if (supportCategory.Redirect == SupportRedirect.DigitalLab)
+        {
+            // Dijital laboratoriya mail gedəcək
+        }
+        else if (supportCategory.Redirect == SupportRedirect.DigitalLabAndAcademic)
+        {
+            // Dijital laboratoriya və Akademika mail gedəcək
+        }
 
-        await _spaceDbContext.Supports.AddAsync(newSupport);
-        await _spaceDbContext.SaveChangesAsync();
+        await _spaceDbContext.Supports.AddAsync(newSupport, cancellationToken);
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }
