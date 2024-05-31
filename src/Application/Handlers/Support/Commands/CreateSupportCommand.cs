@@ -69,7 +69,7 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
             newSupport.Class = supportClass;
         }
 
-        if (request.Images != null)
+        if (request.Images != null && request.Images?.Count > 0)
         {
             List<FileUploadResponse> imageUpload = await _storageService.UploadAsync(request.Images, "Images");
             newSupport.SupportImages = imageUpload.Select(i => new SupportImage()
@@ -82,21 +82,46 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
             }).ToList();
         }
 
+        await _spaceDbContext.Supports.AddAsync(newSupport, cancellationToken);
+        await _spaceDbContext.SaveChangesAsync(cancellationToken);
+
+        SendEmailSupportMessageDto sendEmailSupportMessageDto = new()
+        {
+            Message = request.Description,
+            Title = request.Title,
+            User = new UserDto()
+            {
+                Id = user.Id,
+                Name = user.Name!,
+                Surname = user.Surname!,
+                Email = user.Email
+            }
+        };
+
         if (supportCategory.Redirect == SupportRedirect.Academic)
         {
-            //Akademika mail gedəcək 
-            // await _unitOfWork.EmailService.SendMessageAsync(request.Description, "farhadip@code.edu.az", "EmailSupportTemplate.html", "Studio Dəstək");
+            sendEmailSupportMessageDto.To = new List<string>(){
+                "farhad.pashayev@code.edu.az"
+            };
+            await _unitOfWork.EmailService.SendSupportMessageAsync(sendEmailSupportMessageDto, newSupport.Id);
+
         }
         else if (supportCategory.Redirect == SupportRedirect.DigitalLab)
         {
-            // Dijital laboratoriya mail gedəcək
+            sendEmailSupportMessageDto.To = new List<string>(){
+                "farhadip@code.edu.az"
+            };
+            await _unitOfWork.EmailService.SendSupportMessageAsync(sendEmailSupportMessageDto, newSupport.Id);
         }
         else if (supportCategory.Redirect == SupportRedirect.DigitalLabAndAcademic)
         {
-            // Dijital laboratoriya və Akademika mail gedəcək
+            sendEmailSupportMessageDto.To = new List<string>(){
+                "farhad.pashayev@code.edu.az",
+                "farhadip@code.edu.az"
+            };
+            await _unitOfWork.EmailService.SendSupportMessageAsync(sendEmailSupportMessageDto, newSupport.Id);
         }
 
-        await _spaceDbContext.Supports.AddAsync(newSupport, cancellationToken);
-        await _spaceDbContext.SaveChangesAsync(cancellationToken);
+
     }
 }
