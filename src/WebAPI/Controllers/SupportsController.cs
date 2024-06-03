@@ -38,7 +38,7 @@ public class SupportsController : BaseApiController
         => Ok(await Mediator.Send(new GetAllSupportQuery()));
 
 
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,mentor,muellim")]
     [HttpGet("categories")]
     public async Task<IActionResult> GetAllCategoryAsync()
         => Ok(await Mediator.Send(new GetSupportCategoriesQuery()));

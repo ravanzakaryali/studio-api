@@ -31,5 +31,6 @@ internal class CreateRoleByUserCommandHandler : IRequestHandler<CreateRoleByUser
         List<string> rolesDb = await _roleManager.Roles.Where(r => roles.Contains(r.Id)).Select(c => c.Name).ToListAsync();
         user.SecurityStamp ??= Guid.NewGuid().ToString();
         await _userManager.AddToRolesAsync(user, rolesDb);
+        await _userManager.UpdateAsync(user);
     }
 }
