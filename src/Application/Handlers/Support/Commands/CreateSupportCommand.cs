@@ -62,9 +62,11 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
             SupportCategoryId = supportCategory.Id,
         };
 
+
+        Class? supportClass = null;
         if (request.ClassId != null)
         {
-            Class? supportClass = await _spaceDbContext.Classes.FindAsync(request.ClassId) ?? throw new NotFoundException(nameof(Class), request.ClassId);
+            supportClass = await _spaceDbContext.Classes.FindAsync(request.ClassId) ?? throw new NotFoundException(nameof(Class), request.ClassId);
             newSupport.ClassId = supportClass.Id;
             newSupport.Class = supportClass;
         }
@@ -89,6 +91,7 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
         {
             Message = request.Description,
             Title = request.Title,
+
             User = new UserDto()
             {
                 Id = user.Id,
@@ -97,6 +100,14 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
                 Email = user.Email
             }
         };
+        if (supportClass != null)
+        {
+            sendEmailSupportMessageDto.Class = new GetClassDto()
+            {
+                Id = supportClass.Id,
+                Name = supportClass.Name
+            };
+        }
 
         if (supportCategory.Redirect == SupportRedirect.Academic)
         {

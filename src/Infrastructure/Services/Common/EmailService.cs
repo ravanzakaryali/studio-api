@@ -75,7 +75,8 @@ public class EmailService : IEmailService
                                 .Replace("{{title}}", sendEmailSupportMessage.Title)
                                 .Replace("{{link}}", $"{_configuration["App:ClientUrl"]}/admin/app/supports?supportId={supportId}")
                                 .Replace("{{surname}}", sendEmailSupportMessage.User.Surname)
-                                .Replace("{{email}}", sendEmailSupportMessage.User.Email);
+                                .Replace("{{email}}", sendEmailSupportMessage.User.Email)
+                                .Replace("{{class}}", sendEmailSupportMessage.Class?.Name ?? "Yoxdur");
 
         mailMessage.Body = emailContent;
         await _smtpClient.SendMailAsync(mailMessage);
