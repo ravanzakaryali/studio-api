@@ -1,4 +1,6 @@
-﻿namespace Space.Application.Handlers;
+﻿using Microsoft.Extensions.Configuration;
+
+namespace Space.Application.Handlers;
 
 public class RefreshPasswordCommand : IRequest
 {
@@ -9,13 +11,16 @@ internal class RefreshPasswordCommandHandler : IRequestHandler<RefreshPasswordCo
 {
     readonly IUnitOfWork _unitOfWork;
     readonly ISpaceDbContext _spaceDbContext;
+    readonly IConfiguration _configuration;
 
     public RefreshPasswordCommandHandler(
             IUnitOfWork unitOfWork,
-            ISpaceDbContext spaceDbContext)
+            ISpaceDbContext spaceDbContext,
+            IConfiguration configuration)
     {
         _unitOfWork = unitOfWork;
         _spaceDbContext = spaceDbContext;
+        _configuration = configuration;
     }
 
     public async Task Handle(RefreshPasswordCommand request, CancellationToken cancellationToken)
@@ -30,7 +35,7 @@ internal class RefreshPasswordCommandHandler : IRequestHandler<RefreshPasswordCo
         worker.Key = Guid.NewGuid();
         worker.KeyExpirerDate = DateTime.UtcNow.AddMinutes(15);
         worker.LastPasswordUpdateDate = DateTime.UtcNow;
-        string messaje = $"https://dev-studio.code.az/admin/auth/confirmpassword/{worker.Key}";
+        string messaje = $"{_configuration["App:ClientUrl"]}/auth/confirmpassword/{worker.Key}";
         await _unitOfWork.EmailService.SendMessageAsync(messaje, worker.Email, "EmailTemplate.html", "Şifrənizi dəyiştirin (no-reply)");
         await _spaceDbContext.SaveChangesAsync();
     }

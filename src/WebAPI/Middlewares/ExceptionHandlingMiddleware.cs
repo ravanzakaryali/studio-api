@@ -6,9 +6,6 @@ using System;
 
 namespace Space.WebAPI.Middlewares;
 
-/// <summary>
-/// Exception handling middleware
-/// </summary>
 public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -16,23 +13,12 @@ public class ExceptionHandlingMiddleware
     private ICurrentUserService? _currentUserService;
     private readonly ILogger _logger;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ExceptionHandlingMiddleware"/> class.
-    /// </summary>
-    /// <param name="next">The delegate representing the next middleware in the pipeline.</param>
-    /// <param name="logger">The logger used for logging exceptions and messages.</param>
     public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
     {
         _next = next;
         _logger = logger;
     }
 
-    /// <summary>
-    /// This middleware handles exceptions in your ASP.NET Core application and provides appropriate HTTP responses.
-    /// </summary>
-    /// <param name="httpContext">The context information for the HTTP request.</param>
-    /// <param name="unitOfWork">The unit of work service used for performing database operations.</param>
-    /// <param name="currentUserService">The current user service containing user information.</param>
     public async Task InvokeAsync(HttpContext httpContext, IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
@@ -64,14 +50,6 @@ public class ExceptionHandlingMiddleware
                                    httpContext.User?.Identity?.IsAuthenticated != null || true ? httpContext.User?.Identity?.Name : null);
 
             string? email = _currentUserService.Email;
-            string sendMessage =
-                $"StatusCode: {httpContext.Response.StatusCode},\n\n " +
-                $"Message: '{response.Message}',\n\n " +
-                $"Login User: {email}, \n\n" +
-                $"Endpoint {httpContext.Request?.Method}: {httpContext.Request?.Path} \n\n";
-            _unitOfWork!.TelegramService.SendMessage(sendMessage);
-
-
 
             await httpContext.Response.WriteAsync(json);
             unitOfWork.TelegramService.SendMessage(json);
@@ -111,18 +89,12 @@ public class ExceptionHandlingMiddleware
 
             Serilog.Log.Error(ex, "Request {RequestMethod}: {RequestPath} failed Error: {ResponseTitle}, Ip Address: {IpAdress}, Login user {UserName}", httpContext.Request?.Method, httpContext.Request?.Path.Value, response.Title, httpContext.Connection.RemoteIpAddress, httpContext.User?.Identity?.IsAuthenticated != null || true ? httpContext.User?.Identity?.Name : null);
 
-            string sendMessage =
-                $"StatusCode: {httpContext.Response.StatusCode},\n\n " +
-                $"Message: '{response.Title}',\n\n " +
-                $"Login User: {email}, \n\n" +
-                $"Endpoint {httpContext.Request?.Method}: {httpContext.Request?.Path} \n\n";
-
-            _unitOfWork!.TelegramService.SendMessage(sendMessage);
 
             string json = JsonConvert.SerializeObject(response, new JsonSerializerSettings()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
+
             await httpContext.Response.WriteAsync(json);
         }
         catch (SqlException ex)
@@ -136,14 +108,6 @@ public class ExceptionHandlingMiddleware
         }
     }
 
-    /// <summary>
-    /// Handles exceptions that occur during request processing and sends an error response.
-    /// </summary>
-    /// <param name="httpContext">The current <see cref="HttpContext"/>.</param>
-    /// <param name="exception">The exception that occurred.</param>
-    /// <param name="statusCode">The HTTP status code to be set in the response (default is InternalServerError).</param>
-    /// <param name="message">An optional custom error message to include in the response (default is exception message).</param>
-    /// <returns>An <see cref="ErrorResponse"/> containing error details.</returns>
     private async Task<ErrorResponse> HandleExceptionAsync(HttpContext httpContext, Exception exception, HttpStatusCode statusCode = HttpStatusCode.InternalServerError, string? message = null)
     {
         httpContext.Response.ContentType = "application/json";
@@ -165,20 +129,18 @@ public class ExceptionHandlingMiddleware
         $"Message: '{response.Title}',\n\n " +
         $"Login User: {email}, \n\n" +
         $"Endpoint {httpContext.Request?.Method}: {httpContext.Request?.Path} \n\n";
-        _unitOfWork!.TelegramService.SendMessage(sendMessage);
+
+        if (httpContext.Response.StatusCode == 500)
+        {
+            _unitOfWork!.TelegramService.SendMessage(sendMessage);
+        }
         return response;
     }
 }
-/// <summary>
-/// Provides extension methods for configuring exception handling middleware in the application pipeline.
-/// </summary>
+
+
 public static class ExceptionHandlerMiddlewareExtensions
 {
-    /// <summary>
-    /// Adds the exception handling middleware to the application pipeline.
-    /// </summary>
-    /// <param name="builder">The <see cref="IApplicationBuilder"/> instance.</param>
-    /// <returns>The <see cref="IApplicationBuilder"/> instance with exception handling middleware added.</returns>
     public static IApplicationBuilder UseExceptionMiddleware(this IApplicationBuilder builder)
     {
         return builder.UseMiddleware<ExceptionHandlingMiddleware>();
