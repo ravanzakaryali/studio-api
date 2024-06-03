@@ -132,7 +132,7 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
             };
             await _unitOfWork.EmailService.SendSupportMessageAsync(sendEmailSupportMessageDto, newSupport.Id);
         }
-        _unitOfWork.TelegramService.SendMessage($"Yeni dəstək müraciəti: \n\nBaşlıq: {newSupport.Title} \n Açıqlama: {newSupport.Description} \n Ad: {user.Name} {user.Surname} \n Email: {user.Email} \n Telfon nömrəsi {user.PhoneNumber} \n Təklif categoryası: {supportCategory.Name} \n Qrup adı: {supportClass?.Name}");
+        _unitOfWork.TelegramService.SendMessage($"Yeni dəstək müraciəti: \n\nBaşlıq: {newSupport.Title} \n\n Açıqlama: {newSupport.Description} \n\n Dəstək categoryası: {supportCategory.Name} \n\n Ad: {user.Name} {user.Surname} \n\n Email: {user.Email} \n\n Telfon nömrəsi {user.PhoneNumber} \n\n  Qrup adı: {supportClass?.Name}");
 
 
     }
