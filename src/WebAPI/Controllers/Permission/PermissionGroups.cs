@@ -34,7 +34,7 @@ public class PermissionGroupsController : BaseApiController
         await Mediator.Send(new AddWorkerToPermissionGroupCommand
         {
             PermissionGroupId = id,
-            WorkerId = request.WorkerId
+            WorkerIds = request.WorkerIds,
         });
         return Ok();
     }
