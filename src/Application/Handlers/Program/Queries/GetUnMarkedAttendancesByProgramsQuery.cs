@@ -53,6 +53,6 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
                 TotalUnMarkedAttendancesCount = classSessions.Where(cs => cs.Class.ProgramId == program.Id && cs.ClassTimeSheetId == null).Count(),
                 TotalAttendancePercentage = Math.Round(totalAttendace, MidpointRounding.AwayFromZero)
             };
-        });
+        }).OrderByDescending(c => c.TotalUnMarkedAttendancesCount);
     }
 }
