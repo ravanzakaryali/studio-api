@@ -9,7 +9,7 @@ public class SupportMappers : Profile
         CreateMap<Support, GetSupportResponseDto>()
             .ForMember(c => c.Images, opt => opt.MapFrom(c => c.SupportImages));
         CreateMap<SupportImage, GetFileResponse>()
-            .ForMember(c => c.Path, opt => opt.MapFrom(c => "https://studioapi.code.az/api/images/" + c.FileName));
+            .ForMember(c => c.Path, opt => opt.MapFrom(c => "https://dev-studioapi.code.az/api/images/" + c.FileName));
 
         CreateMap<SupportCategory, GetSupportCategory>();
 
