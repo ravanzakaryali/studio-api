@@ -17,7 +17,7 @@ internal class UpdateSupportCommandHandler : IRequestHandler<UpdateSupportComman
 
     public async Task Handle(UpdateSupportCommand request, CancellationToken cancellationToken)
     {
-        Support support = await _context.Supports.FindAsync(request.Id)
+        Support support = await _context.Supports.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken)
                 ?? throw new NotFoundException(nameof(Support), request.Id);
 
         support.Status = request.Status;
