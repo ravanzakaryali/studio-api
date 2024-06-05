@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace Space.WebAPI.Controllers;
 
 [Authorize]
@@ -20,6 +22,19 @@ public class PermissionGroupsController : BaseApiController
     public async Task<IActionResult> GetPermissionGroupWithUsers(int id)
     {
         return Ok(await Mediator.Send(new GetPermissionGroupWithUsersQuery { Id = id }));
+    }
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> UpdatePermissionGroup(int id, UpdatePermissionGroupDto request)
+    {
+        await Mediator.Send(new UpdatePermissionGroupCommand
+        {
+            Id = id,
+            Name = request.Name,
+            Description = request.Description
+        });
+        return NoContent();
     }
 
     [HttpPost]
