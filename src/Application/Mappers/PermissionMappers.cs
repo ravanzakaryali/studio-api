@@ -6,5 +6,7 @@ public class PermissionGroupMappers : Profile
     {
         CreateMap<PermissionGroup, GetPermissionGroupDto>()
         .ForMember(pg => pg.UserCount, opt => opt.MapFrom(pg => pg.Workers.Count));
+
+        CreateMap<PermissionGroup, PermissionGroupDto>();
     }
 }

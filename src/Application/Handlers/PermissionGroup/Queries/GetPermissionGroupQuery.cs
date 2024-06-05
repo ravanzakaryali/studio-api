@@ -1,11 +1,11 @@
 namespace Space.Application.Handlers;
 
-public class GetPermissionGroupQuery : IRequest<GetPermissionGroupDto>
+public class GetPermissionGroupQuery : IRequest<PermissionGroupDto>
 {
     public int Id { get; set; }
 }
 
-internal class GetPermissionGroupHandler : IRequestHandler<GetPermissionGroupQuery, GetPermissionGroupDto>
+internal class GetPermissionGroupHandler : IRequestHandler<GetPermissionGroupQuery, PermissionGroupDto>
 {
     readonly ISpaceDbContext _spaceDbContext;
     readonly IMapper _mapper;
@@ -16,13 +16,12 @@ internal class GetPermissionGroupHandler : IRequestHandler<GetPermissionGroupQue
         _mapper = mapper;
     }
 
-    public async Task<GetPermissionGroupDto> Handle(GetPermissionGroupQuery request, CancellationToken cancellationToken)
+    public async Task<PermissionGroupDto> Handle(GetPermissionGroupQuery request, CancellationToken cancellationToken)
     {
         PermissionGroup? permissionGroup = await _spaceDbContext.PermissionGroups
-            .Include(pg => pg.Workers)
             .FirstOrDefaultAsync(pg => pg.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(PermissionGroup), request.Id);
 
-        return _mapper.Map<GetPermissionGroupDto>(permissionGroup);
+        return _mapper.Map<PermissionGroupDto>(permissionGroup);
     }
 }
