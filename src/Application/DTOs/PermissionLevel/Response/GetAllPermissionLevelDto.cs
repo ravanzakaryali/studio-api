@@ -1,6 +1,5 @@
 namespace Space.Application.DTOs;
 
-
 public class GetAllPermissionLevelDto
 {
     public int Id { get; set; }

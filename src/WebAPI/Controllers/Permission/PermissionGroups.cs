@@ -18,6 +18,12 @@ public class PermissionGroupsController : BaseApiController
         return Ok(await Mediator.Send(new GetPermissionGroupQuery { Id = id }));
     }
 
+    [HttpGet("{id}/app-modules-access")]
+    public async Task<IActionResult> GetPermissionGroupAppModulesAccess([FromRoute] int id)
+    {
+        return Ok(await Mediator.Send(new GetPermissionGroupAppModulesAccessQuery { GroupId = id }));
+    }
+
     [HttpGet("{id}/with-users")]
     public async Task<IActionResult> GetPermissionGroupWithUsers(int id)
     {
