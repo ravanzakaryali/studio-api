@@ -1,19 +1,19 @@
 namespace Space.Application.Handlers.Queries;
 
-public class UpdatePermissionModuleCommand : IRequest
+public class UpdatePermissionGroupAppModulesAccessCommand : IRequest
 {
     public int GroupId { get; set; }
     public IEnumerable<UpdatePermissionAppModuleDto> PermissionAccesses { get; set; } = null!;
 }
 
-internal class UpdatePermissionModuleCommandHandler : IRequestHandler<UpdatePermissionModuleCommand>
+internal class UpdatePermissionGroupAppModulesAccessCommandHandler : IRequestHandler<UpdatePermissionGroupAppModulesAccessCommand>
 {
     readonly ISpaceDbContext _spaceDbContext;
-    public UpdatePermissionModuleCommandHandler(ISpaceDbContext spaceDbContext)
+    public UpdatePermissionGroupAppModulesAccessCommandHandler(ISpaceDbContext spaceDbContext)
     {
         _spaceDbContext = spaceDbContext;
     }
-    public async Task Handle(UpdatePermissionModuleCommand request, CancellationToken cancellationToken)
+    public async Task Handle(UpdatePermissionGroupAppModulesAccessCommand request, CancellationToken cancellationToken)
     {
         PermissionGroup? permissionGroup = await _spaceDbContext.PermissionGroups.FindAsync(request.GroupId)
                     ?? throw new NotFoundException(nameof(PermissionGroup), request.GroupId);

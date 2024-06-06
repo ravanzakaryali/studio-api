@@ -18,16 +18,16 @@ internal class GetPermissionGroupAppModulesAccessQueryHandler : IRequestHandler<
     public async Task<IEnumerable<GetAppModuleResponse>> Handle(GetPermissionGroupAppModulesAccessQuery request, CancellationToken cancellationToken)
     {
         // Load all necessary data with includes
-        var applicationModules = await _spaceDbContext.ApplicationModules
+        List<ApplicationModule> applicationModules = await _spaceDbContext.ApplicationModules
                     .Include(c => c.SubModules)
                     .Include(c => c.PermissionGroupPermissionLevelAppModules)
                     .ThenInclude(c => c.PermissionLevel)
                     .ToListAsync(cancellationToken);
 
-        var permissionLevels = await _spaceDbContext.PermissionLevels.ToListAsync(cancellationToken);
+        List<PermissionLevel> permissionLevels = await _spaceDbContext.PermissionLevels.ToListAsync(cancellationToken);
 
         // Map to DTO
-        var appModules = applicationModules.Where(m => m.ParentModuleId == null)
+        List<GetAppModuleResponse> appModules = applicationModules.Where(m => m.ParentModuleId == null)
                     .Select(m => MapToDto(m, request.GroupId, applicationModules, permissionLevels)).ToList();
 
         return appModules;

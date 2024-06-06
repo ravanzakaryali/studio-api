@@ -24,6 +24,17 @@ public class PermissionGroupsController : BaseApiController
         return Ok(await Mediator.Send(new GetPermissionGroupAppModulesAccessQuery { GroupId = id }));
     }
 
+    [HttpPut("{id}/app-modules-access")]
+    public async Task<IActionResult> UpdatePermissionGroupAppModulesAccess(int id, IEnumerable<UpdatePermissionAppModuleDto> request)
+    {
+        await Mediator.Send(new UpdatePermissionGroupAppModulesAccessCommand
+        {
+            GroupId = id,
+            PermissionAccesses = request
+        });
+        return Ok();
+    }
+
     [HttpGet("{id}/with-users")]
     public async Task<IActionResult> GetPermissionGroupWithUsers(int id)
     {

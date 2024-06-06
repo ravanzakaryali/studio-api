@@ -95,4 +95,20 @@ public class WorkersController : BaseApiController
         });
         return NoContent();
     }
+
+    [HttpGet("{id}/app-modules-access")]
+    public async Task<IActionResult> GetWorkerAppModulesAccess([FromRoute] int id)
+    {
+        return Ok(await Mediator.Send(new GetWorkerAppModulesAccessQuery(id)));
+    }
+    [HttpPost("{id}/app-modules-access")]
+    public async Task<IActionResult> SetAccessToWorkerAppModules([FromRoute] int id, [FromBody] IEnumerable<UpdatePermissionAppModuleDto> request)
+    {
+        await Mediator.Send(new UpdateWorkerAppModulesAccessCommand()
+        {
+            WorkerId = id,
+            PermissionAccesses = request
+        });
+        return Ok();
+    }
 }
