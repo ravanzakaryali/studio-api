@@ -13,6 +13,7 @@ public class GetSupportResponseDto
     public DateTime CreatedDate { get; set; }
     public SupportStatus Status { get; set; }
     public GetClassDto? Class { get; set; }
+    public string? Note { get; set; }
     public GetSupportCategory? SupportCategory { get; set; }
     public ICollection<GetFileResponse> Images { get; set; }
 }

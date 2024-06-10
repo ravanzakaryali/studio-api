@@ -22,6 +22,7 @@ internal class UpdateSupportCommandHandler : IRequestHandler<UpdateSupportComman
 
         support.Status = request.Status;
         support.Note = request.Note;
+        
         await _context.SaveChangesAsync(cancellationToken);
     }
 }
