@@ -112,7 +112,7 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
         if (supportCategory.Redirect == SupportRedirect.Academic)
         {
             sendEmailSupportMessageDto.To = new List<string>(){
-                "farhad.pashayev@code.edu.az"
+                "academic@code.edu.az"
             };
             await _unitOfWork.EmailService.SendSupportMessageAsync(sendEmailSupportMessageDto, newSupport.Id);
 
@@ -120,15 +120,15 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
         else if (supportCategory.Redirect == SupportRedirect.DigitalLab)
         {
             sendEmailSupportMessageDto.To = new List<string>(){
-                "farhadip@code.edu.az"
+                "studio@code.edu.az"
             };
             await _unitOfWork.EmailService.SendSupportMessageAsync(sendEmailSupportMessageDto, newSupport.Id);
         }
         else if (supportCategory.Redirect == SupportRedirect.DigitalLabAndAcademic)
         {
             sendEmailSupportMessageDto.To = new List<string>(){
-                "farhad.pashayev@code.edu.az",
-                "farhadip@code.edu.az"
+                "academic@code.edu.az",
+                "studio@code.edu.az"
             };
             await _unitOfWork.EmailService.SendSupportMessageAsync(sendEmailSupportMessageDto, newSupport.Id);
         }
