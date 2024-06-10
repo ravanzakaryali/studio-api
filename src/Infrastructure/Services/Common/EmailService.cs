@@ -54,4 +54,34 @@ public class EmailService : IEmailService
         mailMessage.Body = emailContent;
         await _smtpClient.SendMailAsync(mailMessage);
     }
+
+    public async Task SendSupportMessageAsync(SendEmailSupportMessageDto sendEmailSupportMessage, int supportId)
+    {
+        string fromMail = _configuration["SMTP:Email"];
+        MailMessage mailMessage = new()
+        {
+            From = new MailAddress(fromMail),
+            Subject = "Studio - Dəstək",
+            IsBodyHtml = true,
+            BodyEncoding = Encoding.UTF8,
+        };
+
+        foreach (string toEmail in sendEmailSupportMessage.To)
+        {
+            mailMessage.To.Add(toEmail);
+        }
+
+        string htmlTemplate = IO.File.ReadAllText(Path.Combine(_webHostEnvironment.WebRootPath, "EmailSupportTemplate.html"));
+        string emailContent = htmlTemplate
+                                .Replace("{{message}}", sendEmailSupportMessage.Message)
+                                .Replace("{{name}}", sendEmailSupportMessage.User.Name)
+                                .Replace("{{title}}", sendEmailSupportMessage.Title)
+                                .Replace("{{link}}", $"{_configuration["App:ClientUrl"]}/admin/app/supports?supportId={supportId}")
+                                .Replace("{{surname}}", sendEmailSupportMessage.User.Surname)
+                                .Replace("{{email}}", sendEmailSupportMessage.User.Email)
+                                .Replace("{{class}}", sendEmailSupportMessage.Class?.Name ?? "Yoxdur");
+
+        mailMessage.Body = emailContent;
+        await _smtpClient.SendMailAsync(mailMessage);
+    }
 }

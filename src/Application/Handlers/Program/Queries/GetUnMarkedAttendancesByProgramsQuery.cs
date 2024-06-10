@@ -1,13 +1,11 @@
-﻿
-
-using Space.Application.Enums;
+﻿using Space.Application.Enums;
 
 namespace Space.Application.Handlers;
 
 public class GetUnMarkedAttendancesByProgramsQuery : IRequest<IEnumerable<GetUnMarkedAttendancesByProgramsDto>>
 {
-    public MonthOfYear Month { get; set; }
-    public int Year { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 }
 internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMarkedAttendancesByProgramsQuery, IEnumerable<GetUnMarkedAttendancesByProgramsDto>>
 {
@@ -29,9 +27,11 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
             .Where(c => c.Date < dateNow && c.Status != ClassSessionStatus.Cancelled)
             .ToListAsync(cancellationToken: cancellationToken);
 
+        DateOnly startDate = DateOnly.FromDateTime(request.StartDate);
+        DateOnly endDate = DateOnly.FromDateTime(request.EndDate);
 
         classSessions = classSessions
-                                .Where(c => c.Date.Month == (int)request.Month && c.Date.Year == request.Year)
+                                .Where(c => c.Date >= startDate && c.Date <= endDate)
                                 .ToList();
 
         return programs.Select(program =>
@@ -53,6 +53,6 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
                 TotalUnMarkedAttendancesCount = classSessions.Where(cs => cs.Class.ProgramId == program.Id && cs.ClassTimeSheetId == null).DistinctBy(cs => cs.Date).Count(),
                 TotalAttendancePercentage = Math.Round(totalAttendace, MidpointRounding.AwayFromZero)
             };
-        });
+        }).OrderByDescending(c => c.TotalUnMarkedAttendancesCount);
     }
 }

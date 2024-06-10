@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dəstək Mesajı</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .header h1 {
+            color: #333333;
+        }
+
+        .content {
+            padding: 20px 0;
+        }
+
+        .content p {
+            line-height: 1.6;
+            color: #333333;
+        }
+
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #dddddd;
+            color: #777777;
+            font-size: 12px;
+        }
+
+        .details {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .details p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Yeni Dəstək Mesajı</h1>
+        </div>
+        <div class="content">
+            <p>Salam,</p>
+            <p>Studio proqramından yeni bir dəstək mesajı aldınız. Ətraflı məlumatlar aşağıda verilmişdir:</p>
+            <div class="details">
+                <p><strong>Ad:</strong> {{name}} {{surname}}</p>
+                <p><strong>Email:</strong> {{email}}</p>
+                <p><strong>Qrup:</strong> {{class}}</p>
+                <p><strong>Mövzu:</strong> {{title}}</p>
+                <p><strong>Mesaj:</strong></p>
+                <p>{{message}}</p>
+            </div>
+            <p><a href="{{link}}" target="_blank">Dəstək bölməsinə</a> daxil olaraq mesajı daha detallı görə
+                bilərsiniz.
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -38,23 +38,24 @@ public class ProgramsController : BaseApiController
         await Mediator.Send(new DeleteProgramCommand(id));
         return NoContent();
     }
+
     [Authorize(Roles = "admin")]
     [HttpGet("unmarked-attendances")]
-    public async Task<IActionResult> GetUnMarkedAttendancesByPrograms([FromQuery] MonthOfYear? month, [FromQuery] int? year)
-        => Ok(await Mediator.Send(new GetUnMarkedAttendancesByProgramsQuery()
-        {
-            Month = month ?? (MonthOfYear)DateTime.Now.Month,
-            Year = year ?? DateTime.Now.Year
-        }));
+    public async Task<IActionResult> GetUnMarkedAttendancesByPrograms([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+         => Ok(await Mediator.Send(new GetUnMarkedAttendancesByProgramsQuery()
+         {
+             StartDate = startDate,
+             EndDate = endDate
+         }));
 
     [Authorize(Roles = "admin")]
     [HttpGet("{id}/unmarked-attendances-classes")]
-    public async Task<IActionResult> GetUnmarkedAttedamceClasses([FromRoute] int id, [FromQuery] MonthOfYear? month, [FromQuery] int? year)
+    public async Task<IActionResult> GetUnmarkedAttedamceClasses([FromRoute] int id, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         => Ok(await Mediator.Send(new GetUnmarkedAttedanceClassesByProgramQuery()
         {
             Id = id,
-            Month = month ?? (MonthOfYear)DateTime.Now.Month,
-            Year = year ?? DateTime.Now.Year
+            StartDate = startDate,
+            EndDate = endDate
         }));
 
 

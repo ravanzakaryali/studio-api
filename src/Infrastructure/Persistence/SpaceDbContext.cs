@@ -56,6 +56,7 @@ public class SpaceDbContext :
     #region Schedule
     public DbSet<RoomSchedule> RoomSchedules => Set<RoomSchedule>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
+    public DbSet<SupportCategory> SupportCategories => Set<SupportCategory>();
 
     #endregion
 

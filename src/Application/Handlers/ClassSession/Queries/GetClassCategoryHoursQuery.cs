@@ -26,14 +26,11 @@ internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCateg
             .Where(c => c.Date == requestDate && c.ClassId == @class.Id)
             .ToListAsync(cancellationToken: cancellationToken);
 
-
-
         if (!classSessions.Any() && classSessions.Any(c => c.IsHoliday == true)) throw new NotFoundException("Class session not found");
 
         List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.Date == requestDate && c.ClassId == @class.Id)
             .ToListAsync(cancellationToken: cancellationToken);
-
 
         IEnumerable<GetClassSessionCategoryHoursResponseDto> response = new List<GetClassSessionCategoryHoursResponseDto>();
         if (classTimeSheets.Count == 0)

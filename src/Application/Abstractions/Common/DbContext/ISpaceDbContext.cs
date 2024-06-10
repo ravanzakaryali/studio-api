@@ -15,6 +15,7 @@ public interface ISpaceDbContext : IDisposable
     DbSet<ClassExtraModulesWorkers> ClassExtraModulesWorkers { get; }
     DbSet<AttendanceWorker> AttendancesWorkers { get; }
     DbSet<HeldModule> HeldModules { get; }
+    DbSet<SupportCategory> SupportCategories { get; }
     #endregion
     #region Common
     DbSet<University> Universities { get; }

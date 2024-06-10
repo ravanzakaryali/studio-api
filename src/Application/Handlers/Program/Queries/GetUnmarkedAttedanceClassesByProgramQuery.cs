@@ -1,4 +1,5 @@
 ﻿
+
 using Space.Application.Enums;
 using Space.Domain.Entities;
 
@@ -7,8 +8,8 @@ namespace Space.Application.Handlers;
 public class GetUnmarkedAttedanceClassesByProgramQuery : IRequest<IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
     public int Id { get; set; }
-    public MonthOfYear Month { get; set; }
-    public int Year { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 }
 internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<GetUnmarkedAttedanceClassesByProgramQuery, IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
@@ -26,6 +27,9 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                 throw new NotFoundException(nameof(Program), request.Id);
 
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
+
+        DateOnly startDate = DateOnly.FromDateTime(request.StartDate);
+        DateOnly endDate = DateOnly.FromDateTime(request.EndDate);
 
         List<ClassSession> classSessions = await _spaceDbContext
             .ClassSessions
@@ -63,9 +67,9 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                                    0, 2),
                 UnMarkDays = classSessions.Where(cs => cs.ClassId == c.ClassId &&
                                                 cs.ClassTimeSheetId is null &&
-                                                cs.Date.Year == request.Year &&
-                                                cs.Date.Month == (int)request.Month &&
-                                                cs.Status != ClassSessionStatus.Cancelled).DistinctBy(cs => cs.Date).Count(),
+                                                startDate >= cs.Date &&
+                                                cs.Date <= endDate &&
+                                                cs.Status != ClassSessionStatus.Cancelled).Count(),
                 Class = new GetClassDto()
                 {
                     Id = c.ClassId,
@@ -74,8 +78,8 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                 LastDate = classSessions
                                         .Where(cs => cs.ClassId == c.ClassId &&
                                                 cs.ClassTimeSheetId is null &&
-                                                cs.Date.Year == request.Year &&
-                                                cs.Date.Month == (int)request.Month &&
+                                                startDate >= cs.Date &&
+                                                cs.Date <= endDate &&
                                                 cs.Status != ClassSessionStatus.Cancelled)
                                         .OrderByDescending(cs => cs.Date)
                                         .FirstOrDefault()?.Date

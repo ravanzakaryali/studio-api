@@ -39,6 +39,7 @@ public class ClassesController : BaseApiController
                 startAttendancePercentage,
                 endAttendancePercentage)));
 
+
     [Authorize(Roles = "admin")]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetClassDetail([FromRoute] int id, [FromQuery] int? sessionId)

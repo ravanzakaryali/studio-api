@@ -23,8 +23,10 @@ internal class GetSupportQueryHandler : IRequestHandler<GetSupportQuery, GetSupp
         Support? support = await _spaceDbContext.Supports
             .Include(c => c.SupportImages)
             .Include(c => c.User)
+            .Include(c => c.SupportCategory)
+            .Include(c => c.Class)
             .Where(c => c.Id == request.Id)
-            .FirstOrDefaultAsync()
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken)
                 ?? throw new NotFoundException(nameof(Support), request.Id);
 
         return _mapper.Map<GetSupportResponseDto>(support);
