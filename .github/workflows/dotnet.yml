@@ -55,4 +55,4 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-                /bin/bash /home/studio/studio/api-dev.sh
+                /bin/bash /home/studio/studio/api-main.sh
