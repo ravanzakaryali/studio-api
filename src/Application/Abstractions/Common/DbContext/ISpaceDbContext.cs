@@ -20,6 +20,7 @@ public interface ISpaceDbContext : IDisposable
     #region Common
     DbSet<University> Universities { get; }
     DbSet<E.File> Files { get; }
+    DbSet<Notification> Notifications { get; }
 
     #endregion
     #region Identity
