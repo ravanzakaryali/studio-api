@@ -37,6 +37,7 @@ internal class GetAllNotificationsQueryHandler : IRequestHandler<GetAllNotificat
 
             return new GetNotificationDto()
             {
+                Id = n.Id,
                 Title = n.Title,
                 Content = n.Content,
                 IsRead = n.IsRead,
