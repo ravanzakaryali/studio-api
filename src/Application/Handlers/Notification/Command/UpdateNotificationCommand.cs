@@ -25,5 +25,6 @@ internal class UpdateNotificationCommandHandler : IRequestHandler<UpdateNotifica
 
         notification.IsRead = true;
         _spaceDbContext.Notifications.Update(notification);
+        await _spaceDbContext.SaveChangesAsync();
     }
 }
