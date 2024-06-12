@@ -1,4 +1,3 @@
-
 namespace Space.Application.Handlers;
 
 public class CreateNotificationCommand : IRequest
@@ -43,8 +42,6 @@ internal class CreateNotificationCommandHandler : IRequestHandler<CreateNotifica
             };
             _spaceDbContext.Notifications.Add(notification);
         }
-
-
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }
