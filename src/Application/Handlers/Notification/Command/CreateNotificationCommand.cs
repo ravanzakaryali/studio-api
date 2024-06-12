@@ -28,15 +28,23 @@ internal class CreateNotificationCommandHandler : IRequestHandler<CreateNotifica
             ?? throw new UnauthorizedAccessException();
 
         User user = await _userManager.FindByIdAsync(loginUserId);
-        Notification notification = new()
-        {
-            Title = request.Title,
-            Content = request.Content,
-            FromUser = user,
-            FromUserId = user.Id,
-        };
+        List<User> users = await _userManager.Users.ToListAsync(cancellationToken);
 
-        _spaceDbContext.Notifications.Add(notification);
+        foreach (User userItem in users)
+        {
+            Notification notification = new()
+            {
+                Title = request.Title,
+                Content = request.Content,
+                FromUser = user,
+                FromUserId = user.Id,
+                ToUser = userItem,
+                ToUserId = userItem.Id,
+            };
+            _spaceDbContext.Notifications.Add(notification);
+        }
+
+
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }
