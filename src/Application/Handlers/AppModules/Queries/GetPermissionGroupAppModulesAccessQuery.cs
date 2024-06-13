@@ -50,6 +50,7 @@ internal class GetPermissionGroupAppModulesAccessQueryHandler : IRequestHandler<
         {
             Id = module.Id,
             Name = module.Name,
+            Description = module.Description,
             SubAppModules = allModules.Where(m => m.ParentModuleId == module.Id)
                                       .Select(m => MapToDto(m, groupId, allModules, permissionLevels)).ToList(),
             PermissionAccesses = permissionLevels.Select(pl => new GetPermissionAccessDto

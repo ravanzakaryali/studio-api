@@ -11,9 +11,9 @@ public class GetWorkerAppModulesAccessQuery : IRequest<GetAppModuleResponseDto>
 internal class GetWorkerAppModulesAccessQueryHandler : IRequestHandler<GetWorkerAppModulesAccessQuery, GetAppModuleResponseDto>
 {
     readonly ISpaceDbContext _spaceDbContext;
-    readonly UserManager<Worker> _userManager;
+    readonly UserManager<User> _userManager;
 
-    public GetWorkerAppModulesAccessQueryHandler(ISpaceDbContext spaceDbContext, UserManager<Worker> userManager)
+    public GetWorkerAppModulesAccessQueryHandler(ISpaceDbContext spaceDbContext, UserManager<User> userManager)
     {
         _spaceDbContext = spaceDbContext;
         _userManager = userManager;
@@ -21,7 +21,7 @@ internal class GetWorkerAppModulesAccessQueryHandler : IRequestHandler<GetWorker
 
     public async Task<GetAppModuleResponseDto> Handle(GetWorkerAppModulesAccessQuery request, CancellationToken cancellationToken)
     {
-        Worker? worker = await _spaceDbContext.Workers.FindAsync(request.WorkerId)
+        User? worker = await _spaceDbContext.Workers.FindAsync(request.WorkerId)
             ?? throw new NotFoundException(nameof(Worker), request.WorkerId);
 
         List<ApplicationModule> applicationModules = await _spaceDbContext.ApplicationModules
@@ -49,6 +49,7 @@ internal class GetWorkerAppModulesAccessQueryHandler : IRequestHandler<GetWorker
         {
             Id = module.Id,
             Name = module.Name,
+            Description = module.Description,
             SubAppModules = allModules.Where(m => m.ParentModuleId == module.Id)
                                       .Select(m => MapToDto(m, workerId, allModules, permissionLevels)).ToList(),
             PermissionAccesses = permissionLevels.Select(pl => new GetPermissionAccessDto
