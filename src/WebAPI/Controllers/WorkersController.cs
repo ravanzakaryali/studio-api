@@ -101,7 +101,7 @@ public class WorkersController : BaseApiController
     {
         return Ok(await Mediator.Send(new GetWorkerAppModulesAccessQuery(id)));
     }
-    [HttpPost("{id}/app-modules-access")]
+    [HttpPut("{id}/app-modules-access")]
     public async Task<IActionResult> SetAccessToWorkerAppModules([FromRoute] int id, [FromBody] IEnumerable<UpdatePermissionAppModuleDto> request)
     {
         await Mediator.Send(new UpdateWorkerAppModulesAccessCommand()

@@ -1,6 +1,6 @@
 namespace Space.Application.Handlers;
 
-public class GetWorkerAppModulesAccessQuery : IRequest<IEnumerable<GetAppModuleResponse>>
+public class GetWorkerAppModulesAccessQuery : IRequest<GetAppModuleResponseDto>
 {
     public GetWorkerAppModulesAccessQuery(int workerId)
     {
@@ -8,17 +8,22 @@ public class GetWorkerAppModulesAccessQuery : IRequest<IEnumerable<GetAppModuleR
     }
     public int WorkerId { get; }
 }
-internal class GetWorkerAppModulesAccessQueryHandler : IRequestHandler<GetWorkerAppModulesAccessQuery, IEnumerable<GetAppModuleResponse>>
+internal class GetWorkerAppModulesAccessQueryHandler : IRequestHandler<GetWorkerAppModulesAccessQuery, GetAppModuleResponseDto>
 {
     readonly ISpaceDbContext _spaceDbContext;
+    readonly UserManager<Worker> _userManager;
 
-    public GetWorkerAppModulesAccessQueryHandler(ISpaceDbContext spaceDbContext)
+    public GetWorkerAppModulesAccessQueryHandler(ISpaceDbContext spaceDbContext, UserManager<Worker> userManager)
     {
         _spaceDbContext = spaceDbContext;
+        _userManager = userManager;
     }
 
-    public async Task<IEnumerable<GetAppModuleResponse>> Handle(GetWorkerAppModulesAccessQuery request, CancellationToken cancellationToken)
+    public async Task<GetAppModuleResponseDto> Handle(GetWorkerAppModulesAccessQuery request, CancellationToken cancellationToken)
     {
+        Worker? worker = await _spaceDbContext.Workers.FindAsync(request.WorkerId)
+            ?? throw new NotFoundException(nameof(Worker), request.WorkerId);
+
         List<ApplicationModule> applicationModules = await _spaceDbContext.ApplicationModules
                     .Include(c => c.SubModules)
                     .Include(c => c.WorkerPermissionLevelAppModules)
@@ -30,7 +35,12 @@ internal class GetWorkerAppModulesAccessQueryHandler : IRequestHandler<GetWorker
         List<GetAppModuleResponse> appModules = applicationModules.Where(m => m.ParentModuleId == null)
                     .Select(m => MapToDto(m, request.WorkerId, applicationModules, permissionLevels)).ToList();
 
-        return appModules;
+        return new GetAppModuleResponseDto()
+        {
+            Id = worker.Id,
+            Name = worker.Name + " " + worker.Surname,
+            AppModules = appModules
+        };
     }
 
     private GetAppModuleResponse MapToDto(ApplicationModule module, int workerId, List<ApplicationModule> allModules, List<PermissionLevel> permissionLevels)
