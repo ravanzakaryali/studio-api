@@ -7,5 +7,6 @@ public class GetUserPermissionGroupResponseDto
     public string? Surname { get; set; }
     public string? Email { get; set; }
     public string? AvatarColor { get; set; }
+    public string Fincode { get; set; } = null!;
     public List<string> PermissionGroups { get; set; } = new List<string>();
 }

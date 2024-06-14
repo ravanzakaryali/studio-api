@@ -1,7 +1,7 @@
 ﻿namespace Space.Application.Handlers;
 
 
-public record CreateWorkerCommand(string Name, string Surname, string Email, IEnumerable<int>? GroupsId) : IRequest<GetWorkerResponseDto>;
+public record CreateWorkerCommand(string Name, string Surname, string Email, string Fincode, IEnumerable<int>? GroupsId) : IRequest<GetWorkerResponseDto>;
 
 public class CreateWorkerCommandHandler : IRequestHandler<CreateWorkerCommand, GetWorkerResponseDto>
 {
@@ -27,6 +27,10 @@ public class CreateWorkerCommandHandler : IRequestHandler<CreateWorkerCommand, G
     {
         User worker = await _userManager.FindByEmailAsync(request.Email);
         if (worker != null) throw new AlreadyExistsException(nameof(Worker), request.Email);
+
+        bool alreadyFincode = await _spaceDbContext.Workers.AnyAsync(c => c.Fincode == request.Fincode);
+        if (alreadyFincode) throw new AlreadyExistsException(nameof(Worker), request.Fincode);
+
         Worker newWorker = new()
         {
             Name = request.Name,

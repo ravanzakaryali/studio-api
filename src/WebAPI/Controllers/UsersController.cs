@@ -12,6 +12,10 @@ public class UsersController : BaseApiController
         return Ok(await Mediator.Send(new UserLoginQuery()));
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get([FromRoute] int id)
+           => StatusCode(200, await Mediator.Send(new GetWorkerQuery(id)));
+
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
@@ -32,7 +36,7 @@ public class UsersController : BaseApiController
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
     public async Task<IActionResult> Create([FromBody] CreateRequestWorkerDto request)
-              => StatusCode(201, await Mediator.Send(new CreateWorkerCommand(request.Name, request.Surname, request.Email, request.GroupsId)));
+              => StatusCode(201, await Mediator.Send(new CreateWorkerCommand(request.Name, request.Surname, request.Email, request.Fincode, request.GroupsId)));
 
     [Authorize]
     [HttpGet("{id}/roles")]

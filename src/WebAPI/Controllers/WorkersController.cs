@@ -8,9 +8,7 @@ namespace Space.WebAPI.Controllers;
 [Authorize]
 public class WorkersController : BaseApiController
 {
-    [HttpGet("{id}")]
-    public async Task<IActionResult> Get([FromRoute] int id)
-            => StatusCode(200, await Mediator.Send(new GetWorkerQuery(id)));
+   
 
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] RoleEnum? role)
