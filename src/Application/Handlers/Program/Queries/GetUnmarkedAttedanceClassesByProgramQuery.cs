@@ -1,6 +1,4 @@
-﻿
-
-using Space.Application.Enums;
+﻿using Space.Application.Enums;
 using Space.Domain.Entities;
 
 namespace Space.Application.Handlers;
@@ -11,6 +9,7 @@ public class GetUnmarkedAttedanceClassesByProgramQuery : IRequest<IEnumerable<Ge
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
 }
+
 internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<GetUnmarkedAttedanceClassesByProgramQuery, IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
     readonly ISpaceDbContext _spaceDbContext;
@@ -27,7 +26,6 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                 throw new NotFoundException(nameof(Program), request.Id);
 
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
-
         DateOnly startDate = DateOnly.FromDateTime(request.StartDate);
         DateOnly endDate = DateOnly.FromDateTime(request.EndDate);
 
@@ -40,11 +38,8 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
             .Where(c => c.Class.ProgramId == program.Id && c.Date < dateNow)
             .ToListAsync(cancellationToken: cancellationToken);
 
-
         List<GetUnmarkedAttedanceClassesByProgramResponseDto> response = new();
         List<AvarageClassDto> list = new();
-
-        DateOnly dateOnly = DateOnly.FromDateTime(DateTime.Now);
 
         foreach (ClassSession? item in classSessions.Where(c => c.ClassTimeSheet?.Attendances.Count > 0))
         {
@@ -58,37 +53,34 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
         }
 
         response.AddRange(classSessions
-
-            .Select(c => new GetUnmarkedAttedanceClassesByProgramResponseDto()
+            .GroupBy(c => c.ClassId)
+            .Select(g =>
             {
-                StudentsCount = c.Class.Studies.Count,
-                AttendancePercentage = Math.Round(list.Where(l => l.ClassId == c.ClassId).Any() ?
-                                   list.Where(l => l.ClassId == c.ClassId).Average(a => a.AverageHours) :
-                                   0, 2),
-                UnMarkDays = classSessions.Where(cs => cs.ClassId == c.ClassId &&
-                                                cs.ClassTimeSheetId is null &&
-                                                startDate >= cs.Date &&
-                                                cs.Date <= endDate &&
-                                                cs.Status != ClassSessionStatus.Cancelled).Count(),
-                Class = new GetClassDto()
+                var sessions = g
+                    .Where(cs => startDate <= cs.Date && cs.Date <= endDate && cs.Status != ClassSessionStatus.Cancelled)
+                    .ToList();
+
+                return new GetUnmarkedAttedanceClassesByProgramResponseDto()
                 {
-                    Id = c.ClassId,
-                    Name = c.Class.Name
-                },
-                LastDate = classSessions
-                                        .Where(cs => cs.ClassId == c.ClassId &&
-                                                cs.ClassTimeSheetId is null &&
-                                                startDate >= cs.Date &&
-                                                cs.Date <= endDate &&
-                                                cs.Status != ClassSessionStatus.Cancelled)
-                                        .OrderByDescending(cs => cs.Date)
-                                        .FirstOrDefault()?.Date
+                    StudentsCount = g.First().Class.Studies.Count,
+                    AttendancePercentage = Math.Round(list.Where(l => l.ClassId == g.Key).Any() ?
+                                        list.Where(l => l.ClassId == g.Key).Average(a => a.AverageHours) :
+                                        0, 2),
+                    UnMarkDays = sessions.Count(s => s.ClassTimeSheet is null),
+                    Class = new GetClassDto()
+                    {
+                        Id = g.Key,
+                        Name = g.First().Class.Name
+                    },
+                    LastDate = sessions
+                        .OrderByDescending(cs => cs.Date)
+                        .FirstOrDefault()?.Date
+                };
             })
             .Where(c => c.UnMarkDays != 0)
-            .DistinctBy(c => c.Class.Id)
             .OrderByDescending(c => c.UnMarkDays)
             .ToList());
+
         return response;
     }
-
 }
