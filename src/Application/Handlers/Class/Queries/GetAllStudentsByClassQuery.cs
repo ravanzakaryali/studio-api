@@ -81,7 +81,7 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
             {
                 Name = study.Student?.Contact?.Name,
                 Surname = study.Student?.Contact?.Surname,
-                EMail = study.Student?.Contact?.Email,
+                Email = study.Student?.Email,
                 ClassName = @class.Name,
                 Phone = study.Student?.Contact?.Phone,
                 Id = study.Student!.Id,

@@ -1,4 +1,4 @@
-﻿namespace Space.Application.DTOs.Enums;
+﻿namespace Space.Application.Enums;
 
 public enum ClassStatus
 {

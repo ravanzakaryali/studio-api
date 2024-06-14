@@ -45,6 +45,7 @@ internal class CreateRoomScheduleByClassCommandHandler : IRequestHandler<CreateR
         //    }
         //}
         //await _spaceDbContext.SaveChangesAsync();
-        throw new NotFoundException();
+        await Task.CompletedTask;
+        throw new NotImplementedException();
     }
 }

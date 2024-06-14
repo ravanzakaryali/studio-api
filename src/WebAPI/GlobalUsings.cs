@@ -1,6 +1,7 @@
 ﻿//System
 global using System;
 global using System.Net;
+global using System.Reflection;
 global using System.Text.Json;
 global using Space.WebAPI.Middlewares;
 
@@ -17,12 +18,15 @@ global using FluentValidation;
 global using Space.Application;
 global using Microsoft.AspNetCore.Authorization;
 global using Space.Application.DTOs;
+global using Space.Application.Enums;
 global using Space.Application.Exceptions;
 global using Space.Application.Abstractions;
 global using Space.Application.Handlers.Commands;
 global using Space.Application.Handlers;
 
 global using Space.Application.Handlers.Queries;
+
+global using E = Space.Domain.Entities;
 
 global using Space.Infrastructure;
 

@@ -36,7 +36,7 @@ internal class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, G
         if (request.RoomId == null)
         {
             Room rooo = await _spaceDbContext.Rooms.FindAsync(request.RoomId) ??
-                throw new NotFoundException(nameof(Room), request.RoomId);
+                throw new NotFoundException(nameof(Room), request.RoomId ?? 0);
         }
 
         Class newClass = _mapper.Map<Class>(request);
