@@ -7,14 +7,7 @@ namespace Space.WebAPI.Controllers;
 
 [Authorize]
 public class WorkersController : BaseApiController
-
 {
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> Create([FromBody] CreateRequestWorkerDto request)
-           => StatusCode(201, await Mediator.Send(new CreateWorkerCommand(request.Name, request.Surname, request.Email, request.GroupsId)));
-
     [HttpGet("{id}")]
     public async Task<IActionResult> Get([FromRoute] int id)
             => StatusCode(200, await Mediator.Send(new GetWorkerQuery(id)));
@@ -35,12 +28,6 @@ public class WorkersController : BaseApiController
     [HttpGet("{id}/get-worker-general-report")]
     public async Task<IActionResult> GetWorkerGeneralReport([FromRoute] int id)
             => StatusCode(200, await Mediator.Send(new GetWorkerGeneralReportQuery(id)));
-
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute] int id)
-        => StatusCode(200, await Mediator.Send(new DeleteWorkerCommand(id)));
-
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateWorkerReuqest request)

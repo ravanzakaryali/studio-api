@@ -7,5 +7,10 @@ public class ApplicationModuleConfiguration : IEntityTypeConfiguration<Applicati
         builder.ConfigureBaseEntity();
         builder.Property(c => c.Name).IsRequired();
         builder.Property(c => c.Description).IsRequired(false);
+
+        builder.HasMany(c => c.PermissionGroupPermissionLevelAppModules)
+            .WithOne(c => c.ApplicationModule)
+            .HasForeignKey(c => c.ApplicationModuleId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

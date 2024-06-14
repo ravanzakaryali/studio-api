@@ -2,6 +2,7 @@
 
 namespace Space.WebAPI.Controllers;
 using Microsoft.Extensions.Configuration;
+using Space.Application.DTOs.Worker;
 
 public class UsersController : BaseApiController
 {
@@ -17,22 +18,6 @@ public class UsersController : BaseApiController
         return Ok(await Mediator.Send(new GetUsersQuery()));
     }
 
-    [Authorize]
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserDto request)
-    {
-        await Mediator.Send(new CreateUserCommand
-        {
-            Name = request.Name,
-            Surname = request.Surname,
-            Email = request.Email,
-            Password = request.Password
-        });
-        return NoContent();
-    }
-
     [Authorize(Roles = "admin")]
     [HttpPost("{id}/roles")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -43,9 +28,19 @@ public class UsersController : BaseApiController
         return NoContent();
     }
 
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> Create([FromBody] CreateRequestWorkerDto request)
+              => StatusCode(201, await Mediator.Send(new CreateWorkerCommand(request.Name, request.Surname, request.Email, request.GroupsId)));
 
     [Authorize]
     [HttpGet("{id}/roles")]
     public async Task<IActionResult> GetRoles([FromRoute] int id)
         => Ok(await Mediator.Send(new GetRolesByUserQuery(id)));
+
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete([FromRoute] int id)
+    => StatusCode(200, await Mediator.Send(new DeleteWorkerCommand(id)));
 }
