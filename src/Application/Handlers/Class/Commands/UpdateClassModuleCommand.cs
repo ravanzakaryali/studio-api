@@ -65,6 +65,7 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
         _spaceDbContext.ClassModulesWorkers.RemoveRange(classModulesWorker);
 
 
+
         foreach (UpdateClassModuleDto item in request.Modules)
         {
             await _spaceDbContext.ClassModulesWorkers.AddRangeAsync(item.Workers.Select(c => new ClassModulesWorker()
@@ -77,6 +78,8 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
                 ClassId = @class.Id
             }), cancellationToken);
         }
+
+        @class.EndDate = request.Modules.Max(c => c.EndDate);
         //--Extra Modules
 
         IEnumerable<ClassExtraModulesWorkers> classExtraModulesWorkers = await _spaceDbContext.ClassExtraModulesWorkers
@@ -98,7 +101,9 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
                     ClassId = @class.Id
                 }), cancellationToken);
             }
+            @class.EndDate = request.ExtraModules.Max(c => c.EndDate);
         }
+
 
         if (request.NewExtraModules != null && request.NewExtraModules.Any())
         {
@@ -128,6 +133,8 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             {
                 startDate = @class.EndDate.Value.AddDays(1);
             }
+
+            @class.EndDate = request.NewExtraModules?.Max(c => c.EndDate);
         }
 
 

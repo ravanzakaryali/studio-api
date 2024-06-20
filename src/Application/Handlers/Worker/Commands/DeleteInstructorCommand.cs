@@ -17,25 +17,8 @@ internal class DeleteWorkerCommandHandler : IRequestHandler<DeleteWorkerCommand,
     {
         Worker? Worker = await _spaceDbContext.Workers.FindAsync(request.Id) ??
             throw new NotFoundException(nameof(Worker), request.Id);
-        //Todo: support delete
+        _spaceDbContext.Notifications.RemoveRange(_spaceDbContext.Notifications.Where(c => c.ToUserId == Worker.Id));
 
-
-        List<ClassModulesWorker> classModuleWorkers = await _spaceDbContext.ClassModulesWorkers
-                            .Where(x => x.WorkerId == Worker.Id)
-                            .Include(c => c.Class)
-                            .ToListAsync();
-
-        DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
-        foreach (ClassModulesWorker item in classModuleWorkers)
-        {
-            if (item.Class.EndDate >= dateNow)
-            {
-                //Todo: Exception handler
-                throw new Exception("Worker is assigned to a class that is not finished yet");
-            }
-        }
-
-        _spaceDbContext.Supports.RemoveRange(await _spaceDbContext.Supports.Where(x => x.UserId == Worker.Id).ToListAsync(cancellationToken: cancellationToken));
         _spaceDbContext.Workers.Remove(Worker);
 
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
