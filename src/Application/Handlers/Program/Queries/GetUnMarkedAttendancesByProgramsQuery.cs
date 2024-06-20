@@ -50,7 +50,10 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
                     Name = program.Name,
                 },
                 UnMarkedAttendancesCount = classSessions.Where(cs => cs.Class.ProgramId == program.Id && cs.ClassTimeSheetId == null).DistinctBy(cs => cs.ClassId).DistinctBy(cs => cs.Date).Count(),
-                TotalUnMarkedAttendancesCount = classSessions.Where(cs => cs.Class.ProgramId == program.Id && cs.ClassTimeSheetId == null).DistinctBy(cs => cs.Date).Count(),
+                TotalUnMarkedAttendancesCount = classSessions.Where(cs => cs.Class.ProgramId == program.Id && cs.ClassTimeSheetId == null).DistinctBy(c =>
+                {
+                    return new { c.ClassId, c.Date };
+                }).Count(),
                 TotalAttendancePercentage = Math.Round(totalAttendace, MidpointRounding.AwayFromZero)
             };
         }).OrderByDescending(c => c.TotalUnMarkedAttendancesCount);

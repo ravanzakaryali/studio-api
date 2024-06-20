@@ -56,7 +56,8 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
             .GroupBy(c => c.ClassId)
             .Select(g =>
             {
-                var sessions = g
+                List<ClassSession> sessions = g
+                    .DistinctBy(cs => cs.Date)
                     .Where(cs => startDate <= cs.Date && cs.Date <= endDate && cs.Status != ClassSessionStatus.Cancelled)
                     .ToList();
 
