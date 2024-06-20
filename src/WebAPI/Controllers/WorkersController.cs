@@ -8,8 +8,6 @@ namespace Space.WebAPI.Controllers;
 [Authorize]
 public class WorkersController : BaseApiController
 {
-   
-
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] RoleEnum? role)
            => StatusCode(200, await Mediator.Send(new GetAllWorkerQuery(role)));
@@ -42,8 +40,8 @@ public class WorkersController : BaseApiController
 
 
     [HttpGet("{id}/classes")]
-    public async Task<IActionResult> GetClassByWorker([FromRoute] int id)
-        => Ok(await Mediator.Send(new GetClassesByWorkerQuery(id)));
+    public async Task<IActionResult> GetClassByWorker()
+        => Ok(await Mediator.Send(new GetClassesByWorkerQuery()));
 
 
     [HttpGet("{id}/attendance-by-class")]

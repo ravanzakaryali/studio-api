@@ -28,72 +28,27 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
         DateOnly date = DateOnly.FromDateTime(request.Date);
-
-        //əgər class session ləğv olunarsa buradan ləğv olunur 
-        //əgər yenidən həmin gün dərs olarsa yenidən yaradılır
-        //amma sonda bir gün əlavə etmək məsələsinə gəldikdə isə
-        //cancelledDate deyə bir session sağlayacam
-        //davamiyyət daxil olunanda əgər ki cancelled date class session içərisində varsa onu silsin.
-        //əgər ki yoxdursa onda davamiyyətə əlavə etsin
-
-        IEnumerable<ClassSession> classSessions = await _spaceDbContext.ClassSessions
-            .Where(c => c.ClassId == request.ClassId && c.Date == date)
-            .ToListAsync(cancellationToken: cancellationToken);
-
-        if (!classSessions.Any())
+        if (!@class.Session.Details.Any(c => c.DayOfWeek == date.DayOfWeek))
         {
             throw new NotFoundException(nameof(ClassSession), request.ClassId);
         }
+
         IEnumerable<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
+
             .Where(c => c.ClassId == request.ClassId && c.Date == date)
+            .Include(c=>c.Attendances)
+            .Include(c=>c.AttendancesWorkers)
             .ToListAsync(cancellationToken: cancellationToken);
 
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
-        DateOnly classLastDate = await _unitOfWork.ClassSessionService.GetLastDateAsync(@class.Id);
 
-
-
-
-        foreach (ClassSession classSession in classSessions)
+        foreach (ClassTimeSheet item in classTimeSheets)
         {
-            classSession.Status = ClassSessionStatus.Cancelled;
-            DateOnly date2 = classLastDate.AddDays(1);
-            DayOfWeek startDateDayOfWeek = date2.DayOfWeek;
-            while (
-                      !@class.Session.Details.Select(c => c.DayOfWeek).Any(c => date2.DayOfWeek == c)
-                  )
-            {
-                date2 = date2.AddDays(1);
-                startDateDayOfWeek = date2.DayOfWeek;
-            }
-            List<ClassSession> generateClassSessions = _unitOfWork.ClassSessionService
-                            .GenerateSessions(
-                                classSession.TotalHours,
-                                classSessions
-                                    .Select(
-                                        r =>
-                                            new CreateClassSessionDto()
-                                            {
-                                                Category = r.Category,
-                                                DayOfWeek = startDateDayOfWeek,
-                                                End = classSession.EndTime,
-                                                Start = classSession.StartTime
-                                            }
-                                    )
-                                    .ToList(),
-                                date2,
-                                holidayDates,
-                                @class.Id,
-                                classSession.RoomId!.Value
-                            );
-            await _spaceDbContext.ClassSessions.AddRangeAsync(generateClassSessions, cancellationToken);
-            if (generateClassSessions.Any())
-                @class.EndDate = generateClassSessions.OrderByDescending(c => c.Date).FirstOrDefault()?.Date;
+            item.Attendances = new List<Attendance>();
+            item.Status = ClassSessionStatus.Cancelled;
+            item.AttendancesWorkers = new List<AttendanceWorker>();
         }
 
-
-
-        _spaceDbContext.ClassTimeSheets.RemoveRange(classTimeSheets);
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
     }
 }

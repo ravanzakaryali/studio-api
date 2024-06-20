@@ -59,6 +59,10 @@ public class ExceptionHandlingMiddleware
         {
             ErrorResponse error = await HandleExceptionAsync(httpContext, ex, ex.HttpStatusCode);
         }
+        catch (HolidayException ex)
+        {
+            ErrorResponse error = await HandleExceptionAsync(httpContext, ex, ex.HttpStatusCode);
+        }
         catch (NotFoundException ex)
         {
             ErrorResponse error = await HandleExceptionAsync(httpContext, ex, ex.HttpStatusCode);
@@ -71,6 +75,7 @@ public class ExceptionHandlingMiddleware
         {
             ErrorResponse error = await HandleExceptionAsync(httpContext, ex, HttpStatusCode.Unauthorized);
         }
+
         catch (ValidationException ex)
         {
             httpContext.Response.ContentType = "application/json";

@@ -44,15 +44,7 @@ internal class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayComman
         }
         #endregion
 
-        //all classsessions isHoliday true
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
-             .Where(cs => cs.Date >= holidayEntry.Entity.StartDate && cs.Date <= holidayEntry.Entity.EndDate)
-             .ToListAsync(cancellationToken);
-
-        classSessions.ForEach(cs => cs.IsHoliday = true);
-
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
-
         return new HolidayResponseDto()
         {
             Description = holidayEntry.Entity.Description,

@@ -27,6 +27,8 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
             .Include(c => c.Studies)
             .ThenInclude(c => c.Student)
             .ThenInclude(c => c!.Contact)
+            .Include(c => c.Session)
+            .ThenInclude(c => c.Details)
             .Include(c => c.Studies)
             .ThenInclude(c => c.Attendances)
             .Include(c => c.ClassSessions)
@@ -60,8 +62,8 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                 .Sum(s => s.TotalHours);
 
 
-            List<GetAllStudentCategoryDto> studentSessions = @class.ClassSessions
-                    .Where(c => c.Date == requestDate)
+            List<GetAllStudentCategoryDto> studentSessions = @class.Session.Details
+                    .Where(c => c.DayOfWeek == requestDate.DayOfWeek)
                     .Select(c => new GetAllStudentCategoryDto()
                     {
                         ClassSessionCategory = c.Category,

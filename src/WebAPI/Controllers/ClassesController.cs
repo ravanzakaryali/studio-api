@@ -2,6 +2,7 @@ namespace Space.WebAPI.Controllers.v2;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ClassesController : BaseApiController
 {
     // GET: api/Classes/999 - Returns the class details
@@ -60,12 +61,20 @@ public class ClassesController : BaseApiController
           => Ok(await Mediator.Send(new GetAllModulesByClassQuery(id, date)));
 
     // GET: api/Classes/999/held-modules?date=2023-12-12 (keçirilmiş modullar) - Returns the held modules of the class (Tarixə uyğun olaraq )
-    [HttpGet("{id}/held-modules")]
+    [HttpGet("{id}/held-modules/admin")]
     public async Task<IActionResult> GetHeldModulesByClass([FromRoute] int id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetHeldModulesByClassQuery()
         {
             Id = id,
             Date = date
+        }));
+
+    [HttpGet("{id}/held-modules")]
+    public async Task<IActionResult> GetHeldModulesByClassAdmin([FromRoute] int id)
+        => Ok(await Mediator.Send(new GetHeldModulesByClassQuery()
+        {
+            Id = id,
+            Date = new DateTime(),
         }));
 
     //Todo: Session Id
@@ -105,27 +114,23 @@ public class ClassesController : BaseApiController
             }));
 
     // GET: api/Classes/999/sessions-category - Returns the session category of the class by date
-    [Authorize]
-    [HttpGet("{id}/session-category")]
+    [HttpGet("{id}/sessions-category")]
     public async Task<IActionResult> GetSessionCategoryHours([FromRoute] int id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetClassCategoryHoursQuery(id, date)));
 
     // GET: api/Classes/999/class-session - Returns the class session of the class by date 
     // UI link - /admin/app/classes/373/class-sessions/by-day/2023-09-25
-    [Authorize]
     [HttpGet("{id}/class-session")]
     public async Task<IActionResult> GetClassSession([FromRoute] int id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetClassSessionByClassQuery(id, date)));
 
     // GET: api/Classes/999/program - Returns the program of the class
-    [Authorize]
     [HttpGet("{id}/program")]
     public async Task<IActionResult> GetClassByProgram([FromRoute] int id)
     => Ok(await Mediator.Send(new GetClassByProgramQuery(id)));
 
 
     // GET: api/Classes/export/excel - Exports the students of the classes to excel
-    [Authorize]
     [HttpGet("export/excel")]
     public async Task ClassesExcelExport(
             [FromQuery] ClassStatus status,
@@ -145,7 +150,6 @@ public class ClassesController : BaseApiController
     }
 
     // GET: api/Classes/999/export/excel - Exports the students of the class to excel
-    [Authorize]
     [HttpGet("{id}/export/excel")]
     public async Task ClassExcelExport([FromRoute] int id)
     {
@@ -156,7 +160,6 @@ public class ClassesController : BaseApiController
     }
 
     // POST: api/Classes/999/attendances - Creates the attendances of the class
-    [Authorize]
     [HttpPost("{id}/attendances")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -173,7 +176,6 @@ public class ClassesController : BaseApiController
     }
 
     // POST: api/Classes/999/sessions - Creates the sessions of the class
-    [Authorize]
     [HttpPost("{id}/sessions")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -188,7 +190,6 @@ public class ClassesController : BaseApiController
     }
 
     // PUT: api/Classes/999/sessions - Updates the sessions of the class
-    [Authorize]
     [HttpPut("{id}/sessions")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -205,7 +206,6 @@ public class ClassesController : BaseApiController
     }
 
     // POST: api/Classes/999/class-session - Creates the class session of the class
-    [Authorize(Roles = "admin")]
     [HttpPost("{id}/class-session")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
@@ -220,7 +220,6 @@ public class ClassesController : BaseApiController
     }
 
     // PUT: api/Classes/999/modules-workers - Updates the modules and workers of the class
-    [Authorize]
     [HttpPut("{id}/modules-workers")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -238,7 +237,6 @@ public class ClassesController : BaseApiController
 
 
     // POST: api/Classes/999/modules-workers - Creates the modules and workers of the class
-    [Authorize]
     [HttpPost("{id}/modules-workers")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -253,7 +251,6 @@ public class ClassesController : BaseApiController
     }
 
     // PUT: api/Classes/999/class-session - Updates the class session of the class
-    [Authorize(Roles = "admin,mentor,ta,muellim")]
     [HttpPut("{id}/class-session")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -263,6 +260,15 @@ public class ClassesController : BaseApiController
         return NoContent();
     }
 
+
+    [HttpPost("{id}/session-cancel")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> CancelClassSession([FromRoute] int id, [FromQuery] DateTime date)
+    {
+        await Mediator.Send(new CancelledAttendanceCommand(id, date));
+        return NoContent();
+    }
 
     #region Comments Endpoints
     // // POST: api/Classes - Creates a new class

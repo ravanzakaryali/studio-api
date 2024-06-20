@@ -28,12 +28,7 @@ internal class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayComman
         }
         #endregion
 
-        //all classsessions isHoliday false
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
-             .Where(cs => cs.Date >= holiday.StartDate && cs.Date <= holiday.EndDate)
-             .ToListAsync(cancellationToken);
-
-        classSessions.ForEach(cs => cs.IsHoliday = false);
+        _spaceDbContext.Holidays.Remove(holiday);
 
         await _spaceDbContext.SaveChangesAsync();
         return _mapper.Map<HolidayResponseDto>(holiday);

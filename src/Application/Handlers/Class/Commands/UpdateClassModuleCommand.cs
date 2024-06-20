@@ -100,7 +100,6 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             }
         }
 
-
         if (request.NewExtraModules != null && request.NewExtraModules.Any())
         {
             IEnumerable<ExtraModule> newExtraModules = request.NewExtraModules.Select(c => new ExtraModule()
@@ -125,26 +124,10 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             DateOnly startDate = request.NewExtraModules.OrderBy(c => c.StartDate).First().StartDate;
             DateOnly endDate = request.NewExtraModules.OrderByDescending(c => c.EndDate).First().EndDate;
 
-
             if (@class.EndDate >= startDate)
             {
                 startDate = @class.EndDate.Value.AddDays(1);
             }
-
-            List<CreateClassSessionDto> sessions = @class.Session.Details.Select(c => new CreateClassSessionDto()
-            {
-                Category = c.Category,
-                DayOfWeek = c.DayOfWeek,
-                End = c.EndTime,
-                Start = c.StartTime,
-            }).ToList();
-
-            List<DateOnly> holidays = await _unitOfWork.HolidayService.GetDatesAsync();
-            int roomId = @class.RoomId ?? throw new NotFoundException(nameof(Room));
-            List<ClassSession> newClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(startDate, sessions, endDate, holidays, @class.Id, roomId);
-            _spaceDbContext.ClassSessions.AddRange(newClassSessions);
-            @class.EndDate = newClassSessions.OrderByDescending(c => c.Date).First().Date;
-
         }
 
 

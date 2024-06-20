@@ -1,11 +1,14 @@
-﻿namespace Space.Infrastructure.Persistence.Concrete.Services;
+﻿
+namespace Space.Infrastructure.Persistence.Concrete.Services;
 
 public class ClassService : IClassService
 {
-    private readonly ISpaceDbContext _dbContext;
-    public ClassService(ISpaceDbContext dbContext)
+    readonly ISpaceDbContext _dbContext;
+    readonly IHolidayService _holidayService;
+    public ClassService(ISpaceDbContext dbContext, IHolidayService holidayService)
     {
         _dbContext = dbContext;
+        _holidayService = holidayService;
     }
 
     public (DateOnly StartDate, DateOnly EndDate) CalculateStartAndEndDate(Session session, Class @class, List<DateOnly> holidayDates)
@@ -45,4 +48,55 @@ public class ClassService : IClassService
         sessionDates = sessionDates.OrderBy(c => c).ToList();
         return (sessionDates.First(), sessionDates.Last());
     }
+
+    public Task CheckClassAvailabilityAsync(Class @class, DateOnly date)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<DateOnly> EndDateCalculationAsync(Class @class)
+    {
+        if (@class.Program is null) throw new NullReferenceException(nameof(@class.Program));
+        if (@class.Session is null) throw new NullReferenceException(nameof(@class.Session));
+        if (@class.Session.Details is null) throw new NullReferenceException(nameof(@class.Session.Details));
+        List<DateOnly> holidayDates = await _holidayService.GetDatesAsync();
+        ICollection<SessionDetail> sessions = @class.Session.Details;
+        DateOnly startDate = @class.StartDate;
+        int totalProgramHours = @class.Program.TotalHours;
+
+        Dictionary<DayOfWeek, int> sessionHours = new Dictionary<DayOfWeek, int>();
+
+        foreach (var session in sessions)
+        {
+            if (sessionHours.ContainsKey(session.DayOfWeek))
+            {
+                sessionHours[session.DayOfWeek] += session.TotalHours;
+            }
+            else
+            {
+                sessionHours[session.DayOfWeek] = session.TotalHours;
+            }
+        }
+
+        DateOnly currentDate = startDate;
+        int remainingHours = totalProgramHours;
+
+        while (remainingHours > 0)
+        {
+            DayOfWeek currentDay = currentDate.DayOfWeek;
+
+            if (!holidayDates.Contains(currentDate) && sessionHours.ContainsKey(currentDay))
+            {
+                remainingHours -= sessionHours[currentDay];
+            }
+
+            if (remainingHours > 0)
+            {
+                currentDate = currentDate.AddDays(1);
+            }
+        }
+
+        return currentDate;
+    }
+
 }

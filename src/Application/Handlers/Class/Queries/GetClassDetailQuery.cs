@@ -28,12 +28,7 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
         List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
             .Where(c => c.ClassId == @class.Id && c.Status != ClassSessionStatus.Cancelled)
             .Include(c => c.Attendances)
-            .ToListAsync();
-
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
-            .Include(c => c.ClassTimeSheet)
-            .Where(c => c.ClassId == @class.Id && c.Status != ClassSessionStatus.Cancelled && c.Category != ClassSessionCategory.Lab)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
         List<double> list = new();
         foreach (ClassTimeSheet? item in classTimeSheets.Where(c => c.Attendances.Count > 0))
@@ -46,7 +41,6 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
         DateOnly startDate = @class.StartDate;
         DateOnly? endDate = @class.EndDate;
 
-        int totalHours = @class.ClassSessions.Sum(c => c.TotalHours);
 
         return new GetClassDetailResponse()
         {
@@ -61,9 +55,9 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
                 Name = @class.Program.Name,
             },
             CurrentHours = classTimeSheets
-            .Where(c => c.ClassSession != null && c.Category != ClassSessionCategory.Practice && c.Category != ClassSessionCategory.Lab)
+            .Where(c => c.Status != ClassSessionStatus.Cancelled)
             .Sum(c => c.TotalHours),
-            TotalHours = totalHours,
+            TotalHours = @class.Program.TotalHours,
             Name = @class.Name,
             AttendanceRate = Math.Round(list.Count > 0 ? list.Average() : 0, 2),
             EndDate = endDate,
