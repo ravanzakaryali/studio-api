@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Space.Infrastructure.Persistence;
 
@@ -11,9 +12,10 @@ using Space.Infrastructure.Persistence;
 namespace Space.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SpaceDbContext))]
-    partial class SpaceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240610122331_Add_Notification")]
+    partial class Add_Notification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -900,6 +902,11 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<bool>("AllUsers")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -938,14 +945,9 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ToUserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("FromUserId");
-
-                    b.HasIndex("ToUserId");
 
                     b.ToTable("Notifications");
                 });
@@ -1973,13 +1975,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("FromUserId");
 
-                    b.HasOne("Space.Domain.Entities.User", "ToUser")
-                        .WithMany()
-                        .HasForeignKey("ToUserId");
-
                     b.Navigation("FromUser");
-
-                    b.Navigation("ToUser");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.RoomSchedule", b =>

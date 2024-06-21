@@ -35,6 +35,7 @@ public class SpaceDbContext :
     public DbSet<Holiday> Holidays => Set<Holiday>();
     public DbSet<Support> Supports => Set<Support>();
     public DbSet<E.File> Files => Set<E.File>();
+    public DbSet<Notification> Notifications => Set<Notification>();
     #endregion
     #region Identity
 
