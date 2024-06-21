@@ -33,7 +33,7 @@ internal class GetAllNotificationsQueryHandler : IRequestHandler<GetAllNotificat
             .Include(n => n.FromUser)
             .ToListAsync(cancellationToken: cancellationToken);
 
-        IEnumerable<GetNotificationDto> response = notifications.Where(c => c.ToUserId == user.Id).Select(n =>
+        IEnumerable<GetNotificationDto> response = notifications.Where(c => c.ToUserId == user.Id).OrderByDescending(c => c.CreatedDate).Select(n =>
         {
 
             UserDto? user = null;
