@@ -2,9 +2,9 @@
 
 public record LoginCommand : IRequest
 {
+   
     public string Email { get; set; } = null!;
     public string Password { get; set; } = null!;
-    //public string ReCaptchaToken { get; set; } = null!;
 }
 internal class LoginCommandHandler : IRequestHandler<LoginCommand>
 {
