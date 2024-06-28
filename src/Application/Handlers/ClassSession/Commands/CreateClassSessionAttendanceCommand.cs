@@ -30,6 +30,8 @@ internal class UpdateClassSessionAttendanceCommandHandler
         Class @class =
             await _spaceDbContext
                 .Classes
+                .Include(c => c.Session)
+                .ThenInclude(c => c.Details)
                 .Include(c => c.Studies)
                 .Include(c => c.Program)
                 .ThenInclude(c => c.Modules)
@@ -47,12 +49,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
 
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(4));
         //həmin günün class sessiona bax
-        List<ClassSession> classSessions = await _spaceDbContext
-            .ClassSessions
-            .Where(c => c.Date == dateNow && c.ClassId == request.ClassId)
-            .ToListAsync(cancellationToken: cancellationToken);
 
-        if (!classSessions.Any()) throw new NotFoundException("Class session not found");
 
         if (request.HeldModules != null && request.HeldModules!.Count != 0)
         {
@@ -89,131 +86,76 @@ internal class UpdateClassSessionAttendanceCommandHandler
         List<ClassTimeSheet> addTimeSheets = new();
         foreach (UpdateAttendanceCategorySessionDto session in request.Sessions)
         {
+            SessionDetail sessionDetail = @class.Session.Details.FirstOrDefault(c => c.DayOfWeek == dateNow.DayOfWeek)
+                ?? throw new NotFoundException("Session detail not found");
 
-            ClassSession? classSessionFirst = classSessions.FirstOrDefault() ?? throw new NotFoundException("Class session not found");
-            ClassSession? classSession = classSessions
-                .Where(cs => cs.Category == session.Category)
-                .FirstOrDefault();
-
-            if (classSession == null)
-            {
-                classSession = classSessionFirst;
-                classSession.Category = session.Category;
-            }
-            @classSession.RoomId ??= @class.RoomId;
-
-            classSession.Status = session.Status;
             if (session.AttendancesWorkers.Any(c => c.TotalMinutes >= 60))
                 throw new ValidationException("It cannot be more than 60 minutes");
 
-            if (session.AttendancesWorkers.Any(c => c.TotalHours > classSession.TotalHours))
+            if (session.AttendancesWorkers.Any(c => c.TotalHours > sessionDetail.TotalHours))
                 throw new ValidationException(
                     "The worker's time cannot be longer than the lesson's time"
                 );
 
-            if (session.Attendances.Any(c => c.TotalAttendanceHours > classSession.TotalHours))
+            if (session.Attendances.Any(c => c.TotalAttendanceHours > sessionDetail.TotalHours))
                 throw new ValidationException(
                     "The student's time cannot be longer than the lesson's time"
                 );
 
-            if (classSession.Status != ClassSessionStatus.Cancelled)
-            {
-                ClassTimeSheet classTimeSheet =
-                    new()
-                    {
-                        Attendances = session
-                            .Attendances
-                            .Select(
-                                c =>
-                                    new Attendance()
-                                    {
-                                        StudyId = c.StudentId,
-                                        Note = c.Note,
-                                        Status =
-                                            classSession.TotalHours == c.TotalAttendanceHours
-                                                ? StudentStatus.Attended
-                                                : c.TotalAttendanceHours == 0
-                                                    ? StudentStatus.Absent
-                                                    : StudentStatus.Partial,
-                                        TotalAttendanceHours = c.TotalAttendanceHours
-                                    }
-                            )
-                            .ToList(),
-                        AttendancesWorkers = session
-                            .AttendancesWorkers
-                            .Select(
-                                wa =>
-                                    new AttendanceWorker()
-                                    {
-                                        WorkerId = wa.WorkerId,
-                                        TotalHours = wa.TotalHours,
-                                        TotalMinutes = wa.TotalMinutes,
-                                        RoleId = wa.RoleId,
-                                        AttendanceStatus = wa.AttendanceStatus,
-                                    }
-                            )
-                            .ToList(),
-                        TotalHours = classSession.TotalHours,
-                        Category = classSession.Category,
-                        ClassId = classSession.ClassId,
-                        ClassSession = classSession,
-                        EndTime = classSession.EndTime,
-                        Date = classSession.Date,
-                        StartTime = classSession.StartTime,
-                        Status = session.Status,
-                    };
-                if (session.Category == ClassSessionCategory.Theoric && request.HeldModules != null)
+            ClassTimeSheet classTimeSheet =
+                new()
                 {
-                    classTimeSheet.HeldModules = request
-                                            .HeldModules
-                                            .Select(
-                                                hm => new HeldModule() { ModuleId = hm.ModuleId, TotalHours = hm.TotalHours, }
-                                            )
-                                            .ToList();
-                }
-
-                addTimeSheets.Add(classTimeSheet);
-            }
-            else
+                    Attendances = session
+                        .Attendances
+                        .Select(
+                            c =>
+                                new Attendance()
+                                {
+                                    StudyId = c.StudentId,
+                                    Note = c.Note,
+                                    Status =
+                                        sessionDetail.TotalHours == c.TotalAttendanceHours
+                                            ? StudentStatus.Attended
+                                            : c.TotalAttendanceHours == 0
+                                                ? StudentStatus.Absent
+                                                : StudentStatus.Partial,
+                                    TotalAttendanceHours = c.TotalAttendanceHours
+                                }
+                        )
+                        .ToList(),
+                    AttendancesWorkers = session
+                        .AttendancesWorkers
+                        .Select(
+                            wa =>
+                                new AttendanceWorker()
+                                {
+                                    WorkerId = wa.WorkerId,
+                                    TotalHours = wa.TotalHours,
+                                    TotalMinutes = wa.TotalMinutes,
+                                    RoleId = wa.RoleId,
+                                    AttendanceStatus = wa.AttendanceStatus,
+                                }
+                        )
+                        .ToList(),
+                    TotalHours = sessionDetail.TotalHours,
+                    Category = session.Category,
+                    ClassId = @class.Id,
+                    EndTime = sessionDetail.EndTime,
+                    Date = dateNow,
+                    StartTime = sessionDetail.StartTime,
+                    Status = session.Status,
+                };
+            if (session.Category == ClassSessionCategory.Theoric && request.HeldModules != null)
             {
-                session.Status = ClassSessionStatus.Cancelled;
-
-                DateOnly date2 = classLastDate.AddDays(1);
-                DayOfWeek startDateDayOfWeek = date2.DayOfWeek;
-                while (
-                    !@class.Session.Details.Select(c => c.DayOfWeek).Any(c => date2.DayOfWeek == c)
-                )
-                {
-                    date2 = date2.AddDays(1);
-                    startDateDayOfWeek = date2.DayOfWeek;
-                }
-                List<ClassSession> generateClassSessions = _unitOfWork
-                    .ClassSessionService
-                    .GenerateSessions(
-                        classSession.TotalHours,
-                        request
-                            .Sessions
-                            .Select(
-                                r =>
-                                    new CreateClassSessionDto()
-                                    {
-                                        Category = r.Category,
-                                        DayOfWeek = startDateDayOfWeek,
-                                        End = classSession.EndTime,
-                                        Start = classSession.StartTime
-                                    }
-                            )
-                            .ToList(),
-                        date2,
-                        holidayDates,
-                        @class.Id,
-                        classSession.RoomId!.Value
-                    );
-
-                await _spaceDbContext
-                    .ClassSessions
-                    .AddRangeAsync(generateClassSessions, cancellationToken);
+                classTimeSheet.HeldModules = request
+                                        .HeldModules
+                                        .Select(
+                                            hm => new HeldModule() { ModuleId = hm.ModuleId, TotalHours = hm.TotalHours, }
+                                        )
+                                        .ToList();
             }
+
+            addTimeSheets.Add(classTimeSheet);
         }
         _spaceDbContext.ClassTimeSheets.AddRange(addTimeSheets);
         await _spaceDbContext.SaveChangesAsync(cancellationToken);
