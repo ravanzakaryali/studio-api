@@ -114,9 +114,13 @@ public class ClassesController : BaseApiController
             }));
 
     // GET: api/Classes/999/sessions-category - Returns the session category of the class by date
-    [HttpGet("{id}/sessions-category")]
-    public async Task<IActionResult> GetSessionCategoryHours([FromRoute] int id, [FromQuery] DateTime date)
+    [HttpGet("{id}/sessions-category/admin")]
+    public async Task<IActionResult> GetSessionCategoryHoursAdmin([FromRoute] int id, [FromQuery] DateTime date)
         => Ok(await Mediator.Send(new GetClassCategoryHoursQuery(id, date)));
+
+    [HttpGet("{id}/sessions-category")]
+    public async Task<IActionResult> GetSessionCategoryHours([FromRoute] int id)
+        => Ok(await Mediator.Send(new GetClassCategoryHoursQuery(id, new DateTime())));
 
     // GET: api/Classes/999/class-session - Returns the class session of the class by date 
     // UI link - /admin/app/classes/373/class-sessions/by-day/2023-09-25
@@ -264,7 +268,16 @@ public class ClassesController : BaseApiController
     [HttpPost("{id}/session-cancel")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> CancelClassSession([FromRoute] int id, [FromQuery] DateTime date)
+    public async Task<IActionResult> CancelClassSession([FromRoute] int id)
+    {
+        await Mediator.Send(new CancelledAttendanceCommand(id, new DateTime()));
+        return NoContent();
+    }
+
+    [HttpPost("{id}/session-cancel/admin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> CancelClassSessionAdmin([FromRoute] int id, [FromQuery] DateTime date)
     {
         await Mediator.Send(new CancelledAttendanceCommand(id, date));
         return NoContent();

@@ -39,7 +39,7 @@ public class WorkersController : BaseApiController
           }));
 
 
-    [HttpGet("{id}/classes")]
+    [HttpGet("login/classes")]
     public async Task<IActionResult> GetClassByWorker()
         => Ok(await Mediator.Send(new GetClassesByWorkerQuery()));
 

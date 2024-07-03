@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using NPOI.SS.Formula;
 using Space.Application.Extensions;
 
 
@@ -39,8 +40,10 @@ public class PermissionEndpointFilter : IAsyncActionFilter
 
         bool? isAuth = descriptor?.EndpointMetadata.Any(c => c is AuthorizeAttribute);
 
-        E.Endpoint? endpointDb = await _spaceDbContext.Endpoints
+        E.EndpointDetail? endpointDb = await _spaceDbContext.EndpointDetails
                                         .Where(c => c.Path == pattern && c.HttpMethod == httpMethod)
+                                        .Include(c => c.ApplicationModule)
+                                        .Include(c => c.PermissionAccess)
                                         .FirstOrDefaultAsync();
 
         if (endpointDb == null)
@@ -68,6 +71,12 @@ public class PermissionEndpointFilter : IAsyncActionFilter
 
         }
         E.Worker? worker = await _spaceDbContext.Workers
+            .Include(c => c.PermissionGroups)
+            .ThenInclude(c => c.PermissionGroupPermissionLevelAppModules)
+            .ThenInclude(c => c.PermissionLevel)
+            .ThenInclude(c => c.PermissionAccesses)
+            .Include(c => c.WorkerPermissionLevelAppModules)
+            .ThenInclude(c => c.ApplicationModule)
             .FirstOrDefaultAsync(c => c.Id == int.Parse(userId));
 
         if (worker == null)
@@ -77,6 +86,32 @@ public class PermissionEndpointFilter : IAsyncActionFilter
             return;
         }
 
-        await next();
+        if (endpointDb.ApplicationModule == null)
+        {
+            await next();
+            return;
+        }
+
+        ICollection<E.PermissionGroup> permissiongroups = worker.PermissionGroups;
+
+        var appmodules = endpointDb.PermissionAccess.PermissionLevels;
+
+        foreach (E.PermissionGroup permissionGroup in permissiongroups)
+        {
+            foreach (E.PermissionGroupPermissionLevelAppModule levelAppModule in permissionGroup.PermissionGroupPermissionLevelAppModules)
+            {
+                bool isAccess = levelAppModule.PermissionLevel.PermissionAccesses.Any(c => c.Id == endpointDb.PermissionAccessId && endpointDb.ApplicationModuleId == levelAppModule.ApplicationModuleId);
+                if (isAccess)
+                {
+                    await next();
+                    return;
+                }
+
+            }
+        }
+
+        context.HttpContext.Response.StatusCode = 403;
+        await context.HttpContext.Response.WriteAsync("Forbidden");
+        return;
     }
 }

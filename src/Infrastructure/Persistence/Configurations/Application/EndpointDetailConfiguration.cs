@@ -5,5 +5,6 @@ public class EndpointDetailConfiguration : IEntityTypeConfiguration<E.EndpointDe
     public void Configure(EntityTypeBuilder<EndpointDetail> builder)
     {
         builder.ToTable("EndpointDetails");
+        builder.Property(c => c.ApplicationModuleId).IsRequired(false);
     }
 }
