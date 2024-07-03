@@ -76,9 +76,9 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                 ClassTimeSheet? findClassTimeSheet = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory);
                 if (findClassTimeSheet == null)
                 {
-                    findClassTimeSheet = classTimeSheets.First(c => c.Category == ClassSessionCategory.Lab);
+                    findClassTimeSheet = classTimeSheets.FirstOrDefault(c => c.Category == ClassSessionCategory.Lab);
                 }
-                int hour = findClassTimeSheet.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours ?? 0;
+                int hour = findClassTimeSheet?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours ?? 0;
                 item.Hour = hour;
                 item.ClassSessionCategory = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory)?.Category ?? ClassSessionCategory.Lab;
                 item.Note = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory)?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note;
