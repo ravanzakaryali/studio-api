@@ -1,15 +1,23 @@
 using AspNetCoreRateLimit;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.HttpLogging;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 using Space.Application.Helper;
 using Space.WebAPI.Filters;
-using System.Reflection;
 using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+AppOptions options = new()
+{
+    Credential = GoogleCredential.FromFile("studio-firebase.json"),
+};
+
+FirebaseApp.Create(options);
 
 ColumnOptions columnOpts = new ColumnOptions();
 columnOpts.Store.Remove(StandardColumn.Properties);

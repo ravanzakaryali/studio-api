@@ -2,10 +2,10 @@
 
 namespace Space.WebAPI.Controllers;
 
+[Authorize]
 public class SupportsController : BaseApiController
 {
 
-    [Authorize(Roles = "admin,ta,mentor,muellim")]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
@@ -15,7 +15,6 @@ public class SupportsController : BaseApiController
         return StatusCode(StatusCodes.Status201Created);
     }
 
-    [Authorize(Roles = "admin")]
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -32,18 +31,15 @@ public class SupportsController : BaseApiController
 
 
 
-    [Authorize(Roles = "admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllAsync()
         => Ok(await Mediator.Send(new GetAllSupportQuery()));
 
 
-    [Authorize(Roles = "admin,mentor,muellim")]
     [HttpGet("categories")]
     public async Task<IActionResult> GetAllCategoryAsync()
         => Ok(await Mediator.Send(new GetSupportCategoriesQuery()));
 
-    [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -53,7 +49,6 @@ public class SupportsController : BaseApiController
         return NoContent();
     }
 
-    [Authorize(Roles = "admin")]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetAsync([FromRoute] int id)
         => Ok(await Mediator.Send(new GetSupportQuery(id)));

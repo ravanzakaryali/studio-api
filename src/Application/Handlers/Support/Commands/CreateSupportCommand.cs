@@ -73,14 +73,14 @@ internal class CreateSupportCommandHandler : IRequestHandler<CreateSupportComman
 
         if (request.Images != null && request.Images?.Count > 0)
         {
-            List<FileUploadResponse> imageUpload = await _storageService.UploadAsync(request.Images, "Images");
+            List<FileUploadResponse> imageUpload = await _storageService.UploadFilesAsync(request.Images, "support-images");
             newSupport.SupportImages = imageUpload.Select(i => new SupportImage()
             {
                 FileName = i.FileName,
                 Path = i.PathName,
                 Extension = i.Extension,
                 Storage = "Local",
-                Size = i.Size
+                Size = i.Size,
             }).ToList();
         }
 

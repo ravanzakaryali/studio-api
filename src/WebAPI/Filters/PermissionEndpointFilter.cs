@@ -86,6 +86,17 @@ public class PermissionEndpointFilter : IAsyncActionFilter
             return;
         }
 
+        Console.WriteLine("---------");
+        Console.WriteLine("---------");
+        Console.WriteLine("---------");
+        Console.WriteLine("---------");
+        Console.WriteLine(endpointDb.ApplicationModule == null);
+        Console.WriteLine(endpointDb.Path);
+        Console.WriteLine("---------");
+        Console.WriteLine("---------");
+        Console.WriteLine("---------");
+        Console.WriteLine("---------");
+        
         if (endpointDb.ApplicationModule == null)
         {
             await next();

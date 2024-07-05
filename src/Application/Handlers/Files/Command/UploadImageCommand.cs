@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Space.Application.Handlers;
 
-
 public class UploadImageCommand : IRequest
 {
     public UploadImageCommand(IFormFile file)
@@ -27,7 +26,7 @@ internal class UploadImageCommandHandler : IRequestHandler<UploadImageCommand>
 
     public async Task Handle(UploadImageCommand request, CancellationToken cancellationToken)
     {
-        FileUploadResponse imageUpload = await _storageService.UploadAsync(request.File, "Images");
+        FileUploadResponse imageUpload = await _storageService.UploadFileAsync(request.File, "Images");
         await _spaceDbContext.Files.AddAsync(new E.File()
         {
             FileName = imageUpload.FileName,
