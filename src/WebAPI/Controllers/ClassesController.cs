@@ -169,7 +169,7 @@ public class ClassesController : BaseApiController
     [ProducesDefaultResponseType]
     public async Task<IActionResult> CreateClassAttendances([FromRoute] int id, [FromBody] CreateClassAttendanceRequestDto request)
     {
-        await Mediator.Send(new CreateClassAttendanceCommand()
+        await Mediator.Send(new CreateClassSessionAttendanceCommand()
         {
             ClassId = id,
             Date = request.Date,

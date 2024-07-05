@@ -3,6 +3,7 @@
 public class CreateClassSessionAttendanceCommand : IRequest
 {
     public int ClassId { get; set; }
+    public DateOnly Date { get; set; }
     public ICollection<CreateAttendanceModuleRequestDto>? HeldModules { get; set; } = null;
     public ICollection<UpdateAttendanceCategorySessionDto> Sessions { get; set; } = null!;
 }
@@ -47,9 +48,8 @@ internal class UpdateClassSessionAttendanceCommandHandler
             ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
 
-        DateOnly dateNow = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(4));
+        DateOnly dateNow = request.Date;
         //həmin günün class sessiona bax
-
 
         if (request.HeldModules != null && request.HeldModules!.Count != 0)
         {

@@ -87,7 +87,7 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             .ToListAsync(cancellationToken: cancellationToken);
         _spaceDbContext.ClassExtraModulesWorkers.RemoveRange(classExtraModulesWorkers);
 
-        if (request.ExtraModules != null)
+        if (request.ExtraModules != null && request.ExtraModules.Any())
         {
             foreach (CreateClassExtraModuleRequestDto item in request.ExtraModules)
             {

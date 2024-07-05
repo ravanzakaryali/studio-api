@@ -13,7 +13,8 @@ public class AttendancesController : BaseApiController
         {
             ClassId = request.ClassId,
             HeldModules = request.HeldModules,
-            Sessions = request.Sessions
+            Sessions = request.Sessions,
+            Date = DateOnly.FromDateTime(new DateTime())
         });
         return NoContent();
     }

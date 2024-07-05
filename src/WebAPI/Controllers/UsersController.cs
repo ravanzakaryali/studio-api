@@ -33,6 +33,7 @@ public class UsersController : BaseApiController
     }
 
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
     public async Task<IActionResult> Create([FromBody] CreateRequestWorkerDto request)
