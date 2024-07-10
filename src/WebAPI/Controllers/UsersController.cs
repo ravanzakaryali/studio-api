@@ -22,7 +22,7 @@ public class UsersController : BaseApiController
         return Ok(await Mediator.Send(new GetUsersQuery()));
     }
 
-    [Authorize(Roles = "admin")]
+    [Authorize]
     [HttpPost("{id}/roles")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -32,12 +32,8 @@ public class UsersController : BaseApiController
         return NoContent();
     }
 
-    [HttpPost]
-    [Authorize]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesDefaultResponseType]
-    public async Task<IActionResult> Create([FromBody] CreateRequestWorkerDto request)
-              => StatusCode(201, await Mediator.Send(new CreateWorkerCommand(request.Name, request.Surname, request.Email, request.Fincode, request.GroupsId)));
+
+    
 
     [Authorize]
     [HttpGet("{id}/roles")]

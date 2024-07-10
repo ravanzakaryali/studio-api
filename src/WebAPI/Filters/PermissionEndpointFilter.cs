@@ -40,11 +40,13 @@ public class PermissionEndpointFilter : IAsyncActionFilter
 
         bool? isAuth = descriptor?.EndpointMetadata.Any(c => c is AuthorizeAttribute);
 
-        E.EndpointDetail? endpointDb = await _spaceDbContext.EndpointDetails
-                                        .Where(c => c.Path == pattern && c.HttpMethod == httpMethod)
-                                        .Include(c => c.ApplicationModule)
-                                        .Include(c => c.PermissionAccess)
-                                        .FirstOrDefaultAsync();
+        E.Endpoint? endpointDb = await _spaceDbContext.Endpoints
+            .Where(c => c.Path == pattern && c.HttpMethod == httpMethod)
+            .Include(c => c.EndpointAccesses)
+            .ThenInclude(c => c.ApplicationModule)
+            .Include(c => c.EndpointAccesses)
+            .ThenInclude(c => c.PermissionAccess)
+            .FirstOrDefaultAsync();
 
         if (endpointDb == null)
         {
@@ -52,6 +54,9 @@ public class PermissionEndpointFilter : IAsyncActionFilter
             await context.HttpContext.Response.WriteAsync("Endpoint not found");
             return;
         }
+
+
+
         string? userId = _contextAccessor.HttpContext?.User.GetLoginUserId();
 
         if (userId == null)
@@ -86,39 +91,34 @@ public class PermissionEndpointFilter : IAsyncActionFilter
             return;
         }
 
-        Console.WriteLine("---------");
-        Console.WriteLine("---------");
-        Console.WriteLine("---------");
-        Console.WriteLine("---------");
-        Console.WriteLine(endpointDb.ApplicationModule == null);
-        Console.WriteLine(endpointDb.Path);
-        Console.WriteLine("---------");
-        Console.WriteLine("---------");
-        Console.WriteLine("---------");
-        Console.WriteLine("---------");
-        
-        if (endpointDb.ApplicationModule == null)
+        if (endpointDb.EndpointAccesses.Any(c => c.ApplicationModuleId == null))
         {
             await next();
             return;
         }
 
+
         ICollection<E.PermissionGroup> permissiongroups = worker.PermissionGroups;
 
-        var appmodules = endpointDb.PermissionAccess.PermissionLevels;
 
-        foreach (E.PermissionGroup permissionGroup in permissiongroups)
+        foreach (E.EndpointAccess endPointItem in endpointDb.EndpointAccesses)
         {
-            foreach (E.PermissionGroupPermissionLevelAppModule levelAppModule in permissionGroup.PermissionGroupPermissionLevelAppModules)
+            ICollection<E.PermissionLevel> appmodules = endPointItem.PermissionAccess.PermissionLevels;
+
+            foreach (E.PermissionGroup permissionGroup in permissiongroups)
             {
-                bool isAccess = levelAppModule.PermissionLevel.PermissionAccesses.Any(c => c.Id == endpointDb.PermissionAccessId && endpointDb.ApplicationModuleId == levelAppModule.ApplicationModuleId);
-                if (isAccess)
+                foreach (E.PermissionGroupPermissionLevelAppModule levelAppModule in permissionGroup.PermissionGroupPermissionLevelAppModules)
                 {
-                    await next();
-                    return;
+                    bool isAccess = levelAppModule.PermissionLevel.PermissionAccesses.Any(c => c.Id == endPointItem.PermissionAccessId && endPointItem.ApplicationModuleId == levelAppModule.ApplicationModuleId);
+                    if (isAccess)
+                    {
+                        await next();
+                        return;
+                    }
                 }
             }
         }
+
 
         context.HttpContext.Response.StatusCode = 403;
         await context.HttpContext.Response.WriteAsync("Forbidden");

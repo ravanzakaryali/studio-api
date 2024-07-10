@@ -1,8 +1,9 @@
 namespace Space.Domain.Entities;
 
-public class EndpointDetail : Endpoint
+public class EndpointAccess : BaseEntity
 {
-    public string? Description { get; set; }
+    public int EndpointId { get; set; }
+    public Endpoint Endpoint { get; set; } = null!;
     public int PermissionAccessId { get; set; }
     public PermissionAccess PermissionAccess { get; set; } = null!;
     public int? ApplicationModuleId { get; set; }

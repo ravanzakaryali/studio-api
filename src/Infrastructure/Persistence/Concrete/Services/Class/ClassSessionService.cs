@@ -33,20 +33,20 @@ public class ClassSessionService : IClassSessionService
                 {
                     if (dateTime <= startDate)
                     {
-                        count++;
                         dateTime = dateTime.AddDays(1);
+                        count++;
                         continue;
                     }
                     if (holidayDates.Contains(dateTime))
                     {
-                        count++;
                         dateTime = dateTime.AddDays(1);
+                        count++;
                         continue;
                     }
                     break;
                 }
-                count++;
                 dateTime = dateTime.AddDays(1);
+                count++;
             }
 
 

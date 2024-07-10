@@ -5,7 +5,7 @@ public class ApplicationModule : BaseEntity
     public ApplicationModule()
     {
         SubModules = new HashSet<ApplicationModule>();
-        EndpointDetails = new HashSet<EndpointDetail>();
+        EndpointDetails = new HashSet<EndpointAccess>();
         PermissionGroupPermissionLevelAppModules = new HashSet<PermissionGroupPermissionLevelAppModule>();
         WorkerPermissionLevelAppModules = new HashSet<WorkerPermissionLevelAppModule>();
     }
@@ -15,7 +15,7 @@ public class ApplicationModule : BaseEntity
     public string NormalizedName { get; set; } = null!;
     public int? ParentModuleId { get; set; }
     public ICollection<ApplicationModule> SubModules { get; set; }
-    public ICollection<EndpointDetail> EndpointDetails { get; set; }
+    public ICollection<EndpointAccess> EndpointDetails { get; set; }
     public ICollection<PermissionGroupPermissionLevelAppModule> PermissionGroupPermissionLevelAppModules { get; set; }
     public ICollection<WorkerPermissionLevelAppModule> WorkerPermissionLevelAppModules { get; set; }
 }

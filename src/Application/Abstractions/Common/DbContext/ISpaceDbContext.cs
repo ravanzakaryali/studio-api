@@ -6,7 +6,7 @@ public interface ISpaceDbContext : IDisposable
     #region Application
     DbSet<ApplicationModule> ApplicationModules { get; }
     DbSet<E.Endpoint> Endpoints { get; }
-    DbSet<EndpointDetail> EndpointDetails { get; }
+    DbSet<EndpointAccess> EndpointAccesses { get; }
     #endregion
 
     #region Permission

@@ -25,19 +25,6 @@ public class WorkersController : BaseApiController
     public async Task<IActionResult> GetWorkerGeneralReport([FromRoute] int id)
             => StatusCode(200, await Mediator.Send(new GetWorkerGeneralReportQuery(id)));
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateWorkerReuqest request)
-          => StatusCode(200, await Mediator.Send(new UpdateWorkerCommand()
-          {
-              Id = id,
-              Worker = new WorkerDto()
-              {
-                  Email = request.Email,
-                  Name = request.Name,
-                  Surname = request.Surname
-              }
-          }));
-
 
     [HttpGet("login/classes")]
     public async Task<IActionResult> GetClassByWorker()
@@ -62,6 +49,27 @@ public class WorkersController : BaseApiController
         return NoContent();
     }
 
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateWorkerReuqest request)
+              => StatusCode(200, await Mediator.Send(new UpdateWorkerCommand()
+              {
+                  Id = id,
+                  Worker = new WorkerDto()
+                  {
+                      Email = request.Email,
+                      Name = request.Name,
+                      Surname = request.Surname,
+                      Fincode = request.Fincode
+                  }
+              }));
+
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> Create([FromBody] CreateRequestWorkerDto request)
+              => StatusCode(201, await Mediator.Send(new CreateWorkerCommand(request.Name, request.Surname, request.Email, request.Fincode, request.GroupsId)));
+
     [HttpGet("{id}/permission-groups")]
     public async Task<IActionResult> GetPermissionGroupsByWorker([FromRoute] int id)
         => StatusCode(200, await Mediator.Send(new GetPermissionGroupsByWorkerQuery(id)));
@@ -78,6 +86,10 @@ public class WorkersController : BaseApiController
         });
         return NoContent();
     }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get([FromRoute] int id)
+         => StatusCode(200, await Mediator.Send(new GetWorkerQuery(id)));
 
     [HttpGet("{id}/app-modules-access")]
     public async Task<IActionResult> GetWorkerAppModulesAccess([FromRoute] int id)

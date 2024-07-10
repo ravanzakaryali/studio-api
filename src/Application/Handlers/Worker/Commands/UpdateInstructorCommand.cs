@@ -28,9 +28,16 @@ internal class UpdateWorkerCommandHandler : IRequestHandler<UpdateWorkerCommand,
         Worker? worker = await _spaceDbContext.Workers.FindAsync(request.Id) ??
             throw new NotFoundException(nameof(Worker), request.Id);
 
+        Worker? workerFincode = await _spaceDbContext.Workers
+            .FirstOrDefaultAsync(c => c.Fincode == request.Worker.Fincode);
+
+        if (await _spaceDbContext.Workers.AnyAsync(c => c.Fincode == request.Worker.Fincode))
+            throw new AlreadyExistsException("Worker with this fincode already exists");
+
         worker.Name = request.Worker.Name;
         worker.Surname = request.Worker.Surname;
         worker.Email = request.Worker.Email;
+        worker.Fincode = request.Worker.Fincode;
         worker.NormalizedEmail = request.Worker.Email.Normalize();
         worker.UserName = request.Worker.Email;
         worker.NormalizedUserName = request.Worker.Email.Normalize();

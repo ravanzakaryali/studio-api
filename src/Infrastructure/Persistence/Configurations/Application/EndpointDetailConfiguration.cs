@@ -1,10 +1,10 @@
 namespace Space.Infrastructure.Persistence.Configurations;
 
-public class EndpointDetailConfiguration : IEntityTypeConfiguration<E.EndpointDetail>
+public class EndpointDetailConfiguration : IEntityTypeConfiguration<E.EndpointAccess>
 {
-    public void Configure(EntityTypeBuilder<EndpointDetail> builder)
+    public void Configure(EntityTypeBuilder<EndpointAccess> builder)
     {
-        builder.ToTable("EndpointDetails");
+        builder.ConfigureBaseEntity();
         builder.Property(c => c.ApplicationModuleId).IsRequired(false);
     }
 }
