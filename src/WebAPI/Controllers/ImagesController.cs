@@ -15,7 +15,7 @@ public class ImagesController : BaseApiController
         return File(fileResponse.FileBytes, fileResponse.ContentType);
     }
 
-    [Authorize(Roles = "admin")]
+    [Authorize ]
     [HttpPost("upload")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]

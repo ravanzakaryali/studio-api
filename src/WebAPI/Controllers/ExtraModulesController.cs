@@ -2,7 +2,7 @@ namespace Space.WebAPI.Controllers;
 
 public class ExtraModulesController : BaseApiController
 {
-    [Authorize(Roles = "admin")]
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]

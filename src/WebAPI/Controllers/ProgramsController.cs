@@ -7,19 +7,19 @@ namespace Space.WebAPI.Controllers;
 public class ProgramsController : BaseApiController
 {
 
-    [Authorize(Roles = "admin,mentor,ta,muellim")]
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         return Ok(await Mediator.Send(new GetAllProgramsQuery()));
     }
 
-    [Authorize(Roles = "admin,mentor,ta,muellim")]
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
         => Ok(await Mediator.Send(new GetProgramQuery(id)));
 
-    [Authorize(Roles = "admin")]
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -29,7 +29,7 @@ public class ProgramsController : BaseApiController
         return NoContent();
     }
 
-    [Authorize(Roles = "admin")]
+    [Authorize]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -39,7 +39,7 @@ public class ProgramsController : BaseApiController
         return NoContent();
     }
 
-    [Authorize(Roles = "admin")]
+    [Authorize]
     [HttpGet("unmarked-attendances")]
     public async Task<IActionResult> GetUnMarkedAttendancesByPrograms([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
          => Ok(await Mediator.Send(new GetUnMarkedAttendancesByProgramsQuery()
@@ -48,7 +48,7 @@ public class ProgramsController : BaseApiController
              EndDate = endDate
          }));
 
-    [Authorize(Roles = "admin")]
+    [Authorize]
     [HttpGet("{id}/unmarked-attendances-classes")]
     public async Task<IActionResult> GetUnmarkedAttedamceClasses([FromRoute] int id, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         => Ok(await Mediator.Send(new GetUnmarkedAttedanceClassesByProgramQuery()
@@ -59,7 +59,7 @@ public class ProgramsController : BaseApiController
         }));
 
 
-    [Authorize(Roles = "admin,mentor,ta,muellim")]
+    [Authorize]
     [HttpGet("{id}/modules")]
     public async Task<IActionResult> GetModules([FromRoute] int id)
         => Ok(await Mediator.Send(new GetModulesByProgramQuery()
@@ -67,7 +67,7 @@ public class ProgramsController : BaseApiController
             Id = id
         }));
 
-    [Authorize(Roles = "admin")]
+    [Authorize]
     [HttpPost("{id}/modules")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]

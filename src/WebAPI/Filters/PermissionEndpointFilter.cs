@@ -101,23 +101,19 @@ public class PermissionEndpointFilter : IAsyncActionFilter
         ICollection<E.PermissionGroup> permissiongroups = worker.PermissionGroups;
 
 
-        foreach (E.EndpointAccess endPointItem in endpointDb.EndpointAccesses)
-        {
-            ICollection<E.PermissionLevel> appmodules = endPointItem.PermissionAccess.PermissionLevels;
+        IEnumerable<E.EndpointAccess> accessList = from endPointItem in endpointDb.EndpointAccesses
+                                                   from permissionGroup in permissiongroups
+                                                   from levelAppModule in permissionGroup.PermissionGroupPermissionLevelAppModules
+                                                   where levelAppModule.PermissionLevel.PermissionAccesses
+                                                         .Any(c => c.Id == endPointItem.PermissionAccessId && endPointItem.ApplicationModuleId == levelAppModule.ApplicationModuleId)
+                                                   select endPointItem;
 
-            foreach (E.PermissionGroup permissionGroup in permissiongroups)
-            {
-                foreach (E.PermissionGroupPermissionLevelAppModule levelAppModule in permissionGroup.PermissionGroupPermissionLevelAppModules)
-                {
-                    bool isAccess = levelAppModule.PermissionLevel.PermissionAccesses.Any(c => c.Id == endPointItem.PermissionAccessId && endPointItem.ApplicationModuleId == levelAppModule.ApplicationModuleId);
-                    if (isAccess)
-                    {
-                        await next();
-                        return;
-                    }
-                }
-            }
+        if (accessList.Any())
+        {
+            await next();
+            return;
         }
+
 
 
         context.HttpContext.Response.StatusCode = 403;

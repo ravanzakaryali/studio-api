@@ -323,7 +323,7 @@ public class ClassesController : BaseApiController
     // public async Task<IActionResult> Delete([FromRoute] int id)
     //     => StatusCode(StatusCodes.Status200OK, await Mediator.Send(new DeleteClassCommand(id)));
 
-    // [Authorize(Roles = "admin,mentor,ta,muellim")]
+    // [Authorize ]
     // [HttpGet("{id}/class-sessions")]
     // public async Task<IActionResult> GetAllClassSessions([FromRoute] int id)
     //     => Ok(await Mediator.Send(new GetAllClassSessionsByClassQuery(id)));
