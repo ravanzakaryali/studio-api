@@ -76,6 +76,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                     TotalHours = attendance.TotalHours,
                     TotalMinutes = attendance.TotalMinutes,
                     WorkerId = attendance.WorkerId,
+                    Email = attendance.Worker.Email,
                     AttendanceStatus = attendance.AttendanceStatus,
                     TotalLessonHours = @class.ClassTimeSheets
                         .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
@@ -101,6 +102,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                         Surname = mentor.Worker.Surname!,
                         RoleId = mentor.RoleId,
                         RoleName = mentor.Role!.Name,
+                        Email = mentor.Worker.Email,
                         WorkerId = mentor.WorkerId,
                         TotalLessonHours = @class.ClassTimeSheets
                             .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
@@ -122,6 +124,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                         Surname = muellim.Worker.Surname!,
                         RoleId = muellim.RoleId,
                         RoleName = muellim.Role!.Name,
+                        Email = muellim.Worker.Email,
                         WorkerId = muellim.WorkerId,
                         TotalLessonHours = @class.ClassTimeSheets
                             .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
