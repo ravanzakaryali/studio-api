@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Space.WebAPI.Controllers;
 
-[Authorize(Roles = "admin")]
+[Authorize]
 public class HolidaysController : BaseApiController
 {
    

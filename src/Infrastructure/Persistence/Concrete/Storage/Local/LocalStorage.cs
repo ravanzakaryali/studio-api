@@ -8,13 +8,12 @@ namespace Space.Infrastructure.Persistence;
 public class LocalStorage : StorageHelper, ILocalStorage
 {
     readonly IWebHostEnvironment _webHostEnvironment;
-    readonly ICurrentUserService _currentUserService;
 
-    public LocalStorage(IWebHostEnvironment webHostEnvironment, ICurrentUserService currentUserService)
+    public LocalStorage(IWebHostEnvironment webHostEnvironment)
     {
 
         _webHostEnvironment = webHostEnvironment;
-        _currentUserService = currentUserService;
+
     }
     public void Delete(string fileName, params string[] paths)
     {
@@ -29,14 +28,13 @@ public class LocalStorage : StorageHelper, ILocalStorage
         return directory.GetFiles().Select(f => f.Name).ToList();
     }
 
-    public bool HasFile(string fileName, params string[] paths)
+    public async Task<bool> HasFile(string fileName, params string[] paths)
     {
         string path = Path.Combine(paths);
         return IO.File.Exists(Path.Combine(_webHostEnvironment.ContentRootPath, path, fileName));
     }
-    public async Task<List<FileUploadResponse>> UploadAsync(IFormFileCollection files, params string[] paths)
+    public async Task<List<FileUploadResponse>> UploadFilesAsync(IFormFileCollection files, params string[] paths)
     {
-        string currentUserEmail = _currentUserService.Email ?? "";
         string path = Path.Combine(paths);
         string uploadPath = Path.Combine(_webHostEnvironment.ContentRootPath, path);
         if (!Directory.Exists(uploadPath))
@@ -46,45 +44,59 @@ public class LocalStorage : StorageHelper, ILocalStorage
         foreach (IFormFile file in files)
         {
             //Todo: File Name
-            string fileNewName = FileRename(HasFile, file.FileName, currentUserEmail).CharacterRegulatory(int.MaxValue);
-            using (FileStream fileStream = IO.File.Create(Path.Combine(uploadPath, fileNewName)))
+            string fileNewName = await FileRename(file.FileName);
+            using (FileStream fileStream = IO.File.Create(Path.Combine(uploadPath, fileNewName.CharacterRegulatory(int.MaxValue))))
             {
                 await file.CopyToAsync(fileStream);
             }
-            datas.Add(new FileUploadResponse()
+
+            FileUploadResponse fileResponse = new()
             {
-                FileName = fileNewName,
-                PathName = Path.Combine(uploadPath, fileNewName),
+                FileName = fileNewName.CharacterRegulatory(int.MaxValue),
+                PathName = uploadPath,
+
                 Size = file.Length,
-                Extension = Path.GetExtension(fileNewName),
+                Extension = Path.GetExtension(fileNewName.CharacterRegulatory(int.MaxValue)),
                 ContentType = file.ContentType,
-            });
+
+            };
+
+            // if (Helper.IsImageFile(fileNewName.CharacterRegulatory(int.MaxValue)))
+            // {
+            //     Image? img = Image.FromFile(Path.Combine(uploadPath, fileNewName.CharacterRegulatory(int.MaxValue)));
+            //     if (img != null)
+            //     {
+            //         fileResponse.Height = img.Height;
+            //         fileResponse.Width = img.Width;
+            //     }
+            // }
+            datas.Add(fileResponse);
         }
 
         return datas;
     }
 
-    public async Task<FileUploadResponse> UploadAsync(IFormFile file, params string[] paths)
+    public async Task<FileUploadResponse> UploadFileAsync(IFormFile file, params string[] paths)
     {
-        string currentUserEmail = _currentUserService.Email ?? "";
         string path = Path.Combine(paths);
         string uploadPath = Path.Combine(_webHostEnvironment.ContentRootPath, path);
         if (!Directory.Exists(uploadPath))
             Directory.CreateDirectory(uploadPath);
 
-        string fileNewName = FileRename(HasFile, file.FileName, currentUserEmail).CharacterRegulatory(int.MaxValue);
-        using (FileStream fileStream = IO.File.Create(Path.Combine(uploadPath, fileNewName)))
+        string fileNewName = await FileRename(file.FileName);
+
+        using (FileStream fileStream = IO.File.Create(Path.Combine(uploadPath, fileNewName.CharacterRegulatory(int.MaxValue))))
         {
             await file.CopyToAsync(fileStream);
         }
+
         return new FileUploadResponse()
         {
-            FileName = fileNewName,
-            PathName = Path.Combine(uploadPath, fileNewName),
+            FileName = fileNewName.CharacterRegulatory(int.MaxValue),
+            PathName = uploadPath,
             Size = file.Length,
             Extension = Path.GetExtension(fileNewName),
             ContentType = file.ContentType,
         };
-
     }
 }

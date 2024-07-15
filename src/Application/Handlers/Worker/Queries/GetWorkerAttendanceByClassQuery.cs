@@ -18,6 +18,7 @@ namespace Space.Application.Handlers
         //Todo: İstifadə olunmur
         public async Task<IEnumerable<GetWorkerAttendanceByClassDto>> Handle(GetWorkerAttendanceByClassQuery request, CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
 
             //List<ClassTimeSheet> data = await _spaceDbContext.ClassSessions
             //    .Where(q => q.ClassId == request.Id && (q.Status == ClassSessionStatus.Online || q.Status == ClassSessionStatus.Offline))

@@ -65,6 +65,7 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
         _spaceDbContext.ClassModulesWorkers.RemoveRange(classModulesWorker);
 
 
+
         foreach (UpdateClassModuleDto item in request.Modules)
         {
             await _spaceDbContext.ClassModulesWorkers.AddRangeAsync(item.Workers.Select(c => new ClassModulesWorker()
@@ -77,6 +78,8 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
                 ClassId = @class.Id
             }), cancellationToken);
         }
+
+        @class.EndDate = request.Modules.Max(c => c.EndDate);
         //--Extra Modules
 
         IEnumerable<ClassExtraModulesWorkers> classExtraModulesWorkers = await _spaceDbContext.ClassExtraModulesWorkers
@@ -84,7 +87,7 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             .ToListAsync(cancellationToken: cancellationToken);
         _spaceDbContext.ClassExtraModulesWorkers.RemoveRange(classExtraModulesWorkers);
 
-        if (request.ExtraModules != null)
+        if (request.ExtraModules != null && request.ExtraModules.Any())
         {
             foreach (CreateClassExtraModuleRequestDto item in request.ExtraModules)
             {
@@ -98,6 +101,7 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
                     ClassId = @class.Id
                 }), cancellationToken);
             }
+            @class.EndDate = request.ExtraModules.Max(c => c.EndDate);
         }
 
 
@@ -125,26 +129,12 @@ internal class UpdateClassModuleHandler : IRequestHandler<UpdateClassModuleComma
             DateOnly startDate = request.NewExtraModules.OrderBy(c => c.StartDate).First().StartDate;
             DateOnly endDate = request.NewExtraModules.OrderByDescending(c => c.EndDate).First().EndDate;
 
-
             if (@class.EndDate >= startDate)
             {
                 startDate = @class.EndDate.Value.AddDays(1);
             }
 
-            List<CreateClassSessionDto> sessions = @class.Session.Details.Select(c => new CreateClassSessionDto()
-            {
-                Category = c.Category,
-                DayOfWeek = c.DayOfWeek,
-                End = c.EndTime,
-                Start = c.StartTime,
-            }).ToList();
-
-            List<DateOnly> holidays = await _unitOfWork.HolidayService.GetDatesAsync();
-            int roomId = @class.RoomId ?? throw new NotFoundException(nameof(Room));
-            List<ClassSession> newClassSessions = _unitOfWork.ClassSessionService.GenerateSessions(startDate, sessions, endDate, holidays, @class.Id, roomId);
-            _spaceDbContext.ClassSessions.AddRange(newClassSessions);
-            @class.EndDate = newClassSessions.OrderByDescending(c => c.Date).First().Date;
-
+            @class.EndDate = request.NewExtraModules?.Max(c => c.EndDate);
         }
 
 

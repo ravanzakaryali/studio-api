@@ -16,6 +16,7 @@ internal class GetWorkerClassSessionsByClassQueryHandler : IRequestHandler<GetWo
 
     public async Task<GetWorkerClassSessionsByClassResponseDto> Handle(GetWorkerClassSessionsByClassQuery request, CancellationToken cancellationToken)
     {
-        throw new NotFoundException();
+        await Task.CompletedTask;
+        throw new NotImplementedException();
     }
 }

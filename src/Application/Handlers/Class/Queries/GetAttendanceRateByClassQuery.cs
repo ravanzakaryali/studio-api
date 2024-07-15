@@ -22,26 +22,62 @@ internal class GetAttendanceRateByClassHandler : IRequestHandler<GetAttendanceRa
     {
         Class? @class = await _spaceDbContext.Classes
             .Where(c => c.Id == request.Id)
+            .Include(c => c.Session)
+            .ThenInclude(c => c.Details)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken) ??
                 throw new NotFoundException(nameof(Class), request.Id);
-        int month = (int)request.MonthOfYear;
 
+        int month = (int)request.MonthOfYear;
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
 
-        IEnumerable<ClassSession> classSessions = await _spaceDbContext.ClassSessions
-            .Include(c => c.ClassTimeSheet)
-            .ThenInclude(c => c!.Attendances)
-            .Where(c => c.ClassId == @class.Id)
-            .ToListAsync(cancellationToken: cancellationToken);
+        List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
+            .Where(cts => cts.ClassId == request.Id)
+            .Include(c => c.Attendances)
+            .ToListAsync(cancellationToken);
 
+        classTimeSheets = classTimeSheets
+            .Where(cts => cts.Date.Month == month && cts.Date.Year == request.Year)
+            .ToList();
 
-        return classSessions.Where(c => c.Date.Month == month).Select(c => new GetAttendanceRateByClassDto()
+        List<GetAttendanceRateByClassDto> response = new();
+
+        ICollection<SessionDetail> sessionDetails = @class.Session.Details;
+        int daysInMonth = DateTime.DaysInMonth(request.Year, month);
+
+        for (int day = 1; day <= daysInMonth; day++)
         {
-            Status = c.ClassTimeSheet == null && c.Status != ClassSessionStatus.Cancelled ? null : c.Status,
-            TotalStudentsCount = c.ClassTimeSheet?.Attendances.Count,
-            AttendingStudentsCount = c.ClassTimeSheet?.Attendances.Where(c => c.TotalAttendanceHours != 0).Count(),
-            Date = c.Date,
-        }).OrderBy(c => c.Date).DistinctBy(c => c.Date);
+            if (@class.EndDate is not null && new DateOnly(request.Year, month, day) > @class.EndDate) break;
+            DateOnly date = new(request.Year, month, day);
+            DayOfWeek dayOfWeek = date.DayOfWeek;
+
+            IEnumerable<GetAttendanceRateByClassDto> matchingSessions = sessionDetails
+                .Where(sd => sd.DayOfWeek == dayOfWeek)
+                .Select(sd => new GetAttendanceRateByClassDto
+                {
+                    Date = date,
+                    Status = null,
+                    AttendingStudentsCount = null,
+                    TotalStudentsCount = null
+                });
+
+
+            response.AddRange(matchingSessions);
+        }
+
+        foreach (ClassTimeSheet classTimeSheet in classTimeSheets)
+        {
+            GetAttendanceRateByClassDto? matchingSession = response.FirstOrDefault(r => r.Date == classTimeSheet.Date);
+            if (matchingSession is not null)
+            {
+                matchingSession.Status = classTimeSheet.Status;
+                if (classTimeSheet.Status != ClassSessionStatus.Cancelled)
+                {
+                    matchingSession.AttendingStudentsCount = classTimeSheet?.Attendances.Where(c => c.TotalAttendanceHours != 0).Count();
+                    matchingSession.TotalStudentsCount = classTimeSheet?.Attendances.Count;
+                }
+            }
+        }
+
+        return response;
     }
 }
-

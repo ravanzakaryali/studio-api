@@ -1,4 +1,4 @@
-﻿using Space.Application.DTOs.Enums;
+﻿using Space.Application.Enums;
 
 namespace Space.Application.DTOs;
 

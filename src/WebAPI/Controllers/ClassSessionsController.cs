@@ -4,10 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Space.WebAPI.Controllers;
 
-[Authorize(Roles = "admin")]
+[Authorize]
 public class ClassSessionsController : BaseApiController
 {
-
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
     [HttpGet("/api/class-sessions/{id}")]

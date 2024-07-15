@@ -17,7 +17,7 @@ public class SessionsController : BaseApiController
     /// with the necessary details, including the session name. It returns a 201 status code upon successful creation
     /// of the session.
     /// </remarks>
-    [Authorize(Roles = "admin")]
+    [Authorize ]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
@@ -38,7 +38,7 @@ public class SessionsController : BaseApiController
     /// action will create these details. Upon successful creation, it returns an HTTP response with a status code 201
     /// (Created) to indicate the success of the operation.
     /// </remarks>
-    [Authorize(Roles = "admin")]
+    [Authorize ]
     [HttpPost("{id}/details")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
@@ -57,7 +57,7 @@ public class SessionsController : BaseApiController
     /// status code 200 (OK) to indicate the success of the operation.
     /// </remarks>
     [HttpGet]
-    [Authorize(Roles = "admin")]
+    [Authorize ]
     public async Task<IActionResult> GetAll()
         => StatusCode(200, await Mediator.Send(new GetAllSessionQuery()));
 
@@ -92,7 +92,7 @@ public class SessionsController : BaseApiController
     /// the provided ID. Upon successful deletion, it returns an HTTP response with a status code 200 (OK) to indicate
     /// the success of the operation.
     /// </remarks>
-    [Authorize(Roles = "admin")]
+    [Authorize ]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] int id)
            => StatusCode(200, await Mediator.Send(new DeleteSessionCommand(id)));
@@ -111,7 +111,7 @@ public class SessionsController : BaseApiController
     /// delete the session detail within the specified session. Upon successful deletion, it returns an HTTP response
     /// with a status code 200 (OK) to indicate the success of the operation.
     /// </remarks>
-    [Authorize(Roles = "admin")]
+    [Authorize ]
     [HttpDelete("{sessionId}/details/{sessionDetailId}")]
     public async Task<IActionResult> DeleteSessionDetail([FromRoute] int sessionId, [FromRoute] int sessionDetailId)
         => StatusCode(200, await Mediator.Send(new DeleteSessionDetailCommand(sessionId, sessionDetailId)));

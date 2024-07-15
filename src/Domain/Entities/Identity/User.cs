@@ -9,6 +9,7 @@ public class User : IdentityUser<int>, IBaseEntity
     }
     public override int Id { get; set; }
     public bool IsDeleted { get; set; }
+    public string Fincode { get; set; } = null!;
     public bool IsActive { get; set; }
     public string? Name { get; set; }
     public string? Surname { get; set; }

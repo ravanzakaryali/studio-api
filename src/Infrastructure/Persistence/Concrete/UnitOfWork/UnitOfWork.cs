@@ -47,8 +47,8 @@ internal class UnitOfWork : IUnitOfWork
     private IHolidayService? _holidayService;
     private IClassService? _classService;
 
-    public IClassService ClassService => _classService ??= new ClassService(_dbContext);
     public IHolidayService HolidayService => _holidayService ??= new HolidayService(_dbContext);
+    public IClassService ClassService => _classService ??= new ClassService(_dbContext, HolidayService);
     public IClassSessionService ClassSessionService => _classSessionService ??= new ClassSessionService(_dbContext, HolidayService);
     public IModuleService ModuleService => _moduleService ??= new ModuleService(_dbContext);
     public IEmailService EmailService => _emailService ??= new EmailService(_configuration, _webHostEnvironment);

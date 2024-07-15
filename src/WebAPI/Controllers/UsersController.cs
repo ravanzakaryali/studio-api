@@ -1,17 +1,28 @@
-﻿namespace Space.WebAPI.Controllers;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Space.WebAPI.Controllers;
 using Microsoft.Extensions.Configuration;
+using Space.Application.DTOs.Worker;
 
 public class UsersController : BaseApiController
 {
-
-
     [HttpGet("login")]
     public async Task<IActionResult> GetUserLogin()
     {
         return Ok(await Mediator.Send(new UserLoginQuery()));
     }
 
-    [Authorize(Roles = "admin")]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get([FromRoute] int id)
+           => StatusCode(200, await Mediator.Send(new GetWorkerQuery(id)));
+
+    [HttpGet]
+    public async Task<IActionResult> GetUsers()
+    {
+        return Ok(await Mediator.Send(new GetUsersQuery()));
+    }
+
+    [Authorize]
     [HttpPost("{id}/roles")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
@@ -22,8 +33,15 @@ public class UsersController : BaseApiController
     }
 
 
+    
+
     [Authorize]
     [HttpGet("{id}/roles")]
     public async Task<IActionResult> GetRoles([FromRoute] int id)
         => Ok(await Mediator.Send(new GetRolesByUserQuery(id)));
+
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete([FromRoute] int id)
+    => StatusCode(200, await Mediator.Send(new DeleteWorkerCommand(id)));
 }

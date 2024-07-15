@@ -179,9 +179,6 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         //modulların sayı qədər dövr etsin
 
 
-
-
-
         for (int i = 0; i < modulesReponse.Count; i++)
         {
             //modullun sub modullu varsa daxil olsun
@@ -275,7 +272,6 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
 
 
 
-
         //Extra modules 
         List<ExtraModule> extraModules = await _spaceDbContext.ExtraModules
             .Where(c => c.ProgramId == @class.ProgramId)
@@ -304,7 +300,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                     Id = ex.WorkerId,
                     Name = ex.Worker.Name,
                     Surname = ex.Worker.Surname,
-                    Role = ex.Role.Name,
+                    Role = ex.Role?.Name,
                     Email = ex.Worker.Email,
                     RoleId = ex.RoleId,
                 }).ToList(),

@@ -21,6 +21,7 @@ public class SpaceDbContext :
     public DbSet<Class> Classes => Set<Class>();
     public DbSet<ClassSession> ClassSessions => Set<ClassSession>();
     public DbSet<Room> Rooms => Set<Room>();
+
     public DbSet<HeldModule> HeldModules => Set<HeldModule>();
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<SessionDetail> SessionDetails => Set<SessionDetail>();
@@ -57,6 +58,14 @@ public class SpaceDbContext :
     #region Schedule
     public DbSet<RoomSchedule> RoomSchedules => Set<RoomSchedule>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
+    public DbSet<ApplicationModule> ApplicationModules => Set<ApplicationModule>();
+    public DbSet<EndpointAccess> EndpointAccesses => Set<EndpointAccess>();
+    public DbSet<Endpoint> Endpoints => Set<Endpoint>();
+    public DbSet<PermissionAccess> PermissionAccesses => Set<PermissionAccess>();
+    public DbSet<PermissionLevel> PermissionLevels => Set<PermissionLevel>();
+    public DbSet<PermissionGroup> PermissionGroups => Set<PermissionGroup>();
+    public DbSet<PermissionGroupPermissionLevelAppModule> PermissionGroupPermissionLevelAppModules => Set<PermissionGroupPermissionLevelAppModule>();
+    public DbSet<WorkerPermissionLevelAppModule> WorkerPermissionLevelAppModules => Set<WorkerPermissionLevelAppModule>();
     public DbSet<SupportCategory> SupportCategories => Set<SupportCategory>();
 
     #endregion

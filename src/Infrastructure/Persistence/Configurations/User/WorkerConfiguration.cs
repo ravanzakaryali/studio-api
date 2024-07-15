@@ -6,6 +6,7 @@ public class WorkerConfiguration : IEntityTypeConfiguration<Worker>
     {
 
         builder.ToTable("Workers");
-     
+        builder.Property(c => c.Fincode).HasDefaultValue("Yoxdur").IsUnicode();
+
     }
 }

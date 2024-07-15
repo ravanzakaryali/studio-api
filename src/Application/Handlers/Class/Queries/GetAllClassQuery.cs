@@ -29,7 +29,6 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
             .Include(c => c.Studies)
             .Include(c => c.Program)
             .ThenInclude(c => c.Modules)
-            .Include(c => c.ClassSessions)
             .Include(c => c.ClassModulesWorkers)
             .ThenInclude(c => c.Worker)
             .ThenInclude(c => c.UserRoles)
@@ -46,11 +45,11 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         }
         else if (request.Status == ClassStatus.Active)
         {
-            query = query.Where(c => now >= c.StartDate && now <= c.EndDate && c.ClassSessions.Count > 0);
+            query = query.Where(c => now >= c.StartDate && now <= c.EndDate && c.ClassModulesWorkers.Count > 0);
         }
         else
         {
-            query = query.Where(c => (now > c.StartDate && c.ClassSessions.Count == 0) || (now < c.StartDate) || (now < c.EndDate && c.ClassSessions.Count == 0) || (now <= c.StartDate && c.ClassSessions.Count == 0));
+            query = query.Where(c => (now > c.StartDate && c.ClassModulesWorkers.Count == 0) || (now < c.EndDate && c.ClassExtraModulesWorkers.Count == 0) || (now <= c.StartDate && c.ClassExtraModulesWorkers.Count == 0));
         }
         if (request.StartDate is not null)
         {

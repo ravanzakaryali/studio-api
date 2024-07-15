@@ -3,6 +3,19 @@
 public interface ISpaceDbContext : IDisposable
 {
 
+    #region Application
+    DbSet<ApplicationModule> ApplicationModules { get; }
+    DbSet<E.Endpoint> Endpoints { get; }
+    DbSet<EndpointAccess> EndpointAccesses { get; }
+    #endregion
+
+    #region Permission
+    DbSet<PermissionAccess> PermissionAccesses { get; }
+    DbSet<PermissionLevel> PermissionLevels { get; }
+    DbSet<PermissionGroup> PermissionGroups { get; }
+    DbSet<PermissionGroupPermissionLevelAppModule> PermissionGroupPermissionLevelAppModules { get; }
+    DbSet<WorkerPermissionLevelAppModule> WorkerPermissionLevelAppModules { get; }
+    #endregion
     #region Class
     DbSet<Class> Classes { get; }
     DbSet<ClassTimeSheet> ClassTimeSheets { get; }

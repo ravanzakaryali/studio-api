@@ -3,7 +3,7 @@
 /// <summary>
 /// Room controller
 /// </summary>
-[Authorize(Roles = "admin")]
+[Authorize ]
 public class RoomsController : BaseApiController
 {
     /// <summary>

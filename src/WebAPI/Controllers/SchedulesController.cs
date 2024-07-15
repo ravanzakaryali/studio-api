@@ -5,7 +5,7 @@ namespace Space.WebAPI.Controllers;
 /// <summary>
 /// Schedule controller
 /// </summary>
-[Authorize(Roles = "admin")]
+[Authorize ]
 public class SchedulesController : BaseApiController
 {
     /// <summary>

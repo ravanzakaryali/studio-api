@@ -6,7 +6,7 @@ public class ModulesController : BaseApiController
 {
 
     //todo: added modules
-    // [Authorize(Roles = "admin")]
+    // [Authorize ]
     // [HttpPost]
     // [ProducesResponseType(StatusCodes.Status201Created)]
     // [ProducesDefaultResponseType]
@@ -16,14 +16,14 @@ public class ModulesController : BaseApiController
     //             Module = module
     //         }));
 
-    [Authorize(Roles = "admin")]
+    [Authorize ]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
     public async Task<IActionResult> CreateModules([FromBody] CreateModuleWithProgramRequestDto modules)
         => StatusCode(201, await Mediator.Send(new CreateModuleWithProgramCommand(modules.ProgramId, modules.Modules)));
 
-    [Authorize(Roles = "admin")]
+    [Authorize ]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -33,13 +33,13 @@ public class ModulesController : BaseApiController
         return StatusCode(204);
     }
 
-    [Authorize(Roles = "admin,mentor,ta,muellim")]
+    [Authorize ]
     [HttpGet]
     public async Task<IActionResult> GetAll()
         => Ok(await Mediator.Send(new GetAllModuleQuery()));
 
     //todo: delete endpoint
-    // [Authorize(Roles = "admin")]
+    // [Authorize ]
     // [HttpGet("non-program")]
     // public async Task<IActionResult> GetNonProgramModules()
     //     => Ok(await Mediator.Send(new GetNonProgramModulesQuery()));

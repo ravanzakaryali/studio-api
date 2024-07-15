@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SikayetVar.Infrastructure.Concretes;
 
 namespace Space.Infrastructure;
 
@@ -55,7 +56,7 @@ public static class ConfigureService
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IStorageService, StorageService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-		services.AddStorage<LocalStorage>();
+        services.AddStorage<FireBaseStorage>();
 
 
         return services;

@@ -18,12 +18,12 @@ public class StorageService : IStorageService
     public List<string> GetFiles(params string[] paths)
         => _storage.GetFiles(paths);
 
-    public bool HasFile(string fileName, params string[] paths)
-        => _storage.HasFile(fileName, paths);
+    public async Task<bool> HasFile(string fileName, params string[] paths)
+        => await _storage.HasFile(fileName, paths);
 
-    public Task<List<FileUploadResponse>> UploadAsync(IFormFileCollection files, params string[] paths)
-        => _storage.UploadAsync(files, paths);
+    public Task<List<FileUploadResponse>> UploadFilesAsync(IFormFileCollection files, params string[] paths)
+        => _storage.UploadFilesAsync(files, paths);
 
-    public Task<FileUploadResponse> UploadAsync(IFormFile file, params string[] paths)
-        => _storage.UploadAsync(file, paths);
+    public Task<FileUploadResponse> UploadFileAsync(IFormFile file, params string[] paths)
+        => _storage.UploadFileAsync(file, paths);
 }

@@ -7,7 +7,7 @@ public class GetAllStudentByClassResponseDto
     public string ClassName { get; set; } = null!;
     public string? Name { get; set; } = null!;
     public string? Surname { get; set; } = null!;
-    public string? EMail { get; set; }
+    public string? Email { get; set; }
     public string? Phone { get; set; }
     public double? Attendance { get; set; }
     public IEnumerable<GetAllStudentCategoryDto> Sessions { get; set; } = null!;
