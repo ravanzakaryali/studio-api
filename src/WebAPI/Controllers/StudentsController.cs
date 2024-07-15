@@ -10,7 +10,7 @@ public class StudentsController : BaseApiController
         return StatusCode(200, await Mediator.Send(new GetStudentAttendancesByClassQuery(id, classId)));
     }
 
-    [Authorize ]
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAllStudents()
     {
