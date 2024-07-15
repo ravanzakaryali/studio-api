@@ -101,14 +101,14 @@ public class PermissionEndpointFilter : IAsyncActionFilter
         ICollection<E.PermissionGroup> permissiongroups = worker.PermissionGroups;
 
 
-        // IEnumerable<E.EndpointAccess> accessList = from endPointItem in endpointDb.EndpointAccesses
-        //                                            from permissionGroup in permissiongroups
-        //                                            from levelAppModule in permissionGroup.PermissionGroupPermissionLevelAppModules
-        //                                            where levelAppModule.PermissionLevel.PermissionAccesses
-        //                                                  .Any(c => c.Id == endPointItem.PermissionAccessId && endPointItem.ApplicationModuleId == levelAppModule.ApplicationModuleId)
-        //                                            select endPointItem;
+        IEnumerable<E.EndpointAccess> accessList = from endPointItem in endpointDb.EndpointAccesses
+                                                   from permissionGroup in permissiongroups
+                                                   from levelAppModule in permissionGroup.PermissionGroupPermissionLevelAppModules
+                                                   where levelAppModule.PermissionLevel.PermissionAccesses
+                                                         .Any(c => c.Id == endPointItem.PermissionAccessId && endPointItem.ApplicationModuleId == levelAppModule.ApplicationModuleId)
+                                                   select endPointItem;
 
-        if (true)
+        if (accessList.Any())
         {
             await next();
             return;
