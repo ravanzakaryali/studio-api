@@ -148,6 +148,7 @@ internal class GetAllWorkersByClassQueryHandler : IRequestHandler<GetAllWorkersB
                                            RoleId = c.RoleId,
                                            RoleName = c.Role!.Name,
                                            WorkerId = c.WorkerId,
+                                           Email = c.Worker.Email,
                                            TotalLessonHours = @class.ClassTimeSheets
                                                .Where(session => session.Status == ClassSessionStatus.Offline || session.Status == ClassSessionStatus.Online)
                                                .SelectMany(c => c.AttendancesWorkers)
