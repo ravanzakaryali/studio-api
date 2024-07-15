@@ -2460,7 +2460,7 @@ namespace Space.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Space.Domain.Entities.Support", b =>
                 {
                     b.HasOne("Space.Domain.Entities.Class", "Class")
-                        .WithMany()
+                        .WithMany("Supports")
                         .HasForeignKey("ClassId");
 
                     b.HasOne("Space.Domain.Entities.SupportCategory", "SupportCategory")
@@ -2568,6 +2568,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("RoomSchedules");
 
                     b.Navigation("Studies");
+
+                    b.Navigation("Supports");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassTimeSheet", b =>

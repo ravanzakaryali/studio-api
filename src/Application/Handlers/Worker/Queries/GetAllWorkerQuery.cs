@@ -28,7 +28,7 @@ internal class GetAllWorkerQueryHandler : IRequestHandler<GetAllWorkerQuery, IEn
             query = query.Where(c => c.UserRoles.Any(c => c.Role.Name == request.Role.ToString()));
         }
 
-        return await query.Select(w => new GetWorkerDto()
+        var response = await query.Select(w => new GetWorkerDto()
         {
             Id = w.Id,
             Name = w.Name!,
@@ -41,5 +41,8 @@ internal class GetAllWorkerQueryHandler : IRequestHandler<GetAllWorkerQuery, IEn
                 Name = c.Role.Name
             })
         }).ToListAsync(cancellationToken: cancellationToken);
+
+
+        return response;
     }
 }

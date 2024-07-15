@@ -27,6 +27,7 @@ public class Class : BaseAuditableEntity, IKometa
     public ICollection<ClassTimeSheet> ClassTimeSheets { get; set; }
     public ICollection<ClassSession> ClassSessions { get; set; }
     public ICollection<RoomSchedule> RoomSchedules { get; set; }
+    public ICollection<Support> Supports { get; set; }
     public ICollection<ClassExtraModulesWorkers> ClassExtraModulesWorkers { get; set; }
 
 }

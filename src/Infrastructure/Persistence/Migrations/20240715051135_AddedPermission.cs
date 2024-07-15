@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Space.Infrastructure.Persistence.Migrations
 {
-    public partial class Mig2 : Migration
+    public partial class AddedPermission : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -21,6 +21,44 @@ namespace Space.Infrastructure.Persistence.Migrations
             //     name: "Id",
             //     table: "UserRoles");
 
+            migrationBuilder.AddColumn<string>(
+                name: "AvatarColor",
+                table: "Workers",
+                type: "nvarchar(max)",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "Fincode",
+                table: "Users",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "Yoxdur");
+
+            // migrationBuilder.AddColumn<int>(
+            //     name: "ClassId",
+            //     table: "Supports",
+            //     type: "int",
+            //     nullable: true);
+
+            // migrationBuilder.AddColumn<string>(
+            //     name: "Note",
+            //     table: "Supports",
+            //     type: "nvarchar(max)",
+            //     nullable: true);
+
+            // migrationBuilder.AddColumn<string>(
+            //     name: "Status",
+            //     table: "Supports",
+            //     type: "nvarchar(max)",
+            //     nullable: false,
+            //     defaultValue: "Open");
+
+            // migrationBuilder.AddColumn<int>(
+            //     name: "SupportCategoryId",
+            //     table: "Supports",
+            //     type: "int",
+            //     nullable: true);
+
             // migrationBuilder.AddPrimaryKey(
             //     name: "PK_UserRoles",
             //     table: "UserRoles",
@@ -33,9 +71,11 @@ namespace Space.Infrastructure.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NormalizedName = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ParentModuleId = table.Column<int>(type: "int", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
                 },
                 constraints: table =>
                 {
@@ -62,6 +102,39 @@ namespace Space.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Endpoints", x => x.Id);
                 });
+
+            // migrationBuilder.CreateTable(
+            //     name: "Notifications",
+            //     columns: table => new
+            //     {
+            //         Id = table.Column<int>(type: "int", nullable: false)
+            //             .Annotation("SqlServer:Identity", "1, 1"),
+            //         Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+            //         Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+            //         FromUserId = table.Column<int>(type: "int", nullable: true),
+            //         ToUserId = table.Column<int>(type: "int", nullable: true),
+            //         IsRead = table.Column<bool>(type: "bit", nullable: false),
+            //         IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+            //         IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+            //         CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "Getutcdate()"),
+            //         CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+            //         LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+            //         LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+            //     },
+            //     constraints: table =>
+            //     {
+            //         table.PrimaryKey("PK_Notifications", x => x.Id);
+            //         table.ForeignKey(
+            //             name: "FK_Notifications_Users_FromUserId",
+            //             column: x => x.FromUserId,
+            //             principalTable: "Users",
+            //             principalColumn: "Id");
+            //         table.ForeignKey(
+            //             name: "FK_Notifications_Users_ToUserId",
+            //             column: x => x.ToUserId,
+            //             principalTable: "Users",
+            //             principalColumn: "Id");
+            //     });
 
             migrationBuilder.CreateTable(
                 name: "PermissionAccesses",
@@ -105,9 +178,9 @@ namespace Space.Infrastructure.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "Getutcdate()"),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -117,31 +190,50 @@ namespace Space.Infrastructure.Persistence.Migrations
                     table.PrimaryKey("PK_PermissionLevels", x => x.Id);
                 });
 
+            // migrationBuilder.CreateTable(
+            //     name: "SupportCategories",
+            //     columns: table => new
+            //     {
+            //         Id = table.Column<int>(type: "int", nullable: false)
+            //             .Annotation("SqlServer:Identity", "1, 1"),
+            //         Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+            //         Redirect = table.Column<string>(type: "nvarchar(max)", nullable: false),
+            //         IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+            //         IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+            //     },
+            //     constraints: table =>
+            //     {
+            //         table.PrimaryKey("PK_SupportCategories", x => x.Id);
+            //     });
+
             migrationBuilder.CreateTable(
-                name: "EndpointDetails",
+                name: "EndpointAccesses",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EndpointId = table.Column<int>(type: "int", nullable: false),
                     PermissionAccessId = table.Column<int>(type: "int", nullable: false),
-                    ApplicationModuleId = table.Column<int>(type: "int", nullable: false)
+                    ApplicationModuleId = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EndpointDetails", x => x.Id);
+                    table.PrimaryKey("PK_EndpointAccesses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_EndpointDetails_ApplicationModules_ApplicationModuleId",
+                        name: "FK_EndpointAccesses_ApplicationModules_ApplicationModuleId",
                         column: x => x.ApplicationModuleId,
                         principalTable: "ApplicationModules",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_EndpointAccesses_Endpoints_EndpointId",
+                        column: x => x.EndpointId,
+                        principalTable: "Endpoints",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_EndpointDetails_Endpoints_Id",
-                        column: x => x.Id,
-                        principalTable: "Endpoints",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_EndpointDetails_PermissionAccesses_PermissionAccessId",
+                        name: "FK_EndpointAccesses_PermissionAccesses_PermissionAccessId",
                         column: x => x.PermissionAccessId,
                         principalTable: "PermissionAccesses",
                         principalColumn: "Id",
@@ -197,7 +289,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PermissionGroupPermissionLevelAppModule",
+                name: "PermissionGroupPermissionLevelAppModules",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -210,21 +302,21 @@ namespace Space.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PermissionGroupPermissionLevelAppModule", x => x.Id);
+                    table.PrimaryKey("PK_PermissionGroupPermissionLevelAppModules", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PermissionGroupPermissionLevelAppModule_ApplicationModules_ApplicationModuleId",
+                        name: "FK_PermissionGroupPermissionLevelAppModules_ApplicationModules_ApplicationModuleId",
                         column: x => x.ApplicationModuleId,
                         principalTable: "ApplicationModules",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PermissionGroupPermissionLevelAppModule_PermissionGroups_PermissionGroupId",
+                        name: "FK_PermissionGroupPermissionLevelAppModules_PermissionGroups_PermissionGroupId",
                         column: x => x.PermissionGroupId,
                         principalTable: "PermissionGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PermissionGroupPermissionLevelAppModule_PermissionLevels_PermissionLevelId",
+                        name: "FK_PermissionGroupPermissionLevelAppModules_PermissionLevels_PermissionLevelId",
                         column: x => x.PermissionLevelId,
                         principalTable: "PermissionLevels",
                         principalColumn: "Id",
@@ -232,7 +324,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "WorkerPermissionLevelAppModule",
+                name: "WorkerPermissionLevelAppModules",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -245,26 +337,43 @@ namespace Space.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WorkerPermissionLevelAppModule", x => x.Id);
+                    table.PrimaryKey("PK_WorkerPermissionLevelAppModules", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WorkerPermissionLevelAppModule_ApplicationModules_ApplicationModuleId",
+                        name: "FK_WorkerPermissionLevelAppModules_ApplicationModules_ApplicationModuleId",
                         column: x => x.ApplicationModuleId,
                         principalTable: "ApplicationModules",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_WorkerPermissionLevelAppModule_PermissionLevels_PermissionLevelId",
+                        name: "FK_WorkerPermissionLevelAppModules_PermissionLevels_PermissionLevelId",
                         column: x => x.PermissionLevelId,
                         principalTable: "PermissionLevels",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_WorkerPermissionLevelAppModule_Workers_WorkerId",
+                        name: "FK_WorkerPermissionLevelAppModules_Workers_WorkerId",
                         column: x => x.WorkerId,
                         principalTable: "Workers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            // migrationBuilder.CreateIndex(
+            //     name: "IX_Supports_ClassId",
+            //     table: "Supports",
+            //     column: "ClassId");
+
+            // migrationBuilder.CreateIndex(
+            //     name: "IX_Supports_SupportCategoryId",
+            //     table: "Supports",
+            //     column: "SupportCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationModules_NormalizedName",
+                table: "ApplicationModules",
+                column: "NormalizedName",
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationModules_ParentModuleId",
@@ -272,14 +381,29 @@ namespace Space.Infrastructure.Persistence.Migrations
                 column: "ParentModuleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EndpointDetails_ApplicationModuleId",
-                table: "EndpointDetails",
+                name: "IX_EndpointAccesses_ApplicationModuleId",
+                table: "EndpointAccesses",
                 column: "ApplicationModuleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EndpointDetails_PermissionAccessId",
-                table: "EndpointDetails",
+                name: "IX_EndpointAccesses_EndpointId",
+                table: "EndpointAccesses",
+                column: "EndpointId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EndpointAccesses_PermissionAccessId",
+                table: "EndpointAccesses",
                 column: "PermissionAccessId");
+
+            // migrationBuilder.CreateIndex(
+            //     name: "IX_Notifications_FromUserId",
+            //     table: "Notifications",
+            //     column: "FromUserId");
+
+            // migrationBuilder.CreateIndex(
+            //     name: "IX_Notifications_ToUserId",
+            //     table: "Notifications",
+            //     column: "ToUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PermissionAccessPermissionLevel_PermissionLevelsId",
@@ -287,18 +411,18 @@ namespace Space.Infrastructure.Persistence.Migrations
                 column: "PermissionLevelsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PermissionGroupPermissionLevelAppModule_ApplicationModuleId",
-                table: "PermissionGroupPermissionLevelAppModule",
+                name: "IX_PermissionGroupPermissionLevelAppModules_ApplicationModuleId",
+                table: "PermissionGroupPermissionLevelAppModules",
                 column: "ApplicationModuleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PermissionGroupPermissionLevelAppModule_PermissionGroupId",
-                table: "PermissionGroupPermissionLevelAppModule",
+                name: "IX_PermissionGroupPermissionLevelAppModules_PermissionGroupId",
+                table: "PermissionGroupPermissionLevelAppModules",
                 column: "PermissionGroupId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PermissionGroupPermissionLevelAppModule_PermissionLevelId",
-                table: "PermissionGroupPermissionLevelAppModule",
+                name: "IX_PermissionGroupPermissionLevelAppModules_PermissionLevelId",
+                table: "PermissionGroupPermissionLevelAppModules",
                 column: "PermissionLevelId");
 
             migrationBuilder.CreateIndex(
@@ -307,37 +431,65 @@ namespace Space.Infrastructure.Persistence.Migrations
                 column: "WorkersId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkerPermissionLevelAppModule_ApplicationModuleId",
-                table: "WorkerPermissionLevelAppModule",
+                name: "IX_WorkerPermissionLevelAppModules_ApplicationModuleId",
+                table: "WorkerPermissionLevelAppModules",
                 column: "ApplicationModuleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkerPermissionLevelAppModule_PermissionLevelId",
-                table: "WorkerPermissionLevelAppModule",
+                name: "IX_WorkerPermissionLevelAppModules_PermissionLevelId",
+                table: "WorkerPermissionLevelAppModules",
                 column: "PermissionLevelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkerPermissionLevelAppModule_WorkerId",
-                table: "WorkerPermissionLevelAppModule",
+                name: "IX_WorkerPermissionLevelAppModules_WorkerId",
+                table: "WorkerPermissionLevelAppModules",
                 column: "WorkerId");
+
+            // migrationBuilder.AddForeignKey(
+            //     name: "FK_Supports_Classes_ClassId",
+            //     table: "Supports",
+            //     column: "ClassId",
+            //     principalTable: "Classes",
+            //     principalColumn: "Id");
+
+            // migrationBuilder.AddForeignKey(
+            //     name: "FK_Supports_SupportCategories_SupportCategoryId",
+            //     table: "Supports",
+            //     column: "SupportCategoryId",
+            //     principalTable: "SupportCategories",
+            //     principalColumn: "Id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            // migrationBuilder.DropForeignKey(
+            //     name: "FK_Supports_Classes_ClassId",
+            //     table: "Supports");
+
+            // migrationBuilder.DropForeignKey(
+            //     name: "FK_Supports_SupportCategories_SupportCategoryId",
+            //     table: "Supports");
+
             migrationBuilder.DropTable(
-                name: "EndpointDetails");
+                name: "EndpointAccesses");
+
+            // migrationBuilder.DropTable(
+            //     name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "PermissionAccessPermissionLevel");
 
             migrationBuilder.DropTable(
-                name: "PermissionGroupPermissionLevelAppModule");
+                name: "PermissionGroupPermissionLevelAppModules");
 
             migrationBuilder.DropTable(
                 name: "PermissionGroupWorker");
 
+            // migrationBuilder.DropTable(
+            //     name: "SupportCategories");
+
             migrationBuilder.DropTable(
-                name: "WorkerPermissionLevelAppModule");
+                name: "WorkerPermissionLevelAppModules");
 
             migrationBuilder.DropTable(
                 name: "Endpoints");
@@ -358,23 +510,55 @@ namespace Space.Infrastructure.Persistence.Migrations
             //     name: "PK_UserRoles",
             //     table: "UserRoles");
 
-            migrationBuilder.AddColumn<int>(
-                name: "Id",
-                table: "UserRoles",
-                type: "int",
-                nullable: false,
-                defaultValue: 0)
-                .Annotation("SqlServer:Identity", "1, 1");
+            // migrationBuilder.DropIndex(
+            //     name: "IX_Supports_ClassId",
+            //     table: "Supports");
 
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_UserRoles",
-                table: "UserRoles",
-                column: "Id");
+            // migrationBuilder.DropIndex(
+            //     name: "IX_Supports_SupportCategoryId",
+            //     table: "Supports");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_UserId",
-                table: "UserRoles",
-                column: "UserId");
+            migrationBuilder.DropColumn(
+                name: "AvatarColor",
+                table: "Workers");
+
+            migrationBuilder.DropColumn(
+                name: "Fincode",
+                table: "Users");
+
+            // migrationBuilder.DropColumn(
+            //     name: "ClassId",
+            //     table: "Supports");
+
+            // migrationBuilder.DropColumn(
+            //     name: "Note",
+            //     table: "Supports");
+
+            // migrationBuilder.DropColumn(
+            //     name: "Status",
+            //     table: "Supports");
+
+            // migrationBuilder.DropColumn(
+            //     name: "SupportCategoryId",
+            //     table: "Supports");
+
+            // migrationBuilder.AddColumn<int>(
+            //     name: "Id",
+            //     table: "UserRoles",
+            //     type: "int",
+            //     nullable: false,
+            //     defaultValue: 0)
+            //     .Annotation("SqlServer:Identity", "1, 1");
+
+            // migrationBuilder.AddPrimaryKey(
+            //     name: "PK_UserRoles",
+            //     table: "UserRoles",
+            //     column: "Id");
+
+            // migrationBuilder.CreateIndex(
+            //     name: "IX_UserRoles_UserId",
+            //     table: "UserRoles",
+            //     column: "UserId");
         }
     }
 }

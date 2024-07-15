@@ -12,8 +12,8 @@ using Space.Infrastructure.Persistence;
 namespace Space.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SpaceDbContext))]
-    [Migration("20240702135433_ModifiedEdnpointDetail")]
-    partial class ModifiedEdnpointDetail
+    [Migration("20240715051135_AddedPermission")]
+    partial class AddedPermission
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -749,6 +749,44 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Endpoints");
+                });
+
+            modelBuilder.Entity("Space.Domain.Entities.EndpointAccess", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("ApplicationModuleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EndpointId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("PermissionAccessId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationModuleId");
+
+                    b.HasIndex("EndpointId");
+
+                    b.HasIndex("PermissionAccessId");
+
+                    b.ToTable("EndpointAccesses");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ExtraModule", b =>
@@ -1945,26 +1983,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.ToTable("WorkerPermissionLevelAppModules");
                 });
 
-            modelBuilder.Entity("Space.Domain.Entities.EndpointDetail", b =>
-                {
-                    b.HasBaseType("Space.Domain.Entities.Endpoint");
-
-                    b.Property<int?>("ApplicationModuleId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PermissionAccessId")
-                        .HasColumnType("int");
-
-                    b.HasIndex("ApplicationModuleId");
-
-                    b.HasIndex("PermissionAccessId");
-
-                    b.ToTable("EndpointDetails", (string)null);
-                });
-
             modelBuilder.Entity("Space.Domain.Entities.SupportImage", b =>
                 {
                     b.HasBaseType("Space.Domain.Entities.File");
@@ -2258,6 +2276,31 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("Class");
                 });
 
+            modelBuilder.Entity("Space.Domain.Entities.EndpointAccess", b =>
+                {
+                    b.HasOne("Space.Domain.Entities.ApplicationModule", "ApplicationModule")
+                        .WithMany("EndpointDetails")
+                        .HasForeignKey("ApplicationModuleId");
+
+                    b.HasOne("Space.Domain.Entities.Endpoint", "Endpoint")
+                        .WithMany("EndpointAccesses")
+                        .HasForeignKey("EndpointId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Space.Domain.Entities.PermissionAccess", "PermissionAccess")
+                        .WithMany("EndpointDetails")
+                        .HasForeignKey("PermissionAccessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationModule");
+
+                    b.Navigation("Endpoint");
+
+                    b.Navigation("PermissionAccess");
+                });
+
             modelBuilder.Entity("Space.Domain.Entities.ExtraModule", b =>
                 {
                     b.HasOne("Space.Domain.Entities.Program", "Program")
@@ -2419,7 +2462,7 @@ namespace Space.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Space.Domain.Entities.Support", b =>
                 {
                     b.HasOne("Space.Domain.Entities.Class", "Class")
-                        .WithMany()
+                        .WithMany("Supports")
                         .HasForeignKey("ClassId");
 
                     b.HasOne("Space.Domain.Entities.SupportCategory", "SupportCategory")
@@ -2483,29 +2526,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("Worker");
                 });
 
-            modelBuilder.Entity("Space.Domain.Entities.EndpointDetail", b =>
-                {
-                    b.HasOne("Space.Domain.Entities.ApplicationModule", "ApplicationModule")
-                        .WithMany("EndpointDetails")
-                        .HasForeignKey("ApplicationModuleId");
-
-                    b.HasOne("Space.Domain.Entities.Endpoint", null)
-                        .WithOne()
-                        .HasForeignKey("Space.Domain.Entities.EndpointDetail", "Id")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-
-                    b.HasOne("Space.Domain.Entities.PermissionAccess", "PermissionAccess")
-                        .WithMany("EndpointDetails")
-                        .HasForeignKey("PermissionAccessId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationModule");
-
-                    b.Navigation("PermissionAccess");
-                });
-
             modelBuilder.Entity("Space.Domain.Entities.SupportImage", b =>
                 {
                     b.HasOne("Space.Domain.Entities.Support", "Support")
@@ -2550,6 +2570,8 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Navigation("RoomSchedules");
 
                     b.Navigation("Studies");
+
+                    b.Navigation("Supports");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ClassTimeSheet", b =>
@@ -2567,6 +2589,11 @@ namespace Space.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Space.Domain.Entities.Contact", b =>
                 {
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Space.Domain.Entities.Endpoint", b =>
+                {
+                    b.Navigation("EndpointAccesses");
                 });
 
             modelBuilder.Entity("Space.Domain.Entities.ExtraModule", b =>
