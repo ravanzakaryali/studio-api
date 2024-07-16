@@ -49,8 +49,6 @@ internal class UpdateClassSessionAttendanceCommandHandler
 
 
         DateOnly dateNow = request.Date;
-        //həmin günün class sessiona bax
-
         if (request.HeldModules != null && request.HeldModules!.Count != 0)
         {
             List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
