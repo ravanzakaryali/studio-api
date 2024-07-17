@@ -77,34 +77,26 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                         ClassId = classEntity.Id,
 
                     });
-                }
-            }
-
-            response.AddRange(classes
-                 .Select(c =>
-                {
-                    return new GetUnmarkedAttedanceClassesByProgramResponseDto()
+                    response.Add(new GetUnmarkedAttedanceClassesByProgramResponseDto()
                     {
-                        StudentsCount = c.Studies.Count,
+                        StudentsCount = classEntity.Studies.Count,
                         Class = new GetClassDto()
                         {
-                            Name = c.Name,
-                            Id = c.Id,
+                            Name = classEntity.Name,
+                            Id = classEntity.Id,
                         },
-                        LastDate = relevantDates.Where(date => date < DateOnly.FromDateTime(DateTime.Now)).LastOrDefault(),
-                        UnMarkDays = list.Where(l => l.ClassId == c.Id).Count(),
+                        LastDate = lastDate,
+                        UnMarkDays = list.Where(l => l.ClassId == classEntity.Id).Count(),
 
-                        AttendancePercentage = Math.Round(list.Where(l => l.ClassId == c.Id).Any() ?
-                                       list.Where(l => l.ClassId == c.Id).Average(a => a.AverageHours) :
+                        AttendancePercentage = Math.Round(list.Where(l => l.ClassId == classEntity.Id).Any() ?
+                                       list.Where(l => l.ClassId == classEntity.Id).Average(a => a.AverageHours) :
                                        0, 2),
-                    };
-                })
-                .OrderByDescending(dto => dto.UnMarkDays)
-                .Where(c => c.UnMarkDays > 0)
-                .ToList());
+                    });
+                }
+            }
         }
 
 
-        return response.DistinctBy(c => c.Class.Id);
+        return response.OrderByDescending(c => c.UnMarkDays).DistinctBy(c => c.Class.Id);
     }
 }
