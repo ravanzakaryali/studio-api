@@ -270,7 +270,7 @@ public class ClassesController : BaseApiController
     [ProducesDefaultResponseType]
     public async Task<IActionResult> CancelClassSession([FromRoute] int id)
     {
-        await Mediator.Send(new CancelledAttendanceCommand(id, new DateTime()));
+        await Mediator.Send(new CancelledAttendanceCommand(id, DateTime.Now));
         return NoContent();
     }
 

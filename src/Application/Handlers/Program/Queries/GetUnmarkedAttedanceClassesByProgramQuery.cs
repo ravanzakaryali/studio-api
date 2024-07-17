@@ -13,10 +13,12 @@ public class GetUnmarkedAttedanceClassesByProgramQuery : IRequest<IEnumerable<Ge
 internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<GetUnmarkedAttedanceClassesByProgramQuery, IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>>
 {
     readonly ISpaceDbContext _spaceDbContext;
+    readonly IUnitOfWork _unitOfWork;
 
-    public GetUnmarkedAttedanceClassesByProgramHandler(ISpaceDbContext spaceDbContext)
+    public GetUnmarkedAttedanceClassesByProgramHandler(ISpaceDbContext spaceDbContext, IUnitOfWork unitOfWork)
     {
         _spaceDbContext = spaceDbContext;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<GetUnmarkedAttedanceClassesByProgramResponseDto>> Handle(GetUnmarkedAttedanceClassesByProgramQuery request, CancellationToken cancellationToken)
@@ -29,6 +31,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
         DateOnly requestStartDate = DateOnly.FromDateTime(request.StartDate);
         DateOnly requestEndDate = DateOnly.FromDateTime(request.EndDate);
 
+        List<DateOnly> holidays = await _unitOfWork.HolidayService.GetDatesAsync();
         List<Class> classes = await _spaceDbContext.Classes
             .Include(c => c.Session)
             .ThenInclude(s => s.Details)
@@ -57,7 +60,7 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
             {
                 DayOfWeek dayOfWeek = date.DayOfWeek;
                 bool hasSession = classEntity.Session.Details.Any(sd => sd.DayOfWeek == dayOfWeek);
-                if (hasSession)
+                if (hasSession && !holidays.Contains(date))
                 {
                     relevantDates.Add(date);
                 }

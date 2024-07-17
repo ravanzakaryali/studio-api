@@ -16,31 +16,25 @@ internal class GetAllWorkerQueryHandler : IRequestHandler<GetAllWorkerQuery, IEn
 
     public async Task<IEnumerable<GetWorkerDto>> Handle(GetAllWorkerQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<Worker> query = _spaceDbContext.Workers
-            .Include(c => c.UserRoles)
-            .ThenInclude(c => c.Role)
+        IEnumerable<Worker> workers = await _spaceDbContext.Workers
             .OrderBy(c => c.Name)
-            .AsQueryable();
+            .ToListAsync(cancellationToken: cancellationToken);
 
+        List<PermissionGroup> permissionGroups = await _spaceDbContext.PermissionGroups.Include(c => c.Workers).ToListAsync(cancellationToken: cancellationToken);
 
-        if (request.Role != null)
-        {
-            query = query.Where(c => c.UserRoles.Any(c => c.Role.Name == request.Role.ToString()));
-        }
-
-        var response = await query.Select(w => new GetWorkerDto()
+        List<GetWorkerDto> response = workers.Select(w => new GetWorkerDto()
         {
             Id = w.Id,
             Name = w.Name!,
             Surname = w.Surname,
             Email = w.Email,
             LastPasswordUpdateDate = w.LastPasswordUpdateDate,
-            Roles = w.UserRoles.Select(c => new GetRoleDto()
+            Roles = permissionGroups.Where(pg => pg.Workers.Any(w => w.Id == w.Id)).Select(pg => pg.Name).ToList().Select(c => new GetRoleDto()
             {
-                Id = c.Role.Id,
-                Name = c.Role.Name
-            })
-        }).ToListAsync(cancellationToken: cancellationToken);
+                Name = c,
+                Id = permissionGroups.First(pg => pg.Name == c).Id
+            }),
+        }).ToList();
 
 
         return response;

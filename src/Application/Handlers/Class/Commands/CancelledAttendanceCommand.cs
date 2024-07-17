@@ -32,19 +32,29 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
         }
 
         IEnumerable<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
-
             .Where(c => c.ClassId == request.ClassId && c.Date == date)
-            .Include(c=>c.Attendances)
-            .Include(c=>c.AttendancesWorkers)
+            .Include(c => c.Attendances)
+            .Include(c => c.AttendancesWorkers)
             .ToListAsync(cancellationToken: cancellationToken);
 
-        List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
-
-        foreach (ClassTimeSheet item in classTimeSheets)
+        if (!classTimeSheets.Any())
         {
-            item.Attendances = new List<Attendance>();
-            item.Status = ClassSessionStatus.Cancelled;
-            item.AttendancesWorkers = new List<AttendanceWorker>();
+            _spaceDbContext.ClassTimeSheets.Add(new ClassTimeSheet
+            {
+                ClassId = request.ClassId,
+                Date = date,
+                Status = ClassSessionStatus.Cancelled
+            });
+            @class.EndDate = @class.EndDate!.Value.AddDays(1);
+        }
+        else
+        {
+            foreach (ClassTimeSheet item in classTimeSheets)
+            {
+                item.Attendances = new List<Attendance>();
+                item.Status = ClassSessionStatus.Cancelled;
+                item.AttendancesWorkers = new List<AttendanceWorker>();
+            }
         }
 
         await _spaceDbContext.SaveChangesAsync(cancellationToken);

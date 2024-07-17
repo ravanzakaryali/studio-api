@@ -8,10 +8,12 @@ public class GetUnattendedDaysByClassQuery : IRequest<IEnumerable<GetUnAttendedB
 internal class GetUnattendedDaysByClassHandler : IRequestHandler<GetUnattendedDaysByClassQuery, IEnumerable<GetUnAttendedByClassDto>>
 {
     readonly ISpaceDbContext _spaceDbContext;
+    readonly IUnitOfWork _unitOfWork;
 
-    public GetUnattendedDaysByClassHandler(ISpaceDbContext spaceDbContext)
+    public GetUnattendedDaysByClassHandler(ISpaceDbContext spaceDbContext, IUnitOfWork unitOfWork)
     {
         _spaceDbContext = spaceDbContext;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<GetUnAttendedByClassDto>> Handle(GetUnattendedDaysByClassQuery request, CancellationToken cancellationToken)
@@ -32,13 +34,15 @@ internal class GetUnattendedDaysByClassHandler : IRequestHandler<GetUnattendedDa
             .Where(cts => cts.ClassId == @class.Id && cts.Date < dateNow)
             .ToListAsync(cancellationToken);
 
+        List<DateOnly>
+         holidayService = await _unitOfWork.HolidayService.GetDatesAsync();
         List<DateOnly> relevantDates = new();
-        
+
         for (DateOnly date = startDateClass; date <= endDateClass; date = date.AddDays(1))
         {
             DayOfWeek dayOfWeek = date.DayOfWeek;
             bool hasSession = @class.Session.Details.Any(sd => sd.DayOfWeek == dayOfWeek);
-            if (hasSession)
+            if (hasSession && !holidayService.Contains(date))
             {
                 relevantDates.Add(date);
             }
