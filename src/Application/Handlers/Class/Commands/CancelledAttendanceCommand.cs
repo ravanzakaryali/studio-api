@@ -42,6 +42,9 @@ internal class CancelledAttendanceHandler : IRequestHandler<CancelledAttendanceC
             _spaceDbContext.ClassTimeSheets.Add(new ClassTimeSheet
             {
                 ClassId = request.ClassId,
+                StartTime = @class.Session.Details.Where(c => c.DayOfWeek == date.DayOfWeek).First().StartTime,
+                EndTime = @class.Session.Details.Where(c => c.DayOfWeek == date.DayOfWeek).First().EndTime,
+                TotalHours = @class.Session.Details.Where(c => c.DayOfWeek == date.DayOfWeek).First().TotalHours,
                 Date = date,
                 Status = ClassSessionStatus.Cancelled
             });
