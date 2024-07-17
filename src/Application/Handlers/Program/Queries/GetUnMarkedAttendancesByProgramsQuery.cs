@@ -7,6 +7,7 @@ public class GetUnMarkedAttendancesByProgramsQuery : IRequest<IEnumerable<GetUnM
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
 }
+
 internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMarkedAttendancesByProgramsQuery, IEnumerable<GetUnMarkedAttendancesByProgramsDto>>
 {
     readonly ISpaceDbContext _spaceDbContext;
@@ -18,44 +19,74 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
 
     public async Task<IEnumerable<GetUnMarkedAttendancesByProgramsDto>> Handle(GetUnMarkedAttendancesByProgramsQuery request, CancellationToken cancellationToken)
     {
-        List<Program> programs = await _spaceDbContext.Programs
-            .ToListAsync(cancellationToken: cancellationToken);
-        DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
-
-        List<ClassSession> classSessions = await _spaceDbContext.ClassSessions
-            .Include(c => c.Class)
-            .Where(c => c.Date < dateNow && c.Status != ClassSessionStatus.Cancelled)
-            .ToListAsync(cancellationToken: cancellationToken);
-
+        List<Program> programs = await _spaceDbContext.Programs.ToListAsync(cancellationToken: cancellationToken);
         DateOnly startDate = DateOnly.FromDateTime(request.StartDate);
         DateOnly endDate = DateOnly.FromDateTime(request.EndDate);
 
-        classSessions = classSessions
-                                .Where(c => c.Date >= startDate && c.Date <= endDate)
-                                .ToList();
+        List<Class> classes = await _spaceDbContext.Classes
+            .Include(c => c.Session)
+            .ThenInclude(s => s.Details)
+            .ToListAsync(cancellationToken);
+
+        List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
+            .Where(cts => cts.Date >= startDate && cts.Date <= endDate)
+            .ToListAsync(cancellationToken);
 
         return programs.Select(program =>
         {
-            double totalAttendace = 0;
-            if (classSessions.Where(classSession => classSession.Class.ProgramId == program.Id).Any())
+            List<Class> programClasses = classes.Where(c => c.ProgramId == program.Id).ToList();
+            int unmarkedCount = 0;
+            int totalSessions = 0;
+            List<Class> totalClasses = new();
+
+            foreach (Class? classEntity in programClasses)
             {
-                totalAttendace = (double)classSessions.Where(classSession => classSession.Class.ProgramId == program.Id && classSession.ClassTimeSheetId != null).Count() /
-                                classSessions.Where(classSession => classSession.Class.ProgramId == program.Id).Count() * 100;
+                List<DateOnly> relevantDates = new();
+
+                DateOnly startDateClass = classEntity.StartDate > startDate ? classEntity.StartDate : startDate;
+                DateOnly? endDateClass = classEntity.EndDate is not null && classEntity.EndDate < endDate ? classEntity.EndDate : endDate;
+
+                for (DateOnly date = startDateClass; date <= endDateClass; date = date.AddDays(1))
+                {
+                    DayOfWeek dayOfWeek = date.DayOfWeek;
+                    bool hasSession = classEntity.Session.Details.Any(sd => sd.DayOfWeek == dayOfWeek);
+                    if (hasSession)
+                    {
+                        relevantDates.Add(date);
+                    }
+                }
+                totalSessions += relevantDates.Count;
+
+                foreach (DateOnly date in relevantDates.Where(date => date < DateOnly.FromDateTime(DateTime.Now)))
+                {
+                    ClassTimeSheet? classTimeSheet = classTimeSheets
+                        .FirstOrDefault(cts => cts.ClassId == classEntity.Id && cts.Date == date);
+
+                    if (classTimeSheet == null)
+                    {
+                        totalClasses.Add(classEntity);
+                        unmarkedCount++;
+                    }
+                }
             }
-            return new GetUnMarkedAttendancesByProgramsDto()
+
+            double totalAttendancePercentage = totalSessions > 0
+                ? (double)(totalSessions - unmarkedCount) / totalSessions * 100
+                : 0;
+
+            return new GetUnMarkedAttendancesByProgramsDto
             {
-                Program = new GetProgramResponseDto()
+                Program = new GetProgramResponseDto
                 {
                     Id = program.Id,
-                    Name = program.Name,
+                    Name = program.Name
                 },
-                UnMarkedAttendancesCount = classSessions.Where(cs => cs.Class.ProgramId == program.Id && cs.ClassTimeSheetId == null).DistinctBy(cs => cs.ClassId).DistinctBy(cs => cs.Date).Count(),
-                TotalUnMarkedAttendancesCount = classSessions.Where(cs => cs.Class.ProgramId == program.Id && cs.ClassTimeSheetId == null).DistinctBy(c =>
-                {
-                    return new { c.ClassId, c.Date };
-                }).Count(),
-                TotalAttendancePercentage = Math.Round(totalAttendace, MidpointRounding.AwayFromZero)
+                UnMarkedAttendancesCount = unmarkedCount,
+                TotalUnMarkedAttendancesCount = totalClasses.DistinctBy(c => c.Id).Count(),
+                TotalAttendancePercentage = Math.Round(totalAttendancePercentage, MidpointRounding.AwayFromZero)
             };
-        }).OrderByDescending(c => c.TotalUnMarkedAttendancesCount);
+        })
+        .OrderByDescending(dto => dto.TotalUnMarkedAttendancesCount)
+        .ToList();
     }
 }

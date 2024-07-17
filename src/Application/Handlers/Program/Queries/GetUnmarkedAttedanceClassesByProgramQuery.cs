@@ -26,61 +26,85 @@ internal class GetUnmarkedAttedanceClassesByProgramHandler : IRequestHandler<Get
                 throw new NotFoundException(nameof(Program), request.Id);
 
         DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
-        DateOnly startDate = DateOnly.FromDateTime(request.StartDate);
-        DateOnly endDate = DateOnly.FromDateTime(request.EndDate);
+        DateOnly requestStartDate = DateOnly.FromDateTime(request.StartDate);
+        DateOnly requestEndDate = DateOnly.FromDateTime(request.EndDate);
 
-        List<ClassSession> classSessions = await _spaceDbContext
-            .ClassSessions
-            .Include(c => c.ClassTimeSheet)
-            .ThenInclude(c => c!.Attendances)
-            .Include(c => c.Class)
-            .ThenInclude(c => c.Studies)
-            .Where(c => c.Class.ProgramId == program.Id && c.Date < dateNow)
+        List<Class> classes = await _spaceDbContext.Classes
+            .Include(c => c.Session)
+            .ThenInclude(s => s.Details)
+            .Include(c => c.Studies)
+            .Where(c => c.ProgramId == program.Id)
             .ToListAsync(cancellationToken: cancellationToken);
+
+        List<ClassTimeSheet> classTimeSheets = await _spaceDbContext.ClassTimeSheets
+            .Where(cts => cts.Date >= requestStartDate && cts.Date <= requestEndDate)
+            .Include(cts => cts.Attendances)
+            .ToListAsync(cancellationToken);
 
         List<GetUnmarkedAttedanceClassesByProgramResponseDto> response = new();
         List<AvarageClassDto> list = new();
 
-        foreach (ClassSession? item in classSessions.Where(c => c.ClassTimeSheet?.Attendances.Count > 0))
+        foreach (Class classEntity in classes)
         {
-            int total = item.TotalHours;
-            double totalAttendance = item.ClassTimeSheet?.Attendances.Average(c => c.TotalAttendanceHours) ?? 0;
-            list.Add(new AvarageClassDto()
+
+            List<DateOnly> relevantDates = new();
+            DateOnly? lastDate = null;
+
+            DateOnly startDateClass = classEntity.StartDate > requestStartDate ? classEntity.StartDate : requestStartDate;
+            DateOnly? endDateClass = classEntity.EndDate is not null && classEntity.EndDate < requestEndDate ? classEntity.EndDate : requestEndDate;
+
+            for (DateOnly date = startDateClass; date <= endDateClass; date = date.AddDays(1))
             {
-                AverageHours = totalAttendance * 100 / total,
-                ClassId = item.ClassId,
-            });
+                DayOfWeek dayOfWeek = date.DayOfWeek;
+                bool hasSession = classEntity.Session.Details.Any(sd => sd.DayOfWeek == dayOfWeek);
+                if (hasSession)
+                {
+                    relevantDates.Add(date);
+                }
+            }
+
+            foreach (DateOnly date in relevantDates.Where(date => date < DateOnly.FromDateTime(DateTime.Now)))
+            {
+                ClassTimeSheet? classTimeSheet = classTimeSheets
+                    .FirstOrDefault(cts => cts.ClassId == classEntity.Id && cts.Date == date);
+
+                if (classTimeSheet == null)
+                {
+                    lastDate = date;
+                    // double totalAttendance = classTimeSheet.Attendances.Average(c => c.TotalAttendanceHours);
+                    list.Add(new AvarageClassDto()
+                    {
+                        ClassId = classEntity.Id,
+
+                    });
+                }
+            }
+
+            response.AddRange(classes
+                 .Select(c =>
+                {
+                    return new GetUnmarkedAttedanceClassesByProgramResponseDto()
+                    {
+                        StudentsCount = c.Studies.Count,
+                        Class = new GetClassDto()
+                        {
+                            Name = c.Name,
+                            Id = c.Id,
+                        },
+                        LastDate = relevantDates.Where(date => date < DateOnly.FromDateTime(DateTime.Now)).LastOrDefault(),
+                        UnMarkDays = list.Where(l => l.ClassId == c.Id).Count(),
+
+                        AttendancePercentage = Math.Round(list.Where(l => l.ClassId == c.Id).Any() ?
+                                       list.Where(l => l.ClassId == c.Id).Average(a => a.AverageHours) :
+                                       0, 2),
+                    };
+                })
+                .OrderByDescending(dto => dto.UnMarkDays)
+                .Where(c => c.UnMarkDays > 0)
+                .ToList());
         }
 
-        response.AddRange(classSessions
-            .GroupBy(c => c.ClassId)
-            .Select(g =>
-            {
-                var sessions = g
-                    .Where(cs => startDate <= cs.Date && cs.Date <= endDate && cs.Status != ClassSessionStatus.Cancelled)
-                    .ToList();
 
-                return new GetUnmarkedAttedanceClassesByProgramResponseDto()
-                {
-                    StudentsCount = g.First().Class.Studies.Count,
-                    AttendancePercentage = Math.Round(list.Where(l => l.ClassId == g.Key).Any() ?
-                                        list.Where(l => l.ClassId == g.Key).Average(a => a.AverageHours) :
-                                        0, 2),
-                    UnMarkDays = sessions.Count(s => s.ClassTimeSheet is null),
-                    Class = new GetClassDto()
-                    {
-                        Id = g.Key,
-                        Name = g.First().Class.Name
-                    },
-                    LastDate = sessions
-                        .OrderByDescending(cs => cs.Date)
-                        .FirstOrDefault()?.Date
-                };
-            })
-            .Where(c => c.UnMarkDays != 0)
-            .OrderByDescending(c => c.UnMarkDays)
-            .ToList());
-
-        return response;
+        return response.DistinctBy(c => c.Class.Id);
     }
 }
