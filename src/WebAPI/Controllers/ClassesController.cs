@@ -106,7 +106,7 @@ public class ClassesController : BaseApiController
         }));
 
     // GET: api/Classes/999/unmarked-attendance-day - Returns the days that the class has not been marked
-    [HttpGet("{id}/unmarked-attendance-days")]
+    [HttpGet("{id}/unmarked-attendance-days")] 
     public async Task<IActionResult> GetUnnotedAttendanceDays([FromRoute] int id)
             => Ok(await Mediator.Send(new GetUnattendedDaysByClassQuery()
             {
