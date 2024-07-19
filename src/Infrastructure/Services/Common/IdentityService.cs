@@ -20,7 +20,7 @@ public class IdentityService : IIdentityService
     public async Task<LoginResponseDto> LoginAsync(User user, string password)
     {
         bool passwordCheck = await _userManager.CheckPasswordAsync(user, password);
-        // if (!passwordCheck) throw new InvalidCredentialsException();
+        if (!passwordCheck) throw new InvalidCredentialsException();
         IList<string> roles = await _userManager.GetRolesAsync(user);
         return new LoginResponseDto { Roles = roles, User = user };
     }
