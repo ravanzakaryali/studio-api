@@ -74,7 +74,7 @@ public class ClassesController : BaseApiController
         => Ok(await Mediator.Send(new GetHeldModulesByClassQuery()
         {
             Id = id,
-            Date = new DateTime(),
+            Date = DateTime.Now,
         }));
 
     //Todo: Session Id
