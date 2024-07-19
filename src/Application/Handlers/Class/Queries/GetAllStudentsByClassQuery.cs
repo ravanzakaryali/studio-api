@@ -71,14 +71,19 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                         Note = null
                     }).ToList();
 
-            foreach (GetAllStudentCategoryDto item in studentSessions)
+
+            if (classTimeSheets != null && classTimeSheets.Any())
             {
-                ClassTimeSheet? findClassTimeSheet = classTimeSheets.FirstOrDefault(c => c.Category == ClassSessionCategory.Theoric) ?? classTimeSheets.FirstOrDefault(c => c.Category == ClassSessionCategory.Lab);
-                int hour = findClassTimeSheet?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours ?? 0;
-                item.Hour = hour;
-                item.ClassSessionCategory = findClassTimeSheet != null ? findClassTimeSheet.Category : ClassSessionCategory.Theoric;
-                item.Note = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory)?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note;
+                foreach (GetAllStudentCategoryDto item in studentSessions)
+                {
+                    ClassTimeSheet? findClassTimeSheet = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory) ?? classTimeSheets.FirstOrDefault(c => c.Category == ClassSessionCategory.Lab);
+                    int hour = findClassTimeSheet?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.TotalAttendanceHours ?? 0;
+                    item.Hour = hour;
+                    item.ClassSessionCategory = findClassTimeSheet != null ? findClassTimeSheet.Category : ClassSessionCategory.Theoric;
+                    item.Note = classTimeSheets.FirstOrDefault(c => c.Category == item.ClassSessionCategory)?.Attendances.FirstOrDefault(c => c.StudyId == study.Id)?.Note;
+                }
             }
+
 
 
             GetAllStudentByClassResponseDto studentResponse = new()

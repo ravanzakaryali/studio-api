@@ -78,6 +78,6 @@ internal class GetAttendanceRateByClassHandler : IRequestHandler<GetAttendanceRa
             }
         }
 
-        return response;
+        return response.DistinctBy(r => r.Date);
     }
 }

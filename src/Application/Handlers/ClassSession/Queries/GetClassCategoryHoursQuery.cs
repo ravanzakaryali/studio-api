@@ -67,11 +67,11 @@ internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCateg
         }
         else
         {
-            response = classTimeSheets
+            response = sessions
             .Select(c => new GetClassSessionCategoryHoursResponseDto()
             {
                 Category = c.Category,
-                Status = c.Status,
+                Status = ClassSessionStatus.Offline,
                 Hour = c.TotalHours
             });
 
