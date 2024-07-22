@@ -71,7 +71,10 @@ internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCateg
             .Select(c => new GetClassSessionCategoryHoursResponseDto()
             {
                 Category = c.Category,
-                Status = ClassSessionStatus.Offline,
+                Status = classTimeSheets
+                    .Where(d => d.Category == c.Category)
+                    .Select(d => d.Status)
+                    .FirstOrDefault(),
                 Hour = c.TotalHours
             });
 
