@@ -9,6 +9,7 @@ public class GetAttendanceRateByClassQuery : IRequest<IEnumerable<GetAttendanceR
     public MonthOfYear MonthOfYear { get; set; }
     public int Year { get; set; }
 }
+
 internal class GetAttendanceRateByClassHandler : IRequestHandler<GetAttendanceRateByClassQuery, IEnumerable<GetAttendanceRateByClassDto>>
 {
     readonly ISpaceDbContext _spaceDbContext;
@@ -44,10 +45,16 @@ internal class GetAttendanceRateByClassHandler : IRequestHandler<GetAttendanceRa
         ICollection<SessionDetail> sessionDetails = @class.Session.Details;
         int daysInMonth = DateTime.DaysInMonth(request.Year, month);
 
-        for (int day = 1; day <= daysInMonth; day++)
+        DateOnly startDate = @class.StartDate;
+        DateOnly? endDate = @class.EndDate;
+        DateOnly firstDayOfMonth = new(request.Year, month, 1);
+        DateOnly lastDayOfMonth = new(request.Year, month, daysInMonth);
+
+        DateOnly startProcessingDate = startDate > firstDayOfMonth ? startDate : firstDayOfMonth;
+        DateOnly endProcessingDate = endDate.HasValue && endDate < lastDayOfMonth ? endDate.Value : lastDayOfMonth;
+
+        for (DateOnly date = startProcessingDate; date <= endProcessingDate; date = date.AddDays(1))
         {
-            if (@class.EndDate is not null && new DateOnly(request.Year, month, day) > @class.EndDate) break;
-            DateOnly date = new(request.Year, month, day);
             DayOfWeek dayOfWeek = date.DayOfWeek;
 
             IEnumerable<GetAttendanceRateByClassDto> matchingSessions = sessionDetails
@@ -59,7 +66,6 @@ internal class GetAttendanceRateByClassHandler : IRequestHandler<GetAttendanceRa
                     AttendingStudentsCount = null,
                     TotalStudentsCount = null
                 });
-
 
             response.AddRange(matchingSessions);
         }

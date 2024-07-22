@@ -3,15 +3,9 @@
 namespace Space.WebAPI.Controllers;
 
 using FirebaseAdmin.Auth;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Space.Application.DTOs.Worker;
-
-
-
-class ImportUserDto{
-    public string Userid { get; set; }
-    public string Fincode { get; set; } 
-}
 
 public class UsersController : BaseApiController
 {
@@ -21,12 +15,6 @@ public class UsersController : BaseApiController
         return Ok(await Mediator.Send(new UserLoginQuery()));
     }
 
-    // [HttpPost("import")]
-    // public async Task<IActionResult> ImportUsers(IEnumerable<ImportUserDto> request)
-    // {
-        
-    //     return NoContent();
-    // }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get([FromRoute] int id)
@@ -49,7 +37,7 @@ public class UsersController : BaseApiController
     }
 
 
-    
+
 
     [Authorize]
     [HttpGet("{id}/roles")]
