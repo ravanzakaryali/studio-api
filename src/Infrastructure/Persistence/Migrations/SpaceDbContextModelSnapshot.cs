@@ -1316,7 +1316,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("Getutcdate()");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
@@ -1339,7 +1339,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
