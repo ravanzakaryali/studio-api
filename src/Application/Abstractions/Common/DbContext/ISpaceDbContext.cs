@@ -43,6 +43,7 @@ public interface ISpaceDbContext : IDisposable
     DbSet<Module> Modules { get; }
     DbSet<Program> Programs { get; }
     DbSet<ExtraModule> ExtraModules { get; }
+    DbSet<Project> Projects { get; }
     #endregion
     #region User
     DbSet<Worker> Workers { get; }

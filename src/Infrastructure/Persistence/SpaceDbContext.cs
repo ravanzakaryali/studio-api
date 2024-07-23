@@ -45,6 +45,7 @@ public class SpaceDbContext :
     public DbSet<Module> Modules => Set<Module>();
     public DbSet<ExtraModule> ExtraModules => Set<ExtraModule>();
     public DbSet<Program> Programs => Set<Program>();
+    public DbSet<Project> Projects => Set<Project>();
     #endregion
     #region Student
     public DbSet<Contact> Contacts => Set<Contact>();

@@ -1,12 +1,13 @@
+
 namespace Space.Application.Handlers;
 
-public class GetReportQuery : IRequest
+public class GetReportQuery : IRequest<IEnumerable<GetFincanceReportGetDto>>
 {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
 }
 
-internal class GetReportQueryHandler : IRequestHandler<GetReportQuery>
+internal class GetReportQueryHandler : IRequestHandler<GetReportQuery, IEnumerable<GetFincanceReportGetDto>>
 {
     readonly ISpaceDbContext _spaceDbContext;
 
@@ -15,8 +16,9 @@ internal class GetReportQueryHandler : IRequestHandler<GetReportQuery>
         _spaceDbContext = spaceDbContext;
     }
 
-    public async Task Handle(GetReportQuery request, CancellationToken cancellationToken)
+    public Task<IEnumerable<GetFincanceReportGetDto>> Handle(GetReportQuery request, CancellationToken cancellationToken)
     {
-
+        
+        throw new NotImplementedException();
     }
 }
