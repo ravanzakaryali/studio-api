@@ -108,16 +108,16 @@ public class PermissionEndpointFilter : IAsyncActionFilter
                                                          .Any(c => c.Id == endPointItem.PermissionAccessId && endPointItem.ApplicationModuleId == levelAppModule.ApplicationModuleId)
                                                    select endPointItem;
 
-        // if (accessList.Any())
-        // {
-        await next();
+        if (accessList.Any())
+        {
+            await next();
+            return;
+        }
+
+
+
+        context.HttpContext.Response.StatusCode = 403;
+        await context.HttpContext.Response.WriteAsync("Forbidden");
         return;
-        // }
-
-
-
-        // context.HttpContext.Response.StatusCode = 403;
-        // await context.HttpContext.Response.WriteAsync("Forbidden");
-        // return;
     }
 }
