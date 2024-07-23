@@ -85,53 +85,39 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
         List<DateOnly> holidayDates = await _unitOfWork.HolidayService.GetDatesAsync();
         int totalHour = @class.Program.TotalHours;
 
-        if (@class.ClassSessions == null || !@class.ClassSessions.Any())
+        while (totalHour > 0)
         {
-            while (totalHour > 0)
+            foreach (SessionDetail? sessionItem in session.Details.OrderBy(c => c.DayOfWeek))
             {
-                foreach (SessionDetail? sessionItem in session.Details.OrderBy(c => c.DayOfWeek))
+                var daysToAdd = ((int)sessionItem.DayOfWeek - (int)startDateTime.DayOfWeek + 7) % 7;
+                int numSelectedDays = session.Details.Count;
+
+                int hour = (sessionItem.EndTime - sessionItem.StartTime).Hours;
+
+
+                DateOnly dateTime = startDateTime.AddDays(count * 7 + daysToAdd);
+
+                if (holidayDates.Contains(dateTime))
                 {
-                    var daysToAdd = ((int)sessionItem.DayOfWeek - (int)startDateTime.DayOfWeek + 7) % 7;
-                    int numSelectedDays = session.Details.Count;
-
-                    int hour = (sessionItem.EndTime - sessionItem.StartTime).Hours;
-
-
-                    DateOnly dateTime = startDateTime.AddDays(count * 7 + daysToAdd);
-
-                    if (holidayDates.Contains(dateTime))
-                    {
-                        continue;
-                    }
-
-                    if (hour != 0)
-                    {
-                        classDateTimes.Add(new ClassDateHourDto()
-                        {
-                            DateTime = dateTime,
-                            Hour = hour,
-                        });
-                        if (sessionItem.Category != ClassSessionCategory.Lab)
-                            totalHour -= hour;
-                        if (totalHour <= 0)
-                            break;
-
-                    }
+                    continue;
                 }
-                count++;
+
+                if (hour != 0)
+                {
+                    classDateTimes.Add(new ClassDateHourDto()
+                    {
+                        DateTime = dateTime,
+                        Hour = hour,
+                    });
+                    if (sessionItem.Category != ClassSessionCategory.Lab)
+                        totalHour -= hour;
+                    if (totalHour <= 0)
+                        break;
+
+                }
             }
+            count++;
         }
-        else
-        {
-            classDateTimes = @class.ClassSessions.Select(c => new ClassDateHourDto()
-            {
-                DateTime = c.Date,
-                Hour = c.TotalHours,
-            }).ToList();
-
-        }
-
-
 
         classDateTimes = classDateTimes.OrderBy(c => c.DateTime).ToList();
 
@@ -142,6 +128,7 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             item.SubModules = item.SubModules?
                .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
         }
+
 
 
         foreach (GetClassModuleResponseDto item in modulesReponse)
@@ -166,46 +153,26 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
             }
 
         }
-        if (modulesReponse[0].StartDate == null)
-        {
 
-            modulesReponse[0].StartDate = classDateTimes.First().DateTime;
-        }
-        if (modulesReponse.Last().EndDate == null)
-        {
-            modulesReponse.Last().EndDate = classDateTimes.Last().DateTime;
-        }
-
-        //modulların sayı qədər dövr etsin
-
+        modulesReponse[0].StartDate = classDateTimes.First().DateTime;
+        modulesReponse.Last().EndDate = classDateTimes.Last().DateTime;
 
         for (int i = 0; i < modulesReponse.Count; i++)
         {
-            //modullun sub modullu varsa daxil olsun
             if (modulesReponse[i].SubModules != null)
             {
-                //modulların sub modulda dövr etsin
                 for (int j = 0; j < modulesReponse[i].SubModules!.Count; j++)
                 {
                     int subModuleSum = 0;
 
-                    //moddulun ilk submodulu onun start ilə bərabər olsun. 
-
                     if (i == 0)
                     {
-                        // ilk dÖvrdə ilk modulun start date olduğu üçün onu götürsün.
-                        if (modulesReponse[i].SubModules![0].StartDate == null)
-                        {
-                            modulesReponse[i].SubModules![0].StartDate = modulesReponse[0].StartDate;
-                        }
+                        modulesReponse[i].SubModules![0].StartDate = @class.StartDate;
                     }
                     else
                     {
-                        //digər dövlərdə bir əvvəli modulun ən sonuncusnun end date götürsün
-                        if (modulesReponse[i].SubModules![j].StartDate == null)
-                        {
-                            modulesReponse[i].SubModules![j].StartDate = modulesReponse[i - 1].SubModules![^1].EndDate;
-                        }
+
+                        modulesReponse[i].SubModules![j].StartDate = modulesReponse[i - 1].SubModules![^1].EndDate;
                     }
                     if (j != 0)
                     {
@@ -219,10 +186,8 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                             //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
                             if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
                             {
-                                if (modulesReponse[i].SubModules![j].EndDate == null)
-                                {
-                                    modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
-                                }
+
+                                modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
                                 if (j > 0)
                                 {
                                     modulesReponse[i].SubModules![j].StartDate = modulesReponse[i].SubModules![j - 1].EndDate;
@@ -243,31 +208,30 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
                             //əgər toplam saat subModules saatından böyük olarsa o zaman daxil olsun
                             if (subModuleSum >= modulesReponse[i].SubModules![j].Hours)
                             {
-                                if (modulesReponse[i].SubModules![j].EndDate == null)
-                                {
-                                    modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
-                                }
+
+                                modulesReponse[i].SubModules![j].EndDate = classDateHour.DateTime;
                                 subModuleSum = 0;
                                 break;
                             }
                         }
                     }
+
                 }
             }
         }
 
 
 
-        if (modulesReponse[0].StartDate == null)
-        {
-            modulesReponse[0].StartDate = classDateTimes.First().DateTime;
-        }
+        modulesReponse[0].StartDate = @class.StartDate;
+        // modulesReponse[^1].EndDate = @class.EndDate;
+        modulesReponse[^1].SubModules!.Last().EndDate = @class.EndDate;
+        modulesReponse[0].SubModules![0].StartDate = @class.StartDate;
 
 
         foreach (GetClassModuleResponseDto moduleItem in modulesReponse)
         {
-            moduleItem.StartDate = moduleItem.SubModules?.Min(c => c.StartDate);
             moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
+            moduleItem.StartDate = moduleItem.SubModules?.Min(c => c.StartDate);
         }
 
 
@@ -308,24 +272,24 @@ internal class GetClassWorkersModulesQueryHandler : IRequestHandler<GetClassWork
 
         if (extraModulesResponse.Count == 0)
         {
-            modulesReponse.Last().EndDate = classDateTimes.Last().DateTime;
+            modulesReponse.Last().EndDate = @class.EndDate;
             if (modulesReponse.Last().SubModules != null)
             {
-                modulesReponse.Last().SubModules.Last().EndDate = classDateTimes.Last().DateTime;
+                modulesReponse.Last().SubModules.Last().EndDate = @class.EndDate;
             }
         }
         else
         {
-            extraModulesResponse.OrderByDescending(c => c.EndDate).First().EndDate = classDateTimes.Last().DateTime;
+            extraModulesResponse.OrderByDescending(c => c.EndDate).First().EndDate = @class.EndDate;
         }
 
 
 
-        foreach (GetClassModuleResponseDto moduleItem in modulesReponse)
-        {
-            moduleItem.StartDate = moduleItem.SubModules?.Min(c => c.StartDate);
-            moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
-        }
+        // foreach (GetClassModuleResponseDto moduleItem in modulesReponse)
+        // {
+        //     moduleItem.StartDate = moduleItem.SubModules?.Min(c => c.StartDate);
+        //     moduleItem.EndDate = moduleItem.SubModules?.Max(c => c.EndDate);
+        // }
 
         return new GetAllClassModuleDto()
         {
