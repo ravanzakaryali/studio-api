@@ -5,17 +5,17 @@ namespace Space.WebAPI.Controllers;
 public class FinanceController : BaseApiController
 {
 
-    // [HttpGet("report")]
-    // [ProducesResponseType(StatusCodes.Status200OK)]
-    // [ProducesDefaultResponseType]
-    // public async Task<IActionResult> GetReport([FromQuery] GetReportRequestDto request)
-    // {
-    //     var report = await Mediator.Send(new GetReportQuery()
-    //     {
-    //         StartDate = request.StartDate,
-    //         EndDate = request.EndDate
-    //     });
+    [HttpGet("report")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> GetReport([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    {
+        var report = await Mediator.Send(new GetReportQuery()
+        {
+            StartDate = startDate,
+            EndDate = endDate
+        });
 
-    //     return Ok(report);
-    // }
+        return Ok(report);
+    }
 }
