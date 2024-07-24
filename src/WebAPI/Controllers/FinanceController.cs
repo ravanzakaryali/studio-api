@@ -8,12 +8,12 @@ public class FinanceController : BaseApiController
     [HttpGet("report")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> GetReport([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    public async Task<IActionResult> GetReport([FromQuery] MonthOfYear? month, [FromQuery] string? role)
     {
         var report = await Mediator.Send(new GetReportQuery()
         {
-            StartDate = startDate,
-            EndDate = endDate
+            Role = role,
+            Month = month
         });
 
         return Ok(report);
