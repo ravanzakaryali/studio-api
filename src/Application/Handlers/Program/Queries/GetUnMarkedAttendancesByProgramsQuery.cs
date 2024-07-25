@@ -91,7 +91,7 @@ internal class GetUnMarkedAttendancesByProgramsHandler : IRequestHandler<GetUnMa
             };
         })
         .OrderByDescending(dto => dto.TotalUnMarkedAttendancesCount)
-        .ThenBy(dto => dto.TotalAttendancePercentage)
+        .ThenByDescending(dto => dto.TotalAttendancePercentage)
         .ToList();
     }
 }
