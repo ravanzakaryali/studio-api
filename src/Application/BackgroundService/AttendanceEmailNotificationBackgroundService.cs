@@ -46,7 +46,7 @@ public class NotificationBackgroundService : BackgroundService
 
             List<Worker> workers = await dbContext.Workers.ToListAsync(stoppingToken);
 
-            foreach (var classEntity in classes)
+            foreach (Class classEntity in classes)
             {
                 DateOnly startDateClass = classEntity.StartDate;
                 DateOnly endDateClass = classEntity.EndDate ?? dateNow;
@@ -63,61 +63,64 @@ public class NotificationBackgroundService : BackgroundService
                     }
                 }
 
-                foreach (DateOnly date in relevantDates)
+                if (!relevantDates.Contains(dateNow))
                 {
-                    foreach (SessionDetail detail in classEntity.Session.Details)
+                    continue;
+                }
+                SessionDetail? session = classEntity.Session.Details.Where(sd => sd.DayOfWeek == dateNow.DayOfWeek).FirstOrDefault();
+                if (session == null && holidayService.Contains(dateNow))
+                {
+                    continue;
+                }
+                if (session?.EndTime.Hour != hour)
+                {
+                    continue;
+                }
+                ClassTimeSheet? classTimeSheet = classTimeSheets
+                    .Where(cts => cts.ClassId == classEntity.Id).FirstOrDefault();
+
+                if (classTimeSheet == null)
+                {
+                    ClassModulesWorker? mentor = classModulesWorkers
+                        .Where(c => c.ClassId == classEntity.Id && c.StartDate <= dateNow && c.EndDate >= dateNow && c.Role!.Name == "mentor")
+                        .FirstOrDefault();
+
+                    if (mentor == null)
                     {
-                        if (detail.EndTime.Hour == hour)
-                        {
-                            ClassTimeSheet? classTimeSheet = classTimeSheets
-                                .Where(cts => cts.ClassId == classEntity.Id && cts.Date == date).FirstOrDefault();
-
-                            if (classTimeSheet == null)
-                            {
-                                ClassModulesWorker? mentor = classModulesWorkers
-                                    .Where(c => c.ClassId == classEntity.Id && c.StartDate <= dateNow && c.EndDate >= dateNow && c.Role!.Name == "Mentor")
-                                    .FirstOrDefault();
-
-                                if (mentor == null)
-                                {
-                                    continue;
-                                }
-
-                                Worker? worker = workers
-                                    .Where(c => c.Id == mentor.WorkerId)
-                                    .FirstOrDefault();
-
-                                if (worker == null)
-                                {
-                                    continue;
-                                }
-
-                                ClassModulesWorker? teacher = classModulesWorkers
-                                    .Where(c => c.ClassId == classEntity.Id && c.StartDate <= dateNow && c.EndDate >= dateNow && c.Role!.Name == "Muellim")
-                                    .FirstOrDefault();
-
-                                if (teacher == null)
-                                {
-                                    continue;
-                                }
-
-                                Worker? workerTeacher = workers
-                                    .Where(c => c.Id == teacher.WorkerId)
-                                    .FirstOrDefault();
-
-                                if (workerTeacher == null)
-                                {
-                                    continue;
-                                }
-
-                                unitOfWorkService.TelegramService.SendMessage($"Davamiyyət {DateTime.Now.ToString("dddd, dd MMMM yyyy")} : {mentor.Class.Name} \n Mentor: {worker.Name} {worker.Email}");
-                                unitOfWorkService.TelegramService.SendMessage($"Davamiyyət {DateTime.Now.ToString("dddd, dd MMMM yyyy")}: {teacher.Class.Name} \n Müellim: {workerTeacher.Name} {workerTeacher.Email}");
-
-                                // await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", mentor.Class.Name, worker.Name ?? "", worker.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
-                                // await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", teacher.Class.Name, workerTeacher.Name ?? "", workerTeacher.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
-                            }
-                        }
+                        continue;
                     }
+
+                    Worker? worker = workers
+                        .Where(c => c.Id == mentor.WorkerId)
+                        .FirstOrDefault();
+
+                    if (worker == null)
+                    {
+                        continue;
+                    }
+
+                    ClassModulesWorker? teacher = classModulesWorkers
+                        .Where(c => c.ClassId == classEntity.Id && c.StartDate <= dateNow && c.EndDate >= dateNow && c.Role!.Name == "muellim")
+                        .FirstOrDefault();
+
+                    if (teacher == null)
+                    {
+                        continue;
+                    }
+
+                    Worker? workerTeacher = workers
+                        .Where(c => c.Id == teacher.WorkerId)
+                        .FirstOrDefault();
+
+                    if (workerTeacher == null)
+                    {
+                        continue;
+                    }
+
+                    unitOfWorkService.TelegramService.SendMessage($"Davamiyyət {DateTime.Now:dddd, dd MMMM yyyy}: {teacher.Class.Name} \n Müellim: {workerTeacher.Name} {workerTeacher.Email}");
+
+                    await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", mentor.Class.Name, worker.Name ?? "", worker.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
+                    await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", teacher.Class.Name, workerTeacher.Name ?? "", workerTeacher.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
                 }
             }
 
