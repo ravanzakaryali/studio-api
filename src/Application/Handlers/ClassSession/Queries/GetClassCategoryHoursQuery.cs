@@ -56,7 +56,7 @@ internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCateg
             .ToListAsync(cancellationToken: cancellationToken);
 
         IEnumerable<GetClassSessionCategoryHoursResponseDto> response = new List<GetClassSessionCategoryHoursResponseDto>();
-        if (classTimeSheets.Count == 0)
+        if (classTimeSheets.Count == 0 && sessions.Count == 1)
         {
             response = sessions.Select(c => new GetClassSessionCategoryHoursResponseDto()
             {
@@ -65,17 +65,38 @@ internal class GetClassCategoryHoursQueryHandler : IRequestHandler<GetClassCateg
                 Hour = c.TotalHours
             });
         }
-        else
+        else if (classTimeSheets.Count == 0 && sessions.Count > 1)
+        {
+            sessions.ForEach(c =>
+            {
+                response = response.Append(new GetClassSessionCategoryHoursResponseDto()
+                {
+                    Category = c.Category,
+                    Status = ClassSessionStatus.Offline,
+                    Hour = sessions.FirstOrDefault(d => d.Category == c.Category)!.TotalHours
+                });
+            });
+        }
+        else if (classTimeSheets.Count == 1)
         {
             response = sessions
             .Select(c => new GetClassSessionCategoryHoursResponseDto()
             {
-                Category = c.Category,
-                Status = classTimeSheets
-                    .Where(d => d.Category == c.Category)
-                    .Select(d => d.Status)
-                    .FirstOrDefault(),
+                Category = classTimeSheets.FirstOrDefault()!.Category,
+                Status = classTimeSheets.FirstOrDefault()!.Status,
                 Hour = c.TotalHours
+            });
+        }
+        else
+        {
+            classTimeSheets.ForEach(c =>
+            {
+                response = response.Append(new GetClassSessionCategoryHoursResponseDto()
+                {
+                    Category = c.Category,
+                    Status = c.Status,
+                    Hour = sessions.FirstOrDefault(d => d.Category == c.Category)!.TotalHours
+                });
             });
 
         }
