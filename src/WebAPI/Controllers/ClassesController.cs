@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Space.WebAPI.Controllers.v2;
 
 [Route("api/[controller]")]
@@ -106,7 +108,7 @@ public class ClassesController : BaseApiController
         }));
 
     // GET: api/Classes/999/unmarked-attendance-day - Returns the days that the class has not been marked
-    [HttpGet("{id}/unmarked-attendance-days")] 
+    [HttpGet("{id}/unmarked-attendance-days")]
     public async Task<IActionResult> GetUnnotedAttendanceDays([FromRoute] int id)
             => Ok(await Mediator.Send(new GetUnattendedDaysByClassQuery()
             {
@@ -328,4 +330,32 @@ public class ClassesController : BaseApiController
     // public async Task<IActionResult> GetAllClassSessions([FromRoute] int id)
     //     => Ok(await Mediator.Send(new GetAllClassSessionsByClassQuery(id)));
     #endregion
+
+
+    [HttpPost("classes")]
+    public async Task<IActionResult> CreateClass([FromBody] List<UpdateClass> request)
+    {
+        List<E.Class> classes = await SpaceDbContext.Classes.ToListAsync();
+
+        foreach (UpdateClass item in request)
+        {
+            E.Class? classItem = classes.FirstOrDefault(x => x.Id == item.Id);
+            if (classItem != null)
+            {
+                classItem.EndDate = item.EndDate != null ? DateOnly.Parse(item.EndDate) : null;
+            }
+            else
+            {
+                Console.WriteLine("Class not found", item.Id);
+            }
+        }
+        await SpaceDbContext.SaveChangesAsync();
+
+        return NoContent();
+    }
+}
+public class UpdateClass
+{
+    public int Id { get; set; }
+    public string? EndDate { get; set; }
 }

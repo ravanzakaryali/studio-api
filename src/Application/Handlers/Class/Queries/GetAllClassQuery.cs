@@ -49,7 +49,7 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         }
         else
         {
-            query = query.Where(c => (now > c.StartDate && c.ClassModulesWorkers.Count == 0) || (now < c.EndDate && c.ClassExtraModulesWorkers.Count == 0) || (now <= c.StartDate && c.ClassExtraModulesWorkers.Count == 0));
+            query = query.Where(c => (now > c.StartDate && c.ClassModulesWorkers.Count == 0) || (now < c.StartDate && c.ClassExtraModulesWorkers.Count == 0));
         }
         if (request.StartDate is not null)
         {
@@ -133,6 +133,10 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         if (request.EndAttendancePercentage != null)
         {
             classesResponse = classesResponse.Where(c => c.TotalHour <= request.StartAttendancePercentage);
+        }
+        if (request.Status == ClassStatus.New)
+        {
+            classesResponse = classesResponse.Where(c => !c.Workers.Any());
         }
         return classesResponse.OrderByDescending(c => c.CurrentHour);
     }
