@@ -142,7 +142,6 @@ builder.Services.Configure<ClientRateLimitOptions>(options =>
 var app = builder.Build();
 
 app.UseCors();
-
 app.UseTokenAuthetication();
 
 app.UseChangeTokenAuthetication();
