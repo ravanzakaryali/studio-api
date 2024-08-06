@@ -119,8 +119,8 @@ public class NotificationBackgroundService : BackgroundService
 
                     unitOfWorkService.TelegramService.SendMessage($"Davamiyyət {DateTime.Now:dddd, dd MMMM yyyy}: {teacher.Class.Name} \n Müellim: {workerTeacher.Name} {workerTeacher.Email}");
 
-                    await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", mentor.Class.Name, worker.Name ?? "", worker.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
-                    await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", teacher.Class.Name, workerTeacher.Name ?? "", workerTeacher.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
+                    // await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", mentor.Class.Name, worker.Name ?? "", worker.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
+                    // await unitOfWorkService.EmailService.SendMessageAsync("https://studio.code.az", teacher.Class.Name, workerTeacher.Name ?? "", workerTeacher.Email, "EmailAttendanceTemplate.html", "Studio - Davamiyyət");
                 }
             }
 
