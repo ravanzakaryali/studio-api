@@ -1,4 +1,4 @@
-namespace Space.Application.Handlers.Queries;
+namespace Space.Application.Handlers;
 
 public class UpdatePermissionGroupAppModulesAccessCommand : IRequest
 {

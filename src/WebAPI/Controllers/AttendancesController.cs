@@ -2,6 +2,16 @@ namespace Space.WebAPI.Controllers;
 
 public class AttendancesController : BaseApiController
 {
+
+    [HttpPost("start")]
+    [Authorize]
+    public async Task<IActionResult> StartAttendance([FromBody] StartAttendanceRequestDto request)
+    {
+        await Mediator.Send(new StartAttendanceCommand()
+        {
+        });
+        return NoContent();
+    }
     //POST: api/attendance - Create Attendances
     [HttpPost]
     [Authorize]
