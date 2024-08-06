@@ -9,7 +9,7 @@ public class SubModuleDto
     public double Hours { get; set; }
     public string? Version { get; set; }
     public int? TopModuleId { get; set; }
-    public bool IsAnket { get; set; }
+    public bool IsQuestionnaire { get; set; }
 }
 public class SubModuleDtoWithWorker : SubModuleDto
 {

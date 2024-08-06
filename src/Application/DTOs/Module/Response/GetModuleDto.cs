@@ -6,6 +6,6 @@ public class GetModuleDto
     public string Name { get; set; } = null!;
     public double Hours { get; set; }
     public string? Version { get; set; }
-    public bool IsAnket { get; set; }
+    public bool IsQuestionnaire { get; set; }
     public IEnumerable<SubModuleDto>? SubModules { get; set; } 
 }

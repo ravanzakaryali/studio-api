@@ -10,7 +10,7 @@ public class Module : BaseAuditableEntity
     public double Hours { get; set; }
     public int? ProgramId { get; set; }
     public Program? Program { get; set; }
-    public bool IsAnket { get; set; }
+    public bool IsQuestionnaire { get; set; }
     public string Name { get; set; } = null!;
     public string? Version { get; set; }
     public int? TopModuleId { get; set; }
