@@ -15,6 +15,7 @@ public class ClassesController : BaseApiController
                 Id = id,
             }));
 
+
     // GET: api/Classes - Returns the classes according to the status of the class (Active, New, Completed) and other filters
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<GetClassModuleWorkers>))]
