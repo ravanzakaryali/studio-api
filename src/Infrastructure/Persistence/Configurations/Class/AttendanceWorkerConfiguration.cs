@@ -6,8 +6,10 @@ public class AttendanceWorkerConfiguration : IEntityTypeConfiguration<Attendance
     {
         builder.ConfigureBaseAuditableEntity();
 
-        builder
-            .Property(r => r.AttendanceStatus)
-            .HasConversion(new EnumToStringConverter<AttendanceStatus>());
+        builder.Property(e => e.StartTime)
+               .HasConversion(new TimeOnlyDbConverter());
+
+        builder.Property(e => e.EndTime)
+               .HasConversion(new TimeOnlyNullableDbConverter());
     }
 }

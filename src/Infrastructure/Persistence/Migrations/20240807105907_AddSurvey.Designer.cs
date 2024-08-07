@@ -12,8 +12,8 @@ using Space.Infrastructure.Persistence;
 namespace Space.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SpaceDbContext))]
-    [Migration("20240806111937_AddQuestionnaire")]
-    partial class AddQuestionnaire
+    [Migration("20240807105907_AddSurvey")]
+    partial class AddSurvey
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -253,7 +253,6 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("StudyId")
@@ -279,10 +278,6 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("AttendanceStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("ClassTimeSheetId")
                         .HasColumnType("int");
 
@@ -293,6 +288,9 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("Getutcdate()");
+
+                    b.Property<TimeSpan?>("EndTime")
+                        .HasColumnType("time");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -315,6 +313,9 @@ namespace Space.Infrastructure.Persistence.Migrations
 
                     b.Property<int?>("RoleId")
                         .HasColumnType("int");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
 
                     b.Property<int>("TotalHours")
                         .HasColumnType("int");
@@ -637,7 +638,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<TimeSpan>("EndTime")
+                    b.Property<TimeSpan?>("EndTime")
                         .HasColumnType("time");
 
                     b.Property<bool>("IsActive")
@@ -1024,7 +1025,7 @@ namespace Space.Infrastructure.Persistence.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<bool>("IsQuestionnaire")
+                    b.Property<bool>("IsSurvey")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);

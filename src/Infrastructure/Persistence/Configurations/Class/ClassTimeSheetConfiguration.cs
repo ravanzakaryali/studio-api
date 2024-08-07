@@ -14,10 +14,10 @@ public class ClassTimeSheetConfiguration : IEntityTypeConfiguration<ClassTimeShe
             .HasConversion(new EnumToStringConverter<ClassSessionStatus>());
 
         builder.Property(e => e.StartTime)
-               .HasConversion(new TimeOnlyDbConverter());
+               .HasConversion(new TimeOnlyNullableDbConverter());
 
         builder.Property(e => e.EndTime)
-               .HasConversion(new TimeOnlyDbConverter());
+               .HasConversion(new TimeOnlyNullableDbConverter());
 
         builder.HasMany(c => c.Attendances)
             .WithOne(c => c.ClassTimeSheets)

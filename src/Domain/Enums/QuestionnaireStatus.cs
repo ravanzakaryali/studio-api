@@ -1,4 +1,4 @@
-public enum QuestionnaireStatus
+public enum SurveyStatus
 {
     NotStarted = 0,
     InProgress = 1,

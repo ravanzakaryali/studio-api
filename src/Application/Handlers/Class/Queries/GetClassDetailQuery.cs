@@ -35,13 +35,14 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
         {
             var total = item.TotalHours;
             var totalAttendance = item.Attendances.Average(c => c.TotalAttendanceHours);
-            list.Add(totalAttendance * 100 / total);
+            // list.Add(totalAttendance * 100 / total);
+            //todo: fix this
         }
 
         DateOnly startDate = @class.StartDate;
         DateOnly? endDate = @class.EndDate;
 
-
+        
         return new GetClassDetailResponse()
         {
             Session = new GetSessionResponseDto()
@@ -54,9 +55,9 @@ internal class GetClassDetaulQueryHandler : IRequestHandler<GetClassDetailQuery,
                 Id = @class.Program.Id,
                 Name = @class.Program.Name,
             },
-            CurrentHours = classTimeSheets
-            .Where(c => c.Status != ClassSessionStatus.Cancelled)
-            .Sum(c => c.TotalHours),
+            // CurrentHours = classTimeSheets
+            // .Where(c => c.Status != ClassSessionStatus.Cancelled)
+            // .Sum(c => c.TotalHours),
             TotalHours = @class.Program.TotalHours,
             Name = @class.Name,
             AttendanceRate = Math.Round(list.Count > 0 ? list.Average() : 0, 2),

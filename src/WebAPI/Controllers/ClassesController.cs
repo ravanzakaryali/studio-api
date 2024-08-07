@@ -16,6 +16,13 @@ public class ClassesController : BaseApiController
             }));
 
 
+    [HttpGet("survey")]
+    [Authorize]
+    public async Task<IActionResult> GetClassSurvey()
+    {
+        return Ok(await Mediator.Send(new GetClassSurveyQuery()));
+    }
+
     // GET: api/Classes - Returns the classes according to the status of the class (Active, New, Completed) and other filters
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<GetClassModuleWorkers>))]

@@ -7,7 +7,8 @@ public class AttendanceWorker : BaseAuditableEntity
     public Worker Worker { get; set; } = null!;
     public int TotalHours { get; set; }
     public int TotalMinutes { get; set; }
-    public AttendanceStatus AttendanceStatus { get; set; }
+    public TimeOnly StartTime { get; set; }
+    public TimeOnly? EndTime { get; set; }
     public int? RoleId { get; set; }
     public Role? Role { get; set; }
     public int ClassTimeSheetId { get; set; }

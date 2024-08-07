@@ -14,7 +14,7 @@ internal class ModuleConfigurations : IEntityTypeConfiguration<Module>
 
 
         builder
-            .Property(m => m.IsQuestionnaire)
+            .Property(m => m.IsSurvey)
             .HasDefaultValue(false);
 
         builder

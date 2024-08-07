@@ -25,7 +25,7 @@ internal class GetClassSessionsByDateQueryHandler : IRequestHandler<GetClassSess
         IEnumerable<GetClassSessionsByDateResponseDto> response = classTimeSheets.Select(q => new GetClassSessionsByDateResponseDto()
         {
             StartTime = q.StartTime,
-            EndTime = q.EndTime,
+            EndTime = q.EndTime ?? null,
             Status = q.Status,
             TotalHour = q.TotalHours,
             Id = q.Id,

@@ -1,8 +1,7 @@
 ﻿namespace Space.Application.DTOs;
 
-public class GetClassDetailResponse
+public class GetClassDetailResponse : GetClassDto
 {
-    public string Name { get; set; } = null!;
     public DateOnly StartDate { get; set; }
     public DateOnly? EndDate { get; set; }
     public int TotalHours { get; set; }

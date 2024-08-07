@@ -131,7 +131,6 @@ internal class UpdateClassSessionAttendanceCommandHandler
                                     TotalHours = wa.TotalHours,
                                     TotalMinutes = wa.TotalMinutes,
                                     RoleId = wa.RoleId,
-                                    AttendanceStatus = wa.AttendanceStatus,
                                 }
                         )
                         .ToList(),

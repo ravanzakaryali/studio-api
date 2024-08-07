@@ -35,13 +35,13 @@ internal class GetModulesByProgramHandler : IRequestHandler<GetModulesByProgramQ
             Hours = m.Hours,
             Name = m.Name,
             Version = m.Version,
-            IsQuestionnaire = m.IsQuestionnaire,
+            IsSurvey = m.IsSurvey,
             SubModules = m.SubModules?.Select(sm => new SubModuleDto()
             {
                 Hours = sm.Hours,
                 Id = sm.Id,
                 Name = sm.Name,
-                IsQuestionnaire = sm.IsQuestionnaire,
+                IsSurvey = sm.IsSurvey,
                 TopModuleId = sm.TopModuleId,
                 Version = sm.Version
             })

@@ -7,11 +7,16 @@ public class AttendancesController : BaseApiController
     [Authorize]
     public async Task<IActionResult> StartAttendance([FromBody] StartAttendanceRequestDto request)
     {
-        await Mediator.Send(new StartAttendanceCommand()
+        return Ok(await Mediator.Send(new StartAttendanceCommand()
         {
-        });
-        return NoContent();
+
+            ClassId = request.ClassId,
+            SessionCategory = request.SessionCategory,
+            HeldModules = request.HeldModules,
+            WorkerId = request.WorkerId
+        }));
     }
+
     //POST: api/attendance - Create Attendances
     [HttpPost]
     [Authorize]

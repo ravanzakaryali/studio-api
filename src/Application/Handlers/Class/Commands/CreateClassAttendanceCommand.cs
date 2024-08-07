@@ -123,7 +123,6 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                         TotalHours = wa.TotalHours,
                         TotalMinutes = wa.TotalMinutes,
                         RoleId = wa.RoleId,
-                        AttendanceStatus = wa.AttendanceStatus,
                     }).ToList(),
 
                     TotalHours = classSession.TotalHours,

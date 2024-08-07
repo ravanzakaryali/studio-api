@@ -10,7 +10,7 @@ public class ClassTimeSheet : BaseAuditableEntity, ICloneable
     }
     public DateOnly Date { get; set; }
     public TimeOnly StartTime { get; set; }
-    public TimeOnly EndTime { get; set; }
+    public TimeOnly? EndTime { get; set; }
     public int TotalHours { get; set; }
     public ClassSessionStatus Status { get; set; }
     public string? Note { get; set; }

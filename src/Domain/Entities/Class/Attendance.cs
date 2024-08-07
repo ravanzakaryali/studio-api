@@ -8,6 +8,6 @@ public class Attendance : BaseAuditableEntity
     public int StudyId { get; set; }
     public Study Student { get; set; } = null!;
     public int TotalAttendanceHours { get; set; }
-    public StudentStatus Status { get; set; }
+    public StudentStatus? Status { get; set; }
 
 }
