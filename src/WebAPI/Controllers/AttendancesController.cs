@@ -12,24 +12,23 @@ public class AttendancesController : BaseApiController
 
             ClassId = request.ClassId,
             SessionCategory = request.SessionCategory,
-            HeldModules = request.HeldModules,
+            HeldModulesIds = request.HeldModulesIds,
             WorkerId = request.WorkerId
         }));
     }
+
 
     //POST: api/attendance - Create Attendances
     [HttpPost]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> CreateAttendances([FromBody] CreateClassSessionAttendanceRequestDto request)
+    public async Task<IActionResult> CreateAttendances([FromBody] CreateAttendanceRequestDto request)
     {
-        await Mediator.Send(new CreateClassSessionAttendanceCommand()
+        await Mediator.Send(new InsertAttendanceCommand()
         {
-            ClassId = request.ClassId,
-            HeldModules = request.HeldModules,
-            Sessions = request.Sessions,
-            Date = DateOnly.FromDateTime(DateTime.Now)
+            ClassTimeSheetId = request.ClassTimeSheetsId,
+            Attendances = request.Attendances
         });
         return NoContent();
     }

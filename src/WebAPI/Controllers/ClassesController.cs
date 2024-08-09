@@ -15,6 +15,16 @@ public class ClassesController : BaseApiController
                 Id = id,
             }));
 
+    [HttpGet("{id}/sessions")]
+    [Authorize]
+    public async Task<IActionResult> GetClassSessions([FromRoute] int id, [FromQuery] WorkerType workerType)
+    {
+        return Ok(await Mediator.Send(new GetAttendnaceSessionByClassQuery()
+        {
+            ClassId = id,
+            WorkerType = workerType
+        }));
+    }
 
     [HttpGet("survey")]
     [Authorize]

@@ -5,7 +5,7 @@ public class StartAttendanceCommand : IRequest<GetClassTimeSheetResponseDto>
 {
     public int ClassId { get; set; }
     public ClassSessionCategory SessionCategory { get; set; }
-    public ICollection<CreateAttendanceModuleRequestDto>? HeldModules { get; set; }
+    public ICollection<int>? HeldModulesIds { get; set; }
     public int WorkerId { get; set; }
 }
 internal class StartAttendanceCommandHandler : IRequestHandler<StartAttendanceCommand, GetClassTimeSheetResponseDto>
@@ -40,9 +40,9 @@ internal class StartAttendanceCommandHandler : IRequestHandler<StartAttendanceCo
             Category = request.SessionCategory,
         };
 
-        if (request.HeldModules != null && request.HeldModules.Count != 0)
+        if (request.HeldModulesIds != null && request.HeldModulesIds.Count != 0)
         {
-            List<int> requestModuleIds = request.HeldModules.Select(c => c.ModuleId).ToList();
+            List<int> requestModuleIds = request.HeldModulesIds.Select(c => c).ToList();
 
             List<Module> module = await _spaceDbContext.Modules
                 .Where(m => requestModuleIds.Contains(m.Id))
@@ -50,9 +50,9 @@ internal class StartAttendanceCommandHandler : IRequestHandler<StartAttendanceCo
             if (requestModuleIds.Count != module.Count) throw new NotFoundException("Modules not found");
 
             classTimeSheet.HeldModules = request
-                                             .HeldModules
+                                             .HeldModulesIds
                                              .Select(
-                                                 hm => new HeldModule() { ModuleId = hm.ModuleId, TotalHours = hm.TotalHours, }
+                                                 hm => new HeldModule() { ModuleId = hm, TotalHours = 0, }
                                              )
                                              .ToList();
         }

@@ -18,6 +18,7 @@ internal class GetClassSurveyQueryHandler : IRequestHandler<GetClassSurveyQuery,
         DateOnly now = DateOnly.FromDateTime(DateTime.Now);
 
         List<Class> query = await _spaceDbContext.Classes
+            .Include(c => c.Program)
             .Where(c => now >= c.StartDate && now <= c.EndDate && c.ClassModulesWorkers.Count > 0)
             .ToListAsync(cancellationToken: cancellationToken);
 
