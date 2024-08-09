@@ -6,8 +6,10 @@ public class ClassModulesWorkerConfiguration : IEntityTypeConfiguration<ClassMod
   {
     builder.ConfigureBaseAuditableEntity();
 
+    builder.Property(e => e.WorkerType)
+      .HasConversion(new EnumToStringConverter<WorkerType>())
+      .HasDefaultValue(WorkerType.Teacher);
 
-  
     builder.Property(e => e.EndDate)
       .HasConversion(new DateOnlyDbConverter());
 

@@ -35,18 +35,30 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
             category = ClassSessionCategory.Lab;
         }
 
-
-
-        ClassTimeSheet classTimeSheets = await _spaceDbContext.ClassTimeSheets
+        ClassTimeSheet? classTimeSheets = await _spaceDbContext.ClassTimeSheets
                         .Where(c => c.ClassId == @class.Id && c.Date == dateNow && c.Category == category)
                         .Include(c => c.HeldModules)
                         .ThenInclude(hm => hm.Module)
-                        .FirstOrDefaultAsync(cancellationToken: cancellationToken)
-            ?? throw new NotFoundException(nameof(ClassTimeSheet), request.ClassId);
+                        .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
+
+        ClassModulesWorker? classModulesWorker = await _spaceDbContext.ClassModulesWorkers
+            .Where(c => c.ClassId == @class.Id && c.StartDate <= dateNow && (c.EndDate == null || c.EndDate >= dateNow) && c.WorkerType == request.WorkerType)
+            .Include(c => c.Worker)
+            .Include(c => c.Role)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+        if (classModulesWorker == null)
+        {
+            classModulesWorker = await _spaceDbContext.ClassModulesWorkers
+            .Where(c => c.ClassId == @class.Id && c.WorkerType == request.WorkerType).FirstOrDefaultAsync(cancellationToken: cancellationToken);
+            if (classModulesWorker == null)
+            {
+                throw new NotFoundException(nameof(ClassModulesWorker), request.ClassId);
+            }
+        }
 
         IEnumerable<GetAllStudentByClassResponseDto> attendanceStudents = await _mediator.Send(new GetAllStudentsByClassQuery(request.ClassId, dateTimeNow));
-
 
         GetAttendanceSessionDto response = new()
         {
@@ -55,22 +67,32 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
                 Id = @class.Id,
                 Name = @class.Name,
             },
-            ClassTimeSheetId = classTimeSheets.Id,
-            EndTime = classTimeSheets.EndTime,
+            Students = attendanceStudents,
+            Worker = new UserDto()
+            {
+                Id = classModulesWorker.Worker.Id,
+                Name = classModulesWorker.Worker.Name,
+                Surname = classModulesWorker.Worker.Surname,
+                Email = classModulesWorker.Worker.Email,
+                WorkerType = classModulesWorker.WorkerType,
+            }
+        };
 
-            StartTime = classTimeSheets.StartTime,
-            Category = classTimeSheets.Category,
-            HeldModules = classTimeSheets.HeldModules.Select(hm => new GetHeldModulesDto()
+        if (classTimeSheets != null)
+        {
+            response.ClassTimeSheetId = classTimeSheets.Id;
+            response.StartTime = classTimeSheets.StartTime;
+            response.EndTime = classTimeSheets.EndTime;
+            response.Category = classTimeSheets.Category;
+            response.HeldModules = classTimeSheets.HeldModules.Select(hm => new GetHeldModulesDto()
             {
                 Id = hm.Id,
-                Name = hm.Module?.Name,
+                Name = hm.Module?.Name ?? "",
                 TotalHours = hm.TotalHours,
                 Version = hm.Module?.Version,
 
-            }),
-
-            Students = attendanceStudents
-        };
+            });
+        }
 
         return response;
 
