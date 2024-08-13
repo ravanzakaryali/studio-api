@@ -7,3 +7,10 @@ public class GetAttendanceRateByClassDto
     public ClassSessionStatus? Status { get; set; }
     public DateOnly Date { get; set; }
 }
+
+public class ClassAllSessionDto
+{
+    public DateOnly Date { get; set; }
+    public int TotalHours { get; set; }
+    public int ModuleId { get; set; }
+}

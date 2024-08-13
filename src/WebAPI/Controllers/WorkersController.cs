@@ -106,4 +106,12 @@ public class WorkersController : BaseApiController
         });
         return Ok();
     }
+    [HttpGet("excel/export")]
+    public async Task<IActionResult> ExportWorkersToExcel([FromQuery] WorkerType? workerType)
+    {
+        return Ok(await Mediator.Send(new ExportWorkersToExcelCommand()
+        {
+            WorkerType = workerType
+        }));
+    }
 }

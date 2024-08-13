@@ -4,6 +4,7 @@ public class GetAttendanceSessionDto
     public TimeOnly StartTime { get; set; }
     public TimeOnly? EndTime { get; set; }
     public int ClassTimeSheetId { get; set; }
+    public int TotalHours { get; set; }
     public ClassSessionCategory Category { get; set; }
     public UserDto Worker { get; set; } = null!;
     public IEnumerable<GetHeldModulesDto> HeldModules { get; set; } = null!;

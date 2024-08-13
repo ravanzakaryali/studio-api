@@ -25,7 +25,10 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
         DateTime dateTimeNow = DateTime.UtcNow.AddHours(4);
         DateOnly dateNow = DateOnly.FromDateTime(dateTimeNow);
 
-        Class? @class = await _spaceDbContext.Classes.FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken: cancellationToken) ??
+        Class? @class = await _spaceDbContext.Classes
+            .Include(c => c.Session)
+            .ThenInclude(s => s.Details)
+            .FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken: cancellationToken) ??
             throw new NotFoundException(nameof(Class), request.ClassId);
 
         ClassSessionCategory category = ClassSessionCategory.Theoric;
@@ -51,7 +54,9 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
         if (classModulesWorker == null)
         {
             classModulesWorker = await _spaceDbContext.ClassModulesWorkers
-            .Where(c => c.ClassId == @class.Id && c.WorkerType == request.WorkerType).FirstOrDefaultAsync(cancellationToken: cancellationToken);
+            .Where(c => c.ClassId == @class.Id && c.WorkerType == request.WorkerType)
+            .Include(c => c.Worker)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
             if (classModulesWorker == null)
             {
                 throw new NotFoundException(nameof(ClassModulesWorker), request.ClassId);
@@ -67,6 +72,7 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
                 Id = @class.Id,
                 Name = @class.Name,
             },
+            TotalHours = @class.Session.Details.FirstOrDefault(d => d.DayOfWeek == dateNow.DayOfWeek)?.TotalHours ?? 0,
             Students = attendanceStudents,
             Worker = new UserDto()
             {
