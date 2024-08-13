@@ -16,6 +16,15 @@ public class AttendancesController : BaseApiController
             WorkerId = request.WorkerId
         }));
     }
+    [HttpPost("end")]
+    [Authorize]
+    public async Task<IActionResult> EndAttendnace([FromBody] EndAttendanceRequestDto request)
+    {
+        return Ok(await Mediator.Send(new EndAttendanceCommand()
+        {
+            ClassTimeSheetId = request.ClassTimeSheetId
+        }));
+    }
 
 
     //POST: api/attendance - Create Attendances
