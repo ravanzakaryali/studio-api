@@ -1,9 +1,16 @@
 ﻿using Space.Domain.Entities;
 using System.Collections;
+using AutoMapper;
+using FluentValidation;
+using FluentValidation.Results;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Space.Application.Exceptions;
 
 namespace Space.Application.Handlers.Commands;
 
 public record CreateModuleWithProgramCommand(int ProgramId, IEnumerable<ModuleDto> Modules) : IRequest<IEnumerable<GetModuleDto>>;
+
 internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleWithProgramCommand, IEnumerable<GetModuleDto>>
 {
     readonly IUnitOfWork _unitOfWork;
@@ -23,24 +30,24 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleWithProg
     public async Task<IEnumerable<GetModuleDto>> Handle(CreateModuleWithProgramCommand request, CancellationToken cancellationToken)
     {
         List<Module> modules = _mapper.Map<List<Module>>(request.Modules)
-              .Select(m =>
-              {
-                  m.ProgramId = request.ProgramId;
-                  if (m.SubModules?.Count != 0)
-                  {
-                      m.Hours = m.SubModules!.Sum(subModule => subModule.Hours);
-                      m.SubModules = m.SubModules!.Select(sm =>
-                      {
-                          sm.ProgramId = request.ProgramId;
-                          return sm;
-                      }).ToList();
-                      return m;
-                  }
-                  else
-                  {
-                      return m;
-                  }
-              }).ToList();
+            .Select(m =>
+            {
+                m.ProgramId = request.ProgramId;
+                if (m.SubModules?.Count != 0)
+                {
+                    m.Hours = m.SubModules!.Sum(subModule => subModule.Hours);
+                    m.SubModules = m.SubModules!.Select(sm =>
+                    {
+                        sm.ProgramId = request.ProgramId;
+                        return sm;
+                    }).ToList();
+                    return m;
+                }
+                else
+                {
+                    return m;
+                }
+            }).ToList();
 
         Program? program = await _spaceDbContext.Programs
             .Include(c => c.Modules)
@@ -48,12 +55,35 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleWithProg
             .FirstOrDefaultAsync()
                 ?? throw new NotFoundException(nameof(Program), request.ProgramId);
 
-        if (program.Modules != null)
+        if (program == null)
         {
-            foreach (Module module in program.Modules)
-            {
-                module.IsDeleted = true;
-            }
+            throw new NotFoundException(nameof(Program), request.ProgramId);
+        }
+
+        List<Module> existingModules = await _spaceDbContext.Modules
+            .Where(m => m.ProgramId == request.ProgramId)
+            .ToListAsync();
+
+        List<Module> modulesToUpdate = modules.Where(m => existingModules.Any(em => em.Id == m.Id)).ToList();
+        List<Module> modulesToAdd = modules.Where(m => !existingModules.Any(em => em.Id == m.Id)).ToList();
+        List<Module> modulesToDelete = existingModules.Where(em => !modules.Any(m => m.Id == em.Id)).ToList();
+
+        foreach (Module? module in modulesToUpdate)
+        {
+            Module existingModule = existingModules.First(em => em.Id == module.Id);
+            existingModule.Name = module.Name;
+            existingModule.Hours = module.Hours;
+            existingModule.SubModules = module.SubModules;
+        }
+
+        if (modulesToAdd.Any())
+        {
+            await _spaceDbContext.Modules.AddRangeAsync(modulesToAdd);
+        }
+
+        if (modulesToDelete.Any())
+        {
+            _spaceDbContext.Modules.RemoveRange(modulesToDelete);
         }
 
         if (program.TotalHours != modules.Sum(m => m.Hours))
@@ -64,16 +94,9 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleWithProg
             };
             throw new ValidationException("Program hours error", failure);
         }
-        List<string> moduleNames = modules.Select(a => a.Name).ToList();
-        List<string> subModulesNames = modules.SelectMany(a => a.SubModules!.Select(a => a.Name)).ToList();
-        moduleNames.AddRange(subModulesNames);
 
-        //Module? modulesDb = await _unitOfWork.ModuleRepository.GetAsync(a => moduleNames.Contains(a.Name) && a.ProgramId == request.ProgramId);
-        //if (modulesDb != null) throw new Exception("Module already exsist");
-
-        await _spaceDbContext.Modules.AddRangeAsync(modules);
         await _spaceDbContext.SaveChangesAsync();
+
         return _mapper.Map<IEnumerable<GetModuleDto>>(modules);
     }
 }
-

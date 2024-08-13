@@ -1,11 +1,11 @@
 ﻿
 namespace Space.Application.Handlers;
 
-public class GetModulesByProgramQuery : IRequest<IEnumerable<GetModuleDto>>
+public class GetModulesByProgramQuery : IRequest<GetAllProgramResponseDto>
 {
     public int Id { get; set; }
 }
-internal class GetModulesByProgramHandler : IRequestHandler<GetModulesByProgramQuery, IEnumerable<GetModuleDto>>
+internal class GetModulesByProgramHandler : IRequestHandler<GetModulesByProgramQuery, GetAllProgramResponseDto>
 {
     readonly ISpaceDbContext _spaceDbContext;
 
@@ -14,8 +14,13 @@ internal class GetModulesByProgramHandler : IRequestHandler<GetModulesByProgramQ
     {
         _spaceDbContext = spaceDbContext;
     }
-    public async Task<IEnumerable<GetModuleDto>> Handle(GetModulesByProgramQuery request, CancellationToken cancellationToken)
+    public async Task<GetAllProgramResponseDto> Handle(GetModulesByProgramQuery request, CancellationToken cancellationToken)
     {
+        Program program = await _spaceDbContext.Programs
+            .Where(a => a.Id == request.Id)
+            .FirstOrDefaultAsync()
+                ?? throw new NotFoundException(nameof(Program), request.Id);
+
         List<Module> modules = await _spaceDbContext.Modules
            .Where(m => m.TopModuleId == null && m.ProgramId == request.Id)
            .Include(m => m.SubModules)
@@ -29,7 +34,7 @@ internal class GetModulesByProgramHandler : IRequestHandler<GetModulesByProgramQ
                .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null).ToList();
         }
 
-        return modules.Select(m => new GetModuleDto()
+        IEnumerable<GetModuleDto> responseModules = modules.Select(m => new GetModuleDto()
         {
             Id = m.Id,
             Hours = m.Hours,
@@ -46,5 +51,12 @@ internal class GetModulesByProgramHandler : IRequestHandler<GetModulesByProgramQ
                 Version = sm.Version
             })
         });
+        return new GetAllProgramResponseDto()
+        {
+            Id = program.Id,
+            Name = program.Name,
+            TotalHours = program.TotalHours,
+            Modules = responseModules
+        };
     }
 }
