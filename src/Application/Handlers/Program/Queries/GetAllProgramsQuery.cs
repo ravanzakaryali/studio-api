@@ -39,6 +39,7 @@ public class GetAllProgramsQueryHandler : IRequestHandler<GetAllProgramsQuery, I
                         Id = p.Id,
                         Version = p.Version,
                         Hours = p.Hours,
+                        IsSurvey = p.IsSurvey,
                         Name = p.Name,
                         TopModuleId = p.TopModuleId
                     })
