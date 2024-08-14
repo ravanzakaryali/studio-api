@@ -31,6 +31,7 @@ public class GetAllProgramsQueryHandler : IRequestHandler<GetAllProgramsQuery, I
                     Id = p.Id,
                     Name = p.Name,
                     Hours = p.Hours,
+                    IsSurvey = p.IsSurvey,
                     Version = p.Version!,
                     SubModules = p.SubModules?
                     .OrderBy(m => Version.TryParse(m.Version, out var parsedVersion) ? parsedVersion : null)
