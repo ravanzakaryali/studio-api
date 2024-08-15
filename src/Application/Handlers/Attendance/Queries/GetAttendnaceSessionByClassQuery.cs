@@ -40,6 +40,7 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
 
         ClassTimeSheet? classTimeSheets = await _spaceDbContext.ClassTimeSheets
                         .Where(c => c.ClassId == @class.Id && c.Date == dateNow && c.Category == category)
+                        .Include(c => c.AttendancesWorkers)
                         .Include(c => c.HeldModules)
                         .ThenInclude(hm => hm.Module)
                         .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -74,6 +75,7 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
             },
             TotalHours = @class.Session.Details.FirstOrDefault(d => d.DayOfWeek == dateNow.DayOfWeek)?.TotalHours ?? 0,
             Students = attendanceStudents,
+
             Worker = new UserDto()
             {
                 Id = classModulesWorker.Worker.Id,
@@ -89,6 +91,7 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
             response.ClassTimeSheetId = classTimeSheets.Id;
             response.StartTime = classTimeSheets.StartTime;
             response.EndTime = classTimeSheets.EndTime;
+            response.IsSurvey = classTimeSheets.AttendancesWorkers.Any(a => a.WorkerId == loginUserId);
             response.Category = classTimeSheets.Category;
             response.HeldModules = classTimeSheets.HeldModules.Select(hm => new GetHeldModulesDto()
             {
