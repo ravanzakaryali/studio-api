@@ -13,9 +13,19 @@ public class AttendancesController : BaseApiController
             ClassId = request.ClassId,
             SessionCategory = request.SessionCategory,
             HeldModulesIds = request.HeldModulesIds,
-            WorkerId = request.WorkerId
         }));
     }
+
+    [HttpPost("join")]
+    [Authorize]
+    public async Task<IActionResult> JoinAttendance([FromBody] JoinAttendanceRequestDto request)
+    {
+        return Ok(await Mediator.Send(new JoinAttendanceCommand()
+        {
+            ClassTimeSheetId = request.ClassTimeSheetId,
+        }));
+    }
+
     [HttpPost("end")]
     [Authorize]
     public async Task<IActionResult> EndAttendnace([FromBody] EndAttendanceRequestDto request)

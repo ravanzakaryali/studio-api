@@ -6,17 +6,24 @@ public class StartAttendanceCommand : IRequest<GetClassTimeSheetResponseDto>
     public int ClassId { get; set; }
     public ClassSessionCategory SessionCategory { get; set; }
     public ICollection<int>? HeldModulesIds { get; set; }
-    public int WorkerId { get; set; }
 }
 internal class StartAttendanceCommandHandler : IRequestHandler<StartAttendanceCommand, GetClassTimeSheetResponseDto>
 {
     readonly ISpaceDbContext _spaceDbContext;
-    public StartAttendanceCommandHandler(ISpaceDbContext spaceDbContext)
+    readonly ICurrentUserService _currentUserService;
+    public StartAttendanceCommandHandler(
+        ISpaceDbContext spaceDbContext,
+        ICurrentUserService currentUserService)
     {
         _spaceDbContext = spaceDbContext;
+        _currentUserService = currentUserService;
     }
     public async Task<GetClassTimeSheetResponseDto> Handle(StartAttendanceCommand request, CancellationToken cancellationToken)
     {
+        if (_currentUserService.UserId == null) throw new UnauthorizedAccessException();
+
+        Worker worker = await _spaceDbContext.Workers.FindAsync(_currentUserService.UserId)
+            ?? throw new NotFoundException(nameof(Worker), _currentUserService.UserId);
 
         DateTime nowDate = DateTime.Now;
         DateOnly now = DateOnly.FromDateTime(nowDate);
@@ -61,7 +68,7 @@ internal class StartAttendanceCommandHandler : IRequestHandler<StartAttendanceCo
 
         AttendanceWorker attendanceWorker = new()
         {
-            WorkerId = request.WorkerId,
+            WorkerId = worker.Id,
             StartTime = nowTime,
             TotalHours = 0,
             ClassTimeSheet = classTimeSheet,
