@@ -22,7 +22,8 @@ internal class StartAttendanceCommandHandler : IRequestHandler<StartAttendanceCo
     {
         if (_currentUserService.UserId == null) throw new UnauthorizedAccessException();
 
-        Worker worker = await _spaceDbContext.Workers.FindAsync(_currentUserService.UserId)
+        Worker worker = await _spaceDbContext.Workers.Where(w => w.Id == int.Parse(_currentUserService.UserId))
+                    .FirstOrDefaultAsync()
             ?? throw new NotFoundException(nameof(Worker), _currentUserService.UserId);
 
         DateTime nowDate = DateTime.Now;
