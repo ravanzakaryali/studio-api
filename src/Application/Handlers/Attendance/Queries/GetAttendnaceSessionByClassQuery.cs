@@ -91,7 +91,7 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
             response.ClassTimeSheetId = classTimeSheets.Id;
             response.StartTime = classTimeSheets.StartTime;
             response.EndTime = classTimeSheets.EndTime;
-            response.IsSurvey = classTimeSheets.AttendancesWorkers.Any(a => a.WorkerId == loginUserId);
+            response.IsJoined = classTimeSheets.AttendancesWorkers.Any(a => a.WorkerId == loginUserId);
             response.Category = classTimeSheets.Category;
             response.HeldModules = classTimeSheets.HeldModules.Select(hm => new GetHeldModulesDto()
             {
@@ -99,7 +99,6 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
                 Name = hm.Module?.Name ?? "",
                 TotalHours = hm.TotalHours,
                 Version = hm.Module?.Version,
-
             });
         }
 
