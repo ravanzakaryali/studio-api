@@ -20,7 +20,8 @@ internal class JoinAttendanceCommandHandler : IRequestHandler<JoinAttendanceComm
     {
         if (_currentUserService.UserId == null) throw new UnauthorizedAccessException();
 
-        Worker worker = await _spaceDbContext.Workers.FindAsync(_currentUserService.UserId)
+        Worker? worker = await _spaceDbContext.Workers.Where(c => c.Id == int.Parse(_currentUserService.UserId))
+                    .FirstOrDefaultAsync()
             ?? throw new NotFoundException(nameof(Worker), _currentUserService.UserId);
 
         DateTime nowDate = DateTime.Now;
