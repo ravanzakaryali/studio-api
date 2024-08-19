@@ -21,7 +21,6 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
     {
         int loginUserId = int.Parse(_currentUserService.UserId ?? throw new UnauthorizedAccessException());
 
-
         DateTime dateTimeNow = DateTime.UtcNow.AddHours(4);
         DateOnly dateNow = DateOnly.FromDateTime(dateTimeNow);
 
@@ -55,9 +54,9 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
         if (classModulesWorker == null)
         {
             classModulesWorker = await _spaceDbContext.ClassModulesWorkers
-            .Where(c => c.ClassId == @class.Id && c.WorkerType == request.WorkerType)
-            .Include(c => c.Worker)
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+                        .Where(c => c.ClassId == @class.Id && c.WorkerType == request.WorkerType)
+                        .Include(c => c.Worker)
+                        .FirstOrDefaultAsync(cancellationToken: cancellationToken);
             if (classModulesWorker == null)
             {
                 throw new NotFoundException(nameof(ClassModulesWorker), request.ClassId);
@@ -91,6 +90,7 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
             response.ClassTimeSheetId = classTimeSheets.Id;
             response.StartTime = classTimeSheets.StartTime;
             response.EndTime = classTimeSheets.EndTime;
+            response.FinishTime = classTimeSheets.StartTime.AddHours(classTimeSheets.TotalHours);
             response.IsJoined = classTimeSheets.AttendancesWorkers.Any(a => a.WorkerId == loginUserId);
             response.Category = classTimeSheets.Category;
             response.HeldModules = classTimeSheets.HeldModules.Select(hm => new GetHeldModulesDto()

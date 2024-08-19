@@ -26,7 +26,7 @@ internal class StartAttendanceCommandHandler : IRequestHandler<StartAttendanceCo
                     .FirstOrDefaultAsync()
             ?? throw new NotFoundException(nameof(Worker), _currentUserService.UserId);
 
-        DateTime nowDate = DateTime.Now;
+        DateTime nowDate = DateTime.Now.AddHours(4);
         DateOnly now = DateOnly.FromDateTime(nowDate);
         TimeOnly nowTime = TimeOnly.FromDateTime(nowDate);
 

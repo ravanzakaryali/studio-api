@@ -3,6 +3,7 @@ public class GetAttendanceSessionDto
     public GetClassAttendanceDto Class { get; set; } = null!;
     public TimeOnly? StartTime { get; set; }
     public TimeOnly? EndTime { get; set; }
+    public TimeOnly? FinishTime { get; set; }
     public int ClassTimeSheetId { get; set; }
     public int TotalHours { get; set; }
     public bool IsJoined { get; set; }
