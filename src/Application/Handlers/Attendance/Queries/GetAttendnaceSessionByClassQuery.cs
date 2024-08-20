@@ -28,6 +28,8 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
             .Include(c => c.Session)
             .ThenInclude(s => s.Details)
             .Include(c => c.Studies)
+            .ThenInclude(c => c.Student)
+            .ThenInclude(c => c!.Contact)
             .FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken: cancellationToken) ??
             throw new NotFoundException(nameof(Class), request.ClassId);
 
