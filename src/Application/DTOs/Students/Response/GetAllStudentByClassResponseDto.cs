@@ -16,7 +16,7 @@ public class GetAllStudentByClassResponseDto
 
 public class GetAllStudentByClassSessionResponseDto
 {
-    public int Id { get; set; }
+    public int? Id { get; set; }
     public int StudentId { get; set; }
     public string ClassName { get; set; } = null!;
     public string? Name { get; set; } = null!;

@@ -76,6 +76,7 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
 
             attendances = @class.Studies.Select(c => new GetAllStudentByClassSessionResponseDto()
             {
+                Id = c.StudentId,
                 StudentId = c.Id,
                 Name = c.Student?.Contact?.Name,
                 Surname = c.Student?.Contact?.Surname,
@@ -94,6 +95,7 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
         {
             attendances = @class.Studies.Select(c => new GetAllStudentByClassSessionResponseDto()
             {
+                Id = c.StudentId,
                 StudentId = c.Id,
                 Name = c.Student?.Contact?.Name,
                 Surname = c.Student?.Contact?.Surname,
