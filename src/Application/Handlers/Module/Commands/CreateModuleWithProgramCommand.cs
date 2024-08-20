@@ -71,6 +71,7 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleWithProg
             if (existingModule != null)
             {
                 existingModule.Hours = module.Hours;
+                existingModule.Name = module.Name;
                 existingModule.SubModules = module.SubModules;
                 existingModule.TopModuleId = module.TopModuleId;
             }
@@ -84,6 +85,7 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleWithProg
                 if (existingSubModule != null)
                 {
                     existingSubModule.Hours = subModule.Hours;
+                    existingSubModule.Name = subModule.Name;
                     existingSubModule.SubModules = subModule.SubModules;
                     existingSubModule.TopModuleId = subModule.TopModuleId;
                 }
