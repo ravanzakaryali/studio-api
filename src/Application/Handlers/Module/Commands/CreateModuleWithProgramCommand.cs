@@ -61,29 +61,37 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleWithProg
         }
 
         List<Module> existingModules = await _spaceDbContext.Modules
-            .Where(m => m.ProgramId == request.ProgramId)
+            .Include(c => c.SubModules)
+            .Where(m => m.ProgramId == request.ProgramId && m.TopModuleId == null)
             .ToListAsync();
 
-        List<Module> modulesToUpdate = modules.Where(m => existingModules.Any(em => em.Id == m.Id)).ToList();
-        List<Module> modulesToAdd = modules.Where(m => !existingModules.Any(em => em.Id == m.Id)).ToList();
-        List<Module> modulesToDelete = existingModules.Where(em => !modules.Any(m => m.Id == em.Id)).ToList();
-
-        foreach (Module? module in modulesToUpdate)
+        foreach (Module? module in modules)
         {
-            Module existingModule = existingModules.First(em => em.Id == module.Id);
-            existingModule.Name = module.Name;
-            existingModule.Hours = module.Hours;
-            existingModule.SubModules = module.SubModules;
-        }
-
-        if (modulesToAdd.Any())
-        {
-            await _spaceDbContext.Modules.AddRangeAsync(modulesToAdd);
-        }
-
-        if (modulesToDelete.Any())
-        {
-            _spaceDbContext.Modules.RemoveRange(modulesToDelete);
+            Module? existingModule = existingModules.FirstOrDefault(m => m.Version == module.Version);
+            if (existingModule != null)
+            {
+                existingModule.Hours = module.Hours;
+                existingModule.SubModules = module.SubModules;
+                existingModule.TopModuleId = module.TopModuleId;
+            }
+            else
+            {
+                existingModules.Add(module);
+            }
+            foreach (Module subModule in module.SubModules ?? new List<Module>())
+            {
+                Module? existingSubModule = existingModules.FirstOrDefault(m => m.Version == subModule.Version);
+                if (existingSubModule != null)
+                {
+                    existingSubModule.Hours = subModule.Hours;
+                    existingSubModule.SubModules = subModule.SubModules;
+                    existingSubModule.TopModuleId = subModule.TopModuleId;
+                }
+                else
+                {
+                    existingSubModule?.SubModules?.Add(subModule);
+                }
+            }
         }
 
         if (program.TotalHours != modules.Sum(m => m.Hours))
