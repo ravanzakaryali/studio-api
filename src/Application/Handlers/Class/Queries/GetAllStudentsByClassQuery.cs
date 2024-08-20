@@ -84,8 +84,6 @@ internal class GetAllStudentsByClassQueryHandler : IRequestHandler<GetAllStudent
                 }
             }
 
-
-
             GetAllStudentByClassResponseDto studentResponse = new()
             {
                 Name = study.Student?.Contact?.Name,
