@@ -14,6 +14,20 @@ public class GetAllStudentByClassResponseDto
 
 }
 
+public class GetAllStudentByClassSessionResponseDto
+{
+    public int Id { get; set; }
+    public int StudentId { get; set; }
+    public string ClassName { get; set; } = null!;
+    public string? Name { get; set; } = null!;
+    public string? Surname { get; set; } = null!;
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
+    public double? Attendance { get; set; }
+    public GetAllStudentCategoryDto Session { get; set; } = null!;
+
+}
+
 public class GetAllStudentCategoryDto
 {
     public ClassSessionCategory? ClassSessionCategory { get; set; }

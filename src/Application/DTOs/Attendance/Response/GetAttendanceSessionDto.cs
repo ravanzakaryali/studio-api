@@ -10,6 +10,6 @@ public class GetAttendanceSessionDto
     public ClassSessionCategory Category { get; set; }
     public UserDto Worker { get; set; } = null!;
     public IEnumerable<GetHeldModulesDto> HeldModules { get; set; } = null!;
-    public IEnumerable<GetAllStudentByClassResponseDto> Students { get; set; } = null!;
+    public IEnumerable<GetAllStudentByClassSessionResponseDto> Students { get; set; } = null!;
 
 }

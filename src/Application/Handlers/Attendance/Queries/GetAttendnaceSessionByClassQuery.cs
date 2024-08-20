@@ -63,7 +63,35 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
             }
         }
 
-        IEnumerable<GetAllStudentByClassResponseDto> attendanceStudents = await _mediator.Send(new GetAllStudentsByClassQuery(request.ClassId, dateTimeNow));
+
+        IEnumerable<GetAllStudentByClassSessionResponseDto> attendances = new List<GetAllStudentByClassSessionResponseDto>();
+
+        if (classTimeSheets != null)
+        {
+            List<Attendance> studentAttendances = await _spaceDbContext.Attendances
+                .Include(c => c.Student)
+                .ThenInclude(c => c.Student)
+                .ThenInclude(c => c!.Contact)
+                .Where(c => c.ClassTimeSheetsId == classTimeSheets.Id).ToListAsync();
+                
+            attendances = studentAttendances.Select(c => new GetAllStudentByClassSessionResponseDto()
+            {
+
+                StudentId = c.StudyId,
+                Name = c.Student.Student?.Contact?.Name,
+                Surname = c.Student.Student?.Contact?.Surname,
+                Email = c.Student.Student?.Contact?.Email,
+                Phone = c.Student.Student?.Contact?.Phone,
+                Attendance = c.TotalAttendanceHours,
+                Session = new GetAllStudentCategoryDto()
+                {
+                    ClassSessionCategory = classTimeSheets.Category,
+                    Hour = c.TotalAttendanceHours,
+                    Note = c.Note,
+                }
+            });
+        }
+
 
         GetAttendanceSessionDto response = new()
         {
@@ -73,8 +101,7 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
                 Name = @class.Name,
             },
             TotalHours = @class.Session.Details.FirstOrDefault(d => d.DayOfWeek == dateNow.DayOfWeek)?.TotalHours ?? 0,
-            Students = attendanceStudents,
-
+            Students = attendances,
             Worker = new UserDto()
             {
                 Id = classModulesWorker.Worker.Id,
