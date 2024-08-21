@@ -82,11 +82,11 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
                 Surname = c.Student?.Contact?.Surname,
                 Email = c.Student?.Email,
                 Phone = c.Student?.Contact?.Phone,
-                Attendance = studentAttendances.FirstOrDefault(a => a.StudyId == c.Id)?.TotalAttendanceHours ?? 0,
+                Attendance = studentAttendances.FirstOrDefault(a => a.StudyId == c.StudentId)?.TotalAttendanceHours ?? 0,
                 Session = new GetAllStudentCategoryDto()
                 {
                     ClassSessionCategory = classTimeSheets.Category,
-                    Hour = classTimeSheets.TotalHours,
+                    Hour = studentAttendances.FirstOrDefault(a => a.StudyId == c.StudentId)?.TotalAttendanceHours ?? 0,
                     Note = classTimeSheets.Note,
                 }
             });
