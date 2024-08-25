@@ -7,7 +7,6 @@ namespace Space.WebAPI.Controllers.v2;
 [Authorize]
 public class ClassesController : BaseApiController
 {
-    // GET: api/Classes/999 - Returns the class details
     [HttpGet("{id}")]
     public async Task<IActionResult> GetClassDetail([FromRoute] int id)
             => Ok(await Mediator.Send(new GetClassDetailQuery()
