@@ -49,20 +49,20 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleWithProg
                 }
             }).ToList();
 
-        Program? program = await _spaceDbContext.Programs
+        Program? program = (await _spaceDbContext.Programs
             .Include(c => c.Modules)
             .Where(a => a.Id == request.ProgramId)
             .FirstOrDefaultAsync()
-                ?? throw new NotFoundException(nameof(Program), request.ProgramId);
-
-        if (program == null)
-        {
-            throw new NotFoundException(nameof(Program), request.ProgramId);
-        }
+                ?? throw new NotFoundException(nameof(Program), request.ProgramId)) ?? throw new NotFoundException(nameof(Program), request.ProgramId);
 
         List<Module> existingModules = await _spaceDbContext.Modules
             .Include(c => c.SubModules)
             .Where(m => m.ProgramId == request.ProgramId && m.TopModuleId == null)
+            .ToListAsync();
+
+        List<Module> existingSubModules = await _spaceDbContext.Modules
+            .Include(c => c.TopModule)
+            .Where(m => m.ProgramId == request.ProgramId && m.TopModuleId != null)
             .ToListAsync();
 
         foreach (Module? module in modules)
@@ -72,8 +72,7 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleWithProg
             {
                 existingModule.Hours = module.Hours;
                 existingModule.Name = module.Name;
-                existingModule.SubModules = module.SubModules;
-                existingModule.TopModuleId = module.TopModuleId;
+                existingModule.IsSurvey = module.IsSurvey;
             }
             else
             {
@@ -81,13 +80,14 @@ internal class CreateModuleCommandHandler : IRequestHandler<CreateModuleWithProg
             }
             foreach (Module subModule in module.SubModules ?? new List<Module>())
             {
-                Module? existingSubModule = existingModules.FirstOrDefault(m => m.Version == subModule.Version);
+                Module? existingSubModule = existingSubModules.FirstOrDefault(m => m.Version == subModule.Version);
                 if (existingSubModule != null)
                 {
                     existingSubModule.Hours = subModule.Hours;
                     existingSubModule.Name = subModule.Name;
-                    existingSubModule.SubModules = subModule.SubModules;
-                    existingSubModule.TopModuleId = subModule.TopModuleId;
+                    existingSubModule.IsSurvey = subModule.IsSurvey;
+                    existingSubModule.TopModuleId = existingSubModule.TopModuleId;
+                    existingSubModule.TopModule = existingSubModule.TopModule;
                 }
                 else
                 {
