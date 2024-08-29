@@ -89,6 +89,7 @@ internal class StartAttendanceCommandHandler : IRequestHandler<StartAttendanceCo
                 Id = classEntity.Id,
                 Name = classEntity.Name,
             },
+            IsJoined = classTimeSheet.AttendancesWorkers.Any(a => a.WorkerId == worker.Id && a.StartTime == nowTime),
             EndTime = classTimeSheet.EndTime,
         };
     }
