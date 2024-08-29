@@ -36,7 +36,7 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
 
         if (!@class.Session.Details.Any(d => d.DayOfWeek == dateNow.DayOfWeek))
         {
-            throw new NotFoundException(nameof(Class), request.ClassId);
+            throw new NotFoundException(nameof(ClassModulesWorker), request.ClassId);
         }
         ClassSessionCategory category = ClassSessionCategory.Theoric;
 
