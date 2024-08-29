@@ -36,7 +36,10 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
 
         if (!@class.Session.Details.Any(d => d.DayOfWeek == dateNow.DayOfWeek))
         {
-            throw new NotFoundException(nameof(ClassModulesWorker), request.ClassId);
+            return new GetAttendanceSessionDto()
+            {
+
+            };
         }
         ClassSessionCategory category = ClassSessionCategory.Theoric;
 
@@ -51,7 +54,6 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
                         .Include(c => c.HeldModules)
                         .ThenInclude(hm => hm.Module)
                         .FirstOrDefaultAsync(cancellationToken: cancellationToken);
-
 
         ClassModulesWorker? classModulesWorker = await _spaceDbContext.ClassModulesWorkers
             .Where(c => c.ClassId == @class.Id && c.StartDate <= dateNow && (c.EndDate == null || c.EndDate >= dateNow) && c.WorkerType == request.WorkerType)
