@@ -7,6 +7,12 @@ namespace Space.WebAPI.Controllers.v2;
 [Authorize]
 public class ClassesController : BaseApiController
 {
+
+    [HttpPost]
+    public async Task<IActionResult> CreateClass([FromBody] CreateClassRequestDto request)
+    {
+        return Ok(await Mediator.Send(request));
+    }
     [HttpGet("{id}")]
     public async Task<IActionResult> GetClassDetail([FromRoute] int id)
             => Ok(await Mediator.Send(new GetClassDetailQuery()

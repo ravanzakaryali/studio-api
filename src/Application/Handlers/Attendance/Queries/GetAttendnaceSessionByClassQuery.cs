@@ -33,6 +33,11 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
             .FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken: cancellationToken) ??
             throw new NotFoundException(nameof(Class), request.ClassId);
 
+
+        if (!@class.Session.Details.Any(d => d.DayOfWeek == dateNow.DayOfWeek))
+        {
+            throw new NotFoundException(nameof(Class), request.ClassId);
+        }
         ClassSessionCategory category = ClassSessionCategory.Theoric;
 
         if (request.WorkerType == WorkerType.Mentor)
