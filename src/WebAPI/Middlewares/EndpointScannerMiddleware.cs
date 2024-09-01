@@ -49,13 +49,13 @@ namespace Space.WebAPI.Middlewares
                 }
             }
 
-            foreach (var endpointDb in endpointsDb)
-            {
-                if (!currentEndpoints.Contains($"{endpointDb.Path}-{endpointDb.HttpMethod}"))
-                {
-                    spaceDbContext.Endpoints.Remove(endpointDb);
-                }
-            }
+            //foreach (var endpointDb in endpointsDb)
+            //{
+            //    if (!currentEndpoints.Contains($"{endpointDb.Path}-{endpointDb.HttpMethod}"))
+            //    {
+            //        spaceDbContext.Endpoints.Remove(endpointDb);
+            //    }
+            //}
 
             await spaceDbContext.SaveChangesAsync();
             await _next(httpContext);

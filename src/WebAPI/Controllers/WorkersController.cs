@@ -17,6 +17,10 @@ public class WorkersController : BaseApiController
     public async Task<IActionResult> GetAllWithDetaiks()
         => StatusCode(200, await Mediator.Send(new GetAllWorkersWithDetailsQuery()));
 
+    [HttpGet("FilteredDatas")]
+    public async Task<IActionResult> GetAllFilteredDatas()
+     => StatusCode(200, await Mediator.Send(new GetAllFilteredQuery()));
+
     [HttpGet("{id}/worker-class-sessions-by-class")]
     public async Task<IActionResult> GetWorkerClassSessionsByClass([FromRoute] int id)
             => StatusCode(200, await Mediator.Send(new GetWorkerClassSessionsByClassQuery(id)));
@@ -114,4 +118,9 @@ public class WorkersController : BaseApiController
             WorkerType = workerType
         }));
     }
+
+
+
+  
+
 }

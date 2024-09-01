@@ -16,7 +16,7 @@ internal class GetAllWorkersWithDetailsQueryHandler : IRequestHandler<GetAllWork
     public async Task<IEnumerable<GetAllWorkersWithDetailsResponseDto>> Handle(GetAllWorkersWithDetailsQuery request, CancellationToken cancellationToken)
     {
 
-        List<Worker> workers = await _spaceDbContext.Workers.Include(c => c.UserRoles).ToListAsync();
+        List<Space.Domain.Entities.Worker> workers = await _spaceDbContext.Workers.Include(c => c.UserRoles).ToListAsync();
         List<ClassModulesWorker> workersClasses = await _spaceDbContext.ClassModulesWorkers.Include(c => c.Class).ToListAsync();
 
         var response = new List<GetAllWorkersWithDetailsResponseDto>();
