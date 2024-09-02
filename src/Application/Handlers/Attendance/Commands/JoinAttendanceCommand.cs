@@ -52,7 +52,7 @@ internal class JoinAttendanceCommandHandler : IRequestHandler<JoinAttendanceComm
             ClassTimeSheetId = classTimeSheet.Id,
             StartTime = classTimeSheet.StartTime,
             Category = classTimeSheet.Category,
-            IsJoined = true,
+            IsJoined = classTimeSheet.AttendancesWorkers.Any(a => a.WorkerId == worker.Id && a.StartTime == nowTime),
             Class = new GetClassDto()
             {
                 Id = classTimeSheet.Class.Id,

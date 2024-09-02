@@ -27,9 +27,20 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
         Class? @class = await _spaceDbContext.Classes
             .Include(c => c.Session)
             .ThenInclude(s => s.Details)
+            .Include(c => c.Studies)
+            .ThenInclude(c => c.Student)
+            .ThenInclude(c => c!.Contact)
             .FirstOrDefaultAsync(c => c.Id == request.ClassId, cancellationToken: cancellationToken) ??
             throw new NotFoundException(nameof(Class), request.ClassId);
 
+
+        if (!@class.Session.Details.Any(d => d.DayOfWeek == dateNow.DayOfWeek))
+        {
+            return new GetAttendanceSessionDto()
+            {
+
+            };
+        }
         ClassSessionCategory category = ClassSessionCategory.Theoric;
 
         if (request.WorkerType == WorkerType.Mentor)
@@ -43,7 +54,6 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
                         .Include(c => c.HeldModules)
                         .ThenInclude(hm => hm.Module)
                         .FirstOrDefaultAsync(cancellationToken: cancellationToken);
-
 
         ClassModulesWorker? classModulesWorker = await _spaceDbContext.ClassModulesWorkers
             .Where(c => c.ClassId == @class.Id && c.StartDate <= dateNow && (c.EndDate == null || c.EndDate >= dateNow) && c.WorkerType == request.WorkerType)
@@ -69,25 +79,41 @@ internal class GetAttendnaceSessionByClassQueryHandler : IRequestHandler<GetAtte
         if (classTimeSheets != null)
         {
             List<Attendance> studentAttendances = await _spaceDbContext.Attendances
-                .Include(c => c.Student)
-                .ThenInclude(c => c.Student)
-                .ThenInclude(c => c!.Contact)
                 .Where(c => c.ClassTimeSheetsId == classTimeSheets.Id).ToListAsync();
-                
-            attendances = studentAttendances.Select(c => new GetAllStudentByClassSessionResponseDto()
-            {
 
-                StudentId = c.StudyId,
-                Name = c.Student.Student?.Contact?.Name,
-                Surname = c.Student.Student?.Contact?.Surname,
-                Email = c.Student.Student?.Contact?.Email,
-                Phone = c.Student.Student?.Contact?.Phone,
-                Attendance = c.TotalAttendanceHours,
+            attendances = @class.Studies.Select(c => new GetAllStudentByClassSessionResponseDto()
+            {
+                Id = c.StudentId,
+                StudentId = c.Id,
+                Name = c.Student?.Contact?.Name,
+                Surname = c.Student?.Contact?.Surname,
+                Email = c.Student?.Email,
+                Phone = c.Student?.Contact?.Phone,
+                Attendance = studentAttendances.FirstOrDefault(a => a.StudyId == c.StudentId)?.TotalAttendanceHours ?? 0,
                 Session = new GetAllStudentCategoryDto()
                 {
                     ClassSessionCategory = classTimeSheets.Category,
-                    Hour = c.TotalAttendanceHours,
-                    Note = c.Note,
+                    Hour = studentAttendances.FirstOrDefault(a => a.StudyId == c.StudentId)?.TotalAttendanceHours ?? 0,
+                    Note = classTimeSheets.Note,
+                }
+            });
+        }
+        else
+        {
+            attendances = @class.Studies.Select(c => new GetAllStudentByClassSessionResponseDto()
+            {
+                Id = c.StudentId,
+                StudentId = c.Id,
+                Name = c.Student?.Contact?.Name,
+                Surname = c.Student?.Contact?.Surname,
+                Email = c.Student?.Email,
+                Phone = c.Student?.Contact?.Phone,
+                Attendance = 0,
+                Session = new GetAllStudentCategoryDto()
+                {
+                    ClassSessionCategory = ClassSessionCategory.Theoric,
+                    Hour = 0,
+                    Note = null,
                 }
             });
         }

@@ -2,8 +2,10 @@
 
 public class CreateClassRequestDto
 {
-    public string Name { get; set; } = null!;
+    public DateOnly StartDate { get; set; }
+    public int Week { get; set; }
+    public int ProjectId { get; set; }
     public int ProgramId { get; set; }
     public int SessionId { get; set; }
-    public int? RoomId { get; set; }
+    public int RoomId { get; set; }
 }

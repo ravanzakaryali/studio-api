@@ -34,7 +34,7 @@ internal class StartAttendanceCommandHandler : IRequestHandler<StartAttendanceCo
                     ?? throw new NotFoundException(nameof(Class), request.ClassId);
 
         ClassTimeSheet? classTimeSheet = await _spaceDbContext.ClassTimeSheets
-                    .Where(c => c.ClassId == request.ClassId && c.Date == now)
+                    .Where(c => c.ClassId == request.ClassId && c.Date == now && c.Category == request.SessionCategory)
                     .FirstOrDefaultAsync();
         if (classTimeSheet != null) throw new BadHttpRequestException("Attendance already started for this class");
 
@@ -89,6 +89,7 @@ internal class StartAttendanceCommandHandler : IRequestHandler<StartAttendanceCo
                 Id = classEntity.Id,
                 Name = classEntity.Name,
             },
+            IsJoined = classTimeSheet.AttendancesWorkers.Any(a => a.WorkerId == worker.Id && a.StartTime == nowTime),
             EndTime = classTimeSheet.EndTime,
         };
     }
