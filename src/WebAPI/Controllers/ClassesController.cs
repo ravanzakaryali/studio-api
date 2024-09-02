@@ -19,6 +19,18 @@ public class ClassesController : BaseApiController
             ProgramId = request.ProgramId
         }));
     }
+
+    [HttpGet("generate-name")]
+    public async Task<IActionResult> GenerateClassName([FromQuery] int programId, [FromQuery] int sessionId, [FromQuery] DateOnly startDate)
+    {
+        return Ok(await Mediator.Send(new GenerateClassNameQuery()
+        {
+            ProgramId = programId,
+            SessionId = sessionId,
+            StartDate = startDate
+        }));
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetClassDetail([FromRoute] int id)
             => Ok(await Mediator.Send(new GetClassDetailQuery()
