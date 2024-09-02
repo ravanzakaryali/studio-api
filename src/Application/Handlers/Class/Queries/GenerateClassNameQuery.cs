@@ -51,11 +51,13 @@ internal class GenerateClassNameQueryHandler : IRequestHandler<GenerateClassName
                 Name = program.Name,
                 TotalHours = program.TotalHours
             },
+            StartDate = request.StartDate,
             EndDate = endDate,
             Session = new GetSessionResponseDto
             {
                 Id = session.Id,
                 Name = session.Name,
+
             },
         };
     }
