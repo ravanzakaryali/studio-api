@@ -99,4 +99,33 @@ public class ClassService : IClassService
         return currentDate;
     }
 
+    public async Task<string> GenerateClassName(Class @class)
+    {
+        string responseName = string.Empty;
+
+        responseName += @class.Program?.ShortName;
+        responseName += @class.Session?.No;
+
+        string lastNumber = string.Empty;
+        Class? lastClass = await _dbContext.Classes
+                                .Where(c => c.SessionId == @class.SessionId && c.ProgramId == @class.ProgramId)
+                                .OrderByDescending(c => c.CreatedDate)
+                                .FirstOrDefaultAsync();
+        if (lastClass is null)
+        {
+            lastNumber = "01";
+        }
+        else
+        {
+            string lastClassName = lastClass.Name;
+            lastNumber = lastClassName.Substring(lastClassName.Length - 2);
+            int lastNumberInt = int.Parse(lastNumber);
+            lastNumberInt++;
+            lastNumber = lastNumberInt.ToString().PadLeft(2, '0');
+        }
+
+        responseName += lastNumber;
+
+        return responseName;
+    }
 }
