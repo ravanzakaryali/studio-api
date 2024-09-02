@@ -11,7 +11,13 @@ public class ClassesController : BaseApiController
     [HttpPost]
     public async Task<IActionResult> CreateClass([FromBody] CreateClassRequestDto request)
     {
-        return Ok(await Mediator.Send(request));
+        return Ok(await Mediator.Send(new CreateClassCommand()
+        {
+            StartDate = request.StartDate,
+            Week = request.Week,
+            ProjectId = request.ProjectId,
+            ProgramId = request.ProgramId
+        }));
     }
     [HttpGet("{id}")]
     public async Task<IActionResult> GetClassDetail([FromRoute] int id)

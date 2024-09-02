@@ -1,25 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+namespace Space.Application.Handlers;
 
-namespace Space.Application.Handlers.Commands;
 
-public record CreateClassCommand(
-        string Name,
-        int ProgramId,
-        int SessionId,
-        int? RoomId) : IRequest<GetWithIncludeClassResponseDto>;
+public class CreateClassCommand : IRequest<GetWithIncludeClassResponseDto>
+{
+    public DateOnly StartDate { get; set; }
+    public int Week { get; set; }
+    public int ProjectId { get; set; }
+    public int ProgramId { get; set; }
+    public int RoomId { get; set; }
+    public int SessionId { get; set; }
+}
 internal class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, GetWithIncludeClassResponseDto>
 {
-    readonly IUnitOfWork _unitOfWork;
-    readonly IMapper _mapper;
     readonly ISpaceDbContext _spaceDbContext;
 
     public CreateClassCommandHandler(
-        IUnitOfWork unitOfWork,
-        IMapper mapper,
         ISpaceDbContext spaceDbContext)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
         _spaceDbContext = spaceDbContext;
     }
 
@@ -31,14 +29,12 @@ internal class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, G
         Session session = await _spaceDbContext.Sessions.FindAsync(request.SessionId) ??
             throw new NotFoundException(nameof(Session), request.SessionId);
 
-        if (request.RoomId is not null)
-        {
-            Room room = await _spaceDbContext.Rooms.FindAsync(request.RoomId) ??
-                throw new NotFoundException(nameof(Room), request.RoomId);
-        }
+        Project project = await _spaceDbContext.Projects.FindAsync(request.ProjectId) ??
+            throw new NotFoundException(nameof(Project), request.ProjectId);
 
-        EntityEntry<Class> createEntity = await _spaceDbContext.Classes.AddAsync(_mapper.Map<Class>(request), cancellationToken);
-        await _spaceDbContext.SaveChangesAsync(cancellationToken);
-        return _mapper.Map<GetWithIncludeClassResponseDto>(createEntity.Entity);
+        Room room = await _spaceDbContext.Rooms.FindAsync(request.RoomId) ??
+            throw new NotFoundException(nameof(Room), request.RoomId);
+
+        throw new NotImplementedException();
     }
 }

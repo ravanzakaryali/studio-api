@@ -11,6 +11,7 @@ public class Program : BaseAuditableEntity, IKometa
     }
     public string Color { get; set; } = null!;
     public string Name { get; set; } = null!;
+    public string? ShortName { get; set; }
     public int TotalHours { get; set; }
     public ICollection<Module> Modules { get; set; }
     public ICollection<ExtraModule> ExtraModules { get; set; }
