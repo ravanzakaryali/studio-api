@@ -2,18 +2,20 @@
 using Space.Application.DTOs.Worker;
 using Space.Domain.Enums;
 using Microsoft.AspNetCore.Http;
+using System.Runtime.CompilerServices;
 
 namespace Space.WebAPI.Controllers;
 
-[Authorize]
 public class WorkersController : BaseApiController
 {
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAll([FromQuery] RoleEnum? role)
            => StatusCode(200, await Mediator.Send(new GetAllWorkerQuery(role)));
 
 
     [HttpGet("with-details")]
+    [Authorize]
     public async Task<IActionResult> GetAllWithDetaiks()
         => StatusCode(200, await Mediator.Send(new GetAllWorkersWithDetailsQuery()));
 
@@ -22,20 +24,28 @@ public class WorkersController : BaseApiController
      => StatusCode(200, await Mediator.Send(new GetAllFilteredQuery()));
 
     [HttpGet("{id}/worker-class-sessions-by-class")]
+    [Authorize]
+
     public async Task<IActionResult> GetWorkerClassSessionsByClass([FromRoute] int id)
             => StatusCode(200, await Mediator.Send(new GetWorkerClassSessionsByClassQuery(id)));
 
     [HttpGet("{id}/get-worker-general-report")]
+    [Authorize]
+
     public async Task<IActionResult> GetWorkerGeneralReport([FromRoute] int id)
             => StatusCode(200, await Mediator.Send(new GetWorkerGeneralReportQuery(id)));
 
 
     [HttpGet("login/classes")]
+    [Authorize]
+
     public async Task<IActionResult> GetClassByWorker()
         => Ok(await Mediator.Send(new GetClassesByWorkerQuery()));
 
 
     [HttpGet("{id}/attendance-by-class")]
+    [Authorize]
+
     public async Task<IActionResult> GetWorkerAttendanceByClassId([FromRoute] int id) =>
         StatusCode(200, await Mediator.Send(new GetWorkerAttendanceByClassQuery(id)));
 
@@ -43,6 +53,8 @@ public class WorkersController : BaseApiController
     [HttpPost("{id}/set-permission")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
+    [Authorize]
+
     public async Task<IActionResult> AddPermissionToWorker([FromRoute] int id, [FromBody] IEnumerable<SetAccessToPermissionGroupAndWorkerDto> request)
     {
         await Mediator.Send(new SetPermissionToWorkerCommand()
@@ -55,6 +67,8 @@ public class WorkersController : BaseApiController
 
 
     [HttpPut("{id}")]
+    [Authorize]
+
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateWorkerReuqest request)
               => StatusCode(200, await Mediator.Send(new UpdateWorkerCommand()
               {
@@ -71,16 +85,22 @@ public class WorkersController : BaseApiController
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
+    [Authorize]
+
     public async Task<IActionResult> Create([FromBody] CreateRequestWorkerDto request)
               => StatusCode(201, await Mediator.Send(new CreateWorkerCommand(request.Name, request.Surname, request.Email, request.Fincode, request.GroupsId)));
 
     [HttpGet("{id}/permission-groups")]
+    [Authorize]
+
     public async Task<IActionResult> GetPermissionGroupsByWorker([FromRoute] int id)
         => StatusCode(200, await Mediator.Send(new GetPermissionGroupsByWorkerQuery(id)));
 
     [HttpPut("{id}/permission-groups")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesDefaultResponseType]
+    [Authorize]
+
     public async Task<IActionResult> UpdatePermissionGroupsByWorker([FromRoute] int id, [FromBody] IEnumerable<PermissionGroupId> request)
     {
         await Mediator.Send(new UpdatePermissionGroupsByWorkerCommand()
@@ -92,15 +112,21 @@ public class WorkersController : BaseApiController
     }
 
     [HttpGet("{id}")]
+    [Authorize]
+
     public async Task<IActionResult> Get([FromRoute] int id)
          => StatusCode(200, await Mediator.Send(new GetWorkerQuery(id)));
 
     [HttpGet("{id}/app-modules-access")]
+    [Authorize]
+
     public async Task<IActionResult> GetWorkerAppModulesAccess([FromRoute] int id)
     {
         return Ok(await Mediator.Send(new GetWorkerAppModulesAccessQuery(id)));
     }
     [HttpPut("{id}/app-modules-access")]
+    [Authorize]
+
     public async Task<IActionResult> SetAccessToWorkerAppModules([FromRoute] int id, [FromBody] IEnumerable<UpdatePermissionAppModuleDto> request)
     {
         await Mediator.Send(new UpdateWorkerAppModulesAccessCommand()
@@ -111,6 +137,8 @@ public class WorkersController : BaseApiController
         return Ok();
     }
     [HttpGet("excel/export")]
+    [Authorize]
+
     public async Task<IActionResult> ExportWorkersToExcel([FromQuery] WorkerType? workerType)
     {
         return Ok(await Mediator.Send(new ExportWorkersToExcelCommand()
@@ -118,9 +146,4 @@ public class WorkersController : BaseApiController
             WorkerType = workerType
         }));
     }
-
-
-
-  
-
 }
