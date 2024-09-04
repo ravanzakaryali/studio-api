@@ -147,7 +147,7 @@ internal class UpdateClassSessionAttendanceCommandHandler
                 classTimeSheet.HeldModules = request
                                         .HeldModules
                                         .Select(
-                                            hm => new HeldModule() { ModuleId = hm.ModuleId, TotalHours = hm.TotalHours, }
+                                            hm => new HeldModule() { ModuleId = hm.ModuleId, TotalHours = 0, }
                                         )
                                         .ToList();
             }
