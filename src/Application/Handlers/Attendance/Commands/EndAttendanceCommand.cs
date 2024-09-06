@@ -13,7 +13,7 @@ internal class EndAttendanceCommandHandler : IRequestHandler<EndAttendanceComman
     }
     public async Task<GetClassTimeSheetResponseDto> Handle(EndAttendanceCommand request, CancellationToken cancellationToken)
     {
-        DateTime nowDate = DateTime.Now;
+        DateTime nowDate = DateTime.Now.AddHours(4);
         DateOnly now = DateOnly.FromDateTime(nowDate);
         TimeOnly nowTime = TimeOnly.FromDateTime(nowDate);
 
