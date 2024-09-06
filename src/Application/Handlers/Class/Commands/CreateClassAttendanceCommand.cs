@@ -139,7 +139,7 @@ internal class CreateClassAttendanceCommandHandler : IRequestHandler<CreateClass
                     classTimeSheet.HeldModules = request.HeldModules.Select(hm => new HeldModule()
                     {
                         ModuleId = hm.ModuleId,
-                        TotalHours = hm.TotalHours,
+                        TotalHours = 0,
                     }).ToList();
                 addTimeSheets.Add(classTimeSheet);
             }
