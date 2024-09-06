@@ -32,7 +32,7 @@ internal class GetRoomPlaningQueryHandler : IRequestHandler<GetRoomPlaningQuery,
             rooms = rooms.Where(r => request.RoomIds.Contains(r.Id)).ToList();
         }
 
-        List<Class> allClasses = await _dbContext.Classes.Include(c => c.Studies).ToListAsync();
+        List<Class> allClasses = await _dbContext.Classes.Include(c => c.Studies).Include(c => c.Session).ToListAsync();
         allClasses = allClasses.Where(c => c.StartDate.Year == request.Year || c.EndDate?.Year == request.Year).ToList();
 
         List<GetRoomPlaningDto> respnose = new();
@@ -44,15 +44,15 @@ internal class GetRoomPlaningQueryHandler : IRequestHandler<GetRoomPlaningQuery,
                 Name = room.Name,
                 Id = room.Id,
             };
-            foreach (Session session in sessions)
+            foreach (Session session in sessions.DistinctBy(s => s.No))
             {
                 GetSessionClassResponseDto responseSessions = new()
                 {
                     Id = session.Id,
-                    Name = session.Name,
+                    Name = session.No.ToString() ?? "1",
                 };
 
-                List<Class> classes = allClasses.Where(c => c.RoomId == room.Id && c.SessionId == session.Id).ToList();
+                List<Class> classes = allClasses.Where(c => c.RoomId == room.Id && c.Session.No == session.No).ToList();
                 responseSessions.Classes.AddRange(classes.Select(cl => new GetClassDetailDto()
                 {
                     Id = cl.Id,
