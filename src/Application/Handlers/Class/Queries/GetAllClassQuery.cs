@@ -49,7 +49,7 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         }
         else
         {
-            query = query.Where(c => (now > c.StartDate && c.ClassModulesWorkers.Count == 0) || (now < c.StartDate && c.ClassExtraModulesWorkers.Count == 0));
+            query = query.Where(c => (now >= c.StartDate && c.ClassModulesWorkers.Count == 0) || (now <= c.StartDate && c.ClassExtraModulesWorkers.Count == 0));
         }
         if (request.StartDate is not null)
         {

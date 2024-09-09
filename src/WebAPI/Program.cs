@@ -132,12 +132,12 @@ builder.Services.Configure<ClientRateLimitOptions>(options =>
         };
 });
 
-// builder.Services.AddSwaggerGen(config =>
-// {
-//     config.OperationFilter<AuthenticationRequirementOperationFilter>();
-//     // config.IncludeXmlComments(Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".xml"));
-//     config.UseInlineDefinitionsForEnums();
-// });
+builder.Services.AddSwaggerGen(config =>
+{
+    config.OperationFilter<AuthenticationRequirementOperationFilter>();
+    // config.IncludeXmlComments(Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".xml"));
+    config.UseInlineDefinitionsForEnums();
+});
 
 var app = builder.Build();
 
@@ -153,8 +153,8 @@ app.UseSerilogRequestLogging();
 app.UseHttpLogging();
 
 app.UseStaticFiles();
-// app.UseSwagger();
-// app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
