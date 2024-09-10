@@ -21,7 +21,7 @@ internal class GetAllFilteredQueryHandler : IRequestHandler<GetAllFilteredQuery,
     public async Task<IEnumerable<GetFilteredDataDto>> Handle(GetAllFilteredQuery request, CancellationToken cancellationToken)
     {
 
-        List<ClassModulesWorker> workersClasses = await _spaceDbContext.ClassModulesWorkers.Where(c => c.StartDate != null && c.EndDate != null).Include(c => c.Class).ThenInclude(p => p.Program).Include(m => m.Module).ToListAsync(cancellationToken: cancellationToken);
+        List<ClassModulesWorker> workersClasses = await _spaceDbContext.ClassModulesWorkers.Where(c => c.StartDate != null && c.EndDate != null).Include(c => c.Class).ThenInclude(p => p.Program).Include(c => c.Class).ThenInclude(c => c.Room).Include(m => m.Module).ToListAsync(cancellationToken: cancellationToken);
         List<Worker> workers = await _spaceDbContext.Workers.Include(c => c.UserRoles).ToListAsync(cancellationToken: cancellationToken);
         List<Session> sessions = await _spaceDbContext.Sessions.ToListAsync(cancellationToken: cancellationToken);
 
@@ -63,6 +63,8 @@ internal class GetAllFilteredQueryHandler : IRequestHandler<GetAllFilteredQuery,
                 {
                     ClassId = classModule.ClassId,
                     ModulName = classModule.Module.Name,
+                    RoomId = classModule.Class.RoomId,
+                    RoomName = classModule.Class.Room?.Name,
                     ClassName = classModule.Class.Name,
                     StartDate = (DateOnly)classModule.StartDate,
                     EndDate = (DateOnly)classModule.EndDate,

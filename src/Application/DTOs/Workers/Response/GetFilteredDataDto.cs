@@ -26,6 +26,8 @@ namespace Space.Application.DTOs.Workers.Response
     {
         public string ClassName { get; set; } = null!;
         public int ClassId { get; set; }
+        public string? RoomName { get; set; }
+        public int? RoomId { get; set; }
         public bool IsOpen { get; set; }
         //public string ModuleName { get; set; }
         public string? ModulName { get; set; }
