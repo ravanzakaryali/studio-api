@@ -34,6 +34,7 @@ internal class GetAllFilteredQueryHandler : IRequestHandler<GetAllFilteredQuery,
             if (item == null) break;
             var model = new GetFilteredDataDto
             {
+                ContractType = item.ContractType,
                 EMail = item.Email,
                 Name = item.Name,
                 Surname = item.Surname,

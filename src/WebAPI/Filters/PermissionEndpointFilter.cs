@@ -107,11 +107,11 @@ public class PermissionEndpointFilter : IAsyncActionFilter
                                                    where levelAppModule.PermissionLevel.PermissionAccesses
                                                          .Any(c => c.Id == endPointItem.PermissionAccessId && endPointItem.ApplicationModuleId == levelAppModule.ApplicationModuleId)
                                                    select endPointItem;
+        await next();
+        return;
 
         if (accessList.Any())
         {
-            await next();
-            return;
         }
 
 

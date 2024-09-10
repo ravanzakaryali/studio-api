@@ -5,6 +5,7 @@ namespace Space.Application.DTOs.Workers.Response
     {
         public int Id { get; set; }
         public string? EMail { get; set; }
+        public ContractType ContractType { get; set; }
         public string? Name { get; set; }
         public string? Surname { get; set; }
         public dynamic? Roles { get; set; }
