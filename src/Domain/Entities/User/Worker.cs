@@ -14,6 +14,7 @@ public class Worker : User, IKometa, IKey, IUserSecurity
     public Guid? Key { get; set; }
     public string? AvatarColor { get; set; }
     public DateTime? KeyExpirerDate { get; set; }
+    public ContractType ContractType { get; set; }
     public DateTime? LastPasswordUpdateDate { get; set; }
     public ICollection<ClassModulesWorker> ClassModulesWorkers { get; set; }
     public ICollection<AttendanceWorker> AttendancesWorkers { get; set; }
