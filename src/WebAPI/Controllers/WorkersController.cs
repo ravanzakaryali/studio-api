@@ -106,4 +106,9 @@ public class WorkersController : BaseApiController
         });
         return Ok();
     }
+
+
+    [HttpGet("FilteredDatas")]
+    public async Task<IActionResult> GetAllFilteredDatas()
+         => StatusCode(200, await Mediator.Send(new GetAllFilteredQuery()));
 }
