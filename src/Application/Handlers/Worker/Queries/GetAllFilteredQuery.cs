@@ -42,6 +42,7 @@ internal class GetAllFilteredQueryHandler : IRequestHandler<GetAllFilteredQuery,
                 ContractType = item.ContractType,
                 EMail = item.Email,
                 Name = item.Name,
+                Roles = item.UserRoles.Select(c => c.Role.Name).ToList(),
                 Surname = item.Surname,
                 Id = item.Id
             };
