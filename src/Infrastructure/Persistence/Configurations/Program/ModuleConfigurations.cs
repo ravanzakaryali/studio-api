@@ -18,6 +18,10 @@ internal class ModuleConfigurations : IEntityTypeConfiguration<Module>
             .HasDefaultValue(false);
 
         builder
+            .Property(m => m.IsExam)
+            .HasDefaultValue(false);
+
+        builder
             .HasOne(m => m.TopModule)
             .WithMany(tm => tm.SubModules)
             .HasForeignKey(m => m.TopModuleId)

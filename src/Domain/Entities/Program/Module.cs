@@ -12,6 +12,7 @@ public class Module : BaseAuditableEntity
     public Program? Program { get; set; }
     public bool IsSurvey { get; set; }
     public string Name { get; set; } = null!;
+    public bool IsExam { get; set; }
     public string? Version { get; set; }
     public int? TopModuleId { get; set; }
     public Module? TopModule { get; set; }
