@@ -22,13 +22,19 @@ internal class GetAllFilteredQueryHandler : IRequestHandler<GetAllFilteredQuery,
 
         List<ClassModulesWorker> workersClasses = await _spaceDbContext.ClassModulesWorkers
                                 .Where(c => c.StartDate != null && c.EndDate != null)
-                                .Include(c => c.Class).ThenInclude(p => p.Program)
-                                .Include(c => c.Class).ThenInclude(c => c.Room)
+                                .Include(c => c.Class)
+                                    .ThenInclude(p => p.Program)
+                                .Include(c => c.Class)
+                                    .ThenInclude(c => c.Room)
                                 .Include(m => m.Module)
-                                .ThenInclude(m => m.TopModule)
+                                    .ThenInclude(m => m.TopModule)
                                 .ToListAsync(cancellationToken: cancellationToken);
-        List<Worker> workers = await _spaceDbContext.Workers.Include(c => c.UserRoles).ThenInclude(c => c.Role).ToListAsync(cancellationToken: cancellationToken);
-        List<Session> sessions = await _spaceDbContext.Sessions.ToListAsync(cancellationToken: cancellationToken);
+        List<Worker> workers = await _spaceDbContext.Workers
+                .Include(c => c.UserRoles)
+                .ThenInclude(c => c.Role)
+                .ToListAsync(cancellationToken: cancellationToken);
+        List<Session> sessions = await _spaceDbContext.Sessions
+                .ToListAsync(cancellationToken: cancellationToken);
 
         // sessions
 
