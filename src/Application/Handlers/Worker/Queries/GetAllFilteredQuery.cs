@@ -28,16 +28,18 @@ internal class GetAllFilteredQueryHandler : IRequestHandler<GetAllFilteredQuery,
                                     .ThenInclude(c => c.Room)
                                 .Include(m => m.Module)
                                     .ThenInclude(m => m.TopModule)
+                                    .ThenInclude(c => c!.SubModules)
                                 .ToListAsync(cancellationToken: cancellationToken);
+
         List<Worker> workers = await _spaceDbContext.Workers
                 .Include(c => c.UserRoles)
                 .ThenInclude(c => c.Role)
                 .ToListAsync(cancellationToken: cancellationToken);
+
         List<Session> sessions = await _spaceDbContext.Sessions
                 .ToListAsync(cancellationToken: cancellationToken);
 
         // sessions
-
         var response = new List<GetFilteredDataDto>();
 
         foreach (var item in workers)
@@ -75,6 +77,18 @@ internal class GetAllFilteredQueryHandler : IRequestHandler<GetAllFilteredQuery,
                 {
                     ClassId = classModule.ClassId,
                     ModulName = classModule.Module.TopModule?.Name,
+                    Module = new ModuleDto()
+                    {
+                        Name = classModule.Module.Name,
+                        Version = classModule.Module.Version!,
+                        Hours = classModule.Module.Hours,
+                        SubModules = classModule.Module.SubModules?.Select(c => new CreateSubModuleDto()
+                        {
+                            Name = c.Name,
+                            Version = c.Version!,
+                            Hours = c.Hours
+                        }).ToList()
+                    },
                     RoomId = classModule.Class.RoomId,
                     RoomName = classModule.Class.Room?.Name,
                     ClassName = classModule.Class.Name,

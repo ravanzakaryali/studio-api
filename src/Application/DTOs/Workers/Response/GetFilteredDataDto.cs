@@ -35,5 +35,6 @@ public class GetFilteredDataClassDto
 
     public string ProgramName { get; set; } = null!;
     public int ProgramId { get; set; }
+    public ModuleDto Module { get; set; } = null!;
 }
 
