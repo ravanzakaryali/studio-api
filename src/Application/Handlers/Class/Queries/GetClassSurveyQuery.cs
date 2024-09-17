@@ -39,7 +39,6 @@ internal class GetClassSurveyQueryHandler : IRequestHandler<GetClassSurveyQuery,
             Name = c.Name,
             EndDate = c.EndDate,
             StartDate = c.StartDate,
-            StartSurveyDate = now,
             Program = new GetProgramResponseDto()
             {
                 Id = c.Program.Id,
@@ -54,66 +53,21 @@ internal class GetClassSurveyQueryHandler : IRequestHandler<GetClassSurveyQuery,
 
             if (@class == null) continue;
 
-            ClassTimeSheet? classTimeSheet = @class.ClassTimeSheets.OrderByDescending(c => c.Date).First();
+            // ClassTimeSheet? classTimeSheet = @class.ClassTimeSheets.OrderByDescending(c => c.Date).FirstOrDefault();
+            // if (classTimeSheet == null) continue;
 
-            foreach (HeldModule heldModule in classTimeSheet.HeldModules)
+            foreach (var classTimeSheet in @class.ClassTimeSheets)
             {
-                if (heldModule.Module?.IsSurvey == true)
+
+                foreach (HeldModule heldModule in classTimeSheet.HeldModules)
                 {
-                    findResponse.StartSurveyDate = now;
-                    continue;
-                }
-                else
-                {
-                    int? lastHeldModuleId = classTimeSheet.HeldModules.Last().ModuleId;
-                    if (lastHeldModuleId == null) continue;
-                    string version = modules.Where(m => m.Id == lastHeldModuleId).FirstOrDefault()?.Version ?? string.Empty;
-
-                    modules = modules
-                        .Where(m => !string.IsNullOrEmpty(m.Version) && Version.TryParse(m.Version, out _))
-                        .OrderBy(m => Version.Parse(m.Version))
-                        .ToList();
-
-                    List<ClassAllSessionDto> classSessions = new();
-
-                    ICollection<SessionDetail> sessionDetails = @class.Session.Details;
-
-                    DateOnly startDate = @class.StartDate;
-                    DateOnly? endDate = @class.EndDate;
-
-                    DateOnly startProcessingDate = now;
-                    DateOnly endProcessingDate = endDate!.Value;
-
-                    for (DateOnly date = startProcessingDate; date <= endProcessingDate; date = date.AddDays(1))
+                    if (heldModule.Module?.IsSurvey == true)
                     {
-                        DayOfWeek dayOfWeek = date.DayOfWeek;
-
-                        IEnumerable<ClassAllSessionDto> matchingSessions = sessionDetails
-                            .Where(sd => sd.DayOfWeek == dayOfWeek)
-                            .Select(sd => new ClassAllSessionDto
-                            {
-                                Date = date,
-                                TotalHours = sd.TotalHours,
-                            });
-
-                        classSessions.AddRange(matchingSessions);
-                    }
-                    IOrderedEnumerable<ClassAllSessionDto> classAllSessions = classSessions.Where(c => c.Date >= now).OrderByDescending(c => c.Date);
-
-
-                    int moduleIndex = 0;
-                    foreach (ClassAllSessionDto session in classAllSessions)
-                    {
-                        session.ModuleId = modules[moduleIndex].Id;
-                        moduleIndex++;
-                        if (modules.First(m => m.Id == session.ModuleId).IsSurvey)
-                        {
-                            findResponse.StartSurveyDate = session.Date;
-                            break;
-                        }
+                        findResponse.StartSurveyDate = classTimeSheet.Date;
                     }
                 }
             }
+
         }
 
         return response;
