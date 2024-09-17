@@ -81,7 +81,7 @@ internal class GetAllFilteredQueryHandler : IRequestHandler<GetAllFilteredQuery,
                     {
                         Name = classModule.Module.Name,
                         Version = classModule.Module.Version!,
-                        
+                        Id = classModule.Module.Id,
                         Hours = classModule.Module.Hours,
                         SubModules = classModule.Module.SubModules?.Select(c => new CreateSubModuleDto()
                         {
