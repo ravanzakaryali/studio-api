@@ -23,6 +23,13 @@ public class WorkersController : BaseApiController
     public async Task<IActionResult> GetAllFilteredDatas()
      => StatusCode(200, await Mediator.Send(new GetAllFilteredQuery()));
 
+
+    [HttpGet("GetAllExamModule")]
+    public async Task<IActionResult> GetAllExamData()
+    => StatusCode(200, await Mediator.Send(new GetAllExamQuery()));
+
+
+
     [HttpGet("{id}/worker-class-sessions-by-class")]
     [Authorize]
 
