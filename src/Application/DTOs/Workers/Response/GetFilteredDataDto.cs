@@ -24,16 +24,18 @@ namespace Space.Application.DTOs.Workers.Response
 
     public class GetFilteredDataClassDto
     {
+
         public string ClassName { get; set; } = null!;
         public int ClassId { get; set; }
         public string? RoomName { get; set; }
         public int? RoomId { get; set; }
         public bool IsOpen { get; set; }
+
+
         //public string ModuleName { get; set; }
         public string? ModulName { get; set; }
         public DateOnly StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
-
         public string ProgramName { get; set; } = null!;
         public int ProgramId { get; set; } 
     }
