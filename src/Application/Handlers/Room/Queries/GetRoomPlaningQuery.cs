@@ -23,10 +23,7 @@ internal class GetRoomPlaningQueryHandler : IRequestHandler<GetRoomPlaningQuery,
     {
         List<Room> rooms = await _dbContext.Rooms.ToListAsync();
         List<Session> sessions = await _dbContext.Sessions.ToListAsync();
-        if (request.SessionIds.Count > 0)
-        {
-            sessions = sessions.Where(s => request.SessionIds.Contains(s.Id)).ToList();
-        }
+
         if (request.RoomIds.Count > 0)
         {
             rooms = rooms.Where(r => request.RoomIds.Contains(r.Id)).ToList();
@@ -53,6 +50,11 @@ internal class GetRoomPlaningQueryHandler : IRequestHandler<GetRoomPlaningQuery,
                 };
 
                 List<Class> classes = allClasses.Where(c => c.RoomId == room.Id && c.Session.No == session.No).ToList();
+
+                if (request.SessionIds.Count > 0)
+                {
+                    classes = classes.Where(c => request.SessionIds.Contains(c.SessionId)).ToList();
+                }
                 responseSessions.Classes.AddRange(classes.Select(cl => new GetClassDetailDto()
                 {
                     Id = cl.Id,
