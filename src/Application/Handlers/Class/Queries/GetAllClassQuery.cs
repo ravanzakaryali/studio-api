@@ -134,10 +134,10 @@ internal class GetAllClassHandler : IRequestHandler<GetAllClassQuery, IEnumerabl
         {
             classesResponse = classesResponse.Where(c => c.TotalHour <= request.StartAttendancePercentage);
         }
-        if (request.Status == ClassStatus.New)
-        {
-            classesResponse = classesResponse.Where(c => !c.Workers.Any());
-        }
+        // if (request.Status == ClassStatus.New)
+        // {
+        //     classesResponse = classesResponse.Where(c => !c.Workers.Any());
+        // }
         return classesResponse.OrderByDescending(c => c.CurrentHour);
     }
 }
