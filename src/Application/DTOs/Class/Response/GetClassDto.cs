@@ -10,6 +10,7 @@ public class GetClassDetailDto
 {
     public int Id { get; set; }
     public DateOnly StartDate { get; set; }
+    public string Name { get; set; } = null!;
     public DateOnly? EndDate { get; set; }
     public int StudentCount { get; set; }
 }

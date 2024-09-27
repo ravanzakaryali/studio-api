@@ -60,6 +60,7 @@ internal class GetRoomPlaningQueryHandler : IRequestHandler<GetRoomPlaningQuery,
                     Id = cl.Id,
                     EndDate = cl.EndDate,
                     StartDate = cl.StartDate,
+                    Name = cl.Name,
                     StudentCount = cl.Studies.Count,
                 }));
                 responseRoom.Sessions.Add(responseSessions);
