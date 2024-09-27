@@ -21,6 +21,11 @@ internal class GetAllSessionQueryHandler : IRequestHandler<GetAllSessionQuery, I
         IEnumerable<Session> sessions = await _spaceDbContext.Sessions
             .Include(c => c.Details)
             .ToListAsync();
-        return _mapper.Map<IEnumerable<GetSessionResponseDto>>(sessions);
+
+        return sessions.Select(s => new GetSessionResponseDto
+        {
+            Id = s.Id,
+            Name = s.No.ToString() ?? "1",
+        }).DistinctBy(s => s.Name);
     }
 }
