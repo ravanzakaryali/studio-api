@@ -21,7 +21,7 @@ public class ClassesController : BaseApiController
     }
 
     [HttpGet("generate-name")]
-    public async Task<IActionResult> GenerateClassName([FromQuery] int programId, [FromQuery] int sessionId, [FromQuery] DateOnly startDate)
+    public async Task<IActionResult> GenerateClassName([FromQuery] int programId, [FromQuery] int sessionId, [FromQuery] DateTime startDate)
     {
         return Ok(await Mediator.Send(new GenerateClassNameQuery()
         {

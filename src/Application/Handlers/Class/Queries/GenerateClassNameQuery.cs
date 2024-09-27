@@ -4,7 +4,7 @@ public class GenerateClassNameQuery : IRequest<GetClassNameDto>
 {
     public int ProgramId { get; set; }
     public int SessionId { get; set; }
-    public DateOnly StartDate { get; set; }
+    public DateTime StartDate { get; set; }
 }
 internal class GenerateClassNameQueryHandler : IRequestHandler<GenerateClassNameQuery, GetClassNameDto>
 {
@@ -19,6 +19,8 @@ internal class GenerateClassNameQueryHandler : IRequestHandler<GenerateClassName
 
     public async Task<GetClassNameDto> Handle(GenerateClassNameQuery request, CancellationToken cancellationToken)
     {
+
+        var startDate = DateOnly.FromDateTime(request.StartDate);
         Program? program = await _context.Programs
             .FirstOrDefaultAsync(x => x.Id == request.ProgramId, cancellationToken)
             ?? throw new NotFoundException(nameof(Program), request.ProgramId);
@@ -32,14 +34,14 @@ internal class GenerateClassNameQueryHandler : IRequestHandler<GenerateClassName
         {
             Program = program,
             Session = session,
-            StartDate = request.StartDate,
+            StartDate = startDate,
         });
 
         string generateName = await _unitOfWork.ClassService.GenerateClassName(new Class()
         {
             Program = program,
             Session = session,
-            StartDate = request.StartDate
+            StartDate = startDate
         });
 
         return new GetClassNameDto
@@ -51,7 +53,7 @@ internal class GenerateClassNameQueryHandler : IRequestHandler<GenerateClassName
                 Name = program.Name,
                 TotalHours = program.TotalHours
             },
-            StartDate = request.StartDate,
+            StartDate = startDate,
             EndDate = endDate,
             Session = new GetSessionResponseDto
             {
