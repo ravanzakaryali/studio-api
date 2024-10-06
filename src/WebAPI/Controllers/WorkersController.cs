@@ -28,6 +28,9 @@ public class WorkersController : BaseApiController
     public async Task<IActionResult> GetAllExamData()
     => StatusCode(200, await Mediator.Send(new GetAllExamQuery()));
 
+    [HttpPost("CreateExamSheet")]
+    public async Task<IActionResult> CreatExamSheet(IEnumerable<CreateExamSheetDto> dtos)
+        => StatusCode(201, await Mediator.Send(new CreateExamSheetCommand(dtos)));
 
 
     [HttpGet("{id}/worker-class-sessions-by-class")]
