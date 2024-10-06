@@ -30,6 +30,7 @@ public class SpaceDbContext :
     public DbSet<ClassTimeSheet> ClassTimeSheets => Set<ClassTimeSheet>();
     public DbSet<Attendance> Attendances => Set<Attendance>();
     public DbSet<AttendanceWorker> AttendancesWorkers => Set<AttendanceWorker>();
+    public DbSet<ExamSheet> ExamSheets => Set<ExamSheet>();
     #endregion
     #region Common
     public DbSet<University> Universities => Set<University>();

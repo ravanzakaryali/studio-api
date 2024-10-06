@@ -23,6 +23,7 @@ namespace Space.Application.DTOs.Workers.Response
         public DateOnly? StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
         public bool? IsExam { get; set; }
+        public bool  IsChecked { get; set; }
 
     }
 

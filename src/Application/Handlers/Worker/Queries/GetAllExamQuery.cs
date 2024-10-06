@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Space.Application.DTOs;
 using Space.Application.DTOs.Workers.Response;
 
 namespace Space.Application.Handlers;
@@ -25,7 +26,7 @@ internal class GetAllExamQueryHandler : IRequestHandler<GetAllExamQuery, IEnumer
 
         List<Class> classes = await _spaceDbContext.Classes.Include(x=>x.ClassModulesWorkers).ThenInclude(x=>x.Module).Include(r => r.Room).Include(p=>p.Program).ToListAsync(cancellationToken: cancellationToken);
         //List<Module> modules = await _spaceDbContext.Modules.DistinctBy(x=>x.Id).ToListAsync(cancellationToken: cancellationToken);
-
+        List<ExamSheet> examSheets = await _spaceDbContext.ExamSheets.ToListAsync();
         // sessions
 
         var response = new List<GetAllExamDto>();
@@ -56,17 +57,25 @@ internal class GetAllExamQueryHandler : IRequestHandler<GetAllExamQuery, IEnumer
             foreach (var test in item.ClassModulesWorkers.DistinctBy(x=>x.ModuleId))
             {
                 //if (item == null) break;
-                
-                model.Modules.Add(new GetAllExamModulesDto()
+                var moduleDto = new GetAllExamModulesDto()
                 {
                     EndDate = test?.EndDate,
                     StartDate = test?.StartDate,
                     ModulName = test.Module?.Name,
                     IsExam = test.Module?.IsExam,
-                    ModuleId = test.Module?.Id
+                    ModuleId = test.Module?.Id,
+                    IsChecked = false
 
-                });
+                };
+                
+
+                if (examSheets.Any(sheet => sheet.ClassId == model.ClassId && sheet.ModuleId == test.Module?.Id))
+                {
+                    moduleDto.IsChecked = true;
+                }
+                model.Modules.Add(moduleDto);
             }
+
 
 
             response.Add(model);

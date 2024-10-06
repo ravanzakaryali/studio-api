@@ -59,6 +59,7 @@ public interface ISpaceDbContext : IDisposable
 
     DbSet<Holiday> Holidays { get; }
     DbSet<Support> Supports { get; }
+    DbSet<ExamSheet> ExamSheets { get; }
 
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
