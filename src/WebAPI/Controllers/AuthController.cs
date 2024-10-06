@@ -2,9 +2,6 @@
 
 namespace Space.WebAPI.Controllers;
 
-/// <summary>
-/// Authentication controller
-/// </summary>
 public class AuthController : BaseApiController
 {
     [Authorize]
