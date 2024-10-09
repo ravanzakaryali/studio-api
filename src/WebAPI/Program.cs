@@ -75,7 +75,7 @@ builder.Services.AddCors(options =>
 
                       builder =>
                       {
-                          builder.WithOrigins("http://localhost:3000", "http://localhost:3001", "https://localhost:5002", "https://studio.code.az", "https://dev-studio.code.az")
+                          builder.WithOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:3001", "https://localhost:5002", "https://studio.code.az", "https://dev-studio.code.az")
                                                 .AllowAnyHeader()
                                                 .AllowAnyMethod()
                                                 .AllowCredentials();
