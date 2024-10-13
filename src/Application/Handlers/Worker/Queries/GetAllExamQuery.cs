@@ -24,7 +24,7 @@ internal class GetAllExamQueryHandler : IRequestHandler<GetAllExamQuery, IEnumer
 
         //List<ClassModulesWorker> workersClasses = await _spaceDbContext.ClassModulesWorkers.Where(c => c.StartDate != null && c.EndDate != null).Include(m => m.Module).ToListAsync(cancellationToken: cancellationToken);
 
-        List<Class> classes = await _spaceDbContext.Classes.Include(x=>x.ClassModulesWorkers).ThenInclude(x=>x.Module).Include(r => r.Room).Include(p=>p.Program).ToListAsync(cancellationToken: cancellationToken);
+        List<Class> classes = await _spaceDbContext.Classes.Include(x=>x.ClassModulesWorkers).ThenInclude(x=>x.Module).Include(r => r.Room).Include(p=>p.Program).Where(p=>p.Program.Name == "Proqramlaşdırma").ToListAsync(cancellationToken: cancellationToken);
         //List<Module> modules = await _spaceDbContext.Modules.DistinctBy(x=>x.Id).ToListAsync(cancellationToken: cancellationToken);
         List<ExamSheet> examSheets = await _spaceDbContext.ExamSheets.ToListAsync();
         // sessions
@@ -62,16 +62,15 @@ internal class GetAllExamQueryHandler : IRequestHandler<GetAllExamQuery, IEnumer
                     EndDate = test?.EndDate,
                     StartDate = test?.StartDate,
                     ModulName = test.Module?.Name,
-                    IsExam = test.Module?.IsExam,
                     ModuleId = test.Module?.Id,
-                    IsChecked = false
+                    IsExam = false
 
                 };
                 
 
                 if (examSheets.Any(sheet => sheet.ClassId == model.ClassId && sheet.ModuleId == test.Module?.Id))
                 {
-                    moduleDto.IsChecked = true;
+                    moduleDto.IsExam = true;
                 }
                 model.Modules.Add(moduleDto);
             }

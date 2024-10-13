@@ -32,6 +32,14 @@ public class WorkersController : BaseApiController
     public async Task<IActionResult> CreatExamSheet(IEnumerable<CreateExamSheetDto> dtos)
         => StatusCode(201, await Mediator.Send(new CreateExamSheetCommand(dtos)));
 
+    [HttpGet("GetAllSurveyModule")]
+    public async Task<IActionResult> GetAllSurveyData()
+    => StatusCode(200, await Mediator.Send(new GetAllSurveyQuery()));
+
+    [HttpPost("CreateSurveySheet")]
+    public async Task<IActionResult> CreatSurveySheet(IEnumerable<CreateSurveySheetDto> dtos)
+        => StatusCode(201, await Mediator.Send(new CreateSurveySheetCommand(dtos)));
+
 
     [HttpGet("{id}/worker-class-sessions-by-class")]
     [Authorize]
