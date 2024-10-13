@@ -69,7 +69,7 @@ internal class GetAllExamQueryHandler : IRequestHandler<GetAllExamQuery, IEnumer
                     
 
                 };
-                if (test.Class.Program.Name != "Proqramlaşdırma")
+                if (test.Class.Program.Name != "Proqramlaşdırma" && test.Class.Program.Name != "Programming Backend" && test.Class.Program.Name != "Programming Frontend")
                 {
                     moduleDto.IsExam = null;
                 }
