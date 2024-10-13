@@ -24,7 +24,7 @@ internal class GetAllExamQueryHandler : IRequestHandler<GetAllExamQuery, IEnumer
 
         //List<ClassModulesWorker> workersClasses = await _spaceDbContext.ClassModulesWorkers.Where(c => c.StartDate != null && c.EndDate != null).Include(m => m.Module).ToListAsync(cancellationToken: cancellationToken);
 
-        List<Class> classes = await _spaceDbContext.Classes.Include(x=>x.ClassModulesWorkers).ThenInclude(x=>x.Module).Include(r => r.Room).Include(p=>p.Program).Where(p=>p.Program.Name == "Proqramlaşdırma").ToListAsync(cancellationToken: cancellationToken);
+        List<Class> classes = await _spaceDbContext.Classes.Include(x=>x.ClassModulesWorkers).ThenInclude(x=>x.Module).Include(r => r.Room).Include(p=>p.Program).Where(p=>p.Program.Name == "Proqramlaşdırma" && p.EndDate == new DateOnly(2024 , 10 , 1)).ToListAsync(cancellationToken: cancellationToken);
         //List<Module> modules = await _spaceDbContext.Modules.DistinctBy(x=>x.Id).ToListAsync(cancellationToken: cancellationToken);
         List<ExamSheet> examSheets = await _spaceDbContext.ExamSheets.ToListAsync();
         // sessions
