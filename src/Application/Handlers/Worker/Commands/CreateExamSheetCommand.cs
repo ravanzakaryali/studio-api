@@ -38,7 +38,7 @@ namespace Space.Application.Handlers
                         ClassId = item.ClassId
                     });
                 }
-                else
+                else 
                 {
                     _dbContext.ExamSheets.Remove(dbItem);
                 };

@@ -89,10 +89,6 @@ namespace Space.Application.Handlers
                 //    IsExam = classModule.Module.IsExam
                 //}));
 
-
-
-
-
             }
 
             return response;

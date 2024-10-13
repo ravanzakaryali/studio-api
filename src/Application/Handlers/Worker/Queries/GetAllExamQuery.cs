@@ -24,9 +24,10 @@ internal class GetAllExamQueryHandler : IRequestHandler<GetAllExamQuery, IEnumer
 
         //List<ClassModulesWorker> workersClasses = await _spaceDbContext.ClassModulesWorkers.Where(c => c.StartDate != null && c.EndDate != null).Include(m => m.Module).ToListAsync(cancellationToken: cancellationToken);
 
-        List<Class> classes = await _spaceDbContext.Classes.Include(x=>x.ClassModulesWorkers).ThenInclude(x=>x.Module).Include(r => r.Room).Include(p=>p.Program).Where(p=>p.Program.Name == "Proqramlaşdırma" && p.EndDate == new DateOnly(2024 , 10 , 1)).ToListAsync(cancellationToken: cancellationToken);
+        List<Class> classes = await _spaceDbContext.Classes.Include(x=>x.ClassModulesWorkers).ThenInclude(x=>x.Module).Include(r => r.Room).Include(p=>p.Program).ToListAsync(cancellationToken: cancellationToken);
         //List<Module> modules = await _spaceDbContext.Modules.DistinctBy(x=>x.Id).ToListAsync(cancellationToken: cancellationToken);
         List<ExamSheet> examSheets = await _spaceDbContext.ExamSheets.ToListAsync();
+        List<SurveySheet> surveySheets = await _spaceDbContext.SurveySheets.ToListAsync();
         // sessions
 
         var response = new List<GetAllExamDto>();
@@ -54,7 +55,7 @@ internal class GetAllExamQueryHandler : IRequestHandler<GetAllExamQuery, IEnumer
 
             model.Modules = new List<GetAllExamModulesDto>();
 
-            foreach (var test in item.ClassModulesWorkers.DistinctBy(x=>x.ModuleId))
+            foreach (var test in item.ClassModulesWorkers.Where(x=>x.EndDate > new DateOnly(2023, 10, 1)).DistinctBy(x=>x.ModuleId))
             {
                 //if (item == null) break;
                 var moduleDto = new GetAllExamModulesDto()
@@ -63,15 +64,28 @@ internal class GetAllExamQueryHandler : IRequestHandler<GetAllExamQuery, IEnumer
                     StartDate = test?.StartDate,
                     ModulName = test.Module?.Name,
                     ModuleId = test.Module?.Id,
-                    IsExam = false
+                    IsExam = false,
+                    IsSurvey = false
+                    
 
                 };
+                if (test.Class.Program.Name != "Proqramlaşdırma")
+                {
+                    moduleDto.IsExam = null;
+                }
                 
 
-                if (examSheets.Any(sheet => sheet.ClassId == model.ClassId && sheet.ModuleId == test.Module?.Id))
+                if (examSheets.Any(sheet => sheet.ClassId == model.ClassId && sheet.ModuleId == test.Module?.Id) && moduleDto.IsExam != null)
                 {
                     moduleDto.IsExam = true;
                 }
+                if (surveySheets.Any(sheet => sheet.ClassId == model.ClassId && sheet.ModuleId == test.Module?.Id))
+                {
+                    moduleDto.IsSurvey = true;
+                }
+
+
+
                 model.Modules.Add(moduleDto);
             }
 
