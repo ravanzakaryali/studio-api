@@ -135,4 +135,17 @@ public class WorkersController : BaseApiController
     [HttpGet("FilteredDatas")]
     public async Task<IActionResult> GetAllFilteredDatas()
          => StatusCode(200, await Mediator.Send(new GetAllFilteredQuery()));
+
+
+    [HttpGet("excel/export")]
+    [Authorize]
+
+    public async Task<IActionResult> ExportWorkersToExcel()
+    {
+        return Ok(await Mediator.Send(new ExportWorkersToExcelCommand()
+        {
+        }));
+    }
+
+    
 }
